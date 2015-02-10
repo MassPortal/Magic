@@ -1079,7 +1079,35 @@ void Commands::processGCode(GCode *com)
 
 	break;
 #endif
-
+case 34: // G34 single probe set Z0
+    {
+		bool oldAutolevel = Printer::isAutolevelActive();
+		float oldFeedrate = Printer::feedrate;	 
+		Printer::setAutolevelActive(false);
+			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+		float deviation;
+		Printer::updateCurrentPosition(true);
+		//printCurrentPosition(PSTR("M114 "));
+		UI_STATUS_UPD("Probing...");
+		//Run probe and get the deviation
+        deviation = Printer::runZProbe(false, true);
+					Printer::updateCurrentPosition(true);
+					printCurrentPosition(PSTR("M114 "));
+		Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+		UI_STATUS_UPD("Probing done...");
+		BEEP_SHORT
+		/*
+		If there are no additional parameters for pre-setup	then we are ready to change the zLength.
+		(Assuming we have made the zProbeHeight and "0"-ing measurement with "G30 T", adjusting to 0,
+		and THEN "G30 P" to store the new zProbeHeight value.)
+		*/
+		//Com::printFLN(PSTR("Z-probe: "),EEPROM::zProbeBedDistance() - deviation);
+		//Com::printFloat(EEPROM::zProbeBedDistance() - deviation, 4);
+        Commands::waitUntilEndOfAllMoves();
+        Printer::feedrate = oldFeedrate;
+        Printer::setAutolevelActive(oldAutolevel);		
+    }
+    break;
     case 90: // G90
         Printer::relativeCoordinateMode = false;
         if(com->internalCommand)
@@ -1511,6 +1539,7 @@ void Commands::processMCode(GCode *com)
 #endif
         break;
     case 105: // M105  get temperature. Always returns the current temperature, doesn't wait until move stopped
+		Commands::waitUntilEndOfAllMoves();
         printTemperatures(com->hasX());
         break;
     case 109: // M109 - Wait for extruder heater to reach target.
