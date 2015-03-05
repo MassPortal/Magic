@@ -862,7 +862,7 @@ on this endstop.
 
 /** 1 for more precise delta moves. 0 for faster computation.
 Needs a bit more computation time. */
-#define EXACT_DELTA_MOVES 1
+#define EXACT_DELTA_MOVES 0
 
 /* ========== END Delta calibation data ==============*/
 
@@ -893,7 +893,7 @@ or 16 * (200 + (7*22=154) = 354) = 5664 bytes! !1
 min is 5 * (200 + (7*10=70) =270) = 1350
  22 leaves ~1K free RAM on an Arduino which has only 8k
 Mega. Used only for nonlinear systems like delta or tuga. */
-#define DELTASEGMENTS_PER_PRINTLINE 64
+#define DELTASEGMENTS_PER_PRINTLINE 128
 
 /** After x seconds of inactivity, the stepper motors are disabled.
     Set to 0 to leave them enabled.
@@ -1014,7 +1014,7 @@ Overridden if EEPROM activated.
 This number of moves can be cached in advance. If you wan't to cache more, increase this. Especially on
 many very short moves the cache may go empty. The minimum value is 5.
 */
-#define PRINTLINE_CACHE_SIZE 64
+#define PRINTLINE_CACHE_SIZE 48
 
 /** \brief Low filled cache size.
 
@@ -1022,7 +1022,7 @@ If the cache contains less then MOVE_CACHE_LOW segments, the time per segment is
 If a move would be shorter, the feedrate will be reduced. This should prevent buffer underflows. Set this to 0 if you
 don't care about empty buffers during print.
 */
-#define MOVE_CACHE_LOW 10
+#define MOVE_CACHE_LOW 0
 /** \brief Cycles per move, if move cache is low.
 
 This value must be high enough, that the buffer has time to fill up. The problem only occurs at the beginning of a print or

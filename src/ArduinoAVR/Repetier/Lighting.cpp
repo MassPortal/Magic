@@ -92,7 +92,7 @@ void Lighting::loop()
 		return;
 	}	
 	//Avoid interruptions
-	Printer::setZProbingActive(true);
+	//Printer::setZProbingActive(true);
 		
 	SetShowType(ShowTemperatures); //temorary - to test bed heating with leds
 	
@@ -113,7 +113,7 @@ void Lighting::loop()
 		ShowTemps();
 		break;
 	}
-	Printer::setZProbingActive(false);
+	//Printer::setZProbingActive(false);
 }
 void Lighting::ShowTemps()
 {

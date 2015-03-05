@@ -1000,7 +1000,7 @@ void Printer::deltaMoveToTopEndstops(float feedrate)
     for (uint8_t i=0; i<3; i++)
         Printer::currentPositionSteps[i] = 0;
     transformCartesianStepsToDeltaSteps(currentPositionSteps, currentDeltaPositionSteps);
-    PrintLine::moveRelativeDistanceInSteps(0,0,zMaxSteps*1.5,0,feedrate, true, true);
+    PrintLine::moveRelativeDistanceInSteps(0,0,zMaxSteps*2,0,feedrate, true, true);
     offsetX = 0;
     offsetY = 0;
 }

@@ -1260,9 +1260,13 @@ case 34: // G34 single probe set Z0
         int32_t offx = m-Printer::stepsRemainingAtXHit;
         int32_t offy = m-Printer::stepsRemainingAtYHit;
         int32_t offz = m-Printer::stepsRemainingAtZHit;
-        Com::printFLN(Com::tTower1,offx);
-        Com::printFLN(Com::tTower2,offy);
-        Com::printFLN(Com::tTower3,offz);
+
+		Com::printFLN(Com::tTower1,((Printer::zMaxSteps*2)-Printer::stepsRemainingAtXHit)/Printer::axisStepsPerMM[X_AXIS]);
+		Com::printFLN(Com::tTower2,((Printer::zMaxSteps*2)-Printer::stepsRemainingAtYHit)/Printer::axisStepsPerMM[Y_AXIS]);
+		Com::printFLN(Com::tTower3,((Printer::zMaxSteps*2)-Printer::stepsRemainingAtZHit)/Printer::axisStepsPerMM[Z_AXIS]);
+        Com::printFLN(Com::tTower1,offx/Printer::axisStepsPerMM[X_AXIS]);
+        Com::printFLN(Com::tTower2,offy/Printer::axisStepsPerMM[Y_AXIS]);
+        Com::printFLN(Com::tTower3,offz/Printer::axisStepsPerMM[Z_AXIS]);
 #if EEPROM_MODE != 0
         if(com->hasS() && com->S > 0)
         {
@@ -1539,7 +1543,7 @@ void Commands::processMCode(GCode *com)
 #endif
         break;
     case 105: // M105  get temperature. Always returns the current temperature, doesn't wait until move stopped
-		Commands::waitUntilEndOfAllMoves();
+		//Commands::waitUntilEndOfAllMoves();
         printTemperatures(com->hasX());
         break;
     case 109: // M109 - Wait for extruder heater to reach target.
