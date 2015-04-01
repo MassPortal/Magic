@@ -53,57 +53,18 @@ setpe per mm and heater manager settings in extruder 0 are used! */
 #define MIXING_EXTRUDER 0
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
-// Gen3 PLUS for RepRap Motherboard V1.2 = 21
-// MEGA/RAMPS up to 1.2       = 3
-// RAMPS 1.3/RAMPS 1.4        = 33
-// Azteeg X3                  = 34
-// Azteeg X3 Pro              = 35
-// Ultimaker Shield 1.5.7     = 37
-// Gen6                       = 5
-// Gen6 deluxe                = 51
-// Sanguinololu up to 1.1     = 6
-// Sanguinololu 1.2 and above = 62
-// Melzi board                = 63  // Define REPRAPPRO_HUXLEY if you have one for correct HEATER_1_PIN assignment!
-// Azteeg X1                  = 65
-// Gen7 1.1 till 1.3.x        = 7
-// Gen7 1.4.1 and later       = 71
-// Sethi 3D_1                 = 72
-// Teensylu (at90usb)         = 8 // requires Teensyduino
-// Printrboard (at90usb)      = 9 // requires Teensyduino
-// Foltyn 3D Master           = 12
-// MegaTronics 1.0            = 70
-// Megatronics 2.0            = 701
-// Megatronics 3.0            = 703 // Thermistors predefined not thermocouples
-// Minitronics 1.0            = 702
-// RUMBA                      = 80  // Get it from reprapdiscount
-// FELIXprinters              = 101
-// Rambo                      = 301
-// PiBot for Repetier V1.0-1.3= 314
-// PiBot for Repetier V1.4    = 315
-// Sanguish Beta              = 501
-// Unique One rev. A          = 88
-// User layout defined in userpins.h = 999
+// Arduino Due                = 401 // This is only experimental
+// Arduino Due with RADDS     = 402
+// Arduino Due with RAMPS-FD  = 403
+// Arduino Due with RAMPS-FD V2 = 404
 
-#define MOTHERBOARD 703
+#define MOTHERBOARD 402
 
 #include "pins.h"
 
 // Override pin definions from pins.h
 //#define FAN_PIN   4  // Extruder 2 uses the default fan output, so move to an other pin
 //#define EXTERNALSERIAL  use Arduino serial library instead of build in. Requires more ram, has only 63 byte input buffer.
-
-/* 
-We can connect BlueTooth to serial converter module directly to boards based on AtMega2560 or AtMega1280 and some boards based on AtMega2561, AtMega1281 or AtMega1284p
-- On RUMBA boards connect BT to pin 11 and 12 of X3 connector, then set BLUETOOTH_SERIAL to 3
-- On RAMBO boards connect BT to pins 5,6 or 7,8 or 9,10 on Serial connector, then accordingly set BLUETOOTH_SERIAL to 1,2 or 3
-- On RAMPS we must remap Y_ENDSTOPS pins or Z_ENDSTOPZ pins or LCD_ENABLE and LCD_RS pins to another pins, and connect BT to:
-  a) signals of Y_MIN, Y_MAX, then set BLUETOOTH_SERIAL to 3 (RX from BT to Y_MIN, TX from BT to Y_MAX)
-  b) signals of Z_MIN, Z_MAX, then set BLUETOOTH_SERIAL to 1 (RX from BT to Z_MIN, TX from BT to Z_MAX)
-  c) pin 17 and 18 of AUX4 connector, then set BLUETOOTH_SERIAL to 2 (RX from BT to AUX4 p18, TX from BT to AUX4 p17)
-  Comment out or set the BLUETOOTH_SERIAL to 0 or -1 to disable this feature.
-*/
-#define BLUETOOTH_SERIAL   -1                      // Port number (1..3) - For RUMBA use 3
-#define BLUETOOTH_BAUD     115200                 // communication speed
 
 // Uncomment the following line if you are using arduino compatible firmware made for Arduino version earlier then 1.0
 // If it is incompatible you will get compiler errors about write functions not beeing compatible!
@@ -131,7 +92,7 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 
 /** Drive settings for the Delta printers
 */
-#if DRIVE_SYSTEM == DELTA
+#if DRIVE_SYSTEM==DELTA
     // ***************************************************
     // *** These parameter are only for Delta printers ***
     // ***************************************************
@@ -243,7 +204,7 @@ Overridden if EEPROM activated.*/
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT0_TEMPSENSOR_PIN TEMP_0_PIN
 // Which pin enables the heater
-#define EXT0_HEATER_PIN HEATER_3_PIN
+#define EXT0_HEATER_PIN HEATER_0_PIN
 #define EXT0_STEP_PIN E0_STEP_PIN
 #define EXT0_DIR_PIN E0_DIR_PIN
 // set to false/true for normal / inverse direction
@@ -449,7 +410,7 @@ cog. Direct drive extruder need 0. */
 
 /** If enabled you can select the distance your filament gets retracted during a
 M140 command, after a given temperature is reached. */
-#define RETRACT_DURING_HEATUP 10
+#define RETRACT_DURING_HEATUP true
 
 /** Allow retraction with G10/G11 removing requirement for retraction setting in slicer. Also allows filament change if lcd is configured. */
 #define FEATURE_RETRACTION 1
@@ -613,7 +574,7 @@ See http://reprap.org/wiki/MeasuringThermistorBeta for more details.
 
 // The same for table 2 and 3 if needed
 
-//#define USE_GENERIC_THERMISTORTABLE_2
+// #define USE_GENERIC_THERMISTORTABLE_2
 /*
 #define GENERIC_THERM2_T0 170
 #define GENERIC_THERM2_R0 1042.7
@@ -883,7 +844,7 @@ on this endstop.
 // You may need to leave a few mm for safety.
 // Hitting floor at high speed can damage your printer (motors, drives, etc)
 // THIS MAY NEED UPDATING IF THE HOT END HEIGHT CHANGES!
-#define DELTA_FLOOR_SAFETY_MARGIN_MM 32
+#define DELTA_FLOOR_SAFETY_MARGIN_MM 15
 
 /** \brief Horizontal offset of the universal joints on the end effector (moving platform).
 */
@@ -1053,7 +1014,7 @@ Overridden if EEPROM activated.
 This number of moves can be cached in advance. If you wan't to cache more, increase this. Especially on
 many very short moves the cache may go empty. The minimum value is 5.
 */
-#define PRINTLINE_CACHE_SIZE 14
+#define PRINTLINE_CACHE_SIZE 32
 
 /** \brief Low filled cache size.
 
@@ -1137,7 +1098,7 @@ boards you might need to make it inverting.
 #define KILL_METHOD 1
 
 /** Appends the linenumber after every ok send, to acknowledge the received command. Uncomment for plain ok ACK if your host has problems with this */
-#define ACK_WITH_LINENUMBER 1
+#define ACK_WITH_LINENUMBER 1       
 /** Communication errors can swollow part of the ok, which tells the host software to send
 the next command. Not receiving it will cause your printer to stop. Sending this string every
 second, if our queue is empty should prevent this. Comment it, if you don't wan't this feature. */
@@ -1224,7 +1185,11 @@ This defines the full power duration before returning to set value. Time is in m
 #define FAN_KICKSTART_TIME  200
 
 /* A watchdog resets the printer, if a signal is not send within predifined time limits. That way we can be sure that the board
-is always running and is not hung up for some unknown reason. */
+is always running and is not hung up for some unknown reason. 
+
+IMPORTANT: The ARM processors need a special board definition to work properly. 
+See: AdditionalArduinoFiles: README.txt on how to install them. 
+*/
 #define FEATURE_WATCHDOG 1
 
 /* Z-Probing */
@@ -1395,8 +1360,7 @@ The following settings override uiconfig.h!
 17 or CONTROLLER_MIREGLI 17
 18 or CONTROLLER_GATE_3NOVATICA Gate Controller from 3Novatica
 */
-
-#define FEATURE_CONTROLLER 1
+#define FEATURE_CONTROLLER CONTROLLER_RADDS
 
 /**
 Select the language to use.

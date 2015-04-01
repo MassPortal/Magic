@@ -78,7 +78,7 @@ works, use the ascii charset 0 as fallback. Not the nicest for everything but wo
 #endif
 
 #if BEEPER_TYPE==1 && !defined(BEEPER_PIN)
-#define BEEPER_PIN 61 //64 for MT v2.0; 61 for MT v3.0
+#define BEEPER_PIN 37
 #endif
 #if BEEPER_TYPE==2
 #define BEEPER_ADDRESS 0x40 // I2C address of the chip with the beeper pin
@@ -190,19 +190,19 @@ Define the pin
 #define UI_DISPLAY_D6_PIN _BV(10)
 #define UI_DISPLAY_D7_PIN _BV(9)*/
 
-#else // Direct display connections        MT v2.0; MT v3.0
-#define UI_DISPLAY_RS_PIN		32 //14 //32                // PINK.1, 88, D_RS
-#define UI_DISPLAY_RW_PIN		-1 //-1 //-1
-#define UI_DISPLAY_ENABLE_PIN	        31 //15 //31                // PINK.3, 86, D_E
-#define UI_DISPLAY_D0_PIN		-1 //-1 //-1                // PINF.5, 92, D_D4
-#define UI_DISPLAY_D1_PIN		-1 //-1 //-1                // PINK.2, 87, D_D5
-#define UI_DISPLAY_D2_PIN		-1 //-1 //-1                // PINL.5, 40, D_D6
-#define UI_DISPLAY_D3_PIN		-1 //-1 //-1                // PINK.4, 85, D_D7
-#define UI_DISPLAY_D4_PIN		14 //30 //14                // PINF.5, 92, D_D4
-#define UI_DISPLAY_D5_PIN		30 //31 //30                // PINK.2, 87, D_D5
-#define UI_DISPLAY_D6_PIN		39 //32 //39                // PINL.5, 40, D_D6
-#define UI_DISPLAY_D7_PIN		15 //33 //15                // PINK.4, 85, D_D7
-#define UI_DELAYPERCHAR		       50
+#else // Direct display connections
+#define UI_DISPLAY_RS_PIN		63		// PINK.1, 88, D_RS
+#define UI_DISPLAY_RW_PIN		-1
+#define UI_DISPLAY_ENABLE_PIN	        65		// PINK.3, 86, D_E
+#define UI_DISPLAY_D0_PIN		59		// PINF.5, 92, D_D4
+#define UI_DISPLAY_D1_PIN		64		// PINK.2, 87, D_D5
+#define UI_DISPLAY_D2_PIN		44		// PINL.5, 40, D_D6
+#define UI_DISPLAY_D3_PIN		66		// PINK.4, 85, D_D7
+#define UI_DISPLAY_D4_PIN		59		// PINF.5, 92, D_D4
+#define UI_DISPLAY_D5_PIN		64		// PINK.2, 87, D_D5
+#define UI_DISPLAY_D6_PIN		44		// PINL.5, 40, D_D6
+#define UI_DISPLAY_D7_PIN		66		// PINK.4, 85, D_D7
+#define UI_DELAYPERCHAR		   50
 
 #endif
 
