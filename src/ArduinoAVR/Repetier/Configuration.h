@@ -208,10 +208,10 @@ Overridden if EEPROM activated.*/
 #define EXT0_STEP_PIN E0_STEP_PIN
 #define EXT0_DIR_PIN E0_DIR_PIN
 // set to false/true for normal / inverse direction
-#define EXT0_INVERSE false
+#define EXT0_INVERSE true
 #define EXT0_ENABLE_PIN E0_ENABLE_PIN
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-#define EXT0_ENABLE_ON 0
+#define EXT0_ENABLE_ON 1
 // The following speed settings are for skeinforge 40+ where e is the
 // length of filament pulled inside the heater. For repsnap or older
 // skeinforge use higher values.
@@ -705,9 +705,9 @@ on this endstop.
 //// ADVANCED SETTINGS - to tweak parameters
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-#define X_ENABLE_ON 0
-#define Y_ENABLE_ON 0
-#define Z_ENABLE_ON 0
+#define X_ENABLE_ON 1
+#define Y_ENABLE_ON 1
+#define Z_ENABLE_ON 1
 
 // Disables axis when it's not being used.
 #define DISABLE_X false
@@ -717,9 +717,9 @@ on this endstop.
 
 // Inverting motor direction. Only in case of pure cartesian printers, this
 // is also the axis you invert!
-#define INVERT_X_DIR false
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
+#define INVERT_X_DIR true	
+#define INVERT_Y_DIR false
+#define INVERT_Z_DIR true
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -1190,7 +1190,7 @@ is always running and is not hung up for some unknown reason.
 IMPORTANT: The ARM processors need a special board definition to work properly. 
 See: AdditionalArduinoFiles: README.txt on how to install them. 
 */
-#define FEATURE_WATCHDOG 1
+#define FEATURE_WATCHDOG 0
 
 /* Z-Probing */
 
@@ -1360,7 +1360,7 @@ The following settings override uiconfig.h!
 17 or CONTROLLER_MIREGLI 17
 18 or CONTROLLER_GATE_3NOVATICA Gate Controller from 3Novatica
 */
-#define FEATURE_CONTROLLER CONTROLLER_RADDS
+#define FEATURE_CONTROLLER UICONFIG_CONTROLLER
 
 /**
 Select the language to use.
@@ -1381,11 +1381,11 @@ Select the language to use.
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v1.4"
-#define FIRMWARE_VERSION "113-"
+#define FIRMWARE_VERSION "120-"
 
 
 #define DEBUGGING false
-#define BED_LEDS true
+#define BED_LEDS false
 #if BED_LEDS
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
 #endif
