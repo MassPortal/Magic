@@ -3515,12 +3515,12 @@ break;
 			    Com::print("info: resume requested\n");
 			    UI_STATUS_UPD_RAM("");
 			    Printer::resumePrinting();
-			    WRITE(HEATER_2_PIN, 1);
+			    WRITE(PAUSE_LED_PIN, 1);
 			    } else {
 			    Printer::isPaused = true;
 			    Com::print("info: pause requested\n");
 			    UI_STATUS_UPD_RAM("Pause requested");
-			    WRITE(HEATER_2_PIN, 0);
+			    WRITE(PAUSE_LED_PIN, 0);
 		    }
 		    //just for the reference- this was used to pause RepetierHost
 		    //Com::printFLN(PSTR("RequestPause:"));	.

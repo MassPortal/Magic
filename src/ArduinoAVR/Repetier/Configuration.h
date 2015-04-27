@@ -116,7 +116,7 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 #define STEPS_PER_ROTATION 400
 
 /** \brief Micro stepping rate of X, Y and Y tower stepper drivers */
-#define MICRO_STEPS 16
+#define MICRO_STEPS 128
 
 // Calculations
 #define AXIS_STEPS_PER_MM ((float)(MICRO_STEPS * STEPS_PER_ROTATION) / PULLEY_CIRCUMFERENCE)
@@ -179,7 +179,7 @@ Overridden if EEPROM activated.*/
 #define EXT0_X_OFFSET 0
 #define EXT0_Y_OFFSET 0
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
-#define EXT0_STEPS_PER_MM 475 //520 11,2 x16  136 (7.5) 96 (10.5 x16) 192 (10.5 x32)
+#define EXT0_STEPS_PER_MM 3800 //475 //520 11,2 x16  136 (7.5) 96 (10.5 x16) 192 (10.5 x32)
 // What type of sensor is used?
 // 0 is no thermistor/temperature control
 // 1 is 100k thermistor (Epcos B57560G0107F000 - RepRap-Fab.org and many other)
@@ -287,7 +287,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT0_SELECT_COMMANDS "M117 Extruder 1"
 #define EXT0_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT0_EXTRUDER_COOLER_PIN 7
+#define EXT0_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT0_EXTRUDER_COOLER_SPEED 255
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
@@ -862,7 +862,7 @@ on this endstop.
 
 /** 1 for more precise delta moves. 0 for faster computation.
 Needs a bit more computation time. */
-#define EXACT_DELTA_MOVES 0
+#define EXACT_DELTA_MOVES 1
 
 /* ========== END Delta calibation data ==============*/
 
@@ -893,7 +893,7 @@ or 16 * (200 + (7*22=154) = 354) = 5664 bytes! !1
 min is 5 * (200 + (7*10=70) =270) = 1350
  22 leaves ~1K free RAM on an Arduino which has only 8k
 Mega. Used only for nonlinear systems like delta or tuga. */
-#define DELTASEGMENTS_PER_PRINTLINE 20
+#define DELTASEGMENTS_PER_PRINTLINE 64
 
 /** After x seconds of inactivity, the stepper motors are disabled.
     Set to 0 to leave them enabled.
@@ -1014,7 +1014,7 @@ Overridden if EEPROM activated.
 This number of moves can be cached in advance. If you wan't to cache more, increase this. Especially on
 many very short moves the cache may go empty. The minimum value is 5.
 */
-#define PRINTLINE_CACHE_SIZE 32
+#define PRINTLINE_CACHE_SIZE 64
 
 /** \brief Low filled cache size.
 
@@ -1190,7 +1190,7 @@ is always running and is not hung up for some unknown reason.
 IMPORTANT: The ARM processors need a special board definition to work properly. 
 See: AdditionalArduinoFiles: README.txt on how to install them. 
 */
-#define FEATURE_WATCHDOG 0
+#define FEATURE_WATCHDOG 1
 
 /* Z-Probing */
 
@@ -1380,7 +1380,7 @@ Select the language to use.
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1.4"
+#define HARDWARE_VERSION "v1.5"
 #define FIRMWARE_VERSION "120-"
 
 
