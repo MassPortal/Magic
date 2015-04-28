@@ -1380,7 +1380,7 @@ Select the language to use.
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1.5"
+#define HARDWARE_VERSION "v2.0"
 #define FIRMWARE_VERSION "120-"
 
 
