@@ -4,8 +4,7 @@
 #define _Lighting_h
 
 #include "Repetier.h"
-#include "WS2812.h"
-//#include "Extruder.h"
+#include "Adafruit_NeoPixel.h"
 
 #define LED_COUNT 12
 #define LED_LOOP_DEVIDER 100
@@ -20,7 +19,7 @@ class Lighting
  public:
 	 Lighting();
 
-	 WS2812 LED;
+	 Adafruit_NeoPixel LED = Adafruit_NeoPixel(12, 5, NEO_GRB + NEO_KHZ800);
 	 enum ShowType {
 		 Off,
 		 SolidRed,

@@ -1,4 +1,3 @@
-#if BED_LEDS
 #include "Lighting.h"
 #include "Extruder.h"
 #include "Printer.h"
@@ -17,9 +16,10 @@ Lighting::Lighting()
 void Lighting::init()
 {
 	//factoryTest();
-	LED.setOutput(BED_LED_PIN); 
+	/*LED.setOutput(BED_LED_PIN); 
 	LED.setColorOrderGRB(); 
-
+								 */
+	LED.begin();
 	//smooth fade in to blue to avoid instant turn-on. total time of this blocking code is 250ms. worth it.
 	//slower/longer fade would cause problems to boot and/or connect host software
 	SetAllLeds(0, 0, 0);
@@ -225,7 +225,7 @@ void Lighting::SetAllBedLeds(uint8_t r, uint8_t g, uint8_t b)
 //Low level wrappers
 void Lighting::SetLed(uint8_t i, uint8_t r, uint8_t g, uint8_t b)
 {
-	LED.set_crgb_at(i,
+	LED.setPixelColor(i,
 		r*LedBrightness,
 		g*LedBrightness,
 		b*LedBrightness);
@@ -237,11 +237,11 @@ void Lighting::SetLedInstantly(uint8_t i, uint8_t r, uint8_t g, uint8_t b)
 }
 void Lighting::CommitLeds()
 {
-	LED.sync(); // Sends the data to the LEDs
+	LED.show(); // Sends the data to the LEDs
 }
 
 Lighting Light = Lighting();
-#endif
+
 
 
 
