@@ -89,10 +89,12 @@ void SDCard::initsd()
     Printer::setMenuMode(MENU_MODE_SD_MOUNTED, true);
 
     fat.chdir();
+	//Otherwise this causes the printer with watchdog to reboot many times at startup
+	if(MOTHERBOARD != 402) 
     if(selectFile("init.g", true))
     {
         startPrint();
-    }
+    } 
 #endif
 }
 
