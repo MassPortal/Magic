@@ -768,7 +768,7 @@ on this endstop.
 // If EEPROM is enabled these values will be overidden with the values in the EEPROM
 #define X_MAX_LENGTH 143
 #define Y_MAX_LENGTH 143
-#define Z_MAX_LENGTH 225
+#define Z_MAX_LENGTH 230
 // Coordinates for the minimum axis. Can also be negative if you want to have the bed start at 0 and the printer can go to the left side
 // of the bed. Maximum coordinate is given by adding the above X_MAX_LENGTH values.
 #define X_MIN_POS -72.5
@@ -792,7 +792,7 @@ on this endstop.
 /** \brief Number of segments to generate for delta conversions per second of move
 */
 #define DELTA_SEGMENTS_PER_SECOND_PRINT 180 // Move accurate setting for print moves
-#define DELTA_SEGMENTS_PER_SECOND_MOVE 20 // Less accurate setting for other moves
+#define DELTA_SEGMENTS_PER_SECOND_MOVE 40 // Less accurate setting for other moves
 
 // Delta settings
 #if DRIVE_SYSTEM==DELTA
