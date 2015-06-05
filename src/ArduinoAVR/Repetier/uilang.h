@@ -288,6 +288,7 @@
 #define UI_TEXT_OK_CONTINUE "Press OK to continue"
 #define UI_TEXT_BED_COATING_SET "Bed coating set to",""
 #define UI_TEXT_NOCOATING "No Coating"
+#define UI_TEXT_BUILDTAK "BuildTak"
 #define UI_TEXT_KAPTON "Kapton"
 #define UI_TEXT_BLUETAPE "Blue Paper Tape"
 #define UI_TEXT_PETTAPE "Green PET Tape"

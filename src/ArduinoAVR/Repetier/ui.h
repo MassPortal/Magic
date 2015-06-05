@@ -202,6 +202,7 @@ What display type do you use?
 #define UI_ACTION_CALIBRATE				1920
 #define UI_ACTION_BED_LED_CHANGE		1921
 #define UI_ACTION_COATING_CUSTOM		1922
+#define UI_ACTION_BUILDTAK				1923
 
 #define UI_ACTION_MENU_XPOS             4000
 #define UI_ACTION_MENU_YPOS             4001

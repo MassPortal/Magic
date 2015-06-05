@@ -2701,6 +2701,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         INCREMENT_MIN_MAX(fr,1,25,500);
         Commands::changeFeedrateMultiply(fr);
     }
+	break;
 	#if BED_LEDS
 	//Set bed LED brightness
 	case UI_ACTION_BED_LED_CHANGE:
@@ -3556,6 +3557,9 @@ break;
 			break;			
 		case UI_ACTION_NOCOATING:	
 			menuAdjustHeight(&ui_menu_nocoating_action,0);
+			break;
+		case UI_ACTION_BUILDTAK:
+			menuAdjustHeight(&ui_menu_buildtak_action,0.4);
 			break;
 		case UI_ACTION_KAPTON:
 			menuAdjustHeight(&ui_menu_kapton_action,0.04);
