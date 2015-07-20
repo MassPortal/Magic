@@ -982,8 +982,8 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR(" Current pos. Z: "),Printer::currentPosition[Z_AXIS]);
 #endif
 			float tempfl = Printer::currentPosition[Z_AXIS];
-			if (EEPROM::zProbeXY3offset() != 0.0)
-				tempfl += EEPROM::zProbeXY3offset();
+			/*if (EEPROM::zProbeXY3offset() != 0.0)
+				tempfl += EEPROM::zProbeXY3offset();*/ 
             Printer::zLength += (h3 + z) - tempfl;					
 #else
             int32_t zBottom = Printer::currentPositionSteps[Z_AXIS] = (h3 + z) * Printer::axisStepsPerMM[Z_AXIS];
