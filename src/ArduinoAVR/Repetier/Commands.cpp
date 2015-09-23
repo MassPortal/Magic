@@ -2153,6 +2153,57 @@ void Commands::processMCode(GCode *com)
 		Light.factoryTest();
 #endif
 		break;
+#if FEATURE_CONTROLLER != NO_CONTROLLER
+	case 896: //Run custom action by its ID
+	if(com->hasS() && com->S)
+	{
+		if(com->S > 0 && com->S <2000)
+			uid.executeAction(com->S, true);
+		else
+			Com::printWarningFLN(PSTR("Not a valid action ID!"));
+	}
+	break;
+	
+	case 897: //Custom bed coating command
+	if(com->hasI())
+	{
+		if(com->I > -2.0 && com->I < 100.0)	 {
+			EEPROM::readDataFromEEPROM();
+			//If there is something to change
+			if (EEPROM::zProbeZOffset()!=com->I) {
+				//If the offset has been previously set, reset the height
+				if (EEPROM::zProbeZOffset()!=0.0)
+				Printer::zLength += EEPROM::zProbeZOffset();
+				//Subtract the new offset (if any)
+				if (com->I!=0.0)
+				Printer::zLength -= com->I;
+				//Set the new offset
+				Printer::zBedOffset = com->I;
+				HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET, com->I);
+				HAL::eprSetFloat(EPR_Z_LENGTH, Printer::zLength);
+				Com::print("\nThe new zLength: ");
+				Com::printFloat(Printer::zLength, 4);
+				EEPROM::storeDataIntoEEPROM(false);
+				Com::print(" has been stored into EEPROM.\n");
+			}
+			//Display message
+			EEPROM::readDataFromEEPROM();
+			Printer::homeAxis(true, true, true);
+			Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL "));	 
+			}
+		else
+			Com::printWarningFLN(PSTR("Not a valid bed coating adjustment!"));
+	}
+	if(com->hasS())
+	{
+		EEPROM::readDataFromEEPROM();
+		Com::print("\nCurrent coating[mm]:");
+		Com::printFloat(EEPROM::zProbeZOffset(), 2);
+		Com::println();
+	}
+	break;
+		
+#endif
     case 601:
         if(com->hasS() && com->S > 0)
             Extruder::pauseExtruders();
