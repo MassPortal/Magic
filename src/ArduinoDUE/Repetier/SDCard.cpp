@@ -89,10 +89,12 @@ void SDCard::initsd()
     Printer::setMenuMode(MENU_MODE_SD_MOUNTED, true);
 
     fat.chdir();
+	//Otherwise this causes the printer with watchdog to reboot many times at startup
+	if(MOTHERBOARD != 402) 
     if(selectFile("init.g", true))
     {
         startPrint();
-    }
+    } 
 #endif
 }
 
@@ -136,7 +138,7 @@ void SDCard::pausePrint(bool intern)
                             Printer::memoryE - RETRACT_ON_PAUSE,
                             Printer::maxFeedrate[E_AXIS] / 2);
 #if DRIVE_SYSTEM == DELTA
-        Printer::moveToReal(0, 0.9 * EEPROM::deltaMaxRadius(), IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
+        Printer::homeAxis(true, true, true);
 #else
         Printer::moveToReal(Printer::xMin, Printer::yMin + Printer::yLength, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
 #endif
@@ -152,8 +154,16 @@ void SDCard::continuePrint(bool intern)
     if(!sd.sdactive) return;
     if(intern) {
         GCode::executeFString(PSTR(PAUSE_END_COMMANDS));
+		//Move down first
+#if DRIVE_SYSTEM == DELTA
+		//Reset position in case the motors have timed out or head moved by external forces
+		Printer::homeAxis(true, true, true);
+		Printer::GoToMemoryPosition(false, false, true, false, Printer::homingFeedrate[Z_AXIS]);
+		Printer::GoToMemoryPosition(true, true, false, false, Printer::homingFeedrate[X_AXIS]);
+#else
         Printer::GoToMemoryPosition(true, true, false, false, Printer::maxFeedrate[X_AXIS]);
-        Printer::GoToMemoryPosition(false, false, true, false, Printer::maxFeedrate[Z_AXIS] / 2.0f);
+		Printer::GoToMemoryPosition(false, false, true, false, Printer::maxFeedrate[Z_AXIS] / 2.0f);
+#endif   
         Printer::GoToMemoryPosition(false, false, false, true, Printer::maxFeedrate[E_AXIS] / 2.0f);
     }
     Printer::setMenuMode(MENU_MODE_SD_PAUSED, false);
@@ -168,7 +178,10 @@ void SDCard::stopPrint()
     sdmode = 0;
     Printer::setMenuMode(MENU_MODE_SD_PRINTING,false);
     Printer::setMenuMode(MENU_MODE_SD_PAUSED,false);
-    GCode::executeFString(PSTR(SD_RUN_ON_STOP));
+	GCode::executeFString(PSTR(SD_RUN_ON_STOP));
+#if DRIVE_SYSTEM == DELTA
+	Printer::homeAxis(true, true, true);
+#endif
     if(SD_STOP_HEATER_AND_MOTORS_ON_STOP) {
         Commands::waitUntilEndOfAllMoves();
         Printer::kill(true);

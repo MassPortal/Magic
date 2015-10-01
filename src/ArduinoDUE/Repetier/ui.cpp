@@ -23,6 +23,7 @@
 #include "uimenu.h"
 
 extern const int8_t encoder_table[16] PROGMEM ;
+char shortFilename[LONG_FILENAME_LENGTH+1] = {0};
 #include <math.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -273,6 +274,21 @@ const long baudrates[] PROGMEM = {9600,14400,19200,28800,38400,56000,57600,76800
 static const uint8_t LCDLineOffsets[] PROGMEM = UI_LINE_OFFSETS;
 static const char versionString[] PROGMEM = UI_VERSION_STRING;
 
+String getFilePart(char* filename, boolean extension) {
+	String fn = filename;
+	uint8_t ind = fn.lastIndexOf(".") ;
+	if (extension)
+		return fn.substring(ind+1,fn.length()).c_str();
+	else
+		return fn.substring(0,ind).c_str();
+}
+
+bool hasExtension(char* filename, char* extension) {
+	if (getFilePart(filename, true).compareTo(extension) == 0)
+		return true;
+	else
+		return false;
+}
 
 #if UI_DISPLAY_TYPE == DISPLAY_I2C
 
@@ -742,7 +758,7 @@ void initializeLCD()
 UIDisplay::UIDisplay()
 {
 }
-#if UI_ANIMATION
+#if UI_ANIMATION || UI_ANIMATE_BOOT
 void slideIn(uint8_t row,FSTRINGPARAM(text))
 {
     char *empty="";
@@ -835,7 +851,7 @@ void UIDisplay::initialize()
 #if UI_DISPLAY_TYPE == DISPLAY_GAMEDUINO2
     GD2::startScreen();
 #else
-#if UI_ANIMATION==false || UI_DISPLAY_TYPE == DISPLAY_U8G
+#if (UI_ANIMATION==false || UI_DISPLAY_TYPE == DISPLAY_U8G) && UI_ANIMATE_BOOT==false
 #if UI_DISPLAY_TYPE == DISPLAY_U8G
     //u8g picture loop
     u8g_FirstPage(&u8g);
@@ -852,18 +868,27 @@ void UIDisplay::initialize()
     while( u8g_NextPage(&u8g) );  //end picture loop
 #else // not DISPLAY_U8G
     for(uint8_t y=0; y<UI_ROWS; y++) displayCache[y][0] = 0;
-    printRowP(0, versionString);
-    printRowP(1, PSTR(UI_PRINTER_NAME));
+    printRowP(0, PSTR(UI_PRINTER_NAME));
+    printRowP(1, PSTR("HW: " HARDWARE_VERSION));
 #if UI_ROWS>2
+	//TODO: Rewrite cleaner
+	String stringOne = "";
+	stringOne += EEPROM::PrinterId();
+	char charBuf[11]; //11=max length of long. eg. -1234567890 
+	stringOne.toCharArray(charBuf, 11);
+	printRow(2, "ID:", charBuf,4);
     printRowP(UI_ROWS-1, PSTR(UI_PRINTER_COMPANY));
 #endif
 #endif
 #else
-    slideIn(0, versionString);
+    slideIn(0, PSTR(UI_PRINTER_NAME));
     strcpy(displayCache[0], uid.printCols);
-    slideIn(1, PSTR(UI_PRINTER_NAME));
+    slideIn(1, PSTR("HW: " HARDWARE_VERSION));
     strcpy(displayCache[1], uid.printCols);
 #if UI_ROWS>2
+	//TODO: Display printer ID
+	//slideIn(2, Printer::PrinterId);
+	strcpy(displayCache[2], uid.printCols);
     slideIn(UI_ROWS-1, PSTR(UI_PRINTER_COMPANY));
     strcpy(displayCache[UI_ROWS-1], uid.printCols);
 #endif
@@ -1308,6 +1333,12 @@ void UIDisplay::parse(const char *txt,bool ram)
                 addInt(Printer::extrudeMultiply, 3);
                 break;
             }
+			if(c2 == 'F')
+			{
+				for (int i=0; i<sizeof(shortFilename); i++)
+					addChar(shortFilename[i]);
+				break;
+			}
             if(c2 == 'm')
             {
                 addInt(Printer::feedrateMultiply, 3);
@@ -1318,6 +1349,23 @@ void UIDisplay::parse(const char *txt,bool ram)
                 addInt(Extruder::current->id + 1, 1);
                 break;
             }
+            if(c2 == 'I')
+            {
+	            addInt(EEPROM::PrinterId(), 5);
+	            break;
+            }
+			#if BED_LEDS
+			if(c2=='L')	 //Bed LED brightness
+			{
+				addInt((int)(Light.LedBrightness*100.0), 3);
+				break;
+			}
+			#endif
+			if(c2=='C')	 //Custom coating
+			{
+				addFloat(Printer::zBedOffset, 3, 2);
+				break;
+			}
 #if FEATURE_SERVO > 0 && UI_SERVO_CONTROL > 0
             if(c2 == 'S')
             {
@@ -1586,13 +1634,14 @@ void UIDisplay::updateSDFileCount()
 
     root->rewind();
     nFilesOnCard = 0;
-    while ((p = root->getLongFilename(p, NULL, 0, NULL)))
+    while ((p = root->getLongFilename(p, tempLongFilename, 0, NULL)))
     {
         if (! (DIR_IS_FILE(p) || DIR_IS_SUBDIR(p)))
             continue;
         if (folderLevel>=SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0]=='.' && p->name[1]=='.'))
             continue;
-        nFilesOnCard++;
+		if( DIR_IS_SUBDIR(p) || ((DIR_IS_FILE(p) && (hasExtension(tempLongFilename,VALID_EXT1) || hasExtension(tempLongFilename,VALID_EXT2))))) 
+			nFilesOnCard++;
         if (nFilesOnCard > 5000) // Arbitrary maximum, limited only by how long someone would scroll
             return;
     }
@@ -1611,8 +1660,10 @@ void getSDFilenameAt(uint16_t filePos,char *filename)
         HAL::pingWatchdog();
         if (!DIR_IS_FILE(p) && !DIR_IS_SUBDIR(p)) continue;
         if(uid.folderLevel>=SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0]=='.' && p->name[1]=='.')) continue;
-        if (filePos--)
-            continue;
+		if(DIR_IS_FILE(p) && (!hasExtension(tempLongFilename,VALID_EXT1) && !hasExtension(tempLongFilename,VALID_EXT2)))  
+			continue; 
+		if (filePos--)
+			continue;
         strcpy(filename, tempLongFilename);
         if(DIR_IS_SUBDIR(p)) strcat(filename, "/"); // Set marker for directory
         break;
@@ -1674,29 +1725,43 @@ void sdrefresh(uint16_t &r,char cache[UI_ROWS][MAX_COLS+1])
         // done if past last used entry
         // skip deleted entry and entries for . and  ..
         // only list subdirectories and files
-        if ((DIR_IS_FILE(p) || DIR_IS_SUBDIR(p)))
-        {
+		if( DIR_IS_SUBDIR(p) || (DIR_IS_FILE(p) && (hasExtension(tempLongFilename,VALID_EXT1) || hasExtension(tempLongFilename,VALID_EXT2))))
+		{
             if(uid.folderLevel >= SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0]=='.' && p->name[1]=='.'))
                 continue;
-            if(skip > 0)
-            {
-                skip--;
-                continue;
-            }
-            uid.col = 0;
-            if(r + offset == uid.menuPos[uid.menuLevel])
-                uid.printCols[uid.col++] = CHAR_SELECTOR;
-            else
-                uid.printCols[uid.col++] = ' ';
-            // print file name with possible blank fill
-            if(DIR_IS_SUBDIR(p))
-                uid.printCols[uid.col++] = bFOLD; // Prepend folder symbol
-            length = RMath::min((int)strlen(tempLongFilename), MAX_COLS - uid.col);
-            memcpy(uid.printCols + uid.col, tempLongFilename, length);
-            uid.col += length;
-            uid.printCols[uid.col] = 0;
-            strcpy(cache[r++],uid.printCols);
-        }
+			if(skip > 0)
+			{
+				skip--;
+				continue;
+			}
+			uid.col = 0;
+			if(r + offset == uid.menuPos[uid.menuLevel])
+				uid.printCols[uid.col++] = CHAR_SELECTOR;
+			else
+				uid.printCols[uid.col++] = ' ';
+			// print file name with possible blank fill
+			if(DIR_IS_SUBDIR(p))
+				uid.printCols[uid.col++] = bFOLD; // Prepend folder symbol
+			// Remove file extension from the file name
+			uint8_t flen = getFilePart(tempLongFilename,false).length();
+			if (DIR_IS_FILE(p)) {
+				strcpy(shortFilename, getFilePart(tempLongFilename,false).c_str());
+			} else
+				strcpy(shortFilename, tempLongFilename);
+			length = RMath::min(flen, MAX_COLS - uid.col);
+			memcpy(uid.printCols + uid.col, shortFilename, length);
+			uid.col += length;
+			uid.printCols[uid.col] = 0;
+			strcpy(cache[r++],uid.printCols);	
+		} else {
+			if(uid.folderLevel >= SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0]=='.' && p->name[1]=='.'))
+				continue;
+			if(skip > 0)
+			{
+				skip--;
+				continue;
+			}
+		}
     }
 #endif
 }
@@ -2178,7 +2243,8 @@ int UIDisplay::okAction(bool allowMoves)
         case UI_ACTION_SD_PRINT:
             if (sd.selectFile(filename, false))
             {
-                sd.startPrint();
+				strcpy(shortFilename,getFilePart(filename,false).c_str());
+				sd.startPrint();
                 BEEP_LONG;
                 menuLevel = 0;
             }
@@ -2223,8 +2289,10 @@ int UIDisplay::okAction(bool allowMoves)
             finishAction(action);
             activeAction = 0;
         }
-        else
+        else {
+			startAction(action);
             activeAction = action;
+		}
         return 0;
     }
     if(mtype == UI_MENU_TYPE_WIZARD)
@@ -2388,21 +2456,6 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
 #endif
 
 #if UI_HAS_KEYS == 1
-    if(menuLevel == 0)
-    {
-        lastSwitch = HAL::timeInMilliseconds();
-        if((UI_INVERT_MENU_DIRECTION && next < 0) || (!UI_INVERT_MENU_DIRECTION && next > 0))
-        {
-            menuPos[0]++;
-            if(menuPos[0] >= UI_NUM_PAGES)
-                menuPos[0] = 0;
-        }
-        else
-        {
-            menuPos[0] = (menuPos[0] == 0 ? UI_NUM_PAGES - 1 : menuPos[0] - 1);
-        }
-        return true;
-    }
     UIMenu *men = (UIMenu*)menu[menuLevel];
     uint8_t nr = pgm_read_word_near(&(men->numEntries));
     uint8_t mtype = HAL::readFlashByte((PGM_P)&(men->menuType));
@@ -2412,6 +2465,23 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
     // 0 = Info, 1 = Headline, 2 = submenu ref, 3 = direct action command
     uint8_t entType = HAL::readFlashByte((PGM_P)&(ent->menuType));
     int action = pgm_read_word(&(ent->action));
+	if(menuLevel == 0)
+	{
+		lastSwitch = HAL::timeInMilliseconds();
+		if((UI_INVERT_MENU_DIRECTION && next < 0) || (!UI_INVERT_MENU_DIRECTION && next > 0))
+		{
+			//menuPos[0]++;
+			pushMenu(&ui_menu_quick, false);
+			/*if(menuPos[0] >= UI_NUM_PAGES)
+				menuPos[0] = 0;*/
+		}
+		else
+		{
+			pushMenu(&ui_menu_perform, false);
+			//menuPos[0] = (menuPos[0] == 0 ? UI_NUM_PAGES - 1 : menuPos[0] - 1);
+		}
+		return true;
+	}
     if(mtype == UI_MENU_TYPE_SUBMENU && activeAction == 0)   // browse through menu items
     {
         if((UI_INVERT_MENU_DIRECTION && next < 0) || (!UI_INVERT_MENU_DIRECTION && next > 0))
@@ -2534,12 +2604,12 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         break;
     case UI_ACTION_EPOSITION:
         if(!allowMoves) return false;
-        PrintLine::moveRelativeDistanceInSteps(0,0,0,Printer::axisStepsPerMM[E_AXIS]*increment / Printer::extrusionFactor,UI_SET_EXTRUDER_FEEDRATE,true,false);
+        PrintLine::moveRelativeDistanceInSteps(0,0,0,Printer::axisStepsPerMM[E_AXIS]*increment*(-1) / Printer::extrusionFactor,UI_SET_EXTRUDER_FEEDRATE,true,false);
         Commands::printCurrentPosition(PSTR("UI_ACTION_EPOSITION "));
         break;
 #if FEATURE_RETRACTION
     case UI_ACTION_WIZARD_FILAMENTCHANGE: // filament change is finished
-        Extruder::current->retractDistance(-increment);
+        Extruder::current->retractDistance(increment);
         Commands::waitUntilEndOfAllMoves();
         Extruder::current->disableCurrentExtruderMotor();
         break;
@@ -2590,6 +2660,13 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         if(tmp < UI_SET_MIN_HEATED_BED_TEMP) tmp = 0;
         else if(tmp > UI_SET_MAX_HEATED_BED_TEMP) tmp = UI_SET_MAX_HEATED_BED_TEMP;
         Extruder::setHeatedBedTemperature(tmp);
+		if (tmp > 0)
+			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING)
+		else if (!extruder->tempControl.targetTemperatureC > 0)
+			UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY)
+#if BED_LEDS
+		Light.ShowTemps();
+#endif
     }
 #endif
     break;
@@ -2609,15 +2686,38 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         if(tmp < UI_SET_MIN_EXTRUDER_TEMP) tmp = 0;
         else if(tmp > UI_SET_MAX_EXTRUDER_TEMP) tmp = UI_SET_MAX_EXTRUDER_TEMP;
         Extruder::setTemperatureForExtruder(tmp, action - UI_ACTION_EXTRUDER0_TEMP);
-    }
-    break;
+		if (tmp > 0)
+			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING)
+		else if (!heatedBedController.targetTemperatureC > 0)
+			UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY)
+#if BED_LEDS
+			Light.ShowTemps();
+#endif
+            }
+            break;
     case UI_ACTION_FEEDRATE_MULTIPLY:
     {
         int fr = Printer::feedrateMultiply;
         INCREMENT_MIN_MAX(fr,1,25,500);
         Commands::changeFeedrateMultiply(fr);
     }
-    break;
+	break;
+	#if BED_LEDS
+	//Set bed LED brightness
+	case UI_ACTION_BED_LED_CHANGE:
+	{
+		int bl = (int)(Light.LedBrightness*100.0);
+		INCREMENT_MIN_MAX(bl,1,0,100);
+		Commands::setBedLed(bl);
+	}
+	break;
+	#endif
+	case UI_ACTION_COATING_CUSTOM:
+		//float bl = Printer::zBedOffset;
+		INCREMENT_MIN_MAX(Printer::zBedOffset,0.01,-1.0,199.0);
+		//Commands::setBedLed(bl);
+	break;
+    
     case UI_ACTION_FLOWRATE_MULTIPLY:
     {
         INCREMENT_MIN_MAX(Printer::extrudeMultiply,1,25,500);
@@ -2796,13 +2896,25 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
     return true;
 }
 
+void UIDisplay::startAction(int action)
+{
+	if (action == UI_ACTION_COATING_CUSTOM)
+		if (Printer::zBedOffset != EEPROM::zProbeZOffset())
+			Printer::zBedOffset = EEPROM::zProbeZOffset();	
+}
+
 void UIDisplay::finishAction(int action)
 {
+	if (action == UI_ACTION_COATING_CUSTOM)
+		menuAdjustHeight(&ui_menu_coating_custom,Printer::zBedOffset);
+			
 }
 // Actions are events from user input. Depending on the current state, each
 // action can behave differently. Other actions do always the same like home, disable extruder etc.
 int UIDisplay::executeAction(int action, bool allowMoves)
 {
+	float oldZHeight = 0.0f;
+	float newZHeight = 0.0f;
     int ret = 0;
 #if UI_HAS_KEYS == 1
 //    bool skipBeep = false;
@@ -2824,7 +2936,14 @@ int UIDisplay::executeAction(int action, bool allowMoves)
             break;
         case UI_ACTION_BACK:
             if(uid.isWizardActive()) break; // wizards can not exit before finished
-            popMenu(false);
+			if (activeAction) {
+				startAction(activeAction);
+			}
+			if(menuLevel == 0)
+			{
+				pushMenu(&ui_menu_preheat, false);
+			} else
+				popMenu(false);
             break;
         case UI_ACTION_NEXT:
             if(!nextPreviousAction(1, allowMoves))
@@ -2918,6 +3037,12 @@ int UIDisplay::executeAction(int action, bool allowMoves)
 #if HAVE_HEATED_BED
             Extruder::setHeatedBedTemperature(UI_SET_PRESET_HEATED_BED_TEMP_PLA);
 #endif
+			menuLevel = 0;
+			activeAction = 0;
+			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING " " UI_TEXT_PLA);
+#if BED_LEDS
+			Light.ShowTemps();
+#endif
             break;
         case UI_ACTION_PREHEAT_ABS:
             UI_STATUS(UI_TEXT_PREHEAT_ABS);
@@ -2931,7 +3056,32 @@ int UIDisplay::executeAction(int action, bool allowMoves)
 #if HAVE_HEATED_BED
             Extruder::setHeatedBedTemperature(UI_SET_PRESET_HEATED_BED_TEMP_ABS);
 #endif
+			menuLevel = 0;
+			activeAction = 0;
+			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING " " UI_TEXT_ABS);
+#if BED_LEDS
+			Light.ShowTemps();
+#endif
             break;
+		case UI_ACTION_PREHEAT_PET:
+			UI_STATUS(UI_TEXT_PREHEAT_PET);
+			Extruder::setTemperatureForExtruder(UI_SET_PRESET_EXTRUDER_TEMP_PET,0);
+#if NUM_EXTRUDER > 1
+			Extruder::setTemperatureForExtruder(UI_SET_PRESET_EXTRUDER_TEMP_PET,1);
+#endif
+#if NUM_EXTRUDER > 2
+			Extruder::setTemperatureForExtruder(UI_SET_PRESET_EXTRUDER_TEMP_PET,2);
+#endif
+#if HAVE_HEATED_BED
+			Extruder::setHeatedBedTemperature(UI_SET_PRESET_HEATED_BED_TEMP_PET);
+#endif 
+			menuLevel = 0;
+			activeAction = 0;
+			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING " " UI_TEXT_PET);
+#if BED_LEDS
+			Light.ShowTemps();
+#endif			
+break;
         case UI_ACTION_COOLDOWN:
             UI_STATUS(UI_TEXT_COOLDOWN);
             Extruder::setTemperatureForExtruder(0, 0);
@@ -2944,13 +3094,33 @@ int UIDisplay::executeAction(int action, bool allowMoves)
 #if HAVE_HEATED_BED
             Extruder::setHeatedBedTemperature(0);
 #endif
+			menuLevel = 0;
+			activeAction = 0;
+			UI_STATUS_UPD_RAM(UI_TEXT_COOLDOWN);
+#if BED_LEDS
+			Light.ShowTemps();
+#endif
             break;
         case UI_ACTION_HEATED_BED_OFF:
 #if HAVE_HEATED_BED
             Extruder::setHeatedBedTemperature(0);
+			menuLevel = 0;
+			activeAction = 0;
+			UI_STATUS_UPD_RAM(UI_TEXT_COOLDOWN);
+#if BED_LEDS
+			Light.ShowTemps();
+#endif
 #endif
             break;
         case UI_ACTION_EXTRUDER0_OFF:
+            Extruder::setTemperatureForExtruder(0, 0);
+			menuLevel = 0;
+			activeAction = 0;
+			UI_STATUS_UPD_RAM(UI_TEXT_COOLDOWN);
+#if BED_LEDS
+			Light.ShowTemps();
+#endif
+            break;
 #if NUM_EXTRUDER > 1
         case UI_ACTION_EXTRUDER1_OFF:
 #endif
@@ -2961,6 +3131,12 @@ int UIDisplay::executeAction(int action, bool allowMoves)
             break;
         case UI_ACTION_DISABLE_STEPPER:
             Printer::kill(true);
+			menuLevel = 0;
+			activeAction = 0;
+			UI_STATUS_UPD_RAM(UI_TEXT_STEPPER_DISABLED);
+#if BED_LEDS
+			Light.ShowTemps();
+#endif
             break;
         case UI_ACTION_RESET_EXTRUDER:
             Printer::currentPositionSteps[E_AXIS] = 0;
@@ -3016,8 +3192,10 @@ int UIDisplay::executeAction(int action, bool allowMoves)
         case UI_ACTION_SD_PAUSE:
             if(!allowMoves)
                 ret = UI_ACTION_SD_PAUSE;
-            else
+            else {
                 sd.pausePrint(true);
+				UI_STATUS_UPD(UI_TEXT_PAUSED);
+			}
             break;
         case UI_ACTION_SD_CONTINUE:
             if(!allowMoves) ret = UI_ACTION_SD_CONTINUE;
@@ -3040,13 +3218,22 @@ int UIDisplay::executeAction(int action, bool allowMoves)
             else sd.stopPrint();
             break;
         case UI_ACTION_SD_UNMOUNT:
-            sd.unmount();
+			if (Printer::isMenuMode(MENU_MODE_SD_PRINTING))
+				pushMenu(&ui_menu_avoid, false);
+			else {
+				sd.unmount();
+			}
             break;
         case UI_ACTION_SD_MOUNT:
             sd.mount();
             break;
         case UI_ACTION_MENU_SDCARD:
-            pushMenu(&ui_menu_sd, false);
+			if (menuLevel == 0)
+				pushMenu(&ui_menu_sd, false);
+			else {
+				ret = okAction(allowMoves);
+				//skipBeep = true; // Prevent double beep
+			}
             break;
 #endif
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
@@ -3162,6 +3349,9 @@ int UIDisplay::executeAction(int action, bool allowMoves)
             pushMenu(&ui_wiz_filamentchange, true);
             Printer::resetWizardStack();
             Printer::pushWizardVar(Printer::currentPositionSteps[E_AXIS]);
+			//If the printer has not been initialized (moved to home position previously)
+			if (Printer::currentPosition[Z_AXIS] == 0.0)
+				Printer::homeAxis(true, true, true); //Home to avoid hitting the surface
             Printer::MemoryPosition();
             Extruder::current->retractDistance(FILAMENTCHANGE_SHORTRETRACT);
             float newZ = FILAMENTCHANGE_Z_ADD + Printer::currentPosition[Z_AXIS];
@@ -3322,8 +3512,76 @@ int UIDisplay::executeAction(int action, bool allowMoves)
             HAL::resetHardware();
             break;
         case UI_ACTION_PAUSE:
-            Com::printFLN(PSTR("RequestPause:"));
+		    if (Printer::isPaused) {
+			    Com::print("info: resume requested\n");
+			    UI_STATUS_UPD_RAM("");
+			    Printer::resumePrinting();
+			    WRITE(PAUSE_LED_PIN, 1);
+			    } else {
+			    Printer::isPaused = true;
+			    Com::print("info: pause requested\n");
+			    UI_STATUS_UPD_RAM("Pause requested");
+			    WRITE(PAUSE_LED_PIN, 0);
+		    }
+		    //just for the reference- this was used to pause RepetierHost
+		    //Com::printFLN(PSTR("RequestPause:"));	.
             break;
+		case UI_ACTION_CALIBRATE:
+			// Check to see if the printer has been factory-calibrated
+			if (Printer::zLength < (Z_MAX_LENGTH - 200.0f) || Printer::zLength > Z_MAX_LENGTH) {
+				Com::printErrorFLN(PSTR("Corrupted Z-length!"));
+				pushMenu(&ui_menu_avoid_uninit, false);
+			}
+			else if (EEPROM::zProbeHeight() < 0.1 || EEPROM::zProbeHeight() > 8.0)
+				pushMenu(&ui_menu_avoid_uninit, false);
+			else if (Printer::isPaused || Printer::isZProbingActive() || Printer::isMenuMode(MENU_MODE_SD_PRINTING) || !allowMoves || PrintLine::hasLines())
+				pushMenu(&ui_menu_avoid_hot, false);
+			else if (heatedBedController.targetTemperatureC > 35.0 || extruder[0].tempControl.currentTemperatureC > 40.0) 
+				pushMenu(&ui_menu_avoid_hot, false);
+			else {
+				oldZHeight = Printer::zLength;
+				menuCommand(&ui_menu_probing, &ui_menu_calibrate_action,Com::tProbeActionScript);
+				newZHeight = fabs(oldZHeight - Printer::zLength);
+#if DEBUGGING
+				Com::printFLN(PSTR(" Old Zh:"),oldZHeight);
+				Com::printFLN(PSTR(" New Zh:"),Printer::zLength);
+				Com::printFLN(PSTR(" ABS Zh:"),newZHeight);
+#endif
+				if (newZHeight > 0.03f) {
+					menuCommand(&ui_menu_verifying, &ui_menu_calibrate_action,Com::tProbeActionScript);
+#if DEBUGGING
+				Com::printFLN(PSTR(" New Zh2:"),Printer::zLength);
+#endif
+				}
+			}	   
+			break;			
+		case UI_ACTION_NOCOATING:	
+			menuAdjustHeight(&ui_menu_nocoating_action,0);
+			break;
+		case UI_ACTION_BUILDTAK:
+			menuAdjustHeight(&ui_menu_buildtak_action,0.4);
+			break;
+		case UI_ACTION_KAPTON:
+			menuAdjustHeight(&ui_menu_kapton_action,0.04);
+			break;
+		case UI_ACTION_GLUESTICK:
+			menuAdjustHeight(&ui_menu_gluestick_action,0.04);
+			break;
+		case UI_ACTION_BLUETAPE:
+			menuAdjustHeight(&ui_menu_bluetape_action,0.15);
+			break;
+		case UI_ACTION_PETTAPE:
+			menuAdjustHeight(&ui_menu_pettape_action,0.09);
+			break;
+		case UI_ACTION_RESET_MATRIX:
+			Printer::resetTransformationMatrix(false);
+			EEPROM::storeDataIntoEEPROM();
+			menuLevel = 0;
+			activeAction = 0;
+			pushMenu(&ui_menu_reset_action, false);
+			BEEP_SHORT;
+			UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY);;
+			break;
 #if FEATURE_AUTOLEVEL
         case UI_ACTION_AUTOLEVEL_ONOFF:
             Printer::setAutolevelActive(!Printer::isAutolevelActive());
@@ -3568,5 +3826,56 @@ const int8_t encoder_table[16] PROGMEM = {0,0,-1,0,0,0,0,1,1,0,0,0,0,-1,0,0}; //
 const int8_t encoder_table[16] PROGMEM = {0,0,0,0,0,0,0,0,0,0,0,-1,0,0,1,0}; // Quart speed
 #endif
 #endif
+
+void UIDisplay::menuCommand(const UIMenu *doing,const UIMenu *men,FSTRINGPARAM(cmd)){
+	pushMenu(doing, false);
+	GCode::executeFString(cmd);
+	menuLevel = 0;
+	activeAction = 0;
+	pushMenu(men, false);
+	BEEP_SHORT;
+	UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY);
+	Commands::waitUntilEndOfAllMoves();
+}
+
+void UIDisplay::menuAdjustHeight(const UIMenu *men,float offset){
+	if (Printer::zLength < (Z_MAX_LENGTH - 200.0f) || Printer::zLength > Z_MAX_LENGTH) {
+		Com::printErrorFLN(PSTR("Corrupted Z-length!"));
+		pushMenu(&ui_menu_avoid_uninit, false);
+		return;
+	}
+	if (Printer::isPaused || Printer::isZProbingActive() || Printer::isMenuMode(MENU_MODE_SD_PRINTING) || PrintLine::hasLines())
+		pushMenu(&ui_menu_avoid, false);
+	else {
+		EEPROM::readDataFromEEPROM();
+		//If there is something to change
+		if (EEPROM::zProbeZOffset()!=offset) {
+			//If the offset has been previously set, reset the height
+			if (EEPROM::zProbeZOffset()!=0.0)
+				Printer::zLength += EEPROM::zProbeZOffset();
+			//Subtract the new offset (if any)
+			if (offset!=0.0)
+				Printer::zLength -= offset;
+			//Set the new offset
+			Printer::zBedOffset = offset;
+			HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET, offset);
+			HAL::eprSetFloat(EPR_Z_LENGTH, Printer::zLength);
+			Com::print("\nThe new zLength: ");
+			Com::printFloat(Printer::zLength, 4);
+			EEPROM::storeDataIntoEEPROM(false);
+			Com::print(" has been stored into EEPROM.\n");
+		}
+		//Display message
+		pushMenu(men, false);
+		BEEP_SHORT;	
+		EEPROM::readDataFromEEPROM();
+		Printer::homeAxis(true, true, true);
+		Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL "));
+		menuLevel = 0;
+		activeAction = 0;
+		UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY);
+	}
+}
+
 #endif
 

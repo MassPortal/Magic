@@ -147,6 +147,7 @@ private:
 class Printer
 {
 public:
+	static long PrinterId;
 #if USE_ADVANCE
     static volatile int extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
     static uint8_t maxExtruderSpeed;            ///< Timer delay for end extruder speed
@@ -169,6 +170,14 @@ public:
     static uint8_t relativeExtruderCoordinateMode;  ///< Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 
     static uint8_t unitIsInches;
+
+	static bool isPaused;
+	static bool hasMovedToPausePosition; // if has already moved to pause position after pause request
+	static bool canMoveToPausePosition; // is it safe to move to pause position (have we homed before?)
+	static void moveToPausePosition();
+	static void resumePrinting();
+	static float positionBeforePause[3]; //zPosition before pause
+	static float zBedOffset;
 
     static uint8_t debugLevel;
     static uint8_t flag0,flag1; // 1 = stepper disabled, 2 = use external extruder interrupt, 4 = temp Sensor defect, 8 = homed

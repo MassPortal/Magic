@@ -20,7 +20,7 @@
 #define _EEPROM_H
 
 // Id to distinguish version changes
-#define EEPROM_PROTOCOL_VERSION 12
+#define EEPROM_PROTOCOL_VERSION 14
 
 /** Where to start with our datablock in memory. Can be moved if you
 have problems with other modules using the eeprom */
@@ -162,6 +162,13 @@ have problems with other modules using the eeprom */
 #define EPR_EXTRUDER_COOLER_SPEED       54
 // 55-57 free for byte sized parameter
 #define EPR_EXTRUDER_MIXING_RATIOS  58 // 16*2 byte ratios = 32 byte -> end = 89
+#define EPR_PRINTER_ID				   3210
+#define EPR_Z_PROBE_Z_OFFSET			3214
+#define EPR_Z_PROBE_XY1_OFFSET		   3222
+#define EPR_Z_PROBE_XY2_OFFSET		   3226
+#define EPR_Z_PROBE_XY3_OFFSET		   3230
+#define EPR_BED_LED_BRIGHTNESS		   3234
+
 #ifndef Z_PROBE_BED_DISTANCE
 #define Z_PROBE_BED_DISTANCE 5.0
 #endif
@@ -189,6 +196,13 @@ public:
     static void update(GCode *com);
     static void updatePrinterUsage();
 
+	static inline int PrinterId() {
+#if EEPROM_MODE != 0
+		return HAL::eprGetInt32(EPR_PRINTER_ID);
+#else
+		return 0;
+#endif
+	}
     static inline float zProbeSpeed() {
 #if EEPROM_MODE != 0
         return HAL::eprGetFloat(EPR_Z_PROBE_SPEED);
@@ -215,6 +229,13 @@ public:
         return HAL::eprGetFloat(EPR_Z_PROBE_Y_OFFSET);
 #else
         return Z_PROBE_Y_OFFSET;
+#endif
+    }
+    static inline float zProbeZOffset() {
+#if EEPROM_MODE != 0
+	    return HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
+#else
+	    return Z_PROBE_Z_OFFSET;
 #endif
     }
     static inline float zProbeHeight() {
@@ -266,6 +287,34 @@ public:
         return Z_PROBE_Y3;
 #endif
     }
+    static inline float zProbeXY1offset() {
+#if EEPROM_MODE != 0
+	    return HAL::eprGetFloat(EPR_Z_PROBE_XY1_OFFSET);
+#else
+	    return EPR_Z_PROBE_XY1_OFFSET;
+#endif
+    }
+    static inline float zProbeXY2offset() {
+#if EEPROM_MODE != 0
+	    return HAL::eprGetFloat(EPR_Z_PROBE_XY2_OFFSET);
+#else
+	    return EPR_Z_PROBE_XY2_OFFSET;
+#endif
+    }
+    static inline float zProbeXY3offset() {
+#if EEPROM_MODE != 0
+	    return HAL::eprGetFloat(EPR_Z_PROBE_XY3_OFFSET);
+#else
+	    return EPR_Z_PROBE_XY3_OFFSET;
+#endif
+    }
+	static inline float bedLedBrightness() {
+#if EEPROM_MODE != 0
+		return HAL::eprGetFloat(EPR_BED_LED_BRIGHTNESS);
+#else
+		return EPR_BED_LED_BRIGHTNESS;
+#endif
+	}
     static inline float zProbeBedDistance() {
 #if EEPROM_MODE != 0
         return HAL::eprGetFloat(EPR_Z_PROBE_BED_DISTANCE);
