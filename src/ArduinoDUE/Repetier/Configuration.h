@@ -1006,8 +1006,8 @@ Corner can be printed with full speed of 50 mm/s
 
 Overridden if EEPROM activated.
 */
-#define MAX_JERK 20.0
-#define MAX_ZJERK 20.0
+#define MAX_JERK 15.0
+#define MAX_ZJERK 15.0
 
 /** \brief Number of moves we can cache in advance.
 
@@ -1380,7 +1380,7 @@ Select the language to use.
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v2.1.0"
+#define HARDWARE_VERSION "v2.1"
 #define FIRMWARE_VERSION "124-afcf2c7"
 
 

@@ -312,7 +312,7 @@
 #define UI_TEXT_PLA "PLA"
 #define UI_TEXT_PRINTING_FILE "%oF"
 #define UI_TEXT_PAUSED "Paused"
-#define UI_TEXT_IGNORE_M106      "Ignore M106 cmd %Fi"
+#define UI_TEXT_IGNORE_M106 "Ignore FAN cmd %Fi"
 #define UI_TEXT_WIZ_REHEAT1 "Click to reheat"
 #define UI_TEXT_WIZ_REHEAT2 "extruders."
 #define UI_TEXT_WIZ_WAITTEMP1 "Wait for target"
