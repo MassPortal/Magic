@@ -17,7 +17,9 @@
 */
 
 #include "Repetier.h"
+#include "Lighting.h"
 
+long Printer::PrinterId = 0;
 #if USE_ADVANCE
 uint8_t Printer::maxExtruderSpeed;            ///< Timer delay for end extruder speed
 volatile int Printer::extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
@@ -59,6 +61,13 @@ uint8_t Printer::stepsPerTimerCall = 1;
 uint8_t Printer::menuMode = 0;
 float Printer::extrudeMultiplyError = 0;
 float Printer::extrusionFactor = 1.0;
+bool Printer::isPaused = false;
+bool Printer::hasMovedToPausePosition = false;
+bool Printer::canMoveToPausePosition = false;
+float Printer::positionBeforePause[3] = {0, 0, 0};
+float oldFeedrate = Printer::feedrate;
+float Printer::zBedOffset = HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
+
 uint8_t Printer::interruptEvent = 0;
 #if FEATURE_AUTOLEVEL
 float Printer::autolevelTransformation[9]; ///< Transformation matrix
@@ -335,6 +344,9 @@ void Printer::kill(uint8_t only_steppers)
         Printer::setAllKilled(true);
     }
     else UI_STATUS_UPD(UI_TEXT_STEPPER_DISABLED);
+#if BED_LEDS
+	Light.ShowTemps();
+#endif
 #if FAN_BOARD_PIN>-1
 #if HAVE_HEATED_BED
     if(heatedBedController.targetTemperatureC < 15)      // turn off FAN_BOARD only if bed heater is off
@@ -565,8 +577,11 @@ void Printer::setup()
 #if FEATURE_CONTROLLER == CONTROLLER_VIKI
     HAL::delayMilliseconds(100);
 #endif // FEATURE_CONTROLLER
-    //HAL::delayMilliseconds(500);  // add a delay at startup to give hardware time for initalization
+    //HAL::delayMilliseconds(500);  // add a delay at startup to give hardware time for initalization 
     HAL::hwSetup();
+#if BED_LEDS
+	Light.init();
+#endif
 #ifdef ANALYZER
 // Channel->pin assignments
 #if ANALYZER_CH0>=0
@@ -985,7 +1000,7 @@ void Printer::deltaMoveToTopEndstops(float feedrate)
     for (uint8_t i=0; i<3; i++)
         Printer::currentPositionSteps[i] = 0;
     transformCartesianStepsToDeltaSteps(currentPositionSteps, currentDeltaPositionSteps);
-    PrintLine::moveRelativeDistanceInSteps(0,0,zMaxSteps*1.5,0,feedrate, true, true);
+    PrintLine::moveRelativeDistanceInSteps(0,0,zMaxSteps*2,0,feedrate, true, true);
     offsetX = 0;
     offsetY = 0;
 }
@@ -1007,7 +1022,9 @@ void Printer::homeYAxis()
 }
 void Printer::homeZAxis() // Delta z homing
 {
-    SHOT("homeZAxis ");
+#if DEBUG
+    SHOT("\nhomeZAxis ");
+#endif
     deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
     PrintLine::moveRelativeDistanceInSteps(0, 0, 2 * axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS]/ENDSTOP_X_RETEST_REDUCTION_FACTOR, true, false);
     deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
@@ -1057,7 +1074,9 @@ void Printer::homeZAxis() // Delta z homing
 // This home axis is for delta
 void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
 {
-    SHOT("homeAxis ");
+#if DEBUG
+    SHOT("\nhomeAxis ");
+#endif
     bool autoLevel = isAutolevelActive();
     setAutolevelActive(false);
     long steps;
@@ -1093,6 +1112,9 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     UI_CLEAR_STATUS
     Commands::printCurrentPosition(PSTR("homeAxis "));
     setAutolevelActive(autoLevel);
+#if BED_LEDS
+		Light.ShowTemps();
+#endif
 }
 #else
 #if DRIVE_SYSTEM==TUGA  // Tuga printer homing
@@ -1345,6 +1367,39 @@ void Printer::zBabystep()
     //HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 1);
 }
 
+void Printer::moveToPausePosition() {
+	if (!hasMovedToPausePosition) {
+		Commands::waitUntilEndOfAllMoves();
+		oldFeedrate = Printer::feedrate;
+		if (canMoveToPausePosition) {
+			positionBeforePause[0] = currentPosition[0];
+			positionBeforePause[1] = currentPosition[1];
+			positionBeforePause[2] = currentPosition[2];
+			if (currentPosition[Z_AXIS]< (Printer::zLength - 8)) {
+				//Move 3mm up
+				PrintLine::moveRelativeDistanceInSteps(0, 0, 3 * Printer::axisStepsPerMM[Z_AXIS], 0, oldFeedrate, true, true);
+				Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
+				Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::zLength - 5, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
+			}
+			else
+				homeAxis(true,true,true);
+		}
+		hasMovedToPausePosition = true;
+		Commands::waitUntilEndOfAllMoves();
+		UI_STATUS_UPD_RAM(UI_TEXT_PAUSED);
+	}
+}
+
+void Printer::resumePrinting() {
+	if (canMoveToPausePosition && hasMovedToPausePosition) {
+		if (positionBeforePause[Z_AXIS]< (Printer::zLength - 5))
+			Printer::moveTo(0, 0, positionBeforePause[2]+5, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
+		Printer::moveTo(positionBeforePause[0],positionBeforePause[1], positionBeforePause[2], IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
+	}
+	Printer::feedrate = oldFeedrate;
+	Printer::isPaused = false;
+	Printer::hasMovedToPausePosition = false;
+}
 
 void Printer::setAutolevelActive(bool on)
 {

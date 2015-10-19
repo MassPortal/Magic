@@ -130,7 +130,7 @@ STEPPER_CURRENT_CONTROL
 
 // Note that on the Due pin A0 on the board is channel 2 on the ARM chip
 #define HEATER_0_PIN     13
-#define TEMP_0_PIN       7 // Due analog pin #54
+#define TEMP_0_PIN       2 //7 // Due analog pin #54
 #define HEATER_1_PIN     7 
 #define TEMP_1_PIN       3 // Due analog pin #58
 #define HEATER_2_PIN     12
@@ -161,13 +161,17 @@ STEPPER_CURRENT_CONTROL
 
 #define SDSUPPORT      1
 #define SDPOWER 	   -1
-#define SDSS		    4// 4,10,52 if using HW SPI.
-#define SDCARDDETECT       14
+#define SDSS		    10//4// 4,10,52 if using HW SPI.
+#define SPI_PIN         77
+#define SPI_CHAN        0
+#define SDCARDDETECT       -1
 #define SDCARDDETECTINVERTED 0
 #define LED_PIN 	   -1
-#define ORIG_FAN_PIN 	   9 
-#define ORIG_FAN2_PIN           8 
-#define ORIG_PS_ON_PIN          40
+#define PAUSE_LED_PIN	9
+#define BED_LED_PIN		5
+#define ORIG_FAN_PIN	HEATER_3_PIN //9 
+#define ORIG_FAN2_PIN   HEATER_2_PIN //8 
+#define ORIG_PS_ON_PIN          -1
 #define KILL_PIN	   -1
 #define SUICIDE_PIN    -1  //PIN that has to be turned on right after start, to keep power flowing.
 

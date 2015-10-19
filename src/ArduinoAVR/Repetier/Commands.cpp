@@ -908,7 +908,7 @@ void Commands::processGCode(GCode *com)
 #if DEBUGGING
 			Com::printFLN(PSTR("XY1 offset: "),EEPROM::zProbeXY1offset());
 #endif	
-			if (EEPROM::zProbeXY1offset() > EEPROM::zProbeHeight()) {
+			if (EEPROM::zProbeXY1offset() > (EEPROM::zProbeHeight()*2)) {
 				foff = EEPROM::zProbeXY1offset() - h1;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET, foff);
 				Com::printFLN(PSTR("XY1 offset after: "),EEPROM::zProbeXY1offset());
@@ -921,7 +921,7 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR("XY2 offset: "),EEPROM::zProbeXY2offset());
 #endif	
 			foff =  EEPROM::zProbeXY2offset();
-			if (EEPROM::zProbeXY2offset() > EEPROM::zProbeHeight()){
+			if (EEPROM::zProbeXY2offset() > (EEPROM::zProbeHeight()*2)){
 				foff = EEPROM::zProbeXY2offset() - h2;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET, foff);
 				Com::printFLN(PSTR("XY2 offset after: "),EEPROM::zProbeXY2offset());
@@ -933,7 +933,7 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR("XY3 offset: "),EEPROM::zProbeXY3offset());
 #endif
 			foff =  EEPROM::zProbeXY3offset();
-			if (EEPROM::zProbeXY3offset() > EEPROM::zProbeHeight()){
+			if (EEPROM::zProbeXY3offset() > (EEPROM::zProbeHeight()*2)){
 				foff = EEPROM::zProbeXY3offset() - h3;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET, foff);
 				Com::printFLN(PSTR("XY3 offset after: "),EEPROM::zProbeXY3offset());
@@ -982,8 +982,8 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR(" Current pos. Z: "),Printer::currentPosition[Z_AXIS]);
 #endif
 			float tempfl = Printer::currentPosition[Z_AXIS];
-			if (EEPROM::zProbeXY3offset() != 0.0)
-				tempfl += EEPROM::zProbeXY3offset();
+			/*if (EEPROM::zProbeXY3offset() != 0.0)
+				tempfl += EEPROM::zProbeXY3offset();*/ 
             Printer::zLength += (h3 + z) - tempfl;					
 #else
             int32_t zBottom = Printer::currentPositionSteps[Z_AXIS] = (h3 + z) * Printer::axisStepsPerMM[Z_AXIS];
@@ -1079,7 +1079,35 @@ void Commands::processGCode(GCode *com)
 
 	break;
 #endif
-
+case 34: // G34 single probe set Z0
+    {
+		bool oldAutolevel = Printer::isAutolevelActive();
+		float oldFeedrate = Printer::feedrate;	 
+		Printer::setAutolevelActive(false);
+			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+		float deviation;
+		Printer::updateCurrentPosition(true);
+		//printCurrentPosition(PSTR("M114 "));
+		UI_STATUS_UPD("Probing...");
+		//Run probe and get the deviation
+        deviation = Printer::runZProbe(false, true);
+					Printer::updateCurrentPosition(true);
+					printCurrentPosition(PSTR("M114 "));
+		Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+		UI_STATUS_UPD("Probing done...");
+		BEEP_SHORT
+		/*
+		If there are no additional parameters for pre-setup	then we are ready to change the zLength.
+		(Assuming we have made the zProbeHeight and "0"-ing measurement with "G30 T", adjusting to 0,
+		and THEN "G30 P" to store the new zProbeHeight value.)
+		*/
+		//Com::printFLN(PSTR("Z-probe: "),EEPROM::zProbeBedDistance() - deviation);
+		//Com::printFloat(EEPROM::zProbeBedDistance() - deviation, 4);
+        Commands::waitUntilEndOfAllMoves();
+        Printer::feedrate = oldFeedrate;
+        Printer::setAutolevelActive(oldAutolevel);		
+    }
+    break;
     case 90: // G90
         Printer::relativeCoordinateMode = false;
         if(com->internalCommand)
@@ -1232,9 +1260,13 @@ void Commands::processGCode(GCode *com)
         int32_t offx = m-Printer::stepsRemainingAtXHit;
         int32_t offy = m-Printer::stepsRemainingAtYHit;
         int32_t offz = m-Printer::stepsRemainingAtZHit;
-        Com::printFLN(Com::tTower1,offx);
-        Com::printFLN(Com::tTower2,offy);
-        Com::printFLN(Com::tTower3,offz);
+
+		Com::printFLN(Com::tTower1,((Printer::zMaxSteps*2)-Printer::stepsRemainingAtXHit)/Printer::axisStepsPerMM[X_AXIS]);
+		Com::printFLN(Com::tTower2,((Printer::zMaxSteps*2)-Printer::stepsRemainingAtYHit)/Printer::axisStepsPerMM[Y_AXIS]);
+		Com::printFLN(Com::tTower3,((Printer::zMaxSteps*2)-Printer::stepsRemainingAtZHit)/Printer::axisStepsPerMM[Z_AXIS]);
+        Com::printFLN(Com::tTower1,offx/Printer::axisStepsPerMM[X_AXIS]);
+        Com::printFLN(Com::tTower2,offy/Printer::axisStepsPerMM[Y_AXIS]);
+        Com::printFLN(Com::tTower3,offz/Printer::axisStepsPerMM[Z_AXIS]);
 #if EEPROM_MODE != 0
         if(com->hasS() && com->S > 0)
         {
@@ -1511,6 +1543,7 @@ void Commands::processMCode(GCode *com)
 #endif
         break;
     case 105: // M105  get temperature. Always returns the current temperature, doesn't wait until move stopped
+		//Commands::waitUntilEndOfAllMoves();
         printTemperatures(com->hasX());
         break;
     case 109: // M109 - Wait for extruder heater to reach target.
@@ -2120,6 +2153,57 @@ void Commands::processMCode(GCode *com)
 		Light.factoryTest();
 #endif
 		break;
+#if FEATURE_CONTROLLER != NO_CONTROLLER
+	case 896: //Run custom action by its ID
+	if(com->hasS() && com->S)
+	{
+		if(com->S > 0 && com->S <2000)
+			uid.executeAction(com->S, true);
+		else
+			Com::printWarningFLN(PSTR("Not a valid action ID!"));
+	}
+	break;
+	
+	case 897: //Custom bed coating command
+	if(com->hasI())
+	{
+		if(com->I > -2.0 && com->I < 100.0)	 {
+			EEPROM::readDataFromEEPROM();
+			//If there is something to change
+			if (EEPROM::zProbeZOffset()!=com->I) {
+				//If the offset has been previously set, reset the height
+				if (EEPROM::zProbeZOffset()!=0.0)
+				Printer::zLength += EEPROM::zProbeZOffset();
+				//Subtract the new offset (if any)
+				if (com->I!=0.0)
+				Printer::zLength -= com->I;
+				//Set the new offset
+				Printer::zBedOffset = com->I;
+				HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET, com->I);
+				HAL::eprSetFloat(EPR_Z_LENGTH, Printer::zLength);
+				Com::print("\nThe new zLength: ");
+				Com::printFloat(Printer::zLength, 4);
+				EEPROM::storeDataIntoEEPROM(false);
+				Com::print(" has been stored into EEPROM.\n");
+			}
+			//Display message
+			EEPROM::readDataFromEEPROM();
+			Printer::homeAxis(true, true, true);
+			Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL "));	 
+			}
+		else
+			Com::printWarningFLN(PSTR("Not a valid bed coating adjustment!"));
+	}
+	if(com->hasS())
+	{
+		EEPROM::readDataFromEEPROM();
+		Com::print("\nCurrent coating[mm]:");
+		Com::printFloat(EEPROM::zProbeZOffset(), 2);
+		Com::println();
+	}
+	break;
+		
+#endif
     case 601:
         if(com->hasS() && com->S > 0)
             Extruder::pauseExtruders();

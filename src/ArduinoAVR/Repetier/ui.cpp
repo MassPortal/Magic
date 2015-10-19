@@ -2701,6 +2701,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         INCREMENT_MIN_MAX(fr,1,25,500);
         Commands::changeFeedrateMultiply(fr);
     }
+	break;
 	#if BED_LEDS
 	//Set bed LED brightness
 	case UI_ACTION_BED_LED_CHANGE:
@@ -3531,7 +3532,7 @@ break;
 				Com::printErrorFLN(PSTR("Corrupted Z-length!"));
 				pushMenu(&ui_menu_avoid_uninit, false);
 			}
-			else if (EEPROM::zProbeHeight() < 0.1 || EEPROM::zProbeHeight() > 4.0)
+			else if (EEPROM::zProbeHeight() < 0.1 || EEPROM::zProbeHeight() > 8.0)
 				pushMenu(&ui_menu_avoid_uninit, false);
 			else if (Printer::isPaused || Printer::isZProbingActive() || Printer::isMenuMode(MENU_MODE_SD_PRINTING) || !allowMoves || PrintLine::hasLines())
 				pushMenu(&ui_menu_avoid_hot, false);
@@ -3556,6 +3557,9 @@ break;
 			break;			
 		case UI_ACTION_NOCOATING:	
 			menuAdjustHeight(&ui_menu_nocoating_action,0);
+			break;
+		case UI_ACTION_BUILDTAK:
+			menuAdjustHeight(&ui_menu_buildtak_action,0.4);
 			break;
 		case UI_ACTION_KAPTON:
 			menuAdjustHeight(&ui_menu_kapton_action,0.04);

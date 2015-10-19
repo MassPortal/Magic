@@ -116,7 +116,7 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 #define STEPS_PER_ROTATION 400
 
 /** \brief Micro stepping rate of X, Y and Y tower stepper drivers */
-#define MICRO_STEPS 128
+#define MICRO_STEPS 32
 
 // Calculations
 #define AXIS_STEPS_PER_MM ((float)(MICRO_STEPS * STEPS_PER_ROTATION) / PULLEY_CIRCUMFERENCE)
@@ -179,7 +179,7 @@ Overridden if EEPROM activated.*/
 #define EXT0_X_OFFSET 0
 #define EXT0_Y_OFFSET 0
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
-#define EXT0_STEPS_PER_MM 3800 //475 //520 11,2 x16  136 (7.5) 96 (10.5 x16) 192 (10.5 x32)
+#define EXT0_STEPS_PER_MM 950 //475 //520 11,2 x16  136 (7.5) 96 (10.5 x16) 192 (10.5 x32)
 // What type of sensor is used?
 // 0 is no thermistor/temperature control
 // 1 is 100k thermistor (Epcos B57560G0107F000 - RepRap-Fab.org and many other)
@@ -219,7 +219,7 @@ Overridden if EEPROM activated.*/
 #define EXT0_MAX_FEEDRATE 400
 // Feedrate from halted extruder in mm/s
 //  Overridden if EEPROM activated.
-#define EXT0_MAX_START_FEEDRATE 50
+#define EXT0_MAX_START_FEEDRATE 10
 // Acceleration in mm/s^2
 //  Overridden if EEPROM activated.
 #define EXT0_MAX_ACCELERATION 10000
@@ -251,15 +251,15 @@ To prevent a long deviation from the target zone, this value limits the lower va
 A good start is 30 lower then the optimal value. You need to leave room for cooling.
  Overridden if EEPROM activated.
 */
-#define EXT0_PID_INTEGRAL_DRIVE_MIN 10
+#define EXT0_PID_INTEGRAL_DRIVE_MIN 40
 /** P-gain.  Overridden if EEPROM activated. */
 #define EXT0_PID_P   3//4.44//24//27.1
 /** I-gain. Overridden if EEPROM activated.
 */
-#define EXT0_PID_PGAIN_OR_DEAD_TIME 13
-#define EXT0_PID_I   0.35//2.4
+#define EXT0_PID_PGAIN_OR_DEAD_TIME 5
+#define EXT0_PID_I   2//2.4
 /** Dgain.  Overridden if EEPROM activated.*/
-#define EXT0_PID_D   44.72//120//76.4
+#define EXT0_PID_D   40//120//76.4
 // maximum time the heater is can be switched on. Max = 255.  Overridden if EEPROM activated.
 #define EXT0_PID_MAX 200
 /** \brief Faktor for the advance algorithm. 0 disables the algorithm.  Overridden if EEPROM activated.
@@ -279,7 +279,7 @@ cog. Direct drive extruder need 0. */
 /** \brief Units (mm/inches) to retract filament when extruder is heating up. Overridden if EEPROM activated. Set
 to 0 to disable.
 */
-#define EXT0_WAIT_RETRACT_UNITS 	15
+#define EXT0_WAIT_RETRACT_UNITS 	0
 
 /** You can run any gcode command on extruder deselect/select. Seperate multiple commands with a new line \n.
 That way you can execute some mechanical components needed for extruder selection or retract filament or whatever you need.
@@ -418,12 +418,12 @@ M140 command, after a given temperature is reached. */
  simple extrusion e.g. over Repetier-Host will then not work! */
 #define AUTORETRACT_ENABLED 0
 #define RETRACTION_LENGTH 3
-#define RETRACTION_LONG_LENGTH 10
-#define RETRACTION_SPEED 15
+#define RETRACTION_LONG_LENGTH 13
+#define RETRACTION_SPEED 40
 #define RETRACTION_Z_LIFT 0.1
 #define RETRACTION_UNDO_EXTRA_LENGTH 0
 #define RETRACTION_UNDO_EXTRA_LONG_LENGTH 0
-#define RETRACTION_UNDO_SPEED 10
+#define RETRACTION_UNDO_SPEED 20
 
 /**
 If you have a lcd display, you can do a filament switch with M600.
@@ -431,7 +431,7 @@ It will change the current extruders filament and temperature must already be hi
 */
 #define FILAMENTCHANGE_X_POS 0
 #define FILAMENTCHANGE_Y_POS 0
-#define FILAMENTCHANGE_Z_ADD 0
+#define FILAMENTCHANGE_Z_ADD 2
 /** Does a homing procedure after a filament change. This is good in case
 you moved the extruder while changing filament during print.
 0 = no homing, 1 = xy homing, 2 = xyz homing
@@ -450,7 +450,7 @@ Retractions speeds are taken from RETRACTION_SPEED and RETRACTION_UNDO_SPEED
 // New speed multiplier which gets set when slowdown is reached.
 #define JAM_SLOWDOWN_TO 70
 // Last fallback. If we slip this much, we want to pause.
-#define JAM_ERROR_STEPS 430
+#define JAM_ERROR_STEPS 500
 /** To prevent signal bouncing, only consider changes if we are this much steps
  away from last signal change. */ 
 #define JAM_MIN_STEPS 10
@@ -460,7 +460,7 @@ Determine what should be done if a jam is detected
 1 : Jam/out of filament dialog and block communication.
 2 : Message to host/server otherwise continue and mark extruder jammed
 */
-#define JAM_ACTION 1
+#define JAM_ACTION 2
 
 /** PID control only works target temperature +/- PID_CONTROL_RANGE.
 If you get much overshoot at the first temperature set, because the heater is going full power too long, you
@@ -470,7 +470,7 @@ need to increase this value. For one 6.8 Ohm heater 10 is ok. With two 6.8 Ohm h
 
 /** Prevent extrusions longer then x mm for one command. This is especially important if you abort a print. Then the
 extrusion poistion might be at any value like 23344. If you then have an G1 E-2 it will roll back 23 meter! */
-#define EXTRUDE_MAXLENGTH 200
+#define EXTRUDE_MAXLENGTH 250
 /** Skip wait, if the extruder temperature is already within x degrees. Only fixed numbers, 0 = off */
 #define SKIP_M109_IF_WITHIN 2
 
@@ -747,9 +747,9 @@ on this endstop.
 
 // For higher precision you can reduce the speed for the second test on the endstop
 // during homing operation. The homing speed is divided by the value. 1 = same speed, 2 = half speed
-#define ENDSTOP_X_RETEST_REDUCTION_FACTOR 7
-#define ENDSTOP_Y_RETEST_REDUCTION_FACTOR 7
-#define ENDSTOP_Z_RETEST_REDUCTION_FACTOR 7
+#define ENDSTOP_X_RETEST_REDUCTION_FACTOR 5
+#define ENDSTOP_Y_RETEST_REDUCTION_FACTOR 5
+#define ENDSTOP_Z_RETEST_REDUCTION_FACTOR 5
 
 // When you have several endstops in one circuit you need to disable it after homing by moving a
 // small amount back. This is also the case with H-belt systems.
@@ -768,7 +768,7 @@ on this endstop.
 // If EEPROM is enabled these values will be overidden with the values in the EEPROM
 #define X_MAX_LENGTH 143
 #define Y_MAX_LENGTH 143
-#define Z_MAX_LENGTH 225
+#define Z_MAX_LENGTH 230
 // Coordinates for the minimum axis. Can also be negative if you want to have the bed start at 0 and the printer can go to the left side
 // of the bed. Maximum coordinate is given by adding the above X_MAX_LENGTH values.
 #define X_MIN_POS -72.5
@@ -791,8 +791,8 @@ on this endstop.
 
 /** \brief Number of segments to generate for delta conversions per second of move
 */
-#define DELTA_SEGMENTS_PER_SECOND_PRINT 180 // Move accurate setting for print moves
-#define DELTA_SEGMENTS_PER_SECOND_MOVE 20 // Less accurate setting for other moves
+#define DELTA_SEGMENTS_PER_SECOND_PRINT 600 // Move accurate setting for print moves
+#define DELTA_SEGMENTS_PER_SECOND_MOVE 300 // Less accurate setting for other moves
 
 // Delta settings
 #if DRIVE_SYSTEM==DELTA
@@ -852,7 +852,7 @@ on this endstop.
 
 /** \brief Horizontal offset of the universal joints on the vertical carriages.
 */
-#define CARRIAGE_HORIZONTAL_OFFSET 18
+#define CARRIAGE_HORIZONTAL_OFFSET 20.6
 
 /** \brief Printer radius in mm,
   measured from the center of the print area to the vertical smooth tower.
@@ -893,7 +893,7 @@ or 16 * (200 + (7*22=154) = 354) = 5664 bytes! !1
 min is 5 * (200 + (7*10=70) =270) = 1350
  22 leaves ~1K free RAM on an Arduino which has only 8k
 Mega. Used only for nonlinear systems like delta or tuga. */
-#define DELTASEGMENTS_PER_PRINTLINE 64
+#define DELTASEGMENTS_PER_PRINTLINE 128
 
 /** After x seconds of inactivity, the stepper motors are disabled.
     Set to 0 to leave them enabled.
@@ -952,7 +952,7 @@ This is like reducing your 1/16th microstepping to 1/8 or 1/4. It is much cheape
 additional stepper interrupts with all it's overhead. As a result you can go as high as
 40000Hz.
 */
-#define STEP_DOUBLER_FREQUENCY 12000
+#define STEP_DOUBLER_FREQUENCY 80000
 /** If you need frequencies off more then 30000 you definitely need to enable this. If you have only 1/8 stepping
 enabling this may cause to stall your moves when 20000Hz is reached.
 */
@@ -961,7 +961,7 @@ enabling this may cause to stall your moves when 20000Hz is reached.
 for some printers causing an early stall.
 
 */
-#define DOUBLE_STEP_DELAY 1 // time in microseconds
+#define DOUBLE_STEP_DELAY 0 // time in microseconds
 
 /** The firmware supports trajectory smoothing. To achieve this, it divides the stepsize by 2, resulting in
 the double computation cost. For slow movements this is not an issue, but for really fast moves this is
@@ -1014,7 +1014,7 @@ Overridden if EEPROM activated.
 This number of moves can be cached in advance. If you wan't to cache more, increase this. Especially on
 many very short moves the cache may go empty. The minimum value is 5.
 */
-#define PRINTLINE_CACHE_SIZE 64
+#define PRINTLINE_CACHE_SIZE 48
 
 /** \brief Low filled cache size.
 
@@ -1380,11 +1380,11 @@ Select the language to use.
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v2.0"
-#define FIRMWARE_VERSION "120-"
+#define HARDWARE_VERSION "v2.1.0"
+#define FIRMWARE_VERSION "124-exp"
 
 
-#define DEBUGGING false
+//#define DEBUGGING false
 #define BED_LEDS true
 #if BED_LEDS
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
@@ -1467,7 +1467,7 @@ Values must be in range 1..255
 #define UI_SET_MAX_HEATED_BED_TEMP 120
 #define UI_SET_MIN_EXTRUDER_TEMP   160
 #define UI_SET_MAX_EXTRUDER_TEMP   300
-#define UI_SET_EXTRUDER_FEEDRATE 15 // mm/sec
+#define UI_SET_EXTRUDER_FEEDRATE 10 // mm/sec
 #define UI_SET_EXTRUDER_RETRACT_DISTANCE 10 // mm
 
 /*

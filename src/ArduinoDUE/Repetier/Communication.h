@@ -25,6 +25,7 @@
 class Com
 {
     public:
+FSTRINGVAR(tPrinterId)
 FSTRINGVAR(tDebug)
 FSTRINGVAR(tFirmware)
 FSTRINGVAR(tOk)
@@ -217,6 +218,9 @@ FSTRINGVAR(tHitZProbe)
 FSTRINGVAR(tZProbeAverage)
 FSTRINGVAR(tZProbeZReset)
 FSTRINGVAR(tZProbeBedDitance)
+FSTRINGVAR(tProbeActionScript)
+FSTRINGVAR(tCalBluetapeScript)
+FSTRINGVAR(tCalPettapeScript)
 #endif
 FSTRINGVAR(tAutolevelReset)
 FSTRINGVAR(tAutolevelEnabled)
@@ -237,15 +241,20 @@ FSTRINGVAR(tNoEEPROMSupport)
 FSTRINGVAR(tZProbeHeight)
 FSTRINGVAR(tZProbeOffsetX)
 FSTRINGVAR(tZProbeOffsetY)
+FSTRINGVAR(tZProbeOffsetZ)
 FSTRINGVAR(tZProbeSpeed)
 FSTRINGVAR(tZProbeSpeedXY)
 FSTRINGVAR(tZProbeX1)
 FSTRINGVAR(tZProbeY1)
+FSTRINGVAR(tZProbeXY1offset)
 FSTRINGVAR(tZProbeX2)
 FSTRINGVAR(tZProbeY2)
+FSTRINGVAR(tZProbeXY2offset)
 FSTRINGVAR(tZProbeX3)
 FSTRINGVAR(tZProbeY3)
+FSTRINGVAR(tZProbeXY3offset)
 #endif
+FSTRINGVAR(tEPRBedLedBrightness)
 #if FEATURE_AUTOLEVEL
 FSTRINGVAR(tAutolevelActive)
 #endif
@@ -413,6 +422,7 @@ static inline void print(char c) {HAL::serialWriteByte(c);}
 static void printFloat(float number, uint8_t digits);
 static inline void print(float number) {printFloat(number, 6);}
 static inline void println() {HAL::serialWriteByte('\r');HAL::serialWriteByte('\n');}
+static inline void println(const char *text) { print(text); println(); }
     protected:
     private:
 };

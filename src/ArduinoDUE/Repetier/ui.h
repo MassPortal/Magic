@@ -192,6 +192,17 @@ What display type do you use?
 #define UI_ACTION_AUTOLEVEL_ONOFF       1202
 #define UI_ACTION_SERVOPOS              1203
 #define UI_ACTION_IGNORE_M106           1204
+#define UI_ACTION_PREHEAT_PET           1913
+#define UI_ACTION_KAPTON				1914
+#define UI_ACTION_BLUETAPE				1915
+#define UI_ACTION_NOCOATING				1916
+#define UI_ACTION_PETTAPE				1917
+#define UI_ACTION_GLUESTICK				1918
+#define UI_ACTION_RESET_MATRIX			1919
+#define UI_ACTION_CALIBRATE				1920
+#define UI_ACTION_BED_LED_CHANGE		1921
+#define UI_ACTION_COATING_CUSTOM		1922
+#define UI_ACTION_BUILDTAK				1923
 
 #define UI_ACTION_MENU_XPOS             4000
 #define UI_ACTION_MENU_YPOS             4001
@@ -385,6 +396,7 @@ extern const int8_t encoder_table[16] PROGMEM ;
 #define UI_MENU_WIZARD(name,row,entries) UI_STRING(name ## _txt,row);UIMenuEntry name PROGMEM = {name ## _txt,5,(unsigned int)&entries,0,0};
 #define UI_MENU_CHANGEACTION_FILTER(name,row,action,filter,nofilter) UI_STRING(name ## _txt,row);UIMenuEntry name PROGMEM = {name ## _txt,4,action,filter,nofilter};
 #define UI_MENU_ACTIONCOMMAND_FILTER(name,row,action,filter,nofilter) UI_STRING(name ## _txt,row);UIMenuEntry name PROGMEM = {name ## _txt,3,action,filter,nofilter};
+#define UI_MENU_ACTIONCOMMAND_FILTER_NOSEL(name,row,action,filter,nofilter) UI_STRING(name ## _txt,row);UIMenuEntry name PROGMEM = {name ## _txt,1,action,filter,nofilter};
 #define UI_MENU_ACTIONSELECTOR_FILTER(name,row,entries,filter,nofilter) UI_STRING(name ## _txt,row);UIMenuEntry name PROGMEM = {name ## _txt,2,(unsigned int)&entries,filter,nofilter};
 #define UI_MENU_SUBMENU_FILTER(name,row,entries,filter,nofilter) UI_STRING(name ## _txt,row);UIMenuEntry name PROGMEM = {name ## _txt,2,(unsigned int)&entries,filter,nofilter};
 #define UI_MENU(name,items,itemsCnt) const UIMenuEntry * const name ## _entries[] PROGMEM = items;const UIMenu name PROGMEM = {2,0,itemsCnt,name ## _entries};
@@ -485,12 +497,17 @@ class UIDisplay {
     void goDir(char *name);
     bool isDirname(char *name);
     bool isWizardActive();
+	void menuCommand(const UIMenu *doing, const UIMenu *men, FSTRINGPARAM(cmd));
+	void menuAdjustHeight(const UIMenu *men,float offset);
+	void startAction(int action);
     char cwd[SD_MAX_FOLDER_DEPTH*LONG_FILENAME_LENGTH+2];
     uint8_t folderLevel;
 };
 extern UIDisplay uid;
-
-
+// Returns either the file name or just the extension
+String getFilePart(const char filename, boolean extension);
+// Compares file names' extension to the given one. Returns true if they match.
+bool hasExtension(char* filename, char* extension);
 #if FEATURE_CONTROLLER == UICONFIG_CONTROLLER
 #include "uiconfig.h"
 #endif
@@ -1461,6 +1478,5 @@ static void ui_check_Ukeys(int &action) {
     UI_KEYS_BUTTON_LOW(USER_KEY4_PIN, USER_KEY4_ACTION);
 #endif
 }
-
 #endif
 

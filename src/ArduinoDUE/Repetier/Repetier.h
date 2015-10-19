@@ -370,6 +370,7 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define SD_MAX_FOLDER_DEPTH 2
 
 #include "ui.h"
+#include "Lighting.h";
 #include "Communication.h"
 
 

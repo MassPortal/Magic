@@ -21,6 +21,7 @@
 
 #include "Repetier.h"
 
+FSTRINGVALUE(Com::tPrinterId, "Printer ID")
 #if DRIVE_SYSTEM == DELTA
 FSTRINGVALUE(Com::tFirmware,"FIRMWARE_NAME:Repetier_" REPETIER_VERSION " FIRMWARE_URL:https://github.com/repetier/Repetier-Firmware/ PROTOCOL_VERSION:1.0 MACHINE_TYPE:Delta EXTRUDER_COUNT:" XSTR(NUM_EXTRUDER) " REPETIER_PROTOCOL:3")
 #else
@@ -217,6 +218,7 @@ FSTRINGVALUE(Com::tZProbeState,"Z-probe state:")
 FSTRINGVALUE(Com::tZProbeStartScript,Z_PROBE_START_SCRIPT)
 FSTRINGVALUE(Com::tZProbeEndScript,Z_PROBE_FINISHED_SCRIPT)
 FSTRINGVALUE(Com::tHitZProbe,"Hit z-probe")
+FSTRINGVALUE(Com::tProbeActionScript, PROBE_ACTION_SCRIPT)
 #endif
 FSTRINGVALUE(Com::tAutolevelReset,"Autolevel matrix reset")
 FSTRINGVALUE(Com::tAutolevelEnabled,"Autoleveling enabled")
@@ -237,14 +239,18 @@ FSTRINGVALUE(Com::tZProbeHeight,"Z-probe height [mm]")
 FSTRINGVALUE(Com::tZProbeBedDitance,"Max. z-probe - bed dist. [mm]")
 FSTRINGVALUE(Com::tZProbeOffsetX,"Z-probe offset x [mm]")
 FSTRINGVALUE(Com::tZProbeOffsetY,"Z-probe offset y [mm]")
+FSTRINGVALUE(Com::tZProbeOffsetZ, "Z-probe offset z [mm]")
 FSTRINGVALUE(Com::tZProbeSpeed,"Z-probe speed [mm/s]")
 FSTRINGVALUE(Com::tZProbeSpeedXY,"Z-probe x-y-speed [mm/s]")
 FSTRINGVALUE(Com::tZProbeX1,"Z-probe X1")
 FSTRINGVALUE(Com::tZProbeY1,"Z-probe Y1")
+FSTRINGVALUE(Com::tZProbeXY1offset,"Z-probe XY1 offset")
 FSTRINGVALUE(Com::tZProbeX2,"Z-probe X2")
 FSTRINGVALUE(Com::tZProbeY2,"Z-probe Y2")
+FSTRINGVALUE(Com::tZProbeXY2offset,"Z-probe XY2 offset")
 FSTRINGVALUE(Com::tZProbeX3,"Z-probe X3")
 FSTRINGVALUE(Com::tZProbeY3,"Z-probe Y3")
+FSTRINGVALUE(Com::tZProbeXY3offset,"Z-probe XY3 offset")
 #endif
 #if FEATURE_AXISCOMP
 FSTRINGVALUE(Com::tAxisCompTanXY,"tanXY Axis Compensation")
@@ -298,6 +304,7 @@ FSTRINGVALUE(Com::tEPRDeltaMaxRadius,"Max printable radius [mm]")
 FSTRINGVALUE(Com::tDeltaDiagonalCorrectionA,"Corr. diagonal A [mm]")
 FSTRINGVALUE(Com::tDeltaDiagonalCorrectionB,"Corr. diagonal B [mm]")
 FSTRINGVALUE(Com::tDeltaDiagonalCorrectionC,"Corr. diagonal C [mm]")
+FSTRINGVALUE(Com::tEPRBedLedBrightness,"Bed LED brightness [0.0-1.0]")
 
 #else
 FSTRINGVALUE(Com::tEPRMaxZJerk,"Max. Z-jerk [mm/s]")

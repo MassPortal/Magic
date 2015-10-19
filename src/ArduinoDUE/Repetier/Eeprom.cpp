@@ -63,6 +63,7 @@ void EEPROM::update(GCode *com)
 void EEPROM::restoreEEPROMSettingsFromConfiguration()
 {
 #if EEPROM_MODE != 0
+	Printer::PrinterId = 0;
     baudrate = BAUDRATE;
     maxInactiveTime = MAX_INACTIVE_TIME * 1000L;
     stepperInactiveTime = STEPPER_INACTIVE_TIME * 1000L;
@@ -451,12 +452,19 @@ void EEPROM::initalizeUncached()
     HAL::eprSetFloat(EPR_Z_PROBE_XY_SPEED,Z_PROBE_XY_SPEED);
     HAL::eprSetFloat(EPR_Z_PROBE_X_OFFSET,Z_PROBE_X_OFFSET);
     HAL::eprSetFloat(EPR_Z_PROBE_Y_OFFSET,Z_PROBE_Y_OFFSET);
+	HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET,Z_PROBE_Z_OFFSET);
     HAL::eprSetFloat(EPR_Z_PROBE_X1,Z_PROBE_X1);
     HAL::eprSetFloat(EPR_Z_PROBE_Y1,Z_PROBE_Y1);
     HAL::eprSetFloat(EPR_Z_PROBE_X2,Z_PROBE_X2);
     HAL::eprSetFloat(EPR_Z_PROBE_Y2,Z_PROBE_Y2);
     HAL::eprSetFloat(EPR_Z_PROBE_X3,Z_PROBE_X3);
     HAL::eprSetFloat(EPR_Z_PROBE_Y3,Z_PROBE_Y3);
+	HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET,Z_PROBE_XY1_OFFSET);
+	HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET,Z_PROBE_XY2_OFFSET);
+	HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET,Z_PROBE_XY3_OFFSET);
+#if BED_LEDS
+	HAL::eprSetFloat(EPR_BED_LED_BRIGHTNESS,LED_MAX_RELATIVE_BRIGHTNESS);
+#endif
     HAL::eprSetFloat(EPR_AXISCOMP_TANXY,AXISCOMP_TANXY);
     HAL::eprSetFloat(EPR_AXISCOMP_TANYZ,AXISCOMP_TANYZ);
     HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,AXISCOMP_TANXZ);
@@ -503,7 +511,11 @@ void EEPROM::readDataFromEEPROM()
     baudrate = HAL::eprGetInt32(EPR_BAUDRATE);
     maxInactiveTime = HAL::eprGetInt32(EPR_MAX_INACTIVE_TIME);
     stepperInactiveTime = HAL::eprGetInt32(EPR_STEPPER_INACTIVE_TIME);
+#if BED_LEDS
+	Light.LedBrightness = HAL::eprGetFloat(EPR_BED_LED_BRIGHTNESS);
+#endif
 //#define EPR_ACCELERATION_TYPE 1
+	Printer::PrinterId = HAL::eprGetInt32(EPR_PRINTER_ID);
     Printer::axisStepsPerMM[X_AXIS] = HAL::eprGetFloat(EPR_XAXIS_STEPS_PER_MM);
     Printer::axisStepsPerMM[Y_AXIS] = HAL::eprGetFloat(EPR_YAXIS_STEPS_PER_MM);
     Printer::axisStepsPerMM[Z_AXIS] = HAL::eprGetFloat(EPR_ZAXIS_STEPS_PER_MM);
@@ -696,6 +708,18 @@ void EEPROM::readDataFromEEPROM()
             HAL::eprSetFloat(EPR_RETRACTION_UNDO_SPEED,RETRACTION_UNDO_SPEED);
             HAL::eprSetByte(EPR_AUTORETRACT_ENABLED,AUTORETRACT_ENABLED);
         }
+		
+		if(version < 13) {
+			HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET,Z_PROBE_XY1_OFFSET);
+			HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET,Z_PROBE_XY2_OFFSET);
+			HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET,Z_PROBE_XY3_OFFSET);
+			HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET,Z_PROBE_Z_OFFSET);
+		}
+		if(version < 14) {
+			#if BED_LEDS
+			HAL::eprSetFloat(EPR_BED_LED_BRIGHTNESS,LED_MAX_RELATIVE_BRIGHTNESS);
+			#endif
+		}
         /*        if (version<8) {
         #if DRIVE_SYSTEM==DELTA
                   // Prior to verion 8, the cartesian max was stored in the zmax
@@ -796,6 +820,8 @@ With
 void EEPROM::writeSettings()
 {
 #if EEPROM_MODE != 0
+
+	writeLong(EPR_PRINTER_ID, Com::tPrinterId);
     writeLong(EPR_BAUDRATE, Com::tEPRBaudrate);
     writeFloat(EPR_PRINTING_DISTANCE, Com::tEPRFilamentPrinted);
     writeLong(EPR_PRINTING_TIME, Com::tEPRPrinterActive);
@@ -876,12 +902,16 @@ void EEPROM::writeSettings()
     writeFloat(EPR_Z_PROBE_XY_SPEED, Com::tZProbeSpeedXY);
     writeFloat(EPR_Z_PROBE_X_OFFSET, Com::tZProbeOffsetX);
     writeFloat(EPR_Z_PROBE_Y_OFFSET, Com::tZProbeOffsetY);
+	writeFloat(EPR_Z_PROBE_Z_OFFSET, Com::tZProbeOffsetZ);
     writeFloat(EPR_Z_PROBE_X1, Com::tZProbeX1);
     writeFloat(EPR_Z_PROBE_Y1, Com::tZProbeY1);
     writeFloat(EPR_Z_PROBE_X2, Com::tZProbeX2);
     writeFloat(EPR_Z_PROBE_Y2, Com::tZProbeY2);
     writeFloat(EPR_Z_PROBE_X3, Com::tZProbeX3);
     writeFloat(EPR_Z_PROBE_Y3, Com::tZProbeY3);
+	writeFloat(EPR_Z_PROBE_XY1_OFFSET, Com::tZProbeXY1offset);
+	writeFloat(EPR_Z_PROBE_XY2_OFFSET, Com::tZProbeXY2offset);
+	writeFloat(EPR_Z_PROBE_XY3_OFFSET, Com::tZProbeXY3offset);
 #endif
 #if FEATURE_AUTOLEVEL
     writeByte(EPR_AUTOLEVEL_ACTIVE, Com::tAutolevelActive);
@@ -896,6 +926,7 @@ void EEPROM::writeSettings()
 
 #if HAVE_HEATED_BED
     writeByte(EPR_BED_HEAT_MANAGER, Com::tEPRBedHeatManager);
+	writeFloat(EPR_BED_LED_BRIGHTNESS, Com::tEPRBedLedBrightness);
 #if TEMP_PID
     writeByte(EPR_BED_DRIVE_MAX, Com::tEPRBedPIDDriveMax);
     writeByte(EPR_BED_DRIVE_MIN, Com::tEPRBedPIDDriveMin);
