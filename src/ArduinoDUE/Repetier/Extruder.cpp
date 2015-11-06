@@ -575,7 +575,8 @@ void Extruder::selectExtruderById(uint8_t extruderId)
 
 void Extruder::setTemperatureForExtruder(float temperatureInCelsius,uint8_t extr,bool beep)
 {
-#if MIXING_EXTRUDER
+#if NUM_EXTRUDER > 0
+#if MIXING_EXTRUDER || defined(SHARED_EXTRUDER_HEATER)
     extr = 0; // map any virtual extruder number to 0
 #endif // MIXING_EXTRUDER
     bool alloffs = true;
@@ -632,6 +633,7 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius,uint8_t extr
         Printer::filamentPrinted = 0;  // new print, new counter
         Printer::flag2 &= ~PRINTER_FLAG2_RESET_FILAMENT_USAGE;
     }
+#endif
 }
 
 void Extruder::setHeatedBedTemperature(float temperatureInCelsius,bool beep)
