@@ -325,7 +325,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // 101 is MAX6675
 #define EXT1_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT1_TEMPSENSOR_PIN -1
+#define EXT1_TEMPSENSOR_PIN TEMP_0_PIN
 // Which pin enables the heater
 #define EXT1_HEATER_PIN -1
 #define EXT1_STEP_PIN E1_STEP_PIN
