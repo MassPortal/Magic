@@ -17,7 +17,11 @@
 */
 
 #include "Repetier.h"
+#if BED_LEDS
+#include "Lighting.h"
+#endif
 
+long Printer::PrinterId = 0;
 #if USE_ADVANCE
 ufast8_t Printer::maxExtruderSpeed;            ///< Timer delay for end extruder speed
 volatile int Printer::extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
@@ -63,6 +67,12 @@ uint8_t Printer::mode = DEFAULT_PRINTER_MODE;
 uint8_t Printer::fanSpeed = 0; // Last fan speed set with M106/M107
 float Printer::extrudeMultiplyError = 0;
 float Printer::extrusionFactor = 1.0;
+bool Printer::isPaused = false;
+bool Printer::hasMovedToPausePosition = false;
+bool Printer::canMoveToPausePosition = false;
+float Printer::positionBeforePause[3] = {0, 0, 0};
+float oldFeedrate = Printer::feedrate;
+
 uint8_t Printer::interruptEvent = 0;
 #if EEPROM_MODE != 0
 float Printer::zBedOffset = HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
@@ -329,7 +339,7 @@ void Printer::toggleCommunication() {
 void Printer::toggleNoMoves() {
 	setDebugLevel(debugLevel ^ 32);
 }
-	
+
 bool Printer::isPositionAllowed(float x,float y,float z)
 {
     if(isNoDestinationCheck())  return true;
@@ -347,14 +357,14 @@ bool Printer::isPositionAllowed(float x,float y,float z)
 }
 
 void Printer::setFanSpeedDirectly(uint8_t speed) {
-#if FAN_PIN > -1 && FEATURE_FAN_CONTROL
+#if FAN_PIN>-1 && FEATURE_FAN_CONTROL
     if(pwm_pos[PWM_FAN1] == speed)
         return;
 #if FAN_KICKSTART_TIME
     if(fanKickstart == 0 && speed > pwm_pos[PWM_FAN1] && speed < 85)
     {
          if(pwm_pos[PWM_FAN1]) fanKickstart = FAN_KICKSTART_TIME / 100;
-         else                  fanKickstart = FAN_KICKSTART_TIME / 25;
+         else                          fanKickstart = FAN_KICKSTART_TIME / 25;
     }
 #endif
     pwm_pos[PWM_FAN1] = speed;
@@ -372,7 +382,7 @@ void Printer::setFan2SpeedDirectly(uint8_t speed) {
 	}
 	#endif
 	pwm_pos[PWM_FAN2] = speed;
-	#endif
+#endif
 }
 
 void Printer::reportPrinterMode() {
@@ -531,7 +541,10 @@ void Printer::kill(uint8_t only_steppers)
         Printer::setAllKilled(true);
     }
     else UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_STEPPER_DISABLED_ID));
-#if FAN_BOARD_PIN > -1
+#if BED_LEDS
+	Light.ShowTemps();
+#endif
+#if FAN_BOARD_PIN>-1
 #if HAVE_HEATED_BED
     if(heatedBedController.targetTemperatureC < 15)      // turn off FAN_BOARD only if bed heater is off
 #endif
@@ -771,6 +784,10 @@ void Printer::setup()
     Com::selectLanguage(0); // just make sure we have a language in case someone uses it early
 #endif
     //HAL::delayMilliseconds(500);  // add a delay at startup to give hardware time for initalization
+    HAL::hwSetup();
+#if BED_LEDS
+	Light.init();
+#endif
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
 #endif
@@ -892,7 +909,7 @@ void Printer::setup()
 #endif
 #endif
 
-    //end stop pull ups
+    //endstop pullups
 #if MIN_HARDWARE_ENDSTOP_X
 #if X_MIN_PIN > -1
     SET_INPUT(X_MIN_PIN);
@@ -959,7 +976,7 @@ void Printer::setup()
     PULLUP(Z_PROBE_PIN, HIGH);
 #endif
 #endif // FEATURE_FEATURE_Z_PROBE
-#if FAN_PIN > -1 && FEATURE_FAN_CONTROL
+#if FAN_PIN>-1 && FEATURE_FAN_CONTROL
     SET_OUTPUT(FAN_PIN);
     WRITE(FAN_PIN, LOW);
 #endif
@@ -1127,7 +1144,7 @@ void Printer::setup()
     Com::printFLN(Com::tStart);
     HAL::showStartReason();
     Extruder::initExtruder();
-    // sets auto leveling in eeprom init
+    // sets autoleveling in eeprom init
     EEPROM::init(); // Read settings from eeprom if wanted
     UI_INITIALIZE;
     for(uint8_t i = 0; i < E_AXIS_ARRAY; i++)
@@ -1205,7 +1222,7 @@ void Printer::defaultLoopActions()
         if(stepperInactiveTime != 0 && curtime >  stepperInactiveTime )
             Printer::kill(true);
     }
-#if SDCARDDETECT > -1 && SDSUPPORT
+#if SDCARDDETECT>-1 && SDSUPPORT
     sd.automount();
 #endif
     DEBUG_MEMORY;
@@ -1222,7 +1239,7 @@ void Printer::MemoryPosition()
 
 void Printer::GoToMemoryPosition(bool x, bool y, bool z, bool e, float feed)
 {
-    if(memoryF < 0) return; // Not stored before call, so we ignore it
+    if(memoryF < 0) return; // Not stored before call, so we ignor eit
     bool all = !(x || y || z);
     moveToReal((all || x ? (lastCmdPos[X_AXIS] = memoryX) : IGNORE_COORDINATE)
                ,(all || y ?(lastCmdPos[Y_AXIS] = memoryY) : IGNORE_COORDINATE)
@@ -1273,7 +1290,7 @@ void Printer::homeZAxis() // Delta z homing
 	// This can lead to headcrashes and even fire, thus a safer algorithm to ensure the endstops actually respond as expected.
 	//Endstops::report();
 	// Check that all endstops (XYZ) were hit
-	Endstops::fillFromAccumulator();
+	//Endstops::fillFromAccumulator();
 	if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
 		// Back off for retest
 		PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS]/ENDSTOP_X_RETEST_REDUCTION_FACTOR, true, true);
@@ -1368,6 +1385,9 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     UI_CLEAR_STATUS
     Commands::printCurrentPosition(PSTR("homeAxis "));
     setAutolevelActive(autoLevel);
+#if BED_LEDS
+		Light.ShowTemps();
+#endif
 }
 #else
 #if DRIVE_SYSTEM == TUGA  // Tuga printer homing
@@ -1463,7 +1483,6 @@ void Printer::homeXAxis()
 #endif
     }
 }
-
 void Printer::homeYAxis()
 {
     long steps;
@@ -1730,6 +1749,39 @@ void Printer::zBabystep()
     //HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 1);
 }
 
+void Printer::moveToPausePosition() {
+	if (!hasMovedToPausePosition) {
+		Commands::waitUntilEndOfAllMoves();
+		oldFeedrate = Printer::feedrate;
+		if (canMoveToPausePosition) {
+			positionBeforePause[0] = currentPosition[0];
+			positionBeforePause[1] = currentPosition[1];
+			positionBeforePause[2] = currentPosition[2];
+			if (currentPosition[Z_AXIS]< (Printer::zLength - 8)) {
+				//Move 3mm up
+				PrintLine::moveRelativeDistanceInSteps(0, 0, 3 * Printer::axisStepsPerMM[Z_AXIS], 0, oldFeedrate, true, true);
+				Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
+				Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::zLength - 5, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
+			}
+			else
+				homeAxis(true,true,true);
+		}
+		hasMovedToPausePosition = true;
+		Commands::waitUntilEndOfAllMoves();
+		UI_STATUS_UPD_RAM(UI_TEXT_PAUSED);
+	}
+}
+
+void Printer::resumePrinting() {
+	if (canMoveToPausePosition && hasMovedToPausePosition) {
+		if (positionBeforePause[Z_AXIS]< (Printer::zLength - 5))
+			Printer::moveTo(0, 0, positionBeforePause[2]+5, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
+		Printer::moveTo(positionBeforePause[0],positionBeforePause[1], positionBeforePause[2], IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
+	}
+	Printer::feedrate = oldFeedrate;
+	Printer::isPaused = false;
+	Printer::hasMovedToPausePosition = false;
+}
 void Printer::setCaseLight(bool on) {
 #if CASE_LIGHTS_PIN > -1
     WRITE(CASE_LIGHTS_PIN,on);

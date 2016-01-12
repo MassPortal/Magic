@@ -25,6 +25,7 @@
 class Com
 {
     public:
+FSTRINGVAR(tPrinterId)
 FSTRINGVAR(tDebug)
 FSTRINGVAR(tFirmware)
 FSTRINGVAR(tOk)
@@ -233,6 +234,9 @@ FSTRINGVAR(tHitZProbe)
 FSTRINGVAR(tZProbeAverage)
 FSTRINGVAR(tZProbeZReset)
 FSTRINGVAR(tZProbeBedDitance)
+FSTRINGVAR(tProbeActionScript)
+FSTRINGVAR(tCalBluetapeScript)
+FSTRINGVAR(tCalPettapeScript)
 #endif
 FSTRINGVAR(tAutolevelReset)
 FSTRINGVAR(tAutolevelEnabled)
@@ -249,23 +253,27 @@ FSTRINGVAR(tWait)
 #if EEPROM_MODE==0
 FSTRINGVAR(tNoEEPROMSupport)
 #else
-FSTRINGVAR(tZProbeOffsetZ)
 #if FEATURE_Z_PROBE
 FSTRINGVAR(tZProbeHeight)
 FSTRINGVAR(tZProbeOffsetX)
 FSTRINGVAR(tZProbeOffsetY)
+FSTRINGVAR(tZProbeOffsetZ)
 FSTRINGVAR(tZProbeSpeed)
 FSTRINGVAR(tZProbeSpeedXY)
 FSTRINGVAR(tZProbeX1)
 FSTRINGVAR(tZProbeY1)
+FSTRINGVAR(tZProbeXY1offset)
 FSTRINGVAR(tZProbeX2)
 FSTRINGVAR(tZProbeY2)
+FSTRINGVAR(tZProbeXY2offset)
 FSTRINGVAR(tZProbeX3)
 FSTRINGVAR(tZProbeY3)
+FSTRINGVAR(tZProbeXY3offset)
 FSTRINGVAR(zZProbeBendingCorA)
 FSTRINGVAR(zZProbeBendingCorB)
 FSTRINGVAR(zZProbeBendingCorC)
 #endif
+FSTRINGVAR(tEPRBedLedBrightness)
 #if FEATURE_AUTOLEVEL
 FSTRINGVAR(tAutolevelActive)
 #endif
@@ -452,6 +460,7 @@ static const char* translatedF(int textId);
 static void selectLanguage(fast8_t lang);
 static uint8_t selectedLanguage;
 #endif
+static inline void println(const char *text) { print(text); println(); }
     protected:
     private:
 };

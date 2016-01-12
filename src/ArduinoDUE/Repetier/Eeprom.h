@@ -112,12 +112,12 @@ have problems with other modules using the eeprom */
 #define EPR_AXISCOMP_TANYZ			980
 #define EPR_AXISCOMP_TANXZ			984
 
-#define EPR_DISTORTION_CORRECTION_ENABLED      988
-#define EPR_RETRACTION_LENGTH                  992
-#define EPR_RETRACTION_LONG_LENGTH             996
-#define EPR_RETRACTION_SPEED                  1000
-#define EPR_RETRACTION_Z_LIFT                 1004
-#define EPR_RETRACTION_UNDO_EXTRA_LENGTH      1008
+#define EPR_DISTORTION_CORRECTION_ENABLED 988
+#define EPR_RETRACTION_LENGTH 992
+#define EPR_RETRACTION_LONG_LENGTH 996
+#define EPR_RETRACTION_SPEED 1000
+#define EPR_RETRACTION_Z_LIFT 1004
+#define EPR_RETRACTION_UNDO_EXTRA_LENGTH 1008
 #define EPR_RETRACTION_UNDO_EXTRA_LONG_LENGTH 1012
 #define EPR_RETRACTION_UNDO_SPEED             1016
 #define EPR_AUTORETRACT_ENABLED               1020
@@ -169,6 +169,12 @@ have problems with other modules using the eeprom */
 // 55-57 free for byte sized parameter
 #define EPR_EXTRUDER_MIXING_RATIOS  58 // 16*2 byte ratios = 32 byte -> end = 89
 #define EPR_EXTRUDER_Z_OFFSET            90
+#define EPR_PRINTER_ID				   3210
+#define EPR_Z_PROBE_XY1_OFFSET		   3222
+#define EPR_Z_PROBE_XY2_OFFSET		   3226
+#define EPR_Z_PROBE_XY3_OFFSET		   3230
+#define EPR_BED_LED_BRIGHTNESS		   3234
+
 #ifndef Z_PROBE_BED_DISTANCE
 #define Z_PROBE_BED_DISTANCE 5.0
 #endif
@@ -195,7 +201,16 @@ public:
     static void writeSettings();
     static void update(GCode *com);
     static void updatePrinterUsage();
-    static inline void setVersion(uint8_t v) {
+
+	static inline int PrinterId() {
+#if EEPROM_MODE != 0
+		return HAL::eprGetInt32(EPR_PRINTER_ID);
+#else
+		return 0;
+#endif
+	}
+
+static inline void setVersion(uint8_t v) {
 #if EEPROM_MODE != 0
         HAL::eprSetByte(EPR_VERSION,v);
         HAL::eprSetByte(EPR_INTEGRITY_BYTE,computeChecksum());
@@ -206,13 +221,6 @@ public:
         return HAL::eprGetByte(EPR_SELECTED_LANGUAGE);
 #else
         return 0;
-#endif
-    }
-    static inline float zProbeZOffset() {
-#if EEPROM_MODE != 0
-	    return HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
-#else
-	    return Z_PROBE_Z_OFFSET;
 #endif
     }
     static inline float zProbeSpeed() {
@@ -241,6 +249,13 @@ public:
         return HAL::eprGetFloat(EPR_Z_PROBE_Y_OFFSET);
 #else
         return Z_PROBE_Y_OFFSET;
+#endif
+    }
+    static inline float zProbeZOffset() {
+#if EEPROM_MODE != 0
+	    return HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
+#else
+	    return Z_PROBE_Z_OFFSET;
 #endif
     }
     static inline float zProbeHeight() {
@@ -292,6 +307,34 @@ public:
         return Z_PROBE_Y3;
 #endif
     }
+    static inline float zProbeXY1offset() {
+#if EEPROM_MODE != 0
+	    return HAL::eprGetFloat(EPR_Z_PROBE_XY1_OFFSET);
+#else
+	    return EPR_Z_PROBE_XY1_OFFSET;
+#endif
+    }
+    static inline float zProbeXY2offset() {
+#if EEPROM_MODE != 0
+	    return HAL::eprGetFloat(EPR_Z_PROBE_XY2_OFFSET);
+#else
+	    return EPR_Z_PROBE_XY2_OFFSET;
+#endif
+    }
+    static inline float zProbeXY3offset() {
+#if EEPROM_MODE != 0
+	    return HAL::eprGetFloat(EPR_Z_PROBE_XY3_OFFSET);
+#else
+	    return EPR_Z_PROBE_XY3_OFFSET;
+#endif
+    }
+	static inline float bedLedBrightness() {
+#if EEPROM_MODE != 0
+		return HAL::eprGetFloat(EPR_BED_LED_BRIGHTNESS);
+#else
+		return EPR_BED_LED_BRIGHTNESS;
+#endif
+	}
     static inline float zProbeBedDistance() {
 #if EEPROM_MODE != 0
         return HAL::eprGetFloat(EPR_Z_PROBE_BED_DISTANCE);

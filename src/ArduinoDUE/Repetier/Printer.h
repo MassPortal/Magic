@@ -51,8 +51,7 @@ union floatLong
 #endif
 };
 
-union wizardVar
-{
+union wizardVar {
     float f;
     int32_t l;
     uint32_t ul;
@@ -275,6 +274,7 @@ class Printer
 {
     static uint8_t debugLevel;
 public:
+	static long PrinterId;
 #if USE_ADVANCE
     static volatile int extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
     static ufast8_t maxExtruderSpeed;            ///< Timer delay for end extruder speed
@@ -299,6 +299,13 @@ public:
     static uint8_t unitIsInches;
     static uint8_t mode;
     static uint8_t fanSpeed; // Last fan speed set with M106/M107
+
+	static bool isPaused;
+	static bool hasMovedToPausePosition; // if has already moved to pause position after pause request
+	static bool canMoveToPausePosition; // is it safe to move to pause position (have we homed before?)
+	static void moveToPausePosition();
+	static void resumePrinting();
+	static float positionBeforePause[3]; //zPosition before pause
     static float zBedOffset;
     static uint8_t flag0,flag1; // 1 = stepper disabled, 2 = use external extruder interrupt, 4 = temp Sensor defect, 8 = homed
     static uint8_t flag2;
@@ -337,7 +344,7 @@ public:
 #if FEATURE_Z_PROBE || MAX_HARDWARE_ENDSTOP_Z || NONLINEAR_SYSTEM
     static int32_t stepsRemainingAtZHit;
 #endif
-#if DRIVE_SYSTEM == DELTA
+#if DRIVE_SYSTEM==DELTA
     static int32_t stepsRemainingAtXHit;
     static int32_t stepsRemainingAtYHit;
 #endif
@@ -815,7 +822,7 @@ public:
     static INLINE void unsetAllSteppersDisabled()
     {
         flag0 &= ~PRINTER_FLAG0_STEPPER_DISABLED;
-#if FAN_BOARD_PIN > -1
+#if FAN_BOARD_PIN>-1
         pwm_pos[PWM_BOARD_FAN] = 255;
 #endif // FAN_BOARD_PIN
     }

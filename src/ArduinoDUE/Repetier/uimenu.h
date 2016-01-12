@@ -208,36 +208,13 @@ for 2 row displays. You can add additional pages or change the default pages lik
 
    UI_PAGE6_T(ui_page1,UI_TEXT_MAINPAGE6_1_ID,UI_TEXT_MAINPAGE6_2_ID,UI_TEXT_MAINPAGE6_3_ID,UI_TEXT_MAINPAGE6_4_ID,UI_TEXT_MAINPAGE6_5_ID,UI_TEXT_MAINPAGE6_6_ID)
 
-  #if EEPROM_MODE != 0
+ /* #if EEPROM_MODE != 0
     UI_PAGE4_T(ui_page2,UI_TEXT_PRINT_TIME_ID,UI_TEXT_PRINT_TIME_VALUE_ID,UI_TEXT_PRINT_FILAMENT_ID,UI_TEXT_PRINT_FILAMENT_VALUE_ID)
     #define UI_PRINTTIME_PAGES ,&ui_page2
     #define UI_PRINTTIME_COUNT 1
-  #else
+  #else		*/
     #define UI_PRINTTIME_PAGES
     #define UI_PRINTTIME_COUNT 0
-  #endif
-
-#if NUM_EXTRUDER > 2 && MIXING_EXTRUDER == 0
-       UI_PAGE6_T(ui_page3,UI_TEXT_EXTR0_TEMP_ID,UI_TEXT_EXTR1_TEMP_ID,UI_TEXT_EXTR2_TEMP_ID,
-#if NUM_EXTRUDER > 3
-    UI_TEXT_EXTR3_TEMP_ID,
-#else
-    UI_TEXT_EMPTY_ID,
-#endif
-#if NUM_EXTRUDER > 4
-    UI_TEXT_EXTR4_TEMP_ID,
-#elif HAVE_HEATED_BED
-   UI_TEXT_BED_TEMP_ID,
-#else
-    UI_TEXT_EMPTY_ID,
-#endif
-    UI_TEXT_STATUS_ID)
-    #define UI_EXTRUDERS_PAGES ,&ui_page3
-    #define UI_EXTRUDERS_PAGES_COUNT 1
-  #else
-    #define UI_EXTRUDERS_PAGES
-    #define UI_EXTRUDERS_PAGES_COUNT 0
-  #endif
   /*
   Merge pages together. Use the following pattern:
   #define UI_PAGES {&name1,&name2,&name3}
@@ -318,7 +295,7 @@ Merge pages together. Use the following pattern:
 */
 #define UI_PAGES {&ui_page1,&ui_page2,&ui_page3}
 // How many pages do you want to have. Minimum is 1.
-#define UI_NUM_PAGES 3
+#define UI_NUM_PAGES 1
 #endif
 
 /* ============ MENU definition ================
@@ -604,6 +581,12 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_calculate_leveling,UI_TEXT_CALCULATE_LEVELING_ID
 UI_MENU(ui_menu_level,UI_MENU_LEVEL,4+3*UI_SPEED+UI_MENU_BACKCNT)
 #endif
 
+// **** Calibration menu
+UI_MENU_ACTIONCOMMAND(ui_menu_calibrate_bed,UI_TEXT_CALIBRATE_BED, UI_ACTION_CALIBRATE);
+UI_MENU_ACTIONCOMMAND(ui_menu_reset_matrix,UI_TEXT_RESET_MATRIX_EN, UI_ACTION_RESET_MATRIX);
+#define UI_MENU_CALIBRATE {UI_MENU_ADDCONDBACK &ui_menu_calibrate_bed,&ui_menu_reset_matrix}
+UI_MENU(ui_menu_calibrate,UI_MENU_CALIBRATE,2+UI_MENU_BACKCNT);
+
 // **** Extruder menu
 UI_MENU_CHANGEACTION_T(ui_menu_ext_temp0,UI_TEXT_EXTR0_TEMP_ID,UI_ACTION_EXTRUDER0_TEMP)
 #if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
@@ -707,7 +690,6 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_ext_ditto3,UI_TEXT_DITTO_3_ID,UI_DITTO_3)
 #define UI_MENU_EXTRUDER {UI_MENU_ADDCONDBACK UI_MENU_BEDCOND UI_MENU_EXTCOND &ui_menu_go_epos,&ui_menu_ext_origin UI_DITTO_COMMANDS}
 UI_MENU(ui_menu_extruder,UI_MENU_EXTRUDER,UI_MENU_BACKCNT+UI_MENU_BEDCNT+UI_MENU_EXTCNT+2+UI_DITTO_COMMANDS_COUNT)
 
-// **** SD card menu
 
 // **** Quick menu
 #if PS_ON_PIN > -1
@@ -728,6 +710,7 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_toggle_light,UI_TEXT_LIGHTS_ONOFF_ID,UI_ACTION_L
 #endif
 UI_MENU_ACTIONCOMMAND_T(ui_menu_quick_preheat_pla,UI_TEXT_PREHEAT_PLA_ID,UI_ACTION_PREHEAT_PLA)
 UI_MENU_ACTIONCOMMAND_T(ui_menu_quick_preheat_abs,UI_TEXT_PREHEAT_ABS_ID,UI_ACTION_PREHEAT_ABS)
+UI_MENU_ACTIONCOMMAND(ui_menu_quick_preheat_pet,UI_TEXT_PREHEAT_PET,UI_ACTION_PREHEAT_PET)
 UI_MENU_ACTIONCOMMAND_T(ui_menu_quick_cooldown,UI_TEXT_COOLDOWN_ID,UI_ACTION_COOLDOWN)
 UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_quick_origin,UI_TEXT_SET_TO_ORIGIN_ID,UI_ACTION_SET_ORIGIN,0,MENU_MODE_PRINTING)
 UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_quick_stopstepper,UI_TEXT_DISABLE_STEPPER_ID,UI_ACTION_DISABLE_STEPPER,0,MENU_MODE_PRINTING)
@@ -758,11 +741,30 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_quick_changefil,UI_TEXT_CHANGE_FILAMENT_ID,UI_AC
 #define UI_CHANGE_FIL_ENT
 #endif
 
-#define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_home_all BABY_ENTRY ,&ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT,&ui_menu_quick_preheat_pla,&ui_menu_quick_preheat_abs,&ui_menu_quick_cooldown,&ui_menu_quick_origin,&ui_menu_quick_stopstepper MENU_PSON_ENTRY DEBUG_PRINT_EXTRA}
-UI_MENU(ui_menu_quick,UI_MENU_QUICK,8+BABY_CNT+UI_MENU_BACKCNT+MENU_PSON_COUNT+DEBUG_PRINT_COUNT+UI_TOGGLE_LIGHT_COUNT+UI_CHANGE_FIL_CNT)
+//Preheat custom menu
+#define UI_MENU_PREHEAT_CUSTOM {UI_MENU_ADDCONDBACK &ui_menu_ext_temp0, &ui_menu_bed_temp}
+UI_MENU(ui_menu_preheat_custom,UI_MENU_PREHEAT_CUSTOM,2+UI_MENU_BACKCNT)
+
+UI_MENU_SUBMENU(ui_menu_preheat_cust_sub, UI_TEXT_PREHEAT_EN " " UI_TEXT_CUSTOM ,ui_menu_preheat_custom)
+
+//Preheat menu
+#define UI_MENU_PREHEAT {UI_MENU_ADDCONDBACK &ui_menu_quick_preheat_pla,&ui_menu_quick_preheat_abs,&ui_menu_quick_preheat_pet,&ui_menu_preheat_cust_sub,&ui_menu_quick_cooldown}
+UI_MENU(ui_menu_preheat,UI_MENU_PREHEAT,5+UI_MENU_BACKCNT)
+
+//Bed LED brightness menu
+#if BED_LEDS
+UI_MENU_CHANGEACTION(ui_menu_led_brightness,UI_TEXT_BED_LED_BRIGHTNESS,UI_ACTION_BED_LED_CHANGE)
+#define UI_MENU_BEDLED {UI_MENU_ADDCONDBACK &ui_menu_led_brightness}
+UI_MENU(ui_menu_bed_led,UI_MENU_BEDLED,1+UI_MENU_BACKCNT)
+UI_MENU_SUBMENU(ui_menu_bed_led_sub, UI_TEXT_BED_LEDS ,ui_menu_bed_led)
+#define BED_LED_CNT 1
+#define BED_LED_ENT ,&ui_menu_led_brightness
+#else
+#define BED_LED_CNT 0
+#define BED_LED_ENT
+#endif
 
 // **** Bed Coating Menu
-
 #if UI_BED_COATING
 UI_MENU_ACTION2_T(ui_menu_nocoating_action,  UI_ACTION_DUMMY, UI_TEXT_BED_COATING_SET1_ID, UI_TEXT_NOCOATING_ID)
 UI_MENU_ACTION2_T(ui_menu_buildtak_action,  UI_ACTION_DUMMY, UI_TEXT_BED_COATING_SET1_ID, UI_TEXT_BUILDTAK_ID)
@@ -810,6 +812,14 @@ UI_MENU_SUBMENU_T(ui_menu_fan_sub,UI_TEXT_FANSPEED_ID,ui_menu_fan)
 #define UI_MENU_FAN_CNT 0
 #endif
 
+//Utilities/perform menu
+#define UI_MENU_PERFORM {UI_MENU_ADDCONDBACK &ui_menu_home_all, &ui_menu_quick_changefil,&ui_menu_quick_stopstepper,&ui_menu_go_epos,&ui_menu_quick_cooldown, &ui_menu_fan_off BED_LED_ENT }
+UI_MENU(ui_menu_perform,UI_MENU_PERFORM,6+UI_MENU_BACKCNT+BED_LED_CNT)
+
+//Control menu
+#define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply, &ui_menu_fan_fanspeed, &ui_menu_ext_temp0, &ui_menu_bed_temp UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT MENU_PSON_ENTRY DEBUG_PRINT_EXTRA}
+UI_MENU(ui_menu_quick,UI_MENU_QUICK,5+UI_MENU_BACKCNT+MENU_PSON_COUNT+DEBUG_PRINT_COUNT+UI_TOGGLE_LIGHT_COUNT+UI_CHANGE_FIL_CNT)
+
 // **** SD card menu
 
 #if SDSUPPORT
@@ -819,6 +829,12 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_sd_askstop_no,UI_TEXT_NO_ID,UI_ACTION_BACK)
 UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_askstop_yes,      UI_TEXT_YES_ID,     UI_ACTION_SD_STOP | UI_ACTION_TOPMENU,     MENU_MODE_SD_PRINTING, 0)
 #define UI_MENU_SD_ASKSTOP {&ui_menu_sd_askstop_head,&ui_menu_sd_askstop_no,&ui_menu_sd_askstop_yes}
 UI_MENU(ui_menu_sd_askstop,UI_MENU_SD_ASKSTOP,3)
+
+/*
+UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_printing,UI_TEXT_PRINTING_ID":",UI_ACTION_DUMMY,MENU_MODE_SD_PRINTING,MENU_MODE_SD_PAUSED)
+UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_paused,UI_TEXT_PAUSED,UI_ACTION_DUMMY,MENU_MODE_SD_PAUSED,0)
+UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_printing_file,UI_TEXT_PRINTING_FILE,UI_ACTION_DUMMY,MENU_MODE_SD_PRINTING,0)
+*/
 
 #define UI_MENU_SD_FILESELECTOR {&ui_menu_back}
 UI_MENU_FILESELECT(ui_menu_sd_fileselector,UI_MENU_SD_FILESELECTOR,1)
@@ -840,8 +856,8 @@ UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_mount,UI_TEXT_MOUNT_CARD_ID,UI_ACTION_
 #define UI_MOUNT_CMD ,&ui_menu_sd_unmount,&ui_menu_sd_mount
 #endif
 UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_sd_delete,UI_TEXT_DELETE_FILE_ID,UI_ACTION_SD_DELETE,MENU_MODE_SD_MOUNTED,MENU_MODE_SD_PRINTING)
-#define UI_MENU_SD {UI_MENU_ADDCONDBACK &ui_menu_sd_printfile,&ui_menu_sd_pause,&ui_menu_sd_continue,&ui_menu_sd_stop UI_MOUNT_CMD ,&ui_menu_sd_delete}
-UI_MENU(ui_menu_sd, UI_MENU_SD, UI_MENU_BACKCNT + 5 + UI_MOUNT_CNT)
+#define UI_MENU_SD {UI_MENU_ADDCONDBACK/* &ui_menu_printing, &ui_menu_paused, &ui_menu_printing_file, */&ui_menu_sd_printfile, &ui_menu_sd_pause,&ui_menu_sd_continue,&ui_menu_sd_stop UI_MOUNT_CMD ,&ui_menu_sd_delete}
+UI_MENU(ui_menu_sd, UI_MENU_SD, UI_MENU_BACKCNT + 5 + UI_MOUNT_CNT)//8
 UI_MENU_SUBMENU_T(ui_menu_sd_sub, UI_TEXT_SD_CARD_ID, ui_menu_sd)
 
 #define UI_MENU_SD_COND &ui_menu_sd_sub,
@@ -860,8 +876,8 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_debug_info,   UI_TEXT_DBG_INFO_ID,   UI_ACTION_D
 UI_MENU_ACTIONCOMMAND_T(ui_menu_debug_error,  UI_TEXT_DBG_ERROR_ID,  UI_ACTION_DEBUG_ERROR)
 UI_MENU_ACTIONCOMMAND_T(ui_menu_debug_dryrun, UI_TEXT_DBG_DRYRUN_ID, UI_ACTION_DEBUG_DRYRUN)
 
-#define UI_MENU_DEBUGGING {UI_MENU_ADDCONDBACK &ui_menu_debug_echo,&ui_menu_debug_info,&ui_menu_debug_error,&ui_menu_debug_dryrun}
-UI_MENU(ui_menu_debugging,UI_MENU_DEBUGGING,4 + UI_MENU_BACKCNT)
+//#define UI_MENU_DEBUGGING {UI_MENU_ADDCONDBACK &ui_menu_debug_echo,&ui_menu_debug_info,&ui_menu_debug_error,&ui_menu_debug_dryrun}
+//UI_MENU(ui_menu_debugging,UI_MENU_DEBUGGING,4 + UI_MENU_BACKCNT)
 
 // **** Acceleration settings
 #if DRIVE_SYSTEM != DELTA
@@ -914,8 +930,8 @@ UI_MENU_ACTIONSELECTOR_T(ui_menu_general_max_inactive,UI_TEXT_POWER_INACTIVE_ID,
  #define UI_TOOGLE_AUTOLEVEL_ENTRY
  #define UI_TOGGLE_AUTOLEVEL_COUNT 0
 #endif
-#define UI_MENU_GENERAL {UI_MENU_ADDCONDBACK &ui_menu_general_baud,&ui_menu_general_stepper_inactive,&ui_menu_general_max_inactive UI_TOOGLE_AUTOLEVEL_ENTRY}
-UI_MENU(ui_menu_general,UI_MENU_GENERAL,3+UI_MENU_BACKCNT+UI_TOGGLE_AUTOLEVEL_COUNT)
+//#define UI_MENU_GENERAL {UI_MENU_ADDCONDBACK &ui_menu_general_baud,&ui_menu_general_stepper_inactive,&ui_menu_general_max_inactive UI_TOOGLE_AUTOLEVEL_ENTRY}
+//UI_MENU(ui_menu_general,UI_MENU_GENERAL,3+UI_MENU_BACKCNT+UI_TOGGLE_AUTOLEVEL_COUNT)
 
 // **** Extruder configuration
 
@@ -987,8 +1003,8 @@ UI_MENU_CHANGEACTION_T(ui_menu_cext_yoffset,UI_TEXT_EXTR_YOFF_ID,UI_ACTION_Y_OFF
 #define UI_MENU_CONFEXTCOND
 #define UI_MENU_CONFEXTCNT 0
 #endif
-#define UI_MENU_CEXTR {UI_MENU_ADDCONDBACK UI_MENU_CONFEXTCOND &ui_menu_cext_steps,&ui_menu_cext_start_feedrate,&ui_menu_cext_max_feedrate,&ui_menu_cext_acceleration,&ui_menu_cext_watch_period,&ui_menu_ext_wait_units,&ui_menu_ext_wait_temp UI_MENU_ADVANCE UI_MENU_PIDCOND}
-UI_MENU(ui_menu_cextr,UI_MENU_CEXTR,7+UI_MENU_BACKCNT+UI_MENU_PIDCNT+UI_MENU_CONFEXTCNT+UI_MENU_ADV_CNT)
+//#define UI_MENU_CEXTR {UI_MENU_ADDCONDBACK UI_MENU_CONFEXTCOND &ui_menu_cext_steps,&ui_menu_cext_start_feedrate,&ui_menu_cext_max_feedrate,&ui_menu_cext_acceleration,&ui_menu_cext_watch_period,&ui_menu_ext_wait_units,&ui_menu_ext_wait_temp UI_MENU_ADVANCE UI_MENU_PIDCOND}
+//UI_MENU(ui_menu_cextr,UI_MENU_CEXTR,7+UI_MENU_BACKCNT+UI_MENU_PIDCNT+UI_MENU_CONFEXTCNT+UI_MENU_ADV_CNT)
 
 // HeatBed Configuration - use menu actions from extruder configuration
 #if HAVE_HEATED_BED
@@ -1002,11 +1018,12 @@ UI_MENU(ui_menu_cextr,UI_MENU_CEXTR,7+UI_MENU_BACKCNT+UI_MENU_PIDCNT+UI_MENU_CON
 #endif
 
 // **** Configuration menu
-
+/*
 UI_MENU_SUBMENU_T(ui_menu_conf_general, UI_TEXT_GENERAL_ID,      ui_menu_general)
 UI_MENU_SUBMENU_T(ui_menu_conf_accel,   UI_TEXT_ACCELERATION_ID, ui_menu_accel)
 UI_MENU_SUBMENU_T(ui_menu_conf_feed,    UI_TEXT_FEEDRATE_ID,     ui_menu_feedrate)
 UI_MENU_SUBMENU_T(ui_menu_conf_extr,    UI_TEXT_EXTRUDER_ID,     ui_menu_cextr)
+*/
 #if HAVE_HEATED_BED
  UI_MENU_SUBMENU_T(ui_menu_conf_bed,    UI_TEXT_HEATING_BED_ID,  ui_menu_bedconf)
  #define UI_MENU_BEDCONF_COND ,&ui_menu_conf_bed
@@ -1042,9 +1059,29 @@ UI_MENU_SUBMENU_T(ui_menu_conf_delta, UI_TEXT_ZCALIB_ID, ui_menu_delta)
 #define UI_MENU_DELTA_COND
 #define UI_MENU_DELTA_CNT 0
 #endif
-#define UI_MENU_CONFIGURATION {UI_MENU_ADDCONDBACK &ui_menu_conf_general LANGMENU_ENTRY ,&ui_menu_conf_accel,&ui_menu_conf_feed,&ui_menu_conf_extr UI_MENU_BEDCONF_COND UI_MENU_EEPROM_COND UI_MENU_DELTA_COND UI_MENU_SL_COND}
-UI_MENU(ui_menu_configuration,UI_MENU_CONFIGURATION,UI_MENU_BACKCNT+LANGMENU_COUNT+UI_MENU_EEPROM_CNT+UI_MENU_BEDCONF_CNT+UI_MENU_DELTA_CNT+UI_MENU_SL_CNT+4)
+
+UI_PAGE4(ui_page_about,UI_PRINTER_NAME,"by " UI_PRINTER_COMPANY,"HW: " HARDWARE_VERSION " ID: %oI","FW ver.: " FIRMWARE_VERSION)
+
+UI_MENU_SUBMENU(ui_menu_calibration, UI_TEXT_CALIBRATION, ui_menu_calibrate)
+UI_MENU_ACTION2C(ui_menu_calibrate_action, UI_ACTION_DUMMY, UI_TEXT_CALIBRATED)
+UI_MENU_ACTION2C(ui_menu_reset_action, UI_ACTION_DUMMY, UI_TEXT_RESET_READY_EN)
+UI_MENU_ACTION2C(ui_menu_probing, UI_ACTION_DUMMY, UI_TEXT_CALIBRATING)
+UI_MENU_ACTION2C(ui_menu_verifying, UI_ACTION_DUMMY, UI_TEXT_VERIFYING)
+UI_MENU_ACTION2C(ui_menu_avoid, UI_ACTION_DUMMY, UI_TEXT_AVOID)
+UI_MENU_ACTION2C(ui_menu_avoid_hot, UI_ACTION_DUMMY, UI_TEXT_AVOID_HOT)
+UI_MENU_ACTION2C(ui_menu_avoid_uninit, UI_ACTION_DUMMY,UI_TEXT_AVOID_UNINIT)
+
+//#define UI_MENU_CONFIGURATION {UI_MENU_ADDCONDBACK &ui_menu_conf_general,&ui_menu_conf_accel,&ui_menu_conf_feed,&ui_menu_conf_extr UI_MENU_BEDCONF_COND UI_MENU_EEPROM_COND UI_MENU_DELTA_COND UI_MENU_SL_COND}
+//UI_MENU(ui_menu_configuration,UI_MENU_CONFIGURATION,UI_MENU_BACKCNT+UI_MENU_EEPROM_CNT+UI_MENU_BEDCONF_CNT+UI_MENU_DELTA_CNT+UI_MENU_SL_CNT+4)
 // Main menu
+UI_MENU_SUBMENU(ui_menu_main1, UI_TEXT_CONTROL,ui_menu_quick)
+UI_MENU_SUBMENU(ui_menu_preheat_sub, UI_TEXT_PREHEAT_EN,ui_menu_preheat)
+UI_MENU_SUBMENU(ui_menu_perform_sub, UI_TEXT_PERFORM,ui_menu_perform)
+UI_MENU_SUBMENU(ui_menu_about_sub, UI_TEXT_ABOUT,ui_page_about)
+
+#define UI_MENU_MAIN {UI_MENU_ADDCONDBACK  &ui_menu_main1, &ui_menu_preheat_sub, &ui_menu_perform_sub, SD_PRINTFILE_ENTRY UI_MENU_SD_COND UI_MENU_FAN_COND &ui_menu_prepare, &ui_menu_calibration, &ui_menu_about_sub }
+UI_MENU(ui_menu_main,UI_MENU_MAIN,6+UI_MENU_BACKCNT+UI_MENU_SD_CNT+UI_MENU_FAN_CNT+SD_PRINTFILE_ENTRY_CNT)
+/*
 UI_MENU_SUBMENU_T(ui_menu_main1, UI_TEXT_QUICK_SETTINGS_ID,ui_menu_quick)
 UI_MENU_SUBMENU_T(ui_menu_main2, UI_TEXT_POSITION_ID,ui_menu_positions)
 UI_MENU_SUBMENU_T(ui_menu_main3, UI_TEXT_EXTRUDER_ID,ui_menu_extruder)
@@ -1052,7 +1089,7 @@ UI_MENU_SUBMENU_T(ui_menu_main4, UI_TEXT_DEBUGGING_ID,ui_menu_debugging)
 UI_MENU_SUBMENU_T(ui_menu_main5, UI_TEXT_CONFIGURATION_ID,ui_menu_configuration)
 #define UI_MENU_MAIN {UI_MENU_ADDCONDBACK  &ui_menu_main1,SD_PRINTFILE_ENTRY &ui_menu_main2,&ui_menu_main3,UI_MENU_FAN_COND UI_MENU_COATING_COND UI_MENU_SD_COND &ui_menu_main4,&ui_menu_main5}
 UI_MENU(ui_menu_main,UI_MENU_MAIN,5+UI_MENU_BACKCNT+UI_MENU_SD_CNT+UI_MENU_FAN_CNT+SD_PRINTFILE_ENTRY_CNT+UI_MENU_COATING_CNT)
-
+*/
 /* Define menus accessible by action commands
 
 You can create up to 10 user menus which are accessible by the action commands UI_ACTION_SHOW_USERMENU1 until UI_ACTION_SHOW_USERMENU10

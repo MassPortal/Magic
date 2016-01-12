@@ -208,7 +208,7 @@ What display type do you use?
 #define UI_ACTION_AUTOLEVEL_ONOFF       1202
 #define UI_ACTION_SERVOPOS              1203
 #define UI_ACTION_IGNORE_M106           1204
-
+#define UI_ACTION_PREHEAT_PET           1913
 #define UI_ACTION_KAPTON				1205
 #define UI_ACTION_BLUETAPE				1206
 #define UI_ACTION_NOCOATING				1207
@@ -525,7 +525,6 @@ extern const int8_t encoder_table[16] PROGMEM ;
 #define SDSUPPORT 1
 #endif
 
-
 // Maximum size of a row - if row is larger, text gets scrolled
 #if defined(UI_DISPLAY_TYPE) && UI_DISPLAY_TYPE == DISPLAY_GAMEDUINO2
 #define MAX_COLS 50
@@ -604,16 +603,21 @@ class UIDisplay {
     bool isDirname(char *name);
     bool isWizardActive();
     bool isSticky();
+void menuCommand(const UIMenu *doing, const UIMenu *men, FSTRINGPARAM(cmd));
+
     void showLanguageSelectionWizard();
 #if UI_BED_COATING
     void menuAdjustHeight(const UIMenu *men,float offset);
 #endif
+void startAction(int action);
     char cwd[SD_MAX_FOLDER_DEPTH*LONG_FILENAME_LENGTH+2];
     uint8_t folderLevel;
 };
 extern UIDisplay uid;
-
-
+// Returns either the file name or just the extension
+String getFilePart(const char filename, boolean extension);
+// Compares file names' extension to the given one. Returns true if they match.
+bool hasExtension(char* filename, char* extension);
 #if FEATURE_CONTROLLER == UICONFIG_CONTROLLER
 #include "uiconfig.h"
 #endif
@@ -636,6 +640,7 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define U8GLIB_ST7920
 #define UI_LCD_WIDTH 128
 #define UI_LCD_HEIGHT 64
+
 //select font size
 #define UI_FONT_6X10 //default font
 #ifdef UI_FONT_6X10
@@ -659,11 +664,8 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_COLS 20
 #define UI_ROWS 4
 #endif
-
 #define BEEPER_TYPE 1
-
 #if FEATURE_CONTROLLER == CONTROLLER_GADGETS3D_SHIELD // Gadgets3d shield
-
 #undef BEEPER_PIN
 #define BEEPER_PIN             33
 #define UI_DISPLAY_RS_PIN      16
@@ -681,11 +683,8 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_ENCODER_B           37
 #define UI_ENCODER_CLICK       31
 #define UI_RESET_PIN           41
-
 #else  // Smartcontroller
-
 #if MOTHERBOARD == 701 // Megatronics v2.0
-
 #define UI_DISPLAY_RS_PIN 14
 #define UI_DISPLAY_RW_PIN -1
 #define UI_DISPLAY_ENABLE_PIN 15
@@ -715,7 +714,6 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_RESET_PIN -1
 
 #elif MOTHERBOARD == 80 // Rumba has different pins as RAMPS!
-
 #undef BEEPER_PIN
 #define BEEPER_PIN             44
 #define UI_DISPLAY_RS_PIN      19
@@ -754,7 +752,6 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_RESET_PIN           -1
 
 #elif MOTHERBOARD == 301 // Rambo has own pins layout
-
 #undef BEEPER_PIN
 #define BEEPER_PIN             79
 #define UI_DISPLAY_RS_PIN      70

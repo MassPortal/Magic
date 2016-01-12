@@ -283,7 +283,8 @@ public:
     static void initHeatedBed();
     static void setHeatedBedTemperature(float temp_celsius,bool beep = false);
     static float getHeatedBedTemperature();
-    static void setTemperatureForExtruder(float temp_celsius,uint8_t extr,bool beep = false,bool wait = false);
+	static float getHeatedBedTargetTemperature();
+    static void setTemperatureForExtruder(float temp_celsius,uint8_t extr,bool beep = false, bool wait = false);
     static void pauseExtruders();
     static void unpauseExtruders();
 };

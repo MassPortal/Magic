@@ -21,6 +21,7 @@
 
 #include "Repetier.h"
 
+FSTRINGVALUE(Com::tPrinterId, "Printer ID")
 #if UI_DISPLAY_TYPE != NO_DISPLAY
 uint8_t Com::selectedLanguage;
 #endif
@@ -241,6 +242,7 @@ FSTRINGVALUE(Com::tZProbeState,"Z-probe state:")
 FSTRINGVALUE(Com::tZProbeStartScript,Z_PROBE_START_SCRIPT)
 FSTRINGVALUE(Com::tZProbeEndScript,Z_PROBE_FINISHED_SCRIPT)
 FSTRINGVALUE(Com::tHitZProbe,"Hit z-probe")
+FSTRINGVALUE(Com::tProbeActionScript, PROBE_ACTION_SCRIPT)
 #endif
 FSTRINGVALUE(Com::tAutolevelReset,"Autolevel matrix reset")
 FSTRINGVALUE(Com::tAutolevelEnabled,"Autoleveling enabled")
@@ -256,14 +258,18 @@ FSTRINGVALUE(Com::tWait,WAITING_IDENTIFIER)
 #if EEPROM_MODE == 0
 FSTRINGVALUE(Com::tNoEEPROMSupport,"No EEPROM support compiled.\r\n")
 #else
-FSTRINGVALUE(Com::tZProbeOffsetZ, "Coating thickness [mm]")
+//FSTRINGVALUE(Com::tZProbeOffsetZ, "Coating thickness [mm]")
 #if FEATURE_Z_PROBE
 FSTRINGVALUE(Com::tZProbeHeight,"Z-probe height [mm]")
 FSTRINGVALUE(Com::tZProbeBedDitance,"Max. z-probe - bed dist. [mm]")
 FSTRINGVALUE(Com::tZProbeOffsetX,"Z-probe offset x [mm]")
 FSTRINGVALUE(Com::tZProbeOffsetY,"Z-probe offset y [mm]")
+FSTRINGVALUE(Com::tZProbeOffsetZ, "Z-probe offset z [mm]")
 FSTRINGVALUE(Com::tZProbeSpeed,"Z-probe speed [mm/s]")
 FSTRINGVALUE(Com::tZProbeSpeedXY,"Z-probe x-y-speed [mm/s]")
+FSTRINGVALUE(Com::tZProbeXY1offset,"Z-probe XY1 offset")
+FSTRINGVALUE(Com::tZProbeXY2offset,"Z-probe XY2 offset")
+FSTRINGVALUE(Com::tZProbeXY3offset,"Z-probe XY3 offset")
 FSTRINGVALUE(Com::tZProbeX1,"Z-probe X1 [mm]")
 FSTRINGVALUE(Com::tZProbeY1,"Z-probe Y1 [mm]")
 FSTRINGVALUE(Com::tZProbeX2,"Z-probe X2 [mm]")
@@ -328,6 +334,7 @@ FSTRINGVALUE(Com::tEPRDeltaMaxRadius,"Max printable radius [mm]")
 FSTRINGVALUE(Com::tDeltaDiagonalCorrectionA,"Corr. diagonal A [mm]")
 FSTRINGVALUE(Com::tDeltaDiagonalCorrectionB,"Corr. diagonal B [mm]")
 FSTRINGVALUE(Com::tDeltaDiagonalCorrectionC,"Corr. diagonal C [mm]")
+FSTRINGVALUE(Com::tEPRBedLedBrightness,"Bed LED brightness [0.0-1.0]")
 
 #else
 FSTRINGVALUE(Com::tEPRMaxZJerk,"Max. Z-jerk [mm/s]")
