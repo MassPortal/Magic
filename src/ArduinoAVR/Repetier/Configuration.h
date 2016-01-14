@@ -48,23 +48,66 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 /** Number of extruders. Maximum 6 extruders. */
 #define NUM_EXTRUDER 1
 
-/** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. In that case only
-setpe per mm and heater manager settings in extruder 0 are used! */
+/** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. */
 #define MIXING_EXTRUDER 0
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
-// Arduino Due                = 401 // This is only experimental
-// Arduino Due with RADDS     = 402
-// Arduino Due with RAMPS-FD  = 403
-// Arduino Due with RAMPS-FD V2 = 404
+// Gen3 PLUS for RepRap Motherboard V1.2 = 21
+// MEGA/RAMPS up to 1.2       = 3
+// RAMPS 1.3/RAMPS 1.4        = 33
+// Azteeg X3                  = 34
+// Azteeg X3 Pro              = 35
+// Ultimaker Shield 1.5.7     = 37
+// Gen6                       = 5
+// Gen6 deluxe                = 51
+// Sanguinololu up to 1.1     = 6
+// Sanguinololu 1.2 and above = 62
+// 3Drag/Velleman K8200       = 66 (experimental)
+// Open Motion Controller     = 91
+// Melzi board                = 63  // Define REPRAPPRO_HUXLEY if you have one for correct HEATER_1_PIN assignment!
+// Azteeg X1                  = 65
+// Gen7 1.1 till 1.3.x        = 7
+// Gen7 1.4.1 and later       = 71
+// Sethi 3D_1                 = 72
+// Teensylu (at90usb)         = 8 // requires Teensyduino
+// Printrboard (at90usb)      = 9 // requires Teensyduino
+// Printrboard Ref. F or newer= 92 // requires Teensyduino
+// Foltyn 3D Master           = 12
+// MegaTronics 1.0            = 70
+// Megatronics 2.0            = 701
+// Megatronics 3.0            = 703 // Thermistors predefined not thermocouples
+// Minitronics 1.0            = 702
+// RUMBA                      = 80  // Get it from reprapdiscount
+// FELIXprinters              = 101
+// Rambo                      = 301
+// PiBot for Repetier V1.0-1.3= 314
+// PiBot for Repetier V1.4    = 315
+// PiBot Controller V2.0      = 316
+// Sanguish Beta              = 501
+// Unique One rev. A          = 88
+// User layout defined in userpins.h = 999
 
-#define MOTHERBOARD 402
+#define MOTHERBOARD 703
 
 #include "pins.h"
 
 // Override pin definions from pins.h
 //#define FAN_PIN   4  // Extruder 2 uses the default fan output, so move to an other pin
 //#define EXTERNALSERIAL  use Arduino serial library instead of build in. Requires more ram, has only 63 byte input buffer.
+
+/* 
+We can connect BlueTooth to serial converter module directly to boards based on AtMega2560 or AtMega1280 and some boards based on AtMega2561, AtMega1281 or AtMega1284p
+- On Melzi boards connect BT to TX1 and RX1 pins, then set BLUETOOTH_SERIAL to 1
+- On RUMBA boards connect BT to pin 11 and 12 of X3 connector, then set BLUETOOTH_SERIAL to 3
+- On RAMBO boards connect BT to pins 5,6 or 7,8 or 9,10 on Serial connector, then accordingly set BLUETOOTH_SERIAL to 1,2 or 3
+- On RAMPS we must remap Y_ENDSTOPS pins or Z_ENDSTOPZ pins or LCD_ENABLE and LCD_RS pins to another pins, and connect BT to:
+  a) signals of Y_MIN, Y_MAX, then set BLUETOOTH_SERIAL to 3 (RX from BT to Y_MIN, TX from BT to Y_MAX)
+  b) signals of Z_MIN, Z_MAX, then set BLUETOOTH_SERIAL to 1 (RX from BT to Z_MIN, TX from BT to Z_MAX)
+  c) pin 17 and 18 of AUX4 connector, then set BLUETOOTH_SERIAL to 2 (RX from BT to AUX4 p18, TX from BT to AUX4 p17)
+  Comment out or set the BLUETOOTH_SERIAL to 0 or -1 to disable this feature.
+*/
+#define BLUETOOTH_SERIAL   -1                      // Port number (1..3) - For RUMBA use 3
+#define BLUETOOTH_BAUD     115200                 // communication speed
 
 // Uncomment the following line if you are using arduino compatible firmware made for Arduino version earlier then 1.0
 // If it is incompatible you will get compiler errors about write functions not beeing compatible!
@@ -86,13 +129,18 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 */
 #define DRIVE_SYSTEM 3
 
+/* You can write some gcode to be executed on startup. Use this e.g. to set some 
+pins. Separate multiple gcodes with \n
+*/
+//#define STARTUP_GCODE ""
+
 // ##########################################################################################
 // ##                               Calibration                                            ##
 // ##########################################################################################
 
 /** Drive settings for the Delta printers
 */
-#if DRIVE_SYSTEM==DELTA
+#if DRIVE_SYSTEM == DELTA
     // ***************************************************
     // *** These parameter are only for Delta printers ***
     // ***************************************************
@@ -116,7 +164,7 @@ If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 #define STEPS_PER_ROTATION 400
 
 /** \brief Micro stepping rate of X, Y and Y tower stepper drivers */
-#define MICRO_STEPS 32
+#define MICRO_STEPS 16
 
 // Calculations
 #define AXIS_STEPS_PER_MM ((float)(MICRO_STEPS * STEPS_PER_ROTATION) / PULLEY_CIRCUMFERENCE)
@@ -176,10 +224,12 @@ Overridden if EEPROM activated.*/
 // These commands get executed before we go to stored position.
 #define PAUSE_END_COMMANDS ""
 
+// Extruder offsets in steps not mm!
 #define EXT0_X_OFFSET 0
 #define EXT0_Y_OFFSET 0
+#define EXT0_Z_OFFSET 0
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
-#define EXT0_STEPS_PER_MM 950 //475 //520 11,2 x16  136 (7.5) 96 (10.5 x16) 192 (10.5 x32)
+#define EXT0_STEPS_PER_MM 950 //520 11,2 x16  136 (7.5) 96 (10.5 x16) 192 (10.5 x32)
 // What type of sensor is used?
 // 0 is no thermistor/temperature control
 // 1 is 100k thermistor (Epcos B57560G0107F000 - RepRap-Fab.org and many other)
@@ -187,6 +237,8 @@ Overridden if EEPROM activated.*/
 // 3 is mendel-parts thermistor (EPCOS G550)
 // 4 is 10k thermistor
 // 8 is ATC Semitec 104GT-2
+// 12 is 100k RS thermistor 198-961
+// 13 is PT100 for E3D/Ultimaker
 // 5 is userdefined thermistor table 0
 // 6 is userdefined thermistor table 1
 // 7 is userdefined thermistor table 2
@@ -194,6 +246,7 @@ Overridden if EEPROM activated.*/
 // 51 is userdefined thermistor table 0 for PTC thermistors
 // 52 is userdefined thermistor table 0 for PTC thermistors
 // 60 is AD8494, AD8495, AD8496 or AD8497 (5mV/degC and 1/4 the price of AD595 but only MSOT_08 package)
+// 61 is AD8494, AD8495, AD8496 or AD8497 (5mV/degC and 1.25 Vref offset like adafruit breakout)
 // 97 Generic thermistor table 1
 // 98 Generic thermistor table 2
 // 99 Generic thermistor table 3
@@ -202,13 +255,13 @@ Overridden if EEPROM activated.*/
 // 102 is MAX31855
 #define EXT0_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT0_TEMPSENSOR_PIN TEMP_0_PIN
+#define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 // Which pin enables the heater
 #define EXT0_HEATER_PIN HEATER_0_PIN
 #define EXT0_STEP_PIN E0_STEP_PIN
 #define EXT0_DIR_PIN E0_DIR_PIN
 // set to false/true for normal / inverse direction
-#define EXT0_INVERSE true
+#define EXT0_INVERSE false
 #define EXT0_ENABLE_PIN E0_ENABLE_PIN
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define EXT0_ENABLE_ON 1
@@ -251,15 +304,15 @@ To prevent a long deviation from the target zone, this value limits the lower va
 A good start is 30 lower then the optimal value. You need to leave room for cooling.
  Overridden if EEPROM activated.
 */
-#define EXT0_PID_INTEGRAL_DRIVE_MIN 40
+#define EXT0_PID_INTEGRAL_DRIVE_MIN 10
 /** P-gain.  Overridden if EEPROM activated. */
 #define EXT0_PID_P   3//4.44//24//27.1
 /** I-gain. Overridden if EEPROM activated.
 */
-#define EXT0_PID_PGAIN_OR_DEAD_TIME 5
-#define EXT0_PID_I   2//2.4
+#define EXT0_PID_PGAIN_OR_DEAD_TIME 13
+#define EXT0_PID_I   0.35//2.4
 /** Dgain.  Overridden if EEPROM activated.*/
-#define EXT0_PID_D   40//120//76.4
+#define EXT0_PID_D   44.72//120//76.4
 // maximum time the heater is can be switched on. Max = 255.  Overridden if EEPROM activated.
 #define EXT0_PID_MAX 200
 /** \brief Faktor for the advance algorithm. 0 disables the algorithm.  Overridden if EEPROM activated.
@@ -279,7 +332,7 @@ cog. Direct drive extruder need 0. */
 /** \brief Units (mm/inches) to retract filament when extruder is heating up. Overridden if EEPROM activated. Set
 to 0 to disable.
 */
-#define EXT0_WAIT_RETRACT_UNITS 	0
+#define EXT0_WAIT_RETRACT_UNITS 	15
 
 /** You can run any gcode command on extruder deselect/select. Seperate multiple commands with a new line \n.
 That way you can execute some mechanical components needed for extruder selection or retract filament or whatever you need.
@@ -287,10 +340,11 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT0_SELECT_COMMANDS "M117 Extruder 1"
 #define EXT0_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT0_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
+#define EXT0_EXTRUDER_COOLER_PIN 7
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT0_EXTRUDER_COOLER_SPEED 255
-/** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
+/** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! 
+ * 0 will disable decoupling test */
 #define EXT0_DECOUPLE_TEST_PERIOD 18000
 /** Pin which toggles regualrly during extrusion allowing jam control. -1 = disabled */
 #define EXT0_JAM_PIN -1
@@ -298,8 +352,9 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT0_JAM_PULLUP false
 
 // =========================== Configuration for second extruder ========================
-//#define EXT1_X_OFFSET 10
-//#define EXT1_Y_OFFSET 0
+#define EXT1_X_OFFSET 0
+#define EXT1_Y_OFFSET 0
+#define EXT1_Z_OFFSET 0
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
 //#define EXT1_STEPS_PER_MM 373
 // What type of sensor is used?
@@ -316,6 +371,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // 51 is userdefined thermistor table 0 for PTC thermistors
 // 52 is userdefined thermistor table 0 for PTC thermistors
 // 60 is AD8494, AD8495, AD8496 or AD8497 (5mV/degC and 1/4 the price of AD595 but only MSOT_08 package)
+// 61 is AD8494, AD8495, AD8496 or AD8497 (5mV/degC and 1.25 Vref offset like adafruit breakout)
 // 97 Generic thermistor table 1
 // 98 Generic thermistor table 2
 // 99 Generic thermistor table 3
@@ -401,7 +457,8 @@ cog. Direct drive extruder need 0. */
 //#define EXT1_EXTRUDER_COOLER_PIN -1
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 //#define EXT1_EXTRUDER_COOLER_SPEED 255
-/** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
+/** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! 
+ * 0 will disable decoupling test */
 #define EXT1_DECOUPLE_TEST_PERIOD 18000
 /** Pin which toggles regualrly during extrusion allowing jam control. -1 = disabled */
 #define EXT1_JAM_PIN -1
@@ -414,16 +471,16 @@ M140 command, after a given temperature is reached. */
 
 /** Allow retraction with G10/G11 removing requirement for retraction setting in slicer. Also allows filament change if lcd is configured. */
 #define FEATURE_RETRACTION 1
-/** autoretract converts pure extrusion moves into retractions. Beware that 
+/** autoretract converts pure extrusion moves into retractions. Beware that
  simple extrusion e.g. over Repetier-Host will then not work! */
 #define AUTORETRACT_ENABLED 0
 #define RETRACTION_LENGTH 3
-#define RETRACTION_LONG_LENGTH 13
-#define RETRACTION_SPEED 40
+#define RETRACTION_LONG_LENGTH 10
+#define RETRACTION_SPEED 15
 #define RETRACTION_Z_LIFT 0.1
 #define RETRACTION_UNDO_EXTRA_LENGTH 0
 #define RETRACTION_UNDO_EXTRA_LONG_LENGTH 0
-#define RETRACTION_UNDO_SPEED 20
+#define RETRACTION_UNDO_SPEED 10
 
 /**
 If you have a lcd display, you can do a filament switch with M600.
@@ -431,7 +488,7 @@ It will change the current extruders filament and temperature must already be hi
 */
 #define FILAMENTCHANGE_X_POS 0
 #define FILAMENTCHANGE_Y_POS 0
-#define FILAMENTCHANGE_Z_ADD 2
+#define FILAMENTCHANGE_Z_ADD 0
 /** Does a homing procedure after a filament change. This is good in case
 you moved the extruder while changing filament during print.
 0 = no homing, 1 = xy homing, 2 = xyz homing
@@ -443,6 +500,15 @@ Retractions speeds are taken from RETRACTION_SPEED and RETRACTION_UNDO_SPEED
 #define FILAMENTCHANGE_SHORTRETRACT 30
 #define FILAMENTCHANGE_LONGRETRACT 500
 
+/* Define how we detect jam/out of filament
+   1 = Distance between signal changes increase
+   2 = signal gets high
+   3 = signal gets low
+   
+   2 and 3 are not jam detections, but only out of filament detection by a switch
+   that changes the signal! 
+*/
+#define JAM_METHOD 1
 // Steps normally needed for a full signal cycle.
 #define JAM_STEPS 220
 // Steps for reducing speed. Must be higher then JAM_STEPS
@@ -450,7 +516,7 @@ Retractions speeds are taken from RETRACTION_SPEED and RETRACTION_UNDO_SPEED
 // New speed multiplier which gets set when slowdown is reached.
 #define JAM_SLOWDOWN_TO 70
 // Last fallback. If we slip this much, we want to pause.
-#define JAM_ERROR_STEPS 500
+#define JAM_ERROR_STEPS 430
 /** To prevent signal bouncing, only consider changes if we are this much steps
  away from last signal change. */ 
 #define JAM_MIN_STEPS 10
@@ -460,7 +526,7 @@ Determine what should be done if a jam is detected
 1 : Jam/out of filament dialog and block communication.
 2 : Message to host/server otherwise continue and mark extruder jammed
 */
-#define JAM_ACTION 2
+#define JAM_ACTION 1
 
 /** PID control only works target temperature +/- PID_CONTROL_RANGE.
 If you get much overshoot at the first temperature set, because the heater is going full power too long, you
@@ -470,7 +536,7 @@ need to increase this value. For one 6.8 Ohm heater 10 is ok. With two 6.8 Ohm h
 
 /** Prevent extrusions longer then x mm for one command. This is especially important if you abort a print. Then the
 extrusion poistion might be at any value like 23344. If you then have an G1 E-2 it will roll back 23 meter! */
-#define EXTRUDE_MAXLENGTH 250
+#define EXTRUDE_MAXLENGTH 200
 /** Skip wait, if the extruder temperature is already within x degrees. Only fixed numbers, 0 = off */
 #define SKIP_M109_IF_WITHIN 2
 
@@ -544,7 +610,7 @@ The capacitor is for reducing noise from long thermistor cable. If you don't hav
 
 If you need the generic table, uncomment the following define.
 */
-#define USE_GENERIC_THERMISTORTABLE_1
+//#define USE_GENERIC_THERMISTORTABLE_1
 
 /* Some examples for different thermistors:
 
@@ -574,7 +640,7 @@ See http://reprap.org/wiki/MeasuringThermistorBeta for more details.
 
 // The same for table 2 and 3 if needed
 
-// #define USE_GENERIC_THERMISTORTABLE_2
+//#define USE_GENERIC_THERMISTORTABLE_2
 /*
 #define GENERIC_THERM2_T0 170
 #define GENERIC_THERM2_R0 1042.7
@@ -615,9 +681,9 @@ Value is used for all generic tables created. */
 
 // Select type of your heated bed. It's the same as for EXT0_TEMPSENSOR_TYPE
 // set to 0 if you don't have a heated bed
-#define HEATED_BED_SENSOR_TYPE 97
+#define HEATED_BED_SENSOR_TYPE 1
 /** Analog pin of analog sensor to read temperature of heated bed.  */
-#define HEATED_BED_SENSOR_PIN TEMP_1_PIN
+#define HEATED_BED_SENSOR_PIN TEMP_2_PIN
 /** \brief Pin to enable heater for bed. */
 #define HEATED_BED_HEATER_PIN HEATER_1_PIN
 // How often the temperature of the heated bed is set (msec)
@@ -635,7 +701,7 @@ Heat manager for heated bed:
 The precise values may differ for different nozzle/resistor combination.
  Overridden if EEPROM activated.
 */
-#define HEATED_BED_PID_INTEGRAL_DRIVE_MAX 210
+#define HEATED_BED_PID_INTEGRAL_DRIVE_MAX 255
 /** \brief lower value for integral part
 
 The I state should converge to the exact heater output needed for the target temperature.
@@ -651,9 +717,9 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 /** Dgain.  Overridden if EEPROM activated.*/
 #define HEATED_BED_PID_DGAIN 290
 // maximum time the heater can be switched on. Max = 255.  Overridden if EEPROM activated.
-#define HEATED_BED_PID_MAX 180
+#define HEATED_BED_PID_MAX 255
 // Time to see a temp. change when fully heating. Consider that beds at higher temp. need longer to rise and cold
-// beds need some time to get the temp. to the sensor. Time is in milliseconds!
+// beds need some time to get the temp. to the sensor. Time is in milliseconds! Set 0 to disable
 #define HEATED_BED_DECOUPLE_TEST_PERIOD 300000
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -664,6 +730,61 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 #define MIN_DEFECT_TEMPERATURE -10
 #define MAX_DEFECT_TEMPERATURE 310
 
+// ##########################################################################################
+// ##                             Laser configuration                                      ##
+// ##########################################################################################
+
+/*
+If the firmware is in laser mode, it can control a laser output to cut or engrave materials.
+Please use this feature only if you know about safety and required protection. Lasers are
+dangerous and can hurt or make you blind!!!
+
+The default laser driver only supports laser on and off. Here you control the eíntensity with
+your feedrate. For exchangeable diode lasers this is normally enough. If you need more control
+you can set the intensity in a range 0-255 with a custom extension to the driver. See driver.h
+and comments on how to extend the functions non invasive with our event system.
+
+If you have a laser - powder system you will like your E override. If moves contain a 
+increasing extruder position it will laser that move. With this trick you can
+use existing fdm slicers to laser the output. Laser width is extrusion width.
+
+Other tools may use M3 and M5 to enable/disable laser. Here G1/G2/G3 moves have laser enabled
+and G0 moves have it disables.
+
+In any case, laser only enables while moving. At the end of a move it gets
+automatically disabled. 
+*/
+
+#define SUPPORT_LASER 0 // set 1 to enable laser support
+#define LASER_PIN -1    // set to pin enabling laser
+#define LASER_ON_HIGH 1 // Set 0 if low signal enables laser
+
+// ##########################################################################################
+// ##                              CNC configuration                                       ##
+// ##########################################################################################
+
+/*
+If the firmware is in CNC mode, it can control a mill with M3/M4/M5. It works 
+similar to laser mode, but mill keeps enabled during G0 moves and it allows
+setting rpm (only with event extension that supports this) and milling direction.
+It also can add a delay to wait for spindle to run on full speed.
+*/
+
+#define SUPPORT_CNC 0 // Set 1 for cnc support
+#define CNC_WAIT_ON_ENABLE 300 // wait x milliseconds after enabling
+#define CNC_WAIT_ON_DISABLE 0 // delay in milliseconds after disabling spindle. May be required for direction changes.
+#define CNC_ENABLE_PIN -1 // Pin to enable mill
+#define CNC_ENABLE_WITH 1 // Set 0 if low enables spindle
+#define CNC_DIRECTION_PIN -1 // Set to pin if direction control is possible
+#define CNC_DIRECTION_CW 1 // Set signal required for clockwise rotation
+
+
+/* Select the default mode when the printer gets enables. Possible values are
+PRINTER_MODE_FFF 0
+PRINTER_MODE_LASER 1
+PRINTER_MODE_CNC 2
+*/
+#define DEFAULT_PRINTER_MODE PRINTER_MODE_FFF
 
 // ##########################################################################################
 // ##                            Endstop configuration                                     ##
@@ -714,12 +835,17 @@ on this endstop.
 #define DISABLE_Y false
 #define DISABLE_Z false
 #define DISABLE_E false
+/* If you want to keep z motor running on stepper timeout, remove comments below.
+  This may be usefull if your z bed moves when motors are disabled. Will still
+  turn z off when heaters get also disabled. 
+*/
+//#define PREVENT_Z_DISABLE_ON_STEPPER_TIMEOUT
 
 // Inverting motor direction. Only in case of pure cartesian printers, this
 // is also the axis you invert!
-#define INVERT_X_DIR true	
-#define INVERT_Y_DIR false
-#define INVERT_Z_DIR true
+#define INVERT_X_DIR false
+#define INVERT_Y_DIR true
+#define INVERT_Z_DIR false
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -747,9 +873,9 @@ on this endstop.
 
 // For higher precision you can reduce the speed for the second test on the endstop
 // during homing operation. The homing speed is divided by the value. 1 = same speed, 2 = half speed
-#define ENDSTOP_X_RETEST_REDUCTION_FACTOR 5
-#define ENDSTOP_Y_RETEST_REDUCTION_FACTOR 5
-#define ENDSTOP_Z_RETEST_REDUCTION_FACTOR 5
+#define ENDSTOP_X_RETEST_REDUCTION_FACTOR 7
+#define ENDSTOP_Y_RETEST_REDUCTION_FACTOR 7
+#define ENDSTOP_Z_RETEST_REDUCTION_FACTOR 7
 
 // When you have several endstops in one circuit you need to disable it after homing by moving a
 // small amount back. This is also the case with H-belt systems.
@@ -768,7 +894,7 @@ on this endstop.
 // If EEPROM is enabled these values will be overidden with the values in the EEPROM
 #define X_MAX_LENGTH 143
 #define Y_MAX_LENGTH 143
-#define Z_MAX_LENGTH 230
+#define Z_MAX_LENGTH 225
 // Coordinates for the minimum axis. Can also be negative if you want to have the bed start at 0 and the printer can go to the left side
 // of the bed. Maximum coordinate is given by adding the above X_MAX_LENGTH values.
 #define X_MIN_POS -72.5
@@ -784,15 +910,17 @@ on this endstop.
 
 // Motor Current setting (Only functional when motor driver current ref pins are connected to a digital trimpot on supported boards)
 #if MOTHERBOARD==301
-#define MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+//#define MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+#define MOTOR_CURRENT_PERCENT {53,53,53,53,53}
 #elif MOTHERBOARD==12
-#define MOTOR_CURRENT {35713,35713,35713,35713,35713} // Values 0-65535 (3D Master 35713 = ~1A)
+//#define MOTOR_CURRENT {35713,35713,35713,35713,35713} // Values 0-65535 (3D Master 35713 = ~1A)
+#define MOTOR_CURRENT_PERCENT {55,55,55,55,55}
 #endif
 
 /** \brief Number of segments to generate for delta conversions per second of move
 */
-#define DELTA_SEGMENTS_PER_SECOND_PRINT 600 // Move accurate setting for print moves
-#define DELTA_SEGMENTS_PER_SECOND_MOVE 300 // Less accurate setting for other moves
+#define DELTA_SEGMENTS_PER_SECOND_PRINT 180 // Move accurate setting for print moves
+#define DELTA_SEGMENTS_PER_SECOND_MOVE 20 // Less accurate setting for other moves
 
 // Delta settings
 #if DRIVE_SYSTEM==DELTA
@@ -844,7 +972,7 @@ on this endstop.
 // You may need to leave a few mm for safety.
 // Hitting floor at high speed can damage your printer (motors, drives, etc)
 // THIS MAY NEED UPDATING IF THE HOT END HEIGHT CHANGES!
-#define DELTA_FLOOR_SAFETY_MARGIN_MM 15
+#define DELTA_FLOOR_SAFETY_MARGIN_MM 32
 
 /** \brief Horizontal offset of the universal joints on the end effector (moving platform).
 */
@@ -852,7 +980,7 @@ on this endstop.
 
 /** \brief Horizontal offset of the universal joints on the vertical carriages.
 */
-#define CARRIAGE_HORIZONTAL_OFFSET 20.6
+#define CARRIAGE_HORIZONTAL_OFFSET 18
 
 /** \brief Printer radius in mm,
   measured from the center of the print area to the vertical smooth tower.
@@ -862,7 +990,7 @@ on this endstop.
 
 /** 1 for more precise delta moves. 0 for faster computation.
 Needs a bit more computation time. */
-#define EXACT_DELTA_MOVES 1
+#define EXACT_DELTA_MOVES 0
 
 /* ========== END Delta calibation data ==============*/
 
@@ -893,7 +1021,7 @@ or 16 * (200 + (7*22=154) = 354) = 5664 bytes! !1
 min is 5 * (200 + (7*10=70) =270) = 1350
  22 leaves ~1K free RAM on an Arduino which has only 8k
 Mega. Used only for nonlinear systems like delta or tuga. */
-#define DELTASEGMENTS_PER_PRINTLINE 128
+#define DELTASEGMENTS_PER_PRINTLINE 20
 
 /** After x seconds of inactivity, the stepper motors are disabled.
     Set to 0 to leave them enabled.
@@ -921,8 +1049,26 @@ Mega. Used only for nonlinear systems like delta or tuga. */
 #define HOMING_FEEDRATE_Y 100
 #define HOMING_FEEDRATE_Z 100
 
-/** Set order of axis homing. Use HOME_ORDER_XYZ and replace XYZ with your order. */
+/** Set order of axis homing. Use HOME_ORDER_XYZ and replace XYZ with your order. 
+ * If you measure Z with your extruder tip you need a hot extruder to get right measurement. In this
+ * case set HOME_ORDER_ZXYTZ and also define ZHOME_HEAT_HEIGHT and ZHOME_MIN_TEMPERATURE. It will do
+ * first a z home to get some reference, then raise to ZHOME_HEAT_HEIGHT do xy homing and then after
+ * heating to minimum ZHOME_MIN_TEMPERATURE will z home again for correct height.   
+ * */
 #define HOMING_ORDER HOME_ORDER_ZXY
+// Used for homing order HOME_ORDER_ZXYTZ
+#define ZHOME_MIN_TEMPERATURE 0
+// needs to heat all extruders (1) or only current extruder (0)
+#define ZHOME_HEAT_ALL 1 
+// Z-height for heating extruder during homing
+#define ZHOME_HEAT_HEIGHT 20
+// If your bed might bend while probing, because your sensor is the extruder tip
+// you can define a predefined x,y position so beding is always the same and
+// can be compensated. Set coordinate to 999999 to ignore positions and just
+// use the position you are at.
+#define ZHOME_X_POS IGNORE_COORDINATE
+#define ZHOME_Y_POS IGNORE_COORDINATE
+
 /* If you have a backlash in both z-directions, you can use this. For most printer, the bed will be pushed down by it's
 own weight, so this is nearly never needed. */
 #define ENABLE_BACKLASH_COMPENSATION 0
@@ -952,7 +1098,7 @@ This is like reducing your 1/16th microstepping to 1/8 or 1/4. It is much cheape
 additional stepper interrupts with all it's overhead. As a result you can go as high as
 40000Hz.
 */
-#define STEP_DOUBLER_FREQUENCY 80000
+#define STEP_DOUBLER_FREQUENCY 12000
 /** If you need frequencies off more then 30000 you definitely need to enable this. If you have only 1/8 stepping
 enabling this may cause to stall your moves when 20000Hz is reached.
 */
@@ -962,12 +1108,6 @@ for some printers causing an early stall.
 
 */
 #define DOUBLE_STEP_DELAY 0 // time in microseconds
-
-/** The firmware supports trajectory smoothing. To achieve this, it divides the stepsize by 2, resulting in
-the double computation cost. For slow movements this is not an issue, but for really fast moves this is
-too much. The value specified here is the number of clock cycles between a step on the driving axis.
-If the interval at full speed is below this value, smoothing is disabled for that line.*/
-#define MAX_HALFSTEP_INTERVAL 1999
 
 //// Acceleration settings
 
@@ -982,6 +1122,19 @@ If the interval at full speed is below this value, smoothing is disabled for tha
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_X 2000
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Y 2000
 #define MAX_TRAVEL_ACCELERATION_UNITS_PER_SQ_SECOND_Z 2000
+/** If you print on a moving bed, it can become more shaky the higher and bigger
+ your print gets. Therfore it might be helpfull to reduce acceleration with
+ increasing print height. You can define here how acceleration should change.
+ You set ACCELERATION_FACTOR_TOP to the factor in percent for the top position
+ of your printer. Acceleration will then be modified linear over height.
+ INTERPOLATE_ACCELERATION_WITH_Z sets, which accelerations get changed:
+ 0 = do not interpolate at all
+ 1 = interpolate x and y acceleration
+ 2 = interpolate z acceleration
+ 3 = interpolate x,y and z acceleration
+  */
+#define INTERPOLATE_ACCELERATION_WITH_Z 0
+#define ACCELERATION_FACTOR_TOP 100
 
 /** \brief Maximum allowable jerk.
 
@@ -1014,7 +1167,7 @@ Overridden if EEPROM activated.
 This number of moves can be cached in advance. If you wan't to cache more, increase this. Especially on
 many very short moves the cache may go empty. The minimum value is 5.
 */
-#define PRINTLINE_CACHE_SIZE 48
+#define PRINTLINE_CACHE_SIZE 14
 
 /** \brief Low filled cache size.
 
@@ -1098,7 +1251,7 @@ boards you might need to make it inverting.
 #define KILL_METHOD 1
 
 /** Appends the linenumber after every ok send, to acknowledge the received command. Uncomment for plain ok ACK if your host has problems with this */
-#define ACK_WITH_LINENUMBER 1       
+#define ACK_WITH_LINENUMBER 1
 /** Communication errors can swollow part of the ok, which tells the host software to send
 the next command. Not receiving it will cause your printer to stop. Sending this string every
 second, if our queue is empty should prevent this. Comment it, if you don't wan't this feature. */
@@ -1131,8 +1284,8 @@ IMPORTANT: With mode <>0 some changes in Configuration.h are not set any more, a
 
 /**************** duplicate motor driver ***************
 
-If you have an unused extruder stepper free, you could use it to drive the second z motor
-instead of driving both with a single stepper. The same works for the other axis if needed.
+If you have unused extruder steppers free, you could use it to drive the second or third z motor
+instead of driving them with a single stepper. The same works for the other axis if needed.
 */
 
 #define FEATURE_TWO_XSTEPPER 0
@@ -1149,6 +1302,11 @@ instead of driving both with a single stepper. The same works for the other axis
 #define Z2_STEP_PIN   E1_STEP_PIN
 #define Z2_DIR_PIN    E1_DIR_PIN
 #define Z2_ENABLE_PIN E1_ENABLE_PIN
+
+#define FEATURE_THREE_ZSTEPPER 0
+#define Z3_STEP_PIN   E2_STEP_PIN
+#define Z3_DIR_PIN    E2_DIR_PIN
+#define Z3_ENABLE_PIN E2_ENABLE_PIN
 
 /* Ditto printing allows 2 extruders to do the same action. This effectively allows
 to print an object two times at the speed of one. Works only with dual extruder setup.
@@ -1185,14 +1343,26 @@ This defines the full power duration before returning to set value. Time is in m
 #define FAN_KICKSTART_TIME  200
 
 /* A watchdog resets the printer, if a signal is not send within predifined time limits. That way we can be sure that the board
-is always running and is not hung up for some unknown reason. 
-
-IMPORTANT: The ARM processors need a special board definition to work properly. 
-See: AdditionalArduinoFiles: README.txt on how to install them. 
-*/
+is always running and is not hung up for some unknown reason. */
 #define FEATURE_WATCHDOG 1
 
 /* Z-Probing */
+
+/* After homing the z position is corrected to compensate
+for a bed coating. Since you can change coatings the value is stored in
+eeprom if enabled, so you can switch between different coatings without needing
+to recalibrate z.
+*/
+#define Z_PROBE_Z_OFFSET 0 // offset to coating form real bed level
+/* How is z min measured
+ 0 = trigger is height of real bed neglecting coating
+ 1 = trigger is current coating
+ 
+ For mode 1 the current coating thickness is added to measured z probe distances.
+ That way the real bed is always the reference height. For inductive sensors
+ or z min endstops the coatng has no effect on the result, so you should use mode 0.
+*/
+#define Z_PROBE_Z_OFFSET_MODE 0
 
 #define FEATURE_Z_PROBE 1
 #define Z_PROBE_PIN ORIG_Z_MIN_PIN
@@ -1211,12 +1381,53 @@ See: AdditionalArduinoFiles: README.txt on how to install them.
 #define Z_PROBE_XY_SPEED 150
 #define Z_PROBE_SWITCHING_DISTANCE 10.0 // Distance to safely switch off probe
 #define Z_PROBE_REPETITIONS 1 // Repetitions for probing at one point.
-/** The height is the difference between activated probe position and nozzle height. */
+/** Distance between nozzle and bed when probe triggers. */
 #define Z_PROBE_HEIGHT 0.0
 /** These scripts are run before resp. after the z-probe is done. Add here code to activate/deactivate probe if needed. */
 #define Z_PROBE_START_SCRIPT ""
 #define Z_PROBE_FINISHED_SCRIPT ""
 #define PROBE_ACTION_SCRIPT "G32 S2"
+
+/*
+Define how we measure the bed rotation. 
+All methods need at least 3 points to define the bed rotation correctly. The quality we get comes
+from the selection of the right points and method.
+
+BED_LEVELING_METHOD 0
+This method measures at the 3 probe points and creates a plane through these points. If you have
+a really planar bed this gives the optimum result. The 3 points must not be in one line and have
+a long distance to increase numerical stability.
+
+BED_LEVELING_METHOD 1
+This measures a grid. Probe point 1 is the origin and points 2 and 3 span a grid. We measure
+BED_LEVELING_GRID_SIZE points in each direction and compute a regression plane through all
+points. This gives a good overall plane if you have small bumps measuring inaccuracies.
+
+BED_LEVELING_METHOD 2
+Bending correcting 4 point measurement. This is for cantilevered beds that have the rotation axis
+not at the side but inside the bed. Here we can assume no bending on the axis and a symmetric
+bending to both sides of the axis. So probe points 2 and 3 build the symmetric axis and
+point 1 is mirrored to 1m across the axis. Using the symmetry we then remove the bending
+from 1 and use that as plane.
+*/
+#define BED_LEVELING_METHOD 0
+/* How to correct rotation.
+0 = software side
+1 = motorized modification of 2 from 3 fixture points.
+*/
+#define BED_CORRECTION_METHOD 0
+// Grid size for grid based plane measurement
+#define BED_LEVELING_GRID_SIZE 4
+// Repetitions for motorized bed leveling
+#define BED_LEVELING_REPETITIONS 5
+/* These are the motor positions relative to bed origin. Only needed for
+motorized bed leveling */
+#define BED_MOTOR_1_X 0
+#define BED_MOTOR_1_Y 0
+#define BED_MOTOR_2_X 200
+#define BED_MOTOR_2_Y 0
+#define BED_MOTOR_3_X 100
+#define BED_MOTOR_3_Y 200
 
 /* Autoleveling allows it to z-probe 3 points to compute the inclination and compensates the error for the print.
    This feature requires a working z-probe and you should have z-endstop at the top not at the bottom.
@@ -1232,6 +1443,14 @@ See: AdditionalArduinoFiles: README.txt on how to install them.
 #define Z_PROBE_XY1_OFFSET 0.0
 #define Z_PROBE_XY2_OFFSET 0.0
 #define Z_PROBE_XY3_OFFSET 0.0
+/* Bending correction adds a value to a measured z-probe value. This may be
+  required when the z probe needs some force to trigger and this bends the
+  bed down. Currently the correction values A/B/C correspond to z probe
+  positions 1/2/3. In later versions a bending correction algorithm might be
+  introduced to give it other meanings.*/
+#define BENDING_CORRECTION_A 0
+#define BENDING_CORRECTION_B 0
+#define BENDING_CORRECTION_C 0
 
 /* DISTORTION_CORRECTION compensates the distortion caused by mechanical imprecisions of nonlinear (i.e. DELTA) printers
  * assumes that the floor is plain (i.e. glass plate)
@@ -1246,7 +1465,14 @@ See: AdditionalArduinoFiles: README.txt on how to install them.
 
 #define DISTORTION_CORRECTION         0
 #define DISTORTION_CORRECTION_POINTS  5
+/* For delta printers you simply define the measureed radius around origin */
 #define DISTORTION_CORRECTION_R       80
+/* For all others you define the correction rectangle by setting the min/max coordinates. Make sure the the probe can reach all points! */
+#define DISTORTION_XMIN 10
+#define DISTORTION_YMIN 10
+#define DISTORTION_XMAX 190
+#define DISTORTION_YMAX 190
+
 /** Uses eeprom instead of ram. Allows bigger matrix (up to 22x22) without any ram cost.
   Especially on arm based systems with cached eeprom it is good, on AVR it has a small
   performance penalty.
@@ -1333,6 +1559,33 @@ the FAN pin is not the same as for your second extruder. RAMPS e.g. has FAN_PIN 
 is also used for the heater if you have 2 extruders connected. */
 #define FEATURE_FAN_CONTROL 1
 
+/* You can have a second fan controlled by adding P1 to M106/M107 command. */
+#define FEATURE_FAN2_CONTROL 0
+//#define FAN2_PIN ORIG_FAN2_PIN
+
+/* By setting FAN_BOARD_PIN to a pin number you get a board cooler. That fan 
+goes on as soon as moves occur. Mainly to prevent overheating of stepper drivers. */
+//#undef FAN_BOARD_PIN
+//#define FAN_BOARD_PIN ORIG_FAN_PIN
+
+/* You can have one additional fan controlled by a temperature. You can set
+   set at which temperature it should turn on and at which it should reach max. speed.
+*/
+#define FAN_THERMO_PIN -1
+#define FAN_THERMO_MIN_PWM 128
+#define FAN_THERMO_MAX_PWM 255
+#define FAN_THERMO_MIN_TEMP 45
+#define FAN_THERMO_MAX_TEMP 60
+// Analog pin number or channel for due boards
+#define FAN_THERMO_THERMISTOR_PIN -1
+#define FAN_THERMO_THERMISTOR_TYPE 1
+
+/** Adds support for ESP8266 Duet web interface, PanelDue and probably some other things. 
+ * This essentially adds command M36/M408 and extends M20.
+ * Since it requires some memory do not enable it unless you have such a display!
+ *  */
+#define FEATURE_JSON 0
+
 /** For displays and keys there are too many permutations to handle them all in once.
 For the most common available combinations you can set the controller type here, so
 you don't need to configure uicong.h at all. Controller settings > 1 disable usage
@@ -1359,32 +1612,43 @@ The following settings override uiconfig.h!
 16 or CONTROLLER_GAMEDUINO2 (in development)
 17 or CONTROLLER_MIREGLI 17
 18 or CONTROLLER_GATE_3NOVATICA Gate Controller from 3Novatica
+21 or CONTROLLER_VIKI2 Panucatt VIKI2 graphic lcd
 */
-#define FEATURE_CONTROLLER UICONFIG_CONTROLLER
+
+#define FEATURE_CONTROLLER 1
 
 /**
-Select the language to use.
-0 = English
-1 = German
-2 = Dutch
-3 = Brazilian portuguese
-4 = Italian
-5 = Spanish
-6 = Swedish
-7 = French
-8 = Czech
-9 = Polish
+Select the languages to use. On first startup user can select
+the language from a menu with activated languages. In Configuration->Language
+the language can be switched any time. */
+#define LANGUAGE_EN_ACTIVE 1 // English
+#define LANGUAGE_DE_ACTIVE 1 // German
+#define LANGUAGE_NL_ACTIVE 1 // Dutch
+#define LANGUAGE_PT_ACTIVE 1 // Brazilian portuguese
+#define LANGUAGE_IT_ACTIVE 1 // Italian
+#define LANGUAGE_ES_ACTIVE 1 // Spanish
+#define LANGUAGE_SE_ACTIVE 1 // Swedish
+#define LANGUAGE_FR_ACTIVE 1 // French
+#define LANGUAGE_CZ_ACTIVE 1 // Czech
+#define LANGUAGE_PL_ACTIVE 1 // Polish
+#define LANGUAGE_TR_ACTIVE 1 // Turkish
+
+/* Some displays loose their settings from time to time. Try uncommenting the
+autorepair function if this is the case. It is not supported for all display
+types. It creates a minimal flicker from time to time and also slows down
+computations, so do not enable it if your display works stable!
 */
 #define UI_LANGUAGE 0
+//#define TRY_AUTOREPAIR_LCD_ERRORS
 
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v2.1.0"
-#define FIRMWARE_VERSION "124-exp"
+#define HARDWARE_VERSION "v1.4"
+#define FIRMWARE_VERSION "200-"
 
 
-//#define DEBUGGING false
+#define DEBUGGING false
 #define BED_LEDS true
 #if BED_LEDS
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
@@ -1455,6 +1719,11 @@ Values must be in range 1..255
 // ##                         Values for menu settings                          ##
 // ###############################################################################
 
+/*
+If you have leveling with bed coating or fixed z min you can use this menu to adjust 
+0 height with a simple bed coating menu which adds coating thickness.
+*/
+#define UI_BED_COATING 1
 // Values used for preheat
 #define UI_SET_PRESET_HEATED_BED_TEMP_PLA 60
 #define UI_SET_PRESET_EXTRUDER_TEMP_PLA   210
@@ -1467,7 +1736,7 @@ Values must be in range 1..255
 #define UI_SET_MAX_HEATED_BED_TEMP 120
 #define UI_SET_MIN_EXTRUDER_TEMP   160
 #define UI_SET_MAX_EXTRUDER_TEMP   300
-#define UI_SET_EXTRUDER_FEEDRATE 10 // mm/sec
+#define UI_SET_EXTRUDER_FEEDRATE 15 // mm/sec
 #define UI_SET_EXTRUDER_RETRACT_DISTANCE 10 // mm
 
 /*
@@ -1480,6 +1749,19 @@ Values must be in range 1..255
 #define USER_KEY4_PIN     -1
 #define USER_KEY4_ACTION  UI_ACTION_DUMMY
 */
+
+
+// ####### Advanced stuff for very special function #########
+
+#define NUM_MOTOR_DRIVERS 0
+// #define MOTOR_DRIVER_x StepperDriver<int stepPin, int dirPin, int enablePin,bool invertDir, bool invertEnable>(float stepsPerMM,float speed)
+#define MOTOR_DRIVER_1(var) StepperDriver<E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, false, false> var(100.0f,5.0f)
+
+/*
+  You can expand firmware functionality with events and you own event handler.
+  Read Events.h for more informations. To activate, uncomment the following define.
+*/
+//#define CUSTOM_EVENTS
 
 #endif
 
