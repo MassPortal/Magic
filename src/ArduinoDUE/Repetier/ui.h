@@ -219,6 +219,10 @@ What display type do you use?
 #define UI_ACTION_BED_LED_CHANGE		1212
 #define UI_ACTION_COATING_CUSTOM		1213
 #define UI_ACTION_BUILDTAK				1214
+#define UI_ACTION_VENT_EXTRACT          1610
+#define UI_ACTION_VENT_CIRCULATION      1611
+#define UI_ACTION_VENT_OFF				1612
+#define UI_ACTION_VENT_EXTRACT_FAST		1613
 
 // 1700-1956 language selectors
 

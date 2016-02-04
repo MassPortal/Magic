@@ -382,8 +382,10 @@ void uiInitKeys() {
   UI_KEYS_INIT_BUTTON_LOW(X_MIN_PIN);
 
   //Illumination LED for pause button, connected to E2 screw terminals
+#ifdef PAUSE_LED
   SET_OUTPUT(PAUSE_LED_PIN);
   WRITE(PAUSE_LED_PIN, 1);
+#endif
 #if BED_LEDS
   //Bed LED signal LOW
   SET_OUTPUT(BED_LED_PIN);
@@ -393,8 +395,10 @@ void uiInitKeys() {
   UI_KEYS_INIT_BUTTON_LOW(47);
 
   //Illumination LED for pause button, connected to E2 screw terminals
+#ifdef PAUSE_LED
   SET_OUTPUT(HEATER_3_PIN);
   WRITE(HEATER_3_PIN, 1);
+#endif
   
   //Bed LED signal LOW
   SET_OUTPUT(BED_LED_PIN);
