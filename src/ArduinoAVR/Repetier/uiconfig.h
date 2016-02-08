@@ -73,12 +73,12 @@ works, use the ascii charset 0 as fallback. Not the nicest for everything but wo
 2 = Piezo connected to a pin over I2C
 */
 #ifndef BEEPER_TYPE
-#define BEEPER_TYPE 0
+#define BEEPER_TYPE 1
 #define BEEPER_TYPE_INVERTING false
 #endif
 
 #if BEEPER_TYPE==1 && !defined(BEEPER_PIN)
-#define BEEPER_PIN 37
+#define BEEPER_PIN 61 //64 for MT v2.0; 61 for MT v3.0
 #endif
 #if BEEPER_TYPE==2
 #define BEEPER_ADDRESS 0x40 // I2C address of the chip with the beeper pin
@@ -102,7 +102,29 @@ What display type do you use?
 
 #if UI_DISPLAY_TYPE == DISPLAY_U8G // Special case for graphic displays
 
-#define U8GLIB_ST7920 // Currently only this display from u8g lib is included.
+// You need to define which controller you use and set pins accodringly
+
+// For software spi assign these definitions
+// SCK Pin:  UI_DISPLAY_D4_PIN
+// Mosi Pin: UI_DISPLAY_ENABLE_PIN
+// CD Pin:   UI_DISPLAY_RS_PIN
+
+// ST7920 with software SPI
+#define U8GLIB_ST7920
+// SSD1306 with software SPI
+//#define U8GLIB_SSD1306_SW_SPI
+// SSD1306 over I2C using hardware I2C pins
+//#define U8GLIB_SSD1306_I2C
+// For the 8 bit ks0108 display you need to set these pins
+// UI_DISPLAY_D0_PIN,UI_DISPLAY_D1_PIN,UI_DISPLAY_D2_PIN,UI_DISPLAY_D3_PIN,UI_DISPLAY_D4_PIN,UI_DISPLAY_D5_PIN,UI_DISPLAY_D6_PIN,UI_DISPLAY_D7_PIN
+// UI_DISPLAY_ENABLE_PIN,UI_DISPLAY_CS1,UI_DISPLAY_CS2,
+// UI_DISPLAY_DI,UI_DISPLAY_RW_PIN,UI_DISPLAY_RESET_PIN
+//#define U8GLIB_KS0108
+//#define U8GLIB_KS0108_FAST
+// UI_DISPLAY_RS_PIN = CS
+// UI_DISPLAY_D5_PIN = A0
+//#define U8GLIB_ST7565_NHD_C2832_HW_SPI
+
 #define UI_LCD_WIDTH 128
 #define UI_LCD_HEIGHT 64
 
@@ -190,20 +212,27 @@ Define the pin
 #define UI_DISPLAY_D6_PIN _BV(10)
 #define UI_DISPLAY_D7_PIN _BV(9)*/
 
-#else // Direct display connections
-#define UI_DISPLAY_RS_PIN		42		// PINK.1, 88, D_RS
-#define UI_DISPLAY_RW_PIN		-1
-#define UI_DISPLAY_ENABLE_PIN	43		// PINK.3, 86, D_E
-#define UI_DISPLAY_D0_PIN		44		// PINF.5, 92, D_D4
-#define UI_DISPLAY_D1_PIN		45		// PINK.2, 87, D_D5
-#define UI_DISPLAY_D2_PIN		46		// PINL.5, 40, D_D6
-#define UI_DISPLAY_D3_PIN		47		// PINK.4, 85, D_D7
-#define UI_DISPLAY_D4_PIN		44		// PINF.5, 92, D_D4
-#define UI_DISPLAY_D5_PIN		45		// PINK.2, 87, D_D5
-#define UI_DISPLAY_D6_PIN		46		// PINL.5, 40, D_D6
-#define UI_DISPLAY_D7_PIN		47		// PINK.4, 85, D_D7
-#define UI_DELAYPERCHAR		   50
+#else // Direct display connections        MT v2.0; MT v3.0
+#define UI_DISPLAY_RS_PIN		32 //14 //32                // PINK.1, 88, D_RS
+#define UI_DISPLAY_RW_PIN		-1 //-1 //-1
+#define UI_DISPLAY_ENABLE_PIN	        31 //15 //31                // PINK.3, 86, D_E
+#define UI_DISPLAY_D0_PIN		-1 //-1 //-1                // PINF.5, 92, D_D4
+#define UI_DISPLAY_D1_PIN		-1 //-1 //-1                // PINK.2, 87, D_D5
+#define UI_DISPLAY_D2_PIN		-1 //-1 //-1                // PINL.5, 40, D_D6
+#define UI_DISPLAY_D3_PIN		-1 //-1 //-1                // PINK.4, 85, D_D7
+#define UI_DISPLAY_D4_PIN		14 //30 //14                // PINF.5, 92, D_D4
+#define UI_DISPLAY_D5_PIN		30 //31 //30                // PINK.2, 87, D_D5
+#define UI_DISPLAY_D6_PIN		39 //32 //39                // PINL.5, 40, D_D6
+#define UI_DISPLAY_D7_PIN		15 //33 //15                // PINK.4, 85, D_D7
+#define UI_DELAYPERCHAR		       50
 
+// Special pins for some u8g driven display
+
+#define UI_DISPLAY_CS1 59
+#define UI_DISPLAY_CS2 59
+#define UI_DISPLAY_DI 59
+#define UI_DISPLAY_RW_PIN 59
+#define UI_DISPLAY_RESET_PIN 59
 #endif
 
 
@@ -339,9 +368,9 @@ void uiInitKeys() {
 #if UI_HAS_KEYS!=0
   //UI_KEYS_INIT_CLICKENCODER_LOW(33,31); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
   UI_KEYS_INIT_BUTTON_LOW(33); // push button, connects gnd to pin
-  UI_KEYS_INIT_BUTTON_LOW(31);
-  UI_KEYS_INIT_BUTTON_LOW(29);
-  UI_KEYS_INIT_BUTTON_LOW(37);
+  UI_KEYS_INIT_BUTTON_LOW(44);
+  UI_KEYS_INIT_BUTTON_LOW(34);
+  UI_KEYS_INIT_BUTTON_LOW(43);
   UI_KEYS_INIT_BUTTON_LOW(35);
 
 //  UI_KEYS_INIT_CLICKENCODER_LOW(47,45); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
@@ -350,32 +379,31 @@ void uiInitKeys() {
 #endif
 
   //PAUSE BUTTON, digital pin 47, on AUX3, NO button, connects to GND
-  UI_KEYS_INIT_BUTTON_LOW(X_MIN_PIN);
+  UI_KEYS_INIT_BUTTON_LOW(47);
 
   //Illumination LED for pause button, connected to E2 screw terminals
-  SET_OUTPUT(PAUSE_LED_PIN);
-  WRITE(PAUSE_LED_PIN, 1);
-#if BED_LEDS
+  SET_OUTPUT(HEATER_3_PIN);
+  WRITE(HEATER_3_PIN, 1);
+  
   //Bed LED signal LOW
   SET_OUTPUT(BED_LED_PIN);
   WRITE(BED_LED_PIN, 0);
-#endif
 
 }
-void uiCheckKeys(int &action) {
+void uiCheckKeys(uint16_t &action) {
 #if UI_HAS_KEYS!=0
 
  //UI_KEYS_CLICKENCODER_LOW_REV(33,31); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
-    UI_KEYS_BUTTON_LOW(33,UI_ACTION_OK); //35 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(35,UI_ACTION_PREVIOUS); //34 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(31,UI_ACTION_NEXT); //43 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(29,UI_ACTION_BACK); //44 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(37,UI_ACTION_MENU_SDCARD ); //33 push button, connects gnd to pin
+    UI_KEYS_BUTTON_LOW(35,UI_ACTION_OK); // push button, connects gnd to pin
+    UI_KEYS_BUTTON_LOW(34,UI_ACTION_PREVIOUS); // push button, connects gnd to pin
+    UI_KEYS_BUTTON_LOW(43,UI_ACTION_NEXT); // push button, connects gnd to pin
+    UI_KEYS_BUTTON_LOW(44,UI_ACTION_BACK); // push button, connects gnd to pin
+    UI_KEYS_BUTTON_LOW(33,UI_ACTION_MENU_SDCARD ); // push button, connects gnd to pin
     // UI_KEYS_CLICKENCODER_LOW_REV(45,44); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
 //  UI_KEYS_BUTTON_LOW(43,UI_ACTION_OK); // push button, connects gnd to pin
     
     //pause button- when connected to GND, sends pause request to host
-    UI_KEYS_BUTTON_LOW(X_MIN_PIN,UI_ACTION_PAUSE);
+    UI_KEYS_BUTTON_LOW(47,UI_ACTION_PAUSE);
 #endif
 }
 inline void uiCheckSlowEncoder() {
@@ -389,7 +417,7 @@ inline void uiCheckSlowEncoder() {
     HAL::i2cWrite(0x12); // GIOA
     HAL::i2cStop();
     HAL::i2cStartWait(UI_DISPLAY_I2C_ADDRESS+I2C_READ);
-    unsigned int keymask = HAL::i2cReadAck();
+    uint16_t keymask = HAL::i2cReadAck();
     keymask = keymask + (HAL::i2cReadNak()<<8);
 #endif
   HAL::i2cStop();
@@ -397,7 +425,7 @@ inline void uiCheckSlowEncoder() {
   UI_KEYS_I2C_CLICKENCODER_LOW_REV(_BV(2),_BV(0)); // click encoder on pins 0 and 2. Phase is connected with gnd for signals.
 #endif
 }
-void uiCheckSlowKeys(int &action) {
+void uiCheckSlowKeys(uint16_t &action) {
 #if defined(UI_HAS_I2C_KEYS) && UI_HAS_KEYS!=0
 #if UI_DISPLAY_I2C_CHIPTYPE==0
     HAL::i2cStartWait(UI_I2C_KEY_ADDRESS+I2C_READ);
@@ -408,7 +436,7 @@ void uiCheckSlowKeys(int &action) {
     HAL::i2cWrite(0x12); // GPIOA
     HAL::i2cStop();
     HAL::i2cStartWait(UI_DISPLAY_I2C_ADDRESS+I2C_READ);
-    unsigned int keymask = HAL::i2cReadAck();
+    uint16_t keymask = HAL::i2cReadAck();
     keymask = keymask + (HAL::i2cReadNak()<<8);
 #endif
     HAL::i2cStop();
