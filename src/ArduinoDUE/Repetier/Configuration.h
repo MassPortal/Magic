@@ -812,7 +812,7 @@ on this endstop.
 //#define PREVENT_Z_DISABLE_ON_STEPPER_TIMEOUT
 
 // Inverting axis direction
-#define INVERT_X_DIR true	
+#define INVERT_X_DIR true
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
 
@@ -1593,7 +1593,7 @@ The following settings override uiconfig.h!
 21 or CONTROLLER_VIKI2 Panucatt Viki2 graphic lcd 
 405 or CONTROLLER_FELIX_DUE Felix LCD für due based board
 */
-#define FEATURE_CONTROLLER UICONFIG_CONTROLLER
+#define FEATURE_CONTROLLER CONTROLLER_LCD_MP_PHARAOH_DUE
 
 
 /**
@@ -1601,16 +1601,16 @@ Select the languages to use. On first startup user can select
 the language from a menu with activated languages. In Configuration->Language
 the language can be switched any time. */
 #define LANGUAGE_EN_ACTIVE 1 // English
-#define LANGUAGE_DE_ACTIVE 1 // German
-#define LANGUAGE_NL_ACTIVE 1 // Dutch
-#define LANGUAGE_PT_ACTIVE 1 // Brazilian portuguese
-#define LANGUAGE_IT_ACTIVE 1 // Italian
-#define LANGUAGE_ES_ACTIVE 1 // Spanish
-#define LANGUAGE_SE_ACTIVE 1 // Swedish
-#define LANGUAGE_FR_ACTIVE 1 // French
-#define LANGUAGE_CZ_ACTIVE 1 // Czech
-#define LANGUAGE_PL_ACTIVE 1 // Polish
-#define LANGUAGE_TR_ACTIVE 1 // Turkish
+#define LANGUAGE_DE_ACTIVE 0 // German
+#define LANGUAGE_NL_ACTIVE 0 // Dutch
+#define LANGUAGE_PT_ACTIVE 0 // Brazilian portuguese
+#define LANGUAGE_IT_ACTIVE 0 // Italian
+#define LANGUAGE_ES_ACTIVE 0 // Spanish
+#define LANGUAGE_SE_ACTIVE 0 // Swedish
+#define LANGUAGE_FR_ACTIVE 0 // French
+#define LANGUAGE_CZ_ACTIVE 0 // Czech
+#define LANGUAGE_PL_ACTIVE 0 // Polish
+#define LANGUAGE_TR_ACTIVE 0 // Turkish
 
 /* Some displays loose their settings from time to time. Try uncommenting the 
 autorepair function if this is the case. It is not supported for all display
@@ -1623,7 +1623,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v2.1T"
-#define FIRMWARE_VERSION "201-"
+#define FIRMWARE_VERSION "203-"
 
 
 //#define DEBUGGING false
@@ -1631,6 +1631,9 @@ computations, so do not enable it if your display works stable!
 #if BED_LEDS
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
 #endif
+
+//Pause button LED
+#define PAUSE_LED
 
 /** Animate switches between menus etc. */
 #define UI_ANIMATION 0
