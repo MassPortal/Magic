@@ -1912,7 +1912,18 @@ void uiInitKeys() {
   UI_KEYS_INIT_BUTTON_LOW(29);
   UI_KEYS_INIT_BUTTON_LOW(37);
   UI_KEYS_INIT_BUTTON_LOW(35);
+//PAUSE BUTTON, digital pin 47, on AUX3, NO button, connects to GND
   UI_KEYS_INIT_BUTTON_LOW(X_MIN_PIN);
+#ifdef PAUSE_LED
+  //Illumination LED for pause button, connected to E2 screw terminals
+  SET_OUTPUT(PAUSE_LED_PIN);
+  WRITE(PAUSE_LED_PIN, 1);
+#endif
+#if BED_LEDS
+  //Bed LED signal LOW
+  SET_OUTPUT(BED_LED_PIN);
+  WRITE(BED_LED_PIN, 0);
+#endif
 }
 void uiCheckKeys(uint16_t &action) {
     UI_KEYS_BUTTON_LOW(33,UI_ACTION_OK); //35 push button, connects gnd to pin
@@ -1920,7 +1931,7 @@ void uiCheckKeys(uint16_t &action) {
     UI_KEYS_BUTTON_LOW(31,UI_ACTION_NEXT); //43 push button, connects gnd to pin
     UI_KEYS_BUTTON_LOW(29,UI_ACTION_BACK); //44 push button, connects gnd to pin
     UI_KEYS_BUTTON_LOW(37,UI_ACTION_MENU_SDCARD ); //33 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(X_MIN_PIN,UI_ACTION_RESET /*UI_ACTION_PAUSE*/);
+    UI_KEYS_BUTTON_LOW(X_MIN_PIN,/*UI_ACTION_RESET*/UI_ACTION_PAUSE);
 }
 inline void uiCheckSlowEncoder() {}
 void uiCheckSlowKeys(uint16_t &action) {}

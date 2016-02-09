@@ -814,7 +814,7 @@ on this endstop.
 //#define PREVENT_Z_DISABLE_ON_STEPPER_TIMEOUT
 
 // Inverting axis direction
-#define INVERT_X_DIR true	
+#define INVERT_X_DIR true
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
 
@@ -1595,7 +1595,7 @@ The following settings override uiconfig.h!
 21 or CONTROLLER_VIKI2 Panucatt Viki2 graphic lcd 
 405 or CONTROLLER_FELIX_DUE Felix LCD für due based board
 */
-#define FEATURE_CONTROLLER UICONFIG_CONTROLLER
+#define FEATURE_CONTROLLER CONTROLLER_LCD_MP_PHARAOH_DUE
 
 
 /**
@@ -1625,7 +1625,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v2.1D"
-#define FIRMWARE_VERSION "202-"
+#define FIRMWARE_VERSION "203-"
 
 
 //#define DEBUGGING false
@@ -1633,6 +1633,9 @@ computations, so do not enable it if your display works stable!
 #if BED_LEDS
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
 #endif
+
+//Pause button LED
+#define PAUSE_LED
 
 /** Animate switches between menus etc. */
 #define UI_ANIMATION 0
