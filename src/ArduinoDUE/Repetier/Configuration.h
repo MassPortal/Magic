@@ -1593,7 +1593,7 @@ The following settings override uiconfig.h!
 21 or CONTROLLER_VIKI2 Panucatt Viki2 graphic lcd 
 405 or CONTROLLER_FELIX_DUE Felix LCD für due based board
 */
-#define FEATURE_CONTROLLER CONTROLLER_LCD_MP_PHARAOH_DUE
+#define FEATURE_CONTROLLER 0
 
 
 /**
@@ -1620,10 +1620,10 @@ computations, so do not enable it if your display works stable!
 //#define TRY_AUTOREPAIR_LCD_ERRORS
 
 // This is line 2 of the status display at startup. Change to your like.
-#define UI_PRINTER_NAME "Pharaoh ED"
+#define UI_PRINTER_NAME "Pharaoh XD"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v2.1"
-#define FIRMWARE_VERSION "203-"
+#define FIRMWARE_VERSION "204-"
 
 
 //#define DEBUGGING false

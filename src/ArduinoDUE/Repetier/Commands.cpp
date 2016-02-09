@@ -2704,6 +2704,7 @@ void Commands::processMCode(GCode *com)
 		Light.factoryTest();
 #endif
 		break;
+#if FEATURE_CONTROLLER != NO_CONTROLLER
 	case 896: //Run custom action by its ID
 	if(com->hasS() && com->S)
 	{
@@ -2713,33 +2714,29 @@ void Commands::processMCode(GCode *com)
 			Com::printWarningFLN(PSTR("Not a valid action ID!"));
 	}
 	break;
-	
+#endif	
 	case 897: //Custom bed coating command
 	if(com->hasI())
 	{
 		if(com->I > -2.0 && com->I < 100.0)	 {
-			EEPROM::readDataFromEEPROM(false);
+			#if EEPROM_MODE != 0
 			//If there is something to change
-			if (EEPROM::zProbeZOffset()!=com->I) {
-				//If the offset has been previously set, reset the height
-				if (EEPROM::zProbeZOffset()!=0.0)
-				Printer::zLength += EEPROM::zProbeZOffset();
-				//Subtract the new offset (if any)
-				if (com->I!=0.0)
-				Printer::zLength -= com->I;
-				//Set the new offset
-				Printer::zBedOffset = com->I;
+			if (EEPROM::zProbeZOffset() != com->I)
+			{
 				HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET, com->I);
-				HAL::eprSetFloat(EPR_Z_LENGTH, Printer::zLength);
-				Com::print("\nThe new zLength: ");
-				Com::printFloat(Printer::zLength, 4);
 				EEPROM::storeDataIntoEEPROM(false);
-				Com::print(" has been stored into EEPROM.\n");
 			}
+			#endif
+			Printer::zBedOffset = com->I;
 			//Display message
-			EEPROM::readDataFromEEPROM(false);
 			Printer::homeAxis(true, true, true);
-			Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL "));	 
+			Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL "));
+			
+			/*Printer::updateCurrentPosition(false);
+			Commands::printCurrentPosition(PSTR("homeAxis "));
+			EEPROM::readDataFromEEPROM(true);
+			Printer::homeAxis(true, true, true);*/
+			//Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL "));	 
 			}
 		else
 			Com::printWarningFLN(PSTR("Not a valid bed coating adjustment!"));
