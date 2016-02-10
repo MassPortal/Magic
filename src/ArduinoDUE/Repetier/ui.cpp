@@ -3763,25 +3763,33 @@ break;
 			}
 			if (Printer::isPaused || Printer::isMenuMode(MENU_MODE_SD_PRINTING + MENU_MODE_SD_PAUSED)) {
 				if(Printer::isMenuMode(MENU_MODE_SD_PRINTING + MENU_MODE_SD_PAUSED)) {
-					digitalWrite(HEATER_3_PIN, 1);
+#ifdef PAUSE_LED				
+					digitalWrite(PAUSE_LED_PIN, 1);
+#endif					
 					sd.continuePrint(true);
 				}
 				else {
 					Com::printFLN(PSTR("RequestResume:"));
 					UI_STATUS_UPD("");
 					Printer::resumePrinting();
-					WRITE(HEATER_3_PIN, 1);
+#ifdef PAUSE_LED
+					WRITE(PAUSE_LED_PIN, 1);
+#endif
 				}
 			    } else {
 					if(Printer::isMenuMode(MENU_MODE_SD_PRINTING)) {
-						digitalWrite(HEATER_3_PIN, 0);
+#ifdef PAUSE_LED					
+						digitalWrite(PAUSE_LED_PIN, 0);
+#endif						
 						sd.pausePrint(true);
 					}
 					else {
 						Printer::isPaused = true;
             Com::printFLN(PSTR("RequestPause:"));
 						UI_STATUS_UPD("Pause requested");
-						WRITE(HEATER_3_PIN, 0);
+#ifdef PAUSE_LED					
+						WRITE(PAUSE_LED_PIN, 0);
+#endif						
 					}
 		    }
 		    //just for the reference- this was used to pause RepetierHost

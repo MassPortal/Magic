@@ -1421,6 +1421,7 @@ void Commands::processGCode(GCode *com)
             Printer::currentPositionSteps[Z_AXIS] = (h3 + z) * Printer::axisStepsPerMM[Z_AXIS];
 #endif
 #endif
+		Printer::setAutolevelActive(true);
 		//restore horizontal rod radius
 		Printer::radius0 = oldRadius;
             if(com->S == 2)
@@ -2720,7 +2721,6 @@ void Commands::processMCode(GCode *com)
 		Light.factoryTest();
 #endif
 		break;
-#if FEATURE_CONTROLLER != NO_CONTROLLER
 	case 896: //Run custom action by its ID
 	if(com->hasS() && com->S)
 	{
@@ -2769,8 +2769,6 @@ void Commands::processMCode(GCode *com)
 		Com::println();
 	}
 	break;
-		
-#endif
     case 601:
         if(com->hasS() && com->S > 0)
             Extruder::pauseExtruders();
