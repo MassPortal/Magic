@@ -812,9 +812,9 @@ on this endstop.
 //#define PREVENT_Z_DISABLE_ON_STEPPER_TIMEOUT
 
 // Inverting axis direction
-#define INVERT_X_DIR true
+#define INVERT_X_DIR false
 #define INVERT_Y_DIR false
-#define INVERT_Z_DIR true
+#define INVERT_Z_DIR false
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -863,7 +863,7 @@ on this endstop.
 // If EEPROM is enabled these values will be overidden with the values in the EEPROM
 #define X_MAX_LENGTH 143
 #define Y_MAX_LENGTH 143
-#define Z_MAX_LENGTH 230
+#define Z_MAX_LENGTH 250
 // Coordinates for the minimum axis. Can also be negative if you want to have the bed start at 0 and the printer can go to the left side
 // of the bed. Maximum coordinate is given by adding the above X_MAX_LENGTH values.
 #define X_MIN_POS -72.5
@@ -1347,7 +1347,7 @@ to recalibrate z.
 #define Z_PROBE_X_OFFSET -23
 #define Z_PROBE_Y_OFFSET -13
 #define Z_PROBE_Z_OFFSET 0
-#define Z_PROBE_BED_DISTANCE 10.0 // Higher than max bed level distance error in mm
+#define Z_PROBE_BED_DISTANCE 20.0 // Higher than max bed level distance error in mm
 
 // Waits for a signal to start. Valid signals are probe hit and ok button.
 // This is needful if you have the probe trigger by hand.
@@ -1622,8 +1622,8 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v2.1"
-#define FIRMWARE_VERSION "203-"
+#define HARDWARE_VERSION "v3.0"
+#define FIRMWARE_VERSION "204-"
 
 
 //#define DEBUGGING false
