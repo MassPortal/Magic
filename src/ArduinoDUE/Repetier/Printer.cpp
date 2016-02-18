@@ -1321,8 +1321,7 @@ void Printer::homeZAxis() // Delta z homing
 	// Check if homing failed.  If so, request pause!
 	if (!homingSuccess) {
 		setHomed(false); // Clear the homed flag
-		homeAxis(true,true,true);
-		//Com::printFLN(PSTR("RequestPause:Homing failed!"));
+		Com::printFLN(PSTR("Homing failed!"));
 	}
     // Correct different endstop heights
     // These can be adjusted by two methods. You can use offsets stored by determining the center
