@@ -68,6 +68,19 @@ FSTRINGVAR(tFreeRAM)
 FSTRINGVAR(tXColon)
 FSTRINGVAR(tSlash)
 FSTRINGVAR(tSpaceSlash)
+#if JSON_OUTPUT
+FSTRINGVAR(tJSONDir)
+FSTRINGVAR(tJSONFiles)
+FSTRINGVAR(tJSONArrayEnd)
+FSTRINGVAR(tJSONErrorStart)
+FSTRINGVAR(tJSONErrorEnd)
+FSTRINGVAR(tJSONFileInfoStart)
+FSTRINGVAR(tJSONFileInfoHeight)
+FSTRINGVAR(tJSONFileInfoLayerHeight)
+FSTRINGVAR(tJSONFileInfoFilament)
+FSTRINGVAR(tJSONFileInfoGeneratedBy)
+FSTRINGVAR(tJSONFileInfoName)
+#endif
 FSTRINGVAR(tSpaceXColon)
 FSTRINGVAR(tSpaceYColon)
 FSTRINGVAR(tSpaceZColon)
@@ -83,6 +96,7 @@ FSTRINGVAR(tColon)
 FSTRINGVAR(tSpeedMultiply)
 FSTRINGVAR(tFlowMultiply)
 FSTRINGVAR(tFanspeed)
+FSTRINGVAR(tFan2speed)
 FSTRINGVAR(tPrintedFilament)
 FSTRINGVAR(tPrintingTime)
 FSTRINGVAR(tSpacem)
@@ -108,6 +122,7 @@ FSTRINGVAR(tXMaxColon)
 FSTRINGVAR(tYMinColon)
 FSTRINGVAR(tYMaxColon)
 FSTRINGVAR(tZMinColon)
+FSTRINGVAR(tZ2MinMaxColon)
 FSTRINGVAR(tZMaxColon)
 FSTRINGVAR(tJerkColon)
 FSTRINGVAR(tZJerkColon)
@@ -117,8 +132,9 @@ FSTRINGVAR(tCommaSpeedEqual)
 FSTRINGVAR(tLinearLColon)
 FSTRINGVAR(tQuadraticKColon)
 FSTRINGVAR(tEEPROMUpdated)
-FSTRINGVAR(tExtruderJam)
 FSTRINGVAR(tFilamentSlipping)
+FSTRINGVAR(tPauseCommunication)
+FSTRINGVAR(tContinueCommunication)
 #if DRIVE_SYSTEM == DELTA
 FSTRINGVAR(tMeasurementReset)
 FSTRINGVAR(tMeasureDeltaSteps)
@@ -253,6 +269,9 @@ FSTRINGVAR(tZProbeXY2offset)
 FSTRINGVAR(tZProbeX3)
 FSTRINGVAR(tZProbeY3)
 FSTRINGVAR(tZProbeXY3offset)
+FSTRINGVAR(zZProbeBendingCorA)
+FSTRINGVAR(zZProbeBendingCorB)
+FSTRINGVAR(zZProbeBendingCorC)
 #endif
 FSTRINGVAR(tEPRBedLedBrightness)
 #if FEATURE_AUTOLEVEL
@@ -271,6 +290,7 @@ FSTRINGVAR(tEPR0)
 FSTRINGVAR(tEPR1)
 FSTRINGVAR(tEPR2)
 FSTRINGVAR(tEPR3)
+FSTRINGVAR(tLanguage)
 FSTRINGVAR(tEPRBaudrate)
 FSTRINGVAR(tEPRFilamentPrinted)
 FSTRINGVAR(tEPRPrinterActive)
@@ -288,10 +308,11 @@ FSTRINGVAR(tEPRYBacklash)
 FSTRINGVAR(tEPRZBacklash)
 FSTRINGVAR(tEPRZAcceleration)
 FSTRINGVAR(tEPRZTravelAcceleration)
+FSTRINGVAR(tEPRAccelerationFactorAtTop)
 FSTRINGVAR(tEPRZStepsPerMM)
 FSTRINGVAR(tEPRZMaxFeedrate)
 FSTRINGVAR(tEPRZHomingFeedrate)
-#if DRIVE_SYSTEM!=DELTA
+#if DRIVE_SYSTEM != DELTA
 FSTRINGVAR(tEPRMaxZJerk)
 FSTRINGVAR(tEPRXStepsPerMM)
 FSTRINGVAR(tEPRYStepsPerMM)
@@ -339,6 +360,7 @@ FSTRINGVAR(tEPRDGain)
 FSTRINGVAR(tEPRPIDMaxValue)
 FSTRINGVAR(tEPRXOffset)
 FSTRINGVAR(tEPRYOffset)
+FSTRINGVAR(tEPRZOffset)
 FSTRINGVAR(tEPRStabilizeTime)
 FSTRINGVAR(tEPRRetractionWhenHeating)
 FSTRINGVAR(tEPRDistanceRetractHeating)
@@ -347,8 +369,8 @@ FSTRINGVAR(tEPRAdvanceK)
 FSTRINGVAR(tEPRAdvanceL)
 #endif
 #if SDSUPPORT
-FSTRINGVAR(tSDRemoved)
-FSTRINGVAR(tSDInserted)
+//FSTRINGVAR(tSDRemoved)
+//FSTRINGVAR(tSDInserted)
 FSTRINGVAR(tSDInitFail)
 FSTRINGVAR(tErrorWritingToFile)
 FSTRINGVAR(tBeginFileList)
@@ -387,6 +409,17 @@ FSTRINGVAR(tEPRRetractionUndoSpeed)
 FSTRINGVAR(tConfig)
 FSTRINGVAR(tExtrDot)
 
+#if STEPPER_CURRENT_CONTROL == CURRENT_CONTROL_MCP4728
+FSTRINGVAR(tMCPEpromSettings)
+FSTRINGVAR(tMCPCurrentSettings)
+#endif
+FSTRINGVAR(tPrinterModeFFF)
+FSTRINGVAR(tPrinterModeLaser)
+FSTRINGVAR(tPrinterModeCNC)
+#ifdef STARTUP_GCODE
+FSTRINGVAR(tStartupGCode)
+#endif
+
 static void config(FSTRINGPARAM(text));
 static void config(FSTRINGPARAM(text),int value);
 static void config(FSTRINGPARAM(text),const char *msg);
@@ -422,6 +455,11 @@ static inline void print(char c) {HAL::serialWriteByte(c);}
 static void printFloat(float number, uint8_t digits);
 static inline void print(float number) {printFloat(number, 6);}
 static inline void println() {HAL::serialWriteByte('\r');HAL::serialWriteByte('\n');}
+#if UI_DISPLAY_TYPE != NO_DISPLAY
+static const char* translatedF(int textId);
+static void selectLanguage(fast8_t lang);
+static uint8_t selectedLanguage;
+#endif
 static inline void println(const char *text) { print(text); println(); }
     protected:
     private:
