@@ -46,10 +46,12 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 /** Number of extruders. Maximum 6 extruders. */
-#define NUM_EXTRUDER 1
+#define NUM_EXTRUDER 2
 
 /** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. */
 #define MIXING_EXTRUDER 0
+
+#define SHARED_EXTRUDER_HEATER true
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // Arduino Due with RADDS     = 402
@@ -269,7 +271,7 @@ Values for starts:
 The precise values may differ for different nozzle/resistor combination.
  Overridden if EEPROM activated.
 */
-#define EXT0_PID_INTEGRAL_DRIVE_MAX 160
+#define EXT0_PID_INTEGRAL_DRIVE_MAX 220
 /** \brief lower value for integral part
 
 The I state should converge to the exact heater output needed for the target temperature.
@@ -287,7 +289,7 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 /** Dgain.  Overridden if EEPROM activated.*/
 #define EXT0_PID_D   40//120//76.4
 // maximum time the heater is can be switched on. Max = 255.  Overridden if EEPROM activated.
-#define EXT0_PID_MAX 200
+#define EXT0_PID_MAX 220
 /** \brief Faktor for the advance algorithm. 0 disables the algorithm.  Overridden if EEPROM activated.
 K is the factor for the quadratic term, which is normally disabled in newer versions. If you want to use
 the quadratic factor make sure ENABLE_QUADRATIC_ADVANCE is defined.
@@ -328,7 +330,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT1_Y_OFFSET 0
 #define EXT1_Z_OFFSET 0
 // for skeinforge 40 and later, steps to pull the plasic 1 mm inside the extruder, not out.  Overridden if EEPROM activated.
-//#define EXT1_STEPS_PER_MM 373
+#define EXT1_STEPS_PER_MM 950
 // What type of sensor is used?
 // 0 is no thermistor/temperature control
 // 1 is 100k thermistor (Epcos B57560G0107F000 - RepRap-Fab.org and many other)
@@ -349,37 +351,37 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // 99 Generic thermistor table 3
 // 100 is AD595
 // 101 is MAX6675
-//#define EXT1_TEMPSENSOR_TYPE 3
+#define EXT1_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-//#define EXT1_TEMPSENSOR_PIN TEMP_2_PIN
+#define EXT1_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 // Which pin enables the heater
-//#define EXT1_HEATER_PIN HEATER_2_PIN
-//#define EXT1_STEP_PIN E1_STEP_PIN
-//#define EXT1_DIR_PIN E1_DIR_PIN
+#define EXT1_HEATER_PIN -1
+#define EXT1_STEP_PIN E1_STEP_PIN
+#define EXT1_DIR_PIN E1_DIR_PIN
 // set to 0/1 for normal / inverse direction
-//#define EXT1_INVERSE false
-//#define EXT1_ENABLE_PIN E1_ENABLE_PIN
+#define EXT1_INVERSE true
+#define EXT1_ENABLE_PIN E1_ENABLE_PIN
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-//#define EXT1_ENABLE_ON false
+#define EXT1_ENABLE_ON 1
 // The following speed settings are for skeinforge 40+ where e is the
 // length of filament pulled inside the heater. For repsnap or older
 // skeinforge use heigher values.
 //  Overridden if EEPROM activated.
-//#define EXT1_MAX_FEEDRATE 25
+#define EXT1_MAX_FEEDRATE 400
 // Feedrate from halted extruder in mm/s
 //  Overridden if EEPROM activated.
-//#define EXT1_MAX_START_FEEDRATE 12
+#define EXT1_MAX_START_FEEDRATE 10
 // Acceleration in mm/s^2
 //  Overridden if EEPROM activated.
-//#define EXT1_MAX_ACCELERATION 10000
+#define EXT1_MAX_ACCELERATION 10000
 /** Type of heat manager for this extruder.
 - 0 = Simply switch on/off if temperature is reached. Works always.
 - 1 = PID Temperature control. Is better but needs good PID values. Defaults are a good start for most extruder.
  Overridden if EEPROM activated.
 */
-//#define EXT1_HEAT_MANAGER 1
+#define EXT1_HEAT_MANAGER 3
 /** Wait x seconds, after reaching target temperature. Only used for M109.  Overridden if EEPROM activated. */
-//#define EXT1_WATCHPERIOD 1
+#define EXT1_WATCHPERIOD 1
 
 /** \brief The maximum value, I-gain can contribute to the output.
 
@@ -391,7 +393,7 @@ Values for starts:
 The precise values may differ for different nozzle/resistor combination.
  Overridden if EEPROM activated.
 */
-//#define EXT1_PID_INTEGRAL_DRIVE_MAX 130
+#define EXT1_PID_INTEGRAL_DRIVE_MAX 220
 /** \brief lower value for integral part
 
 The I state should converge to the exact heater output needed for the target temperature.
@@ -399,36 +401,36 @@ To prevent a long deviation from the target zone, this value limits the lower va
 A good start is 30 lower then the optimal value. You need to leave room for cooling.
  Overridden if EEPROM activated.
 */
-//#define EXT1_PID_INTEGRAL_DRIVE_MIN 60
+#define EXT1_PID_INTEGRAL_DRIVE_MIN 40
 /** P-gain.  Overridden if EEPROM activated. */
-//#define EXT1_PID_PGAIN_OR_DEAD_TIME   24
+#define EXT1_PID_PGAIN_OR_DEAD_TIME   5
 /** I-gain.  Overridden if EEPROM activated.
 */
-//#define EXT1_PID_I   0.88
+#define EXT1_PID_I   2
 /** D-gain.  Overridden if EEPROM activated.*/
-//#define EXT1_PID_D 200
+#define EXT1_PID_D 40
 // maximum time the heater is can be switched on. Max = 255.  Overridden if EEPROM activated.
-//#define EXT1_PID_MAX 255
+#define EXT1_PID_MAX 220
 /** \brief Faktor for the advance algorithm. 0 disables the algorithm.  Overridden if EEPROM activated.
 K is the factor for the quadratic term, which is normally disabled in newer versions. If you want to use
 the quadratic factor make sure ENABLE_QUADRATIC_ADVANCE is defined.
 L is the linear factor and seems to be working better then the quadratic dependency.
 */
-//#define EXT1_ADVANCE_K 0.0f
-//#define EXT1_ADVANCE_L 0.0f
+#define EXT1_ADVANCE_K 0.0f
+#define EXT1_ADVANCE_L 0.0f
 /* Motor steps to remove backlash for advance alorithm. These are the steps
 needed to move the motor cog in reverse direction until it hits the driving
 cog. Direct drive extruder need 0. */
-//#define EXT1_ADVANCE_BACKLASH_STEPS 0
+#define EXT1_ADVANCE_BACKLASH_STEPS 0
 
-//#define EXT1_WAIT_RETRACT_TEMP 	150
-//#define EXT1_WAIT_RETRACT_UNITS	0
-//#define EXT1_SELECT_COMMANDS "M117 Extruder 2"
-//#define EXT1_DESELECT_COMMANDS ""
+#define EXT1_WAIT_RETRACT_TEMP 	150
+#define EXT1_WAIT_RETRACT_UNITS	0
+#define EXT1_SELECT_COMMANDS "M117 Extruder 2"
+#define EXT1_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-//#define EXT1_EXTRUDER_COOLER_PIN -1
+#define EXT1_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
 /** PWM speed for the cooler fan. 0=off 255=full speed */
-//#define EXT1_EXTRUDER_COOLER_SPEED 255
+#define EXT1_EXTRUDER_COOLER_SPEED 255
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
 #define EXT1_DECOUPLE_TEST_PERIOD 18000
 /** Pin which toggles regualrly during extrusion allowing jam control. -1 = disabled */
@@ -1622,7 +1624,7 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Grand Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "GP35v1.0"
+#define HARDWARE_VERSION "GP35v1.0D"
 #define FIRMWARE_VERSION "205-"
 
 
