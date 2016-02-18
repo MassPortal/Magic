@@ -643,7 +643,7 @@ Value is used for all generic tables created. */
 // ############# Heated bed configuration ########################
 
 /** \brief Set true if you have a heated bed conected to your board, false if not */
-#define HAVE_HEATED_BED true
+#define HAVE_HEATED_BED false
 
 #define HEATED_BED_MAX_TEMP 120
 /** Skip M190 wait, if heated bed is already within x degrees. Fixed numbers only, 0 = off. */
@@ -1622,12 +1622,12 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v3.0"
+#define HARDWARE_VERSION "v3.0B"
 #define FIRMWARE_VERSION "205-"
 
 
 //#define DEBUGGING false
-#define BED_LEDS true
+#define BED_LEDS false
 #if BED_LEDS
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
 #endif
