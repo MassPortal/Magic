@@ -159,12 +159,12 @@ void Extruder::manageTemperatures()
 	            if(!Printer::isAnyTempsensorDefect())
 	            {
 					newDefectFound = true;
-		            Printer::setAnyTempsensorDefect();
-		            reportTempsensorError();
-	            }
+                    Printer::setAnyTempsensorDefect();
+                    reportTempsensorError();
+                }
 	            EVENT_HEATER_DEFECT(controller);
-            }			
-		}
+            }
+        }
 #endif // HAVE_HEATED_BED
 #ifdef RED_BLUE_STATUS_LEDS
         if(act->currentTemperatureC > 50)
@@ -195,7 +195,7 @@ void Extruder::manageTemperatures()
 						
 						if(!Printer::isAnyTempsensorDefect())
 						{
-							Printer::setAnyTempsensorDefect();
+                        Printer::setAnyTempsensorDefect();
 							newDefectFound = true;
 						}
                         UI_ERROR_P(Com::tHeaterDecoupled);
@@ -223,7 +223,7 @@ void Extruder::manageTemperatures()
                         act->flags |= TEMPERATURE_CONTROLLER_FLAG_SENSDECOUPLED;
 						if(!Printer::isAnyTempsensorDefect())
 						{
-							Printer::setAnyTempsensorDefect();
+                        Printer::setAnyTempsensorDefect();
 							newDefectFound = true;
 						}
                         UI_ERROR_P(Com::tHeaterDecoupled);
@@ -316,12 +316,12 @@ void Extruder::manageTemperatures()
     {
         WRITE(BLUE_STATUS_LED,HIGH);
         WRITE(RED_STATUS_LED,HIGH);
-    }
+                }
     else
     {
         WRITE(BLUE_STATUS_LED,!hot);
         WRITE(RED_STATUS_LED,hot);
-    }
+            }
 #endif // RED_BLUE_STATUS_LEDS
 
     if(errorDetected == 0 && extruderTempErrors > 0)
@@ -495,23 +495,23 @@ void Extruder::initExtruder()
     SET_OUTPUT(EXT0_DIR_PIN);
     SET_OUTPUT(EXT0_STEP_PIN);
 #endif
-#if defined(EXT1_STEP_PIN) && EXT1_STEP_PIN > -1 && NUM_EXTRUDER > 1
+#if defined(EXT1_STEP_PIN) && EXT1_STEP_PIN>-1 && NUM_EXTRUDER>1
     SET_OUTPUT(EXT1_DIR_PIN);
     SET_OUTPUT(EXT1_STEP_PIN);
 #endif
-#if defined(EXT2_STEP_PIN) && EXT2_STEP_PIN > -1 && NUM_EXTRUDER > 2
+#if defined(EXT2_STEP_PIN) && EXT2_STEP_PIN>-1 && NUM_EXTRUDER>2
     SET_OUTPUT(EXT2_DIR_PIN);
     SET_OUTPUT(EXT2_STEP_PIN);
 #endif
-#if defined(EXT3_STEP_PIN) && EXT3_STEP_PIN > -1 && NUM_EXTRUDER > 3
+#if defined(EXT3_STEP_PIN) && EXT3_STEP_PIN>-1 && NUM_EXTRUDER>3
     SET_OUTPUT(EXT3_DIR_PIN);
     SET_OUTPUT(EXT3_STEP_PIN);
 #endif
-#if defined(EXT4_STEP_PIN) && EXT4_STEP_PIN > -1 && NUM_EXTRUDER > 4
+#if defined(EXT4_STEP_PIN) && EXT4_STEP_PIN>-1 && NUM_EXTRUDER>4
     SET_OUTPUT(EXT4_DIR_PIN);
     SET_OUTPUT(EXT4_STEP_PIN);
 #endif
-#if defined(EXT5_STEP_PIN) && EXT5_STEP_PIN > -1 && NUM_EXTRUDER > 5
+#if defined(EXT5_STEP_PIN) && EXT5_STEP_PIN>-1 && NUM_EXTRUDER>5
     SET_OUTPUT(EXT5_DIR_PIN);
     SET_OUTPUT(EXT5_STEP_PIN);
 #endif
@@ -521,29 +521,29 @@ void Extruder::initExtruder()
         Extruder *act = &extruder[i];
         if(act->enablePin > -1)
         {
-            HAL::pinMode(act->enablePin, OUTPUT);
+            HAL::pinMode(act->enablePin,OUTPUT);
             HAL::digitalWrite(act->enablePin,!act->enableOn);
         }
         act->tempControl.lastTemperatureUpdate = HAL::timeInMilliseconds();
 #if defined(SUPPORT_MAX6675) || defined(SUPPORT_MAX31855)
-        if(act->tempControl.sensorType == 101 || act->tempControl.sensorType == 102)
+        if(act->tempControl.sensorType==101 || act->tempControl.sensorType==102)
         {
-            WRITE(SCK_PIN, 0);
+            WRITE(SCK_PIN,0);
             SET_OUTPUT(SCK_PIN);
-            WRITE(MOSI_PIN, 1);
+            WRITE(MOSI_PIN,1);
             SET_OUTPUT(MOSI_PIN);
-            WRITE(MISO_PIN, 1);
+            WRITE(MISO_PIN,1);
             SET_INPUT(MISO_PIN);
             SET_OUTPUT(SS);
-            WRITE(SS, HIGH);
-            HAL::digitalWrite(act->tempControl.sensorPin, 1);
-            HAL::pinMode(act->tempControl.sensorPin, OUTPUT);
+            WRITE(SS,HIGH);
+            HAL::digitalWrite(act->tempControl.sensorPin,1);
+            HAL::pinMode(act->tempControl.sensorPin,OUTPUT);
         }
 #endif
     }
-#if HEATED_BED_HEATER_PIN > -1
+#if HEATED_BED_HEATER_PIN>-1
     SET_OUTPUT(HEATED_BED_HEATER_PIN);
-    WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
+    WRITE(HEATED_BED_HEATER_PIN,HEATER_PINS_INVERTED);
     Extruder::initHeatedBed();
 #endif
     HAL::analogStart();
@@ -600,9 +600,9 @@ void Extruder::selectExtruderById(uint8_t extruderId)
 	#if MIXING_EXTRUDER
 		recomputeMixingExtruderSteps();
 	#else
-		Printer::destinationSteps[E_AXIS] = Printer::currentPositionSteps[E_AXIS];
-		Printer::axisStepsPerMM[E_AXIS] = Extruder::current->stepsPerMM;
-		Printer::invAxisStepsPerMM[E_AXIS] = 1.0f / Printer::axisStepsPerMM[E_AXIS];
+    Printer::destinationSteps[E_AXIS] = Printer::currentPositionSteps[E_AXIS];
+    Printer::axisStepsPerMM[E_AXIS] = Extruder::current->stepsPerMM;
+    Printer::invAxisStepsPerMM[E_AXIS] = 1.0f / Printer::axisStepsPerMM[E_AXIS];
 	#endif
     Printer::maxFeedrate[E_AXIS] = Extruder::current->maxFeedrate;
 //   max_start_speed_units_per_second[E_AXIS] = Extruder::current->maxStartFeedrate;
@@ -662,7 +662,7 @@ void Extruder::selectExtruderById(uint8_t extruderId)
 void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t extr, bool beep, bool wait)
 {
 #if NUM_EXTRUDER > 0
-#if MIXING_EXTRUDER
+#if MIXING_EXTRUDER || defined(SHARED_EXTRUDER_HEATER)
     extr = 0; // map any virtual extruder number to 0
 #endif // MIXING_EXTRUDER
     bool alloffs = true;
@@ -1508,7 +1508,7 @@ void TemperatureController::updateCurrentTemperature()
     case 0:
         currentTemperature = 25;
         break;
-#if ANALOG_INPUTS > 0
+#if ANALOG_INPUTS>0
     case 1:
     case 2:
     case 3:
@@ -1570,14 +1570,14 @@ void TemperatureController::updateCurrentTemperature()
     case 12:
     {
         type--;
-        uint8_t num = pgm_read_byte(&temptables_num[type]) << 1;
-        uint8_t i = 2;
+        uint8_t num = pgm_read_byte(&temptables_num[type])<<1;
+        uint8_t i=2;
         const int16_t *temptable = (const int16_t *)pgm_read_word(&temptables[type]); //pgm_read_word_near(&temptables[type]);
         int16_t oldraw = pgm_read_word(&temptable[0]);
         int16_t oldtemp = pgm_read_word(&temptable[1]);
         int16_t newraw,newtemp = 0;
-        currentTemperature = (1023 << (2 - ANALOG_REDUCE_BITS)) - currentTemperature;
-        while(i < num)
+        currentTemperature = (1023<<(2-ANALOG_REDUCE_BITS))-currentTemperature;
+        while(i<num)
         {
             newraw = pgm_read_word(&temptable[i++]);
             newtemp = pgm_read_word(&temptable[i++]);
@@ -1585,7 +1585,7 @@ void TemperatureController::updateCurrentTemperature()
             {
                 //OUT_P_I("RC O:",oldtemp);OUT_P_I_LN(" OR:",oldraw);
                 //OUT_P_I("RC N:",newtemp);OUT_P_I_LN(" NR:",newraw);
-                currentTemperatureC = TEMP_INT_TO_FLOAT(oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp - oldtemp) / (newraw - oldraw));
+                currentTemperatureC = TEMP_INT_TO_FLOAT(oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(newraw-oldraw));
                 return;
             }
             oldtemp = newtemp;
@@ -1601,16 +1601,16 @@ void TemperatureController::updateCurrentTemperature()
     case 52:
     {
         if(type > 49)
-            type -= 46;
+        type-=46;
         else
             type--;
-        uint8_t num = pgm_read_byte(&temptables_num[type]) << 1;
-        uint8_t i = 2;
+        uint8_t num = pgm_read_byte(&temptables_num[type])<<1;
+        uint8_t i=2;
         const int16_t *temptable = (const int16_t *)pgm_read_word(&temptables[type]); //pgm_read_word_near(&temptables[type]);
         int16_t oldraw = pgm_read_word(&temptable[0]);
         int16_t oldtemp = pgm_read_word(&temptable[1]);
         int16_t newraw,newtemp = 0;
-        while(i < num)
+        while(i<num)
         {
             newraw = pgm_read_word(&temptable[i++]);
             newtemp = pgm_read_word(&temptable[i++]);
@@ -1760,7 +1760,7 @@ void TemperatureController::setTargetTemperature(float target)
     case 52:
     {
         if(type > 49)
-            type -= 46;
+        type -= 46;
         else
             type--;
         uint8_t num = pgm_read_byte(&temptables_num[type]) << 1;
@@ -1769,13 +1769,13 @@ void TemperatureController::setTargetTemperature(float target)
         short oldraw = pgm_read_word(&temptable[0]);
         short oldtemp = pgm_read_word(&temptable[1]);
         short newraw = 0,newtemp;
-        while(i < num)
+        while(i<num)
         {
             newraw = pgm_read_word(&temptable[i++]);
             newtemp = pgm_read_word(&temptable[i++]);
             if (newtemp > temp)
             {
-                targetTemperature = oldraw + (int32_t)(oldtemp - temp) * (int32_t)(oldraw - newraw) / (oldtemp-newtemp);
+                targetTemperature = oldraw + (int32_t)(oldtemp-temp) * (int32_t)(oldraw-newraw) / (oldtemp-newtemp);
                 return;
             }
             oldtemp = newtemp;
@@ -1847,7 +1847,7 @@ uint8_t autotuneIndex = 255;
 void Extruder::disableAllHeater()
 {
 #if NUM_TEMPERATURE_LOOPS > 0
-    for(uint8_t i = 0; i < NUM_TEMPERATURE_LOOPS; i++)
+    for(uint8_t i=0; i<NUM_TEMPERATURE_LOOPS; i++)
     {
         TemperatureController *c = tempController[i];
         c->targetTemperature = 0;
@@ -2050,12 +2050,12 @@ int16_t read_max6675(uint8_t ss_pin)
     if (HAL::timeInMilliseconds() - last_max6675_read > 230)
     {
         HAL::spiInit(2);
-        HAL::digitalWrite(ss_pin, 0);  // enable TT_MAX6675
-        HAL::delayMicroseconds(1);    // ensure 100ns delay - a bit extra is fine
-        max6675_temp = HAL::spiReceive(0);
-        max6675_temp <<= 8;
-        max6675_temp |= HAL::spiReceive(0);
-        HAL::digitalWrite(ss_pin, 1);  // disable TT_MAX6675
+    HAL::digitalWrite(ss_pin, 0);  // enable TT_MAX6675
+    HAL::delayMicroseconds(1);    // ensure 100ns delay - a bit extra is fine
+    max6675_temp = HAL::spiReceive(0);
+    max6675_temp <<= 8;
+    max6675_temp |= HAL::spiReceive(0);
+    HAL::digitalWrite(ss_pin, 1);  // disable TT_MAX6675
         last_max6675_read = HAL::timeInMilliseconds();
     }
     return max6675_temp & 4 ? 2000 : max6675_temp >> 3; // thermocouple open?
@@ -2359,26 +2359,26 @@ TemperatureController thermoController = {PWM_FAN_THERMO,FAN_THERMO_THERMISTOR_T
 #if NUM_TEMPERATURE_LOOPS > 0
 TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
 {
-#if NUM_EXTRUDER > 0
+#if NUM_EXTRUDER>0
     &extruder[0].tempControl
 #endif
-#if NUM_EXTRUDER > 1
+#if NUM_EXTRUDER>1
     ,&extruder[1].tempControl
 #endif
-#if NUM_EXTRUDER > 2
+#if NUM_EXTRUDER>2
     ,&extruder[2].tempControl
 #endif
-#if NUM_EXTRUDER > 3
+#if NUM_EXTRUDER>3
     ,&extruder[3].tempControl
 #endif
-#if NUM_EXTRUDER > 4
+#if NUM_EXTRUDER>4
     ,&extruder[4].tempControl
 #endif
-#if NUM_EXTRUDER > 5
+#if NUM_EXTRUDER>5
     ,&extruder[5].tempControl
 #endif
 #if HAVE_HEATED_BED
-#if NUM_EXTRUDER == 0
+#if NUM_EXTRUDER==0
     &heatedBedController
 #else
     ,&heatedBedController
