@@ -16,7 +16,7 @@
 
 */
 
-#if !defined(UI_DISPLAY_CHARSET) || UI_DISPLAY_CHARSET > 3
+#if !defined(UI_DISPLAY_CHARSET) || UI_DISPLAY_CHARSET>3
 #define UI_DISPLAY_CHARSET 1
 #endif
 
@@ -31,7 +31,7 @@
 #define bFOLD 6
 #define cARROW "\176"
 
-#if UI_DISPLAY_CHARSET == 0 // ASCII fallback
+#if UI_DISPLAY_CHARSET==0 // ASCII fallback
 #define CHAR_RIGHT '-'
 #define CHAR_SELECTOR '>'
 #define CHAR_SELECTED '*'
@@ -44,7 +44,7 @@
 #define STR_szlig "ss"
 #endif
 
-#if UI_DISPLAY_CHARSET == 1 // HD44870 charset with knji chars
+#if UI_DISPLAY_CHARSET==1 // HD44870 charset with knji chars
 #define CHAR_RIGHT 0x7e
 #define CHAR_SELECTOR '>'
 #define CHAR_SELECTED '*'
@@ -57,7 +57,7 @@
 #define STR_szlig "\342"
 #endif
 
-#if UI_DISPLAY_CHARSET == 2 // Western charset
+#if UI_DISPLAY_CHARSET==2 // Western charset
 #define CHAR_RIGHT 0xbc
 #define CHAR_SELECTOR 0xf6
 #define CHAR_SELECTED '*'
@@ -508,13 +508,13 @@
 #define UI_TEXT_ACTION_YPOSITION_FAST2B_EN "Min:%sy Max:%sY"
 #define UI_TEXT_ACTION_ZPOSITION_FAST2A_EN "Z:%x2 mm"
 #define UI_TEXT_ACTION_ZPOSITION_FAST2B_EN "Min:%sz Max:%sZ"
-#define UI_TEXT_FANSPEED_EN          "Fan speed"
-#define UI_TEXT_ACTION_FANSPEED_EN   "Fan Speed :%Fs%%%"
-#define UI_TEXT_FAN_OFF_EN           "Turn Fan Off"
+#define UI_TEXT_FANSPEED_EN          "Fan Control"
+#define UI_TEXT_ACTION_FANSPEED_EN   "Fan Speed: %Fs%%%"
+#define UI_TEXT_FAN_OFF_EN           "Turn Fans Off"
 #define UI_TEXT_FAN_25_EN            "Set Fan 25%%%"
 #define UI_TEXT_FAN_50_EN            "Set Fan 50%%%"
 #define UI_TEXT_FAN_75_EN            "Set Fan 75%%%"
-#define UI_TEXT_FAN_FULL_EN          "Set Fan full"
+#define UI_TEXT_FAN_FULL_EN          "Turn Fans On"
 #define UI_TEXT_STEPPER_INACTIVE_EN  "Stepper inactive"
 #define UI_TEXT_STEPPER_INACTIVE2A_EN "Dis. after: %is"
 #define UI_TEXT_STEPPER_INACTIVE2B_EN "[min] 0=Off"
@@ -546,7 +546,7 @@
 #define UI_TEXT_STRING_ACTION_EN     "Action:%la"
 #define UI_TEXT_HEATING_EXTRUDER_EN  "Heating Extruder"
 #define UI_TEXT_HEATING_BED_EN       "Heating Bed"
-#define UI_TEXT_KILLED_EN            "Killed"
+#define UI_TEXT_KILLED_EN            "Stopped"
 #define UI_TEXT_STEPPER_DISABLED_EN  "Printhead released"
 #define UI_TEXT_EEPROM_STOREDA_EN     "Configuration"
 #define UI_TEXT_EEPROM_STOREDB_EN     "stored in EEPROM"
@@ -643,7 +643,7 @@
 #define UI_TEXT_PLA "PLA"
 #define UI_TEXT_PRINTING_FILE "%oF"
 #define UI_TEXT_PAUSED "Paused"
-#define UI_TEXT_IGNORE_M106      "Ignore M106 cmd %Fi"
+#define UI_TEXT_IGNORE_M106      "Ignore FAN ctrl %Fi"
 
 #if NUM_EXTRUDER > 2 || MIXING_EXTRUDER != 0
   #define UI_TEXT_MAINPAGE6_1_EN "\xa %ec/%Ec\xb0 X:%x0"

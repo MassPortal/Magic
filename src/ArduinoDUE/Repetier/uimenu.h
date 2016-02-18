@@ -242,12 +242,12 @@ for 2 row displays. You can add additional pages or change the default pages lik
  #endif
   UI_PAGE4_T(ui_page2,UI_TEXT_ACTION_XPOSITION4A_ID,UI_TEXT_ACTION_YPOSITION4A_ID,UI_TEXT_ACTION_ZPOSITION4A_ID,UI_TEXT_STATUS_ID)
 //UI_PAGE4(ui_page2,"dX:%y0 mm %sX","dY:%y1 mm %sY","dZ:%y2 mm %sZ","%os");
- #if NUM_EXTRUDER > 0
+ #if NUM_EXTRUDER>0
     UI_PAGE4_T(ui_page3,UI_TEXT_PAGE_EXTRUDER1_ID
  #else
     UI_PAGE4_T(ui_page3
  #endif
- #if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
+ #if NUM_EXTRUDER>1 && MIXING_EXTRUDER == 0
    ,UI_TEXT_PAGE_EXTRUDER2_ID
  #endif
  #if NUM_EXTRUDER>2 && MIXING_EXTRUDER == 0
@@ -592,7 +592,7 @@ UI_MENU_CHANGEACTION_T(ui_menu_ext_temp0,UI_TEXT_EXTR0_TEMP_ID,UI_ACTION_EXTRUDE
 #if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
 UI_MENU_CHANGEACTION_T(ui_menu_ext_temp1,UI_TEXT_EXTR1_TEMP_ID,UI_ACTION_EXTRUDER1_TEMP)
 #endif
-#if NUM_EXTRUDER > 2 && MIXING_EXTRUDER == 0
+#if NUM_EXTRUDER>2 && MIXING_EXTRUDER == 0
 UI_MENU_CHANGEACTION_T(ui_menu_ext_temp2,UI_TEXT_EXTR2_TEMP_ID,UI_ACTION_EXTRUDER2_TEMP)
 #endif
 #if NUM_EXTRUDER > 3 && MIXING_EXTRUDER == 0
@@ -609,7 +609,7 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_ext_sel0,UI_TEXT_EXTR0_SELECT_ID,UI_ACTION_SELEC
 #if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
 UI_MENU_ACTIONCOMMAND_T(ui_menu_ext_sel1,UI_TEXT_EXTR1_SELECT_ID,UI_ACTION_SELECT_EXTRUDER1)
 #endif
-#if NUM_EXTRUDER > 2 && MIXING_EXTRUDER == 0
+#if NUM_EXTRUDER>2 && MIXING_EXTRUDER == 0
 UI_MENU_ACTIONCOMMAND_T(ui_menu_ext_sel2,UI_TEXT_EXTR2_SELECT_ID,UI_ACTION_SELECT_EXTRUDER2)
 #endif
 #if NUM_EXTRUDER > 3 && MIXING_EXTRUDER == 0
@@ -625,7 +625,7 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_ext_off0,UI_TEXT_EXTR0_OFF_ID,UI_ACTION_EXTRUDER
 #if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
 UI_MENU_ACTIONCOMMAND_T(ui_menu_ext_off1,UI_TEXT_EXTR1_OFF_ID,UI_ACTION_EXTRUDER1_OFF)
 #endif
-#if NUM_EXTRUDER > 2 && MIXING_EXTRUDER == 0
+#if NUM_EXTRUDER>2 && MIXING_EXTRUDER == 0
 UI_MENU_ACTIONCOMMAND_T(ui_menu_ext_off2,UI_TEXT_EXTR2_OFF_ID,UI_ACTION_EXTRUDER2_OFF)
 #endif
 #if NUM_EXTRUDER > 3 && MIXING_EXTRUDER == 0
@@ -690,6 +690,21 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_ext_ditto3,UI_TEXT_DITTO_3_ID,UI_DITTO_3)
 #define UI_MENU_EXTRUDER {UI_MENU_ADDCONDBACK UI_MENU_BEDCOND UI_MENU_EXTCOND &ui_menu_go_epos,&ui_menu_ext_origin UI_DITTO_COMMANDS}
 UI_MENU(ui_menu_extruder,UI_MENU_EXTRUDER,UI_MENU_BACKCNT+UI_MENU_BEDCNT+UI_MENU_EXTCNT+2+UI_DITTO_COMMANDS_COUNT)
 
+// **** Fan menu
+
+#if FAN_PIN>-1 && FEATURE_FAN_CONTROL
+UI_MENU_ACTIONCOMMAND_FILTER(ui_menu_fan_off,UI_TEXT_FAN_OFF_EN,UI_ACTION_FAN_OFF,MENU_MODE_FAN_RUNNING,0)
+UI_MENU_ACTIONCOMMAND_FILTER(ui_menu_fan_full,UI_TEXT_FAN_FULL_EN,UI_ACTION_FAN_FULL,0,MENU_MODE_FAN_RUNNING)
+UI_MENU_ACTIONCOMMAND(ui_menu_fan_ignoreM106,UI_TEXT_IGNORE_M106,UI_ACTION_IGNORE_M106)
+#define UI_MENU_FAN {UI_MENU_ADDCONDBACK &ui_menu_fan_off,&ui_menu_fan_full,&ui_menu_fan_ignoreM106}
+UI_MENU(ui_menu_fan,UI_MENU_FAN,3+UI_MENU_BACKCNT)
+UI_MENU_SUBMENU(ui_menu_fan_sub,UI_TEXT_FANSPEED_EN,ui_menu_fan)
+#define UI_MENU_FAN_COND &ui_menu_fan_sub,
+#define UI_MENU_FAN_CNT 1
+#else
+#define UI_MENU_FAN_COND
+#define UI_MENU_FAN_CNT 0
+#endif
 
 // **** Quick menu
 #if PS_ON_PIN > -1
@@ -740,6 +755,11 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_quick_changefil,UI_TEXT_CHANGE_FILAMENT_ID,UI_AC
 #define UI_CHANGE_FIL_CNT 0
 #define UI_CHANGE_FIL_ENT
 #endif
+
+
+//Control menu
+#define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply, &ui_menu_fan_off, &ui_menu_fan_full, &ui_menu_ext_temp0, &ui_menu_bed_temp UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT MENU_PSON_ENTRY DEBUG_PRINT_EXTRA}
+UI_MENU(ui_menu_quick,UI_MENU_QUICK,6+UI_MENU_BACKCNT+MENU_PSON_COUNT+DEBUG_PRINT_COUNT+UI_TOGGLE_LIGHT_COUNT+UI_CHANGE_FIL_CNT)
 
 //Preheat custom menu
 #define UI_MENU_PREHEAT_CUSTOM {UI_MENU_ADDCONDBACK &ui_menu_ext_temp0, &ui_menu_bed_temp}
@@ -792,33 +812,9 @@ UI_MENU_SUBMENU_FILTER_T(ui_menu_prepare, UI_TEXT_BED_COATING_ID, ui_menu_adjust
 #define UI_MENU_COATING_COND
 #endif
 
-// **** Fan menu
-
-#if FAN_PIN>-1 && FEATURE_FAN_CONTROL
-UI_MENU_CHANGEACTION_T(ui_menu_fan_fanspeed, UI_TEXT_ACTION_FANSPEED_ID,UI_ACTION_FANSPEED)
-UI_MENU_ACTIONCOMMAND_FILTER_T(ui_menu_fan_off,UI_TEXT_FAN_OFF_ID,UI_ACTION_FAN_OFF,MENU_MODE_FAN_RUNNING,0)
-UI_MENU_ACTIONCOMMAND_T(ui_menu_fan_25,UI_TEXT_FAN_25_ID,UI_ACTION_FAN_25)
-UI_MENU_ACTIONCOMMAND_T(ui_menu_fan_50,UI_TEXT_FAN_50_ID,UI_ACTION_FAN_50)
-UI_MENU_ACTIONCOMMAND_T(ui_menu_fan_75,UI_TEXT_FAN_75_ID,UI_ACTION_FAN_75)
-UI_MENU_ACTIONCOMMAND_T(ui_menu_fan_full,UI_TEXT_FAN_FULL_ID,UI_ACTION_FAN_FULL)
-UI_MENU_ACTIONCOMMAND_T(ui_menu_fan_ignoreM106,UI_TEXT_IGNORE_M106_ID,UI_ACTION_IGNORE_M106)
-#define UI_MENU_FAN {UI_MENU_ADDCONDBACK &ui_menu_fan_fanspeed,&ui_menu_fan_off,&ui_menu_fan_25,&ui_menu_fan_50,&ui_menu_fan_75,&ui_menu_fan_full,&ui_menu_fan_ignoreM106}
-UI_MENU(ui_menu_fan,UI_MENU_FAN,7+UI_MENU_BACKCNT)
-UI_MENU_SUBMENU_T(ui_menu_fan_sub,UI_TEXT_FANSPEED_ID,ui_menu_fan)
-#define UI_MENU_FAN_COND &ui_menu_fan_sub,
-#define UI_MENU_FAN_CNT 1
-#else
-#define UI_MENU_FAN_COND
-#define UI_MENU_FAN_CNT 0
-#endif
-
 //Utilities/perform menu
 #define UI_MENU_PERFORM {UI_MENU_ADDCONDBACK &ui_menu_home_all, &ui_menu_quick_changefil,&ui_menu_quick_stopstepper,&ui_menu_go_epos,&ui_menu_quick_cooldown, &ui_menu_fan_off BED_LED_ENT }
 UI_MENU(ui_menu_perform,UI_MENU_PERFORM,6+UI_MENU_BACKCNT+BED_LED_CNT)
-
-//Control menu
-#define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply, &ui_menu_fan_fanspeed, &ui_menu_ext_temp0, &ui_menu_bed_temp UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT MENU_PSON_ENTRY DEBUG_PRINT_EXTRA}
-UI_MENU(ui_menu_quick,UI_MENU_QUICK,5+UI_MENU_BACKCNT+MENU_PSON_COUNT+DEBUG_PRINT_COUNT+UI_TOGGLE_LIGHT_COUNT+UI_CHANGE_FIL_CNT)
 
 // **** SD card menu
 
@@ -994,7 +990,7 @@ UI_MENU_CHANGEACTION_T(ui_menu_cext_xoffset,UI_TEXT_EXTR_XOFF_ID,UI_ACTION_X_OFF
 UI_MENU_CHANGEACTION_T(ui_menu_cext_yoffset,UI_TEXT_EXTR_YOFF_ID,UI_ACTION_Y_OFFSET)
 #define UI_MENU_CONFEXTCOND &ui_menu_ext_sel0,&ui_menu_ext_sel1,&ui_menu_ext_sel2,&ui_menu_cext_xoffset,&ui_menu_cext_yoffset,
 #define UI_MENU_CONFEXTCNT 5
-#elif NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
+#elif NUM_EXTRUDER>1 && MIXING_EXTRUDER == 0
 UI_MENU_CHANGEACTION_T(ui_menu_cext_xoffset,UI_TEXT_EXTR_XOFF_ID,UI_ACTION_X_OFFSET)
 UI_MENU_CHANGEACTION_T(ui_menu_cext_yoffset,UI_TEXT_EXTR_YOFF_ID,UI_ACTION_Y_OFFSET)
 #define UI_MENU_CONFEXTCOND &ui_menu_ext_sel0,&ui_menu_ext_sel1,&ui_menu_cext_xoffset,&ui_menu_cext_yoffset,
