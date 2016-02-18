@@ -861,13 +861,13 @@ on this endstop.
 // For delta robot Z_MAX_LENGTH is the maximum travel of the towers and should be set to the distance between the hotend
 // and the platform when the printer is at its home position.
 // If EEPROM is enabled these values will be overidden with the values in the EEPROM
-#define X_MAX_LENGTH 143
-#define Y_MAX_LENGTH 143
-#define Z_MAX_LENGTH 230
+#define X_MAX_LENGTH 175
+#define Y_MAX_LENGTH 175
+#define Z_MAX_LENGTH 410
 // Coordinates for the minimum axis. Can also be negative if you want to have the bed start at 0 and the printer can go to the left side
 // of the bed. Maximum coordinate is given by adding the above X_MAX_LENGTH values.
-#define X_MIN_POS -72.5
-#define Y_MIN_POS -72.5
+#define X_MIN_POS -97.07
+#define Y_MIN_POS -97.07
 #define Z_MIN_POS 0
 
 // ##########################################################################################
@@ -898,7 +898,7 @@ on this endstop.
 #if DRIVE_SYSTEM==DELTA
 /** \brief Delta rod length (mm)
 */
-#define DELTA_DIAGONAL_ROD 210 // mm
+#define DELTA_DIAGONAL_ROD 400 // mm
 
 
 /*  =========== Parameter essential for delta calibration ===================
@@ -935,7 +935,7 @@ on this endstop.
 #define DELTA_DIAGONAL_CORRECTION_C 0
 
 /** Max. radius (mm) the printer should be able to reach. */
-#define DELTA_MAX_RADIUS 100
+#define DELTA_MAX_RADIUS 190
 
 // Margin (mm) to avoid above tower minimum (xMin xMinsteps)
 // If your printer can put its carriage low enough the rod is horizontal without hitting the floor
@@ -958,7 +958,7 @@ on this endstop.
   measured from the center of the print area to the vertical smooth tower.
   Alternatly set this to the pivot to pivot horizontal rod distance, when head is at (0,0)
 */
-#define PRINTER_RADIUS 150
+#define PRINTER_RADIUS 175
 
 /** 1 for more precise delta moves. 0 for faster computation.
 Needs a bit more computation time. */
@@ -1620,9 +1620,9 @@ computations, so do not enable it if your display works stable!
 //#define TRY_AUTOREPAIR_LCD_ERRORS
 
 // This is line 2 of the status display at startup. Change to your like.
-#define UI_PRINTER_NAME "Pharaoh ED"
+#define UI_PRINTER_NAME "Grand Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v2.1"
+#define HARDWARE_VERSION "GP35v1.0"
 #define FIRMWARE_VERSION "205-"
 
 
