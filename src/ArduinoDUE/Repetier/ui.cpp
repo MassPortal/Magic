@@ -2832,8 +2832,10 @@ ZPOS2:
         Extruder::setTemperatureForExtruder(tmp, action - UI_ACTION_EXTRUDER0_TEMP);
 		if (tmp > 0)
 			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING_EN)
+#if HAVE_HEATED_BED
 		else if (!heatedBedController.targetTemperatureC > 0)
 			UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY_EN)
+#endif
 #if BED_LEDS
 			Light.ShowTemps();
 #endif
@@ -3743,8 +3745,10 @@ case UI_ACTION_CALIBRATE:
 				pushMenu(&ui_menu_avoid_uninit, false);
 			else if (Printer::isPaused || Printer::isZProbingActive() || Printer::isMenuMode(MENU_MODE_SD_PRINTING) || !allowMoves || PrintLine::hasLines())
 				pushMenu(&ui_menu_avoid_hot, false);
+#if HAVE_HEATED_BED
 			else if (heatedBedController.targetTemperatureC > 35.0 || extruder[0].tempControl.currentTemperatureC > 40.0) 
 				pushMenu(&ui_menu_avoid_hot, false);
+#endif
 			else {
 				oldZHeight = Printer::zLength;
 				menuCommand(&ui_menu_probing, &ui_menu_calibrate_action,Com::tProbeActionScript);
