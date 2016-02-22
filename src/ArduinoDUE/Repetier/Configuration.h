@@ -1629,7 +1629,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v3.0DV"
-#define FIRMWARE_VERSION "204-"
+#define FIRMWARE_VERSION "205-"
 
 
 //#define DEBUGGING false
