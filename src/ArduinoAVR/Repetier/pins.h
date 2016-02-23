@@ -1923,17 +1923,24 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_X_DIR_PIN 57
 #define ORIG_X_ENABLE_PIN 59
 #define ORIG_X_MIN_PIN 37
-#define ORIG_X_MAX_PIN 40 //2 //Max endstops default to disabled "-1", set to commented value to enable.
+#define ORIG_X_MAX_PIN 40
+//2 //Max endstops default to disabled "-1", set to commented value to enable.
 
-#define ORIG_Y_STEP_PIN 5 // A6
-#define ORIG_Y_DIR_PIN 17 // A0
+#define ORIG_Y_STEP_PIN 5 
+// A6
+#define ORIG_Y_DIR_PIN 17
+// A0
 #define ORIG_Y_ENABLE_PIN 4
 #define ORIG_Y_MIN_PIN 41
-#define ORIG_Y_MAX_PIN 38 //15
+#define ORIG_Y_MAX_PIN 38 
+//15
 
-#define ORIG_Z_STEP_PIN 16 // A2
-#define ORIG_Z_DIR_PIN 11 // A6
-#define ORIG_Z_ENABLE_PIN 3 // A1
+#define ORIG_Z_STEP_PIN 16 
+// A2
+#define ORIG_Z_DIR_PIN 11
+// A6
+#define ORIG_Z_ENABLE_PIN 3 
+// A1
 #define ORIG_Z_MIN_PIN 18
 #define ORIG_Z_MAX_PIN 19
 
@@ -1949,7 +1956,8 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_E2_DIR_PIN 60
 #define ORIG_E2_ENABLE_PIN 23
 
-#define ORIG_SDCARDDETECT -1	 // Ramps does not use this port
+#define ORIG_SDCARDDETECT -1	 
+// Ramps does not use this port
 #define SDPOWER -1
 #define SDSS 53
 
@@ -1961,10 +1969,14 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_PS_ON_PIN -1
 //#define KILL_PIN -1
 
-#define HEATER_0_PIN 2 // EXTRUDER 0 - changed 10-9-2015
-#define HEATER_2_PIN 9 // EXTRUDER 1 - changed 10-9-2015
-#define HEATER_3_PIN 8 // EXTRUDER 2 - changed 10-9-2015
-#define HEATER_1_PIN 10 // heater bed
+#define HEATER_0_PIN 2 
+// EXTRUDER 0 - changed 10-9-2015
+#define HEATER_2_PIN 9 
+// EXTRUDER 1 - changed 10-9-2015
+#define HEATER_3_PIN 8 
+// EXTRUDER 2 - changed 10-9-2015
+#define HEATER_1_PIN 10
+// heater bed
 
 /*
 Temperature sensors
@@ -1983,18 +1995,24 @@ S2(ext)=8
 S3(ext)=9
 */
 
-#define TEMP_0_PIN 11 // Extruder 1
-#define TEMP_2_PIN 13 // Extruder 2
-#define TEMP_3_PIN 12 // Extruder 3
-#define TEMP_1_PIN 14 // Heated bed
+#define TEMP_0_PIN 11 
+// Extruder 1
+#define TEMP_2_PIN 13
+// Extruder 2
+#define TEMP_3_PIN 12 
+// Extruder 3
+#define TEMP_1_PIN 14
+// Heated bed
 
 #define THERMOCOUPLE_0_PIN 11
 #define THERMOCOUPLE_1_PIN 10
 #define THERMOCOUPLE_2_PIN 8
 #define THERMOCOUPLE_3_PIN 9
 
-#define BEEPER_PIN 61	 // Beeper on AUX-4
-#define SDSUPPORT true // sd card reader on board
+#define BEEPER_PIN 61
+// Beeper on AUX-4
+#define SDSUPPORT true 
+// sd card reader on board
 
 // #define UI_DISPLAY_RS_PIN 32
 // #define UI_DISPLAY_ENABLE_PIN 31
