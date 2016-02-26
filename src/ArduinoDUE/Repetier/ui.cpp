@@ -24,6 +24,11 @@
 
 extern const int8_t encoder_table[16] PROGMEM ;
 char shortFilename[LONG_FILENAME_LENGTH+1] = {0};
+#if FAN2_PIN>-1 && FAN3_PIN>-1 && FEATURE_VENTILATION
+uint8_t FAN_MAX = 255;
+uint8_t FAN_MED = 127;
+uint8_t FAN_SLOW = 25; //slow value for FAN2
+#endif
 #include <math.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -1371,6 +1376,18 @@ void UIDisplay::parse(const char *txt,bool ram)
         case 'F': // FAN speed
             if(c2 == 's') addInt(floor(Printer::getFanSpeed() * 100 / 255 + 0.5f), 3);
             if(c2=='i') addStringP((Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND) ? ui_selected : ui_unselected);
+            if(c2=='j')
+			 if (!pwm_pos[PWM_FAN3])
+					addStringP((pwm_pos[PWM_FAN2]==FAN_SLOW) ? ui_selected : ui_unselected);
+				else
+					addStringP(ui_unselected);
+            if(c2=='l')
+				if (!pwm_pos[PWM_FAN3])
+					addStringP((pwm_pos[PWM_FAN2]>FAN_SLOW) ? ui_selected : ui_unselected);
+				else
+					addStringP(ui_unselected);
+            if(c2=='k') addStringP((pwm_pos[PWM_FAN3]) ? ui_selected : ui_unselected);
+            if(c2=='p') addStringP((pwm_pos[PWM_FAN2] || pwm_pos[PWM_FAN3]) ? ui_unselected : ui_selected);
             break;
 #endif
         case 'f':
@@ -3454,6 +3471,43 @@ break;
             Printer::flag2 ^= PRINTER_FLAG2_IGNORE_M106_COMMAND;
             break;
 #endif
+#if FAN2_PIN>-1 && FAN3_PIN>-1 && FEATURE_VENTILATION
+		case UI_ACTION_VENT_EXTRACT: //slow
+			if(Printer::getFan3Speed()>0)
+				Commands::setFan3Speed(0); //Turn off circulation
+			if((Printer::getFan2Speed()==0) || (Printer::getFan2Speed()>FAN_SLOW))
+				Commands::setFan2Speed(FAN_SLOW);
+			else
+				Commands::setFan2Speed(0);
+			break;
+		case UI_ACTION_VENT_EXTRACT_FAST:
+			if(Printer::getFan3Speed()>0) {
+				Commands::setFan3Speed(0); //Turn off circulation
+				Commands::setFan2Speed(FAN_MAX);
+				}
+			else
+				if((Printer::getFan2Speed()==0) || (Printer::getFan2Speed()==FAN_SLOW)) {
+					Com::printFLN(PSTR("fan2="),Printer::getFan2Speed());
+					Commands::setFan2Speed(FAN_MAX);
+				}
+				else
+					Commands::setFan2Speed(0);
+			break;
+		case UI_ACTION_VENT_CIRCULATION:
+			if(Printer::getFan3Speed()==0) {
+				Commands::setFan2Speed(FAN_MED);
+				Commands::setFan3Speed(FAN_MED);
+			} else {
+				Commands::setFan2Speed(0);
+				Commands::setFan3Speed(0);
+			}
+			break;	
+		case UI_ACTION_VENT_OFF:
+			Commands::setFan2Speed(0);
+			Commands::setFan3Speed(0);
+			break;	
+#endif
+
         case UI_ACTION_MENU_XPOS:
             pushMenu(&ui_menu_xpos, false);
             break;
@@ -3711,25 +3765,33 @@ break;
 			}
 			if (Printer::isPaused || Printer::isMenuMode(MENU_MODE_SD_PRINTING + MENU_MODE_SD_PAUSED)) {
 				if(Printer::isMenuMode(MENU_MODE_SD_PRINTING + MENU_MODE_SD_PAUSED)) {
+#ifdef PAUSE_LED				
 					digitalWrite(PAUSE_LED_PIN, 1);
+#endif					
 					sd.continuePrint(true);
 				}
 				else {
 					Com::printFLN(PSTR("RequestResume:"));
 					UI_STATUS_UPD("");
 					Printer::resumePrinting();
+#ifdef PAUSE_LED
 					WRITE(PAUSE_LED_PIN, 1);
+#endif
 				}
 			    } else {
 					if(Printer::isMenuMode(MENU_MODE_SD_PRINTING)) {
+#ifdef PAUSE_LED					
 						digitalWrite(PAUSE_LED_PIN, 0);
+#endif						
 						sd.pausePrint(true);
 					}
 					else {
 						Printer::isPaused = true;
             Com::printFLN(PSTR("RequestPause:"));
 						UI_STATUS_UPD("Pause requested");
+#ifdef PAUSE_LED					
 						WRITE(PAUSE_LED_PIN, 0);
+#endif						
 					}
 		    }
 		    //just for the reference- this was used to pause RepetierHost

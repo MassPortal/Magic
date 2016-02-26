@@ -996,6 +996,9 @@ void PWM_TIMER_VECTOR ()
 #if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
 		if((pwm_pos_set[PWM_FAN2] = (pwm_pos[PWM_FAN2] & COOLER_PWM_MASK)) > 0) WRITE(FAN2_PIN,1);
 #endif
+#if FAN3_PIN > -1 && FEATURE_FAN2_CONTROL
+		if((pwm_pos_set[PWM_FAN3] = (pwm_pos[PWM_FAN3] & COOLER_PWM_MASK)) > 0) WRITE(FAN3_PIN,1);
+#endif
 #if defined(FAN_THERMO_PIN) && FAN_THERMO_PIN > -1
 		if((pwm_pos_set[PWM_FAN_THERMO] = (pwm_pos[PWM_FAN_THERMO] & COOLER_PWM_MASK)) > 0) WRITE(FAN_THERMO_PIN,1);
 #endif
@@ -1111,6 +1114,16 @@ if(fan2Kickstart == 0)
 	#endif
 }
 #endif
+#if FAN3_PIN > -1 && FEATURE_FAN2_CONTROL
+if(fan3Kickstart == 0)
+{
+	#if PDM_FOR_COOLER
+	pulseDensityModulate(FAN3_PIN, pwm_pos[PWM_FAN3], pwm_pos_set[PWM_FAN3], false);
+	#else
+	if(pwm_pos_set[PWM_FAN3] == pwm_count_cooler && pwm_pos_set[PWM_FAN3] != COOLER_PWM_MASK) WRITE(FAN3_PIN,0);
+	#endif
+}
+#endif
 #if defined(FAN_THERMO_PIN) && FAN_THERMO_PIN > -1
 	#if PDM_FOR_COOLER
 	pulseDensityModulate(FAN_THERMO_PIN, pwm_pos[PWM_FAN_THERMO], pwm_pos_set[PWM_FAN_THERMO], false);
@@ -1136,6 +1149,9 @@ if(fan2Kickstart == 0)
 #endif
 #if FEATURE_FAN2_CONTROL
     if (fan2Kickstart) fan2Kickstart--;
+#endif
+#if FEATURE_VENTILATIONL
+if (fan3Kickstart) fan3Kickstart--;
 #endif
   }
   // read analog values -- only read one per interrupt
