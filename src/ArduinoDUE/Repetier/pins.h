@@ -201,12 +201,13 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_SDCARDDETECT       -1
 #define SDCARDDETECTINVERTED 0
 #define LED_PIN 	   -1
-#define PAUSE_LED_PIN	9
+#define PAUSE_LED_PIN	-1
 #define BED_LED_PIN		5
 //9 
 #define ORIG_FAN_PIN	HEATER_3_PIN
 //8 
-#define ORIG_FAN2_PIN   HEATER_2_PIN
+#define ORIG_FAN2_PIN   8
+#define ORIG_FAN3_PIN   9
 #define ORIG_PS_ON_PIN          -1
 #define KILL_PIN	   -1
 #define SUICIDE_PIN    -1  //PIN that has to be turned on right after start, to keep power flowing.
@@ -1051,6 +1052,9 @@ STEPPER_CURRENT_CONTROL
 #define FAN_PIN ORIG_FAN_PIN
 #ifdef ORIG_FAN2_PIN
 #define FAN2_PIN ORIG_FAN2_PIN
+#endif
+#ifdef ORIG_FAN3_PIN
+#define FAN3_PIN ORIG_FAN3_PIN
 #endif
 
 #define PS_ON_PIN ORIG_PS_ON_PIN
