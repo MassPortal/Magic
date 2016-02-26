@@ -488,6 +488,7 @@ public:
     /** Sets the pwm for the fan speed. Gets called by motion control ot Commands::setFanSpeed. */
     static void setFanSpeedDirectly(uint8_t speed);
     static void setFan2SpeedDirectly(uint8_t speed);
+	static void setFan3SpeedDirectly(uint8_t speed);
     /** \brief Disable stepper motor for x direction. */
     static INLINE void disableXStepper()
     {
@@ -1079,6 +1080,10 @@ public:
     {
 	    return (int)pwm_pos[PWM_FAN2];
     }
+	static INLINE int getFan3Speed()
+	{
+		return (int)pwm_pos[PWM_FAN3];
+	}
 #if NONLINEAR_SYSTEM
     static INLINE void setDeltaPositions(long xaxis, long yaxis, long zaxis)
     {

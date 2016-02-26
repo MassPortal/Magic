@@ -97,7 +97,7 @@
 #define LANGUAGE_TR_ID 10
 
 #define NUM_LANGUAGES_KNOWN 11
-#define NUM_TRANSLATED_WORDS 266
+#define NUM_TRANSLATED_WORDS 269
 
 // For selectable translations we refer to each text by a id which gets
 // defined here. The list starts at 0 and defines the position in the
@@ -371,6 +371,9 @@
 #define UI_TEXT_X_OFFSET_ID 263
 #define UI_TEXT_Y_OFFSET_ID 264
 #define UI_TEXT_Z_OFFSET_ID 265
+#define UI_TEXT_VENT_EXTRACT_ID 266 //      "%Fj Extraction"
+#define UI_TEXT_VENT_CIRCULATION_ID 267 //      "%Fk Extraction"
+#define UI_TEXT_VENTILATION_ID 268 //		"Ventilation"
 
 // Universal definitions
 
@@ -596,6 +599,9 @@
 #define UI_TEXT_AUTOLEVEL_ONOFF_EN  "Autolevel: %ll"
 #define UI_TEXT_SERVOPOS_EN "Servo pos.: %oS"
 #define UI_TEXT_IGNORE_M106_EN      "Ignore FAN ctrl %Fi"
+#define UI_TEXT_VENTILATION_EN      "Ventilation"
+#define UI_TEXT_VENT_EXTRACT_EN      "%Fj Extraction"
+#define UI_TEXT_VENT_CIRCULATION_EN	"%Fk Circulation"
 #define UI_TEXT_WIZ_REHEAT1_EN "Click to reheat"
 #define UI_TEXT_WIZ_REHEAT2_EN "extruders."
 #define UI_TEXT_WIZ_WAITTEMP1_EN "Wait for target"
@@ -644,6 +650,12 @@
 #define UI_TEXT_PRINTING_FILE "%oF"
 #define UI_TEXT_PAUSED "Paused"
 #define UI_TEXT_IGNORE_M106      "Ignore M106 cmd %Fi"
+#define UI_TEXT_VENTILATION      "Ventilation"
+#define UI_TEXT_VENT_EXTRACT      "%Fj Slow Extraction"
+#define UI_TEXT_VENT_EXTRACT_FAST      "%Fl Fast Extraction"
+#define UI_TEXT_VENT_CIRCULATION	"%Fk Circulation"
+#define UI_TEXT_VENT_OFF	"%Fp Off"
+
 
 #if NUM_EXTRUDER > 2 || MIXING_EXTRUDER != 0
   #define UI_TEXT_MAINPAGE6_1_EN "\xa %ec/%Ec\xb0 X:%x0"
