@@ -3803,7 +3803,7 @@ case UI_ACTION_CALIBRATE:
 				Com::printErrorFLN(PSTR("Corrupted Z-length!"));
 				pushMenu(&ui_menu_avoid_uninit, false);
 			}
-			else if (EEPROM::zProbeHeight() < 0.1 || EEPROM::zProbeHeight() > 4.0)
+			else if (EEPROM::zProbeHeight() < 0.1 || EEPROM::zProbeHeight() > 10.0)
 				pushMenu(&ui_menu_avoid_uninit, false);
 			else if (Printer::isPaused || Printer::isZProbingActive() || Printer::isMenuMode(MENU_MODE_SD_PRINTING) || !allowMoves || PrintLine::hasLines())
 				pushMenu(&ui_menu_avoid_hot, false);

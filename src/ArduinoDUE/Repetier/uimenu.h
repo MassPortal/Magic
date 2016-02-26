@@ -581,8 +581,14 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_calculate_leveling,UI_TEXT_CALCULATE_LEVELING_ID
 UI_MENU(ui_menu_level,UI_MENU_LEVEL,4+3*UI_SPEED+UI_MENU_BACKCNT)
 #endif
 
+UI_MENU_HEADLINE(ui_menu_cal_askstop_head,UI_TEXT_ASK_COIN)
+UI_MENU_ACTIONCOMMAND_T(ui_menu_cal_askstop_no,UI_TEXT_NO_ID,UI_ACTION_BACK)
+UI_MENU_ACTIONCOMMAND_T(ui_menu_cal_askstop_yes,UI_TEXT_YES_ID, UI_ACTION_CALIBRATE)
+#define UI_MENU_CAL_ASKSTOP {&ui_menu_cal_askstop_head,&ui_menu_cal_askstop_no,&ui_menu_cal_askstop_yes}
+UI_MENU(ui_menu_cal_askstop,UI_MENU_CAL_ASKSTOP,3)
+
 // **** Calibration menu
-UI_MENU_ACTIONCOMMAND(ui_menu_calibrate_bed,UI_TEXT_CALIBRATE_BED, UI_ACTION_CALIBRATE);
+UI_MENU_SUBMENU(ui_menu_calibrate_bed,UI_TEXT_CALIBRATE_BED,ui_menu_cal_askstop)
 UI_MENU_ACTIONCOMMAND(ui_menu_reset_matrix,UI_TEXT_RESET_MATRIX_EN, UI_ACTION_RESET_MATRIX);
 #define UI_MENU_CALIBRATE {UI_MENU_ADDCONDBACK &ui_menu_calibrate_bed,&ui_menu_reset_matrix}
 UI_MENU(ui_menu_calibrate,UI_MENU_CALIBRATE,2+UI_MENU_BACKCNT);
