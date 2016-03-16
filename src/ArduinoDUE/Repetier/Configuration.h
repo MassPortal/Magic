@@ -960,7 +960,7 @@ on this endstop.
   measured from the center of the print area to the vertical smooth tower.
   Alternatly set this to the pivot to pivot horizontal rod distance, when head is at (0,0)
 */
-#define PRINTER_RADIUS 175
+#define PRINTER_RADIUS 265.34
 
 /** 1 for more precise delta moves. 0 for faster computation.
 Needs a bit more computation time. */
@@ -1349,14 +1349,14 @@ to recalibrate z.
 #define Z_PROBE_X_OFFSET -23
 #define Z_PROBE_Y_OFFSET -13
 #define Z_PROBE_Z_OFFSET 0
-#define Z_PROBE_BED_DISTANCE 10.0 // Higher than max bed level distance error in mm
+#define Z_PROBE_BED_DISTANCE 50.0 // Higher than max bed level distance error in mm
 
 // Waits for a signal to start. Valid signals are probe hit and ok button.
 // This is needful if you have the probe trigger by hand.
 #define Z_PROBE_WAIT_BEFORE_TEST 0
 /** Speed of z-axis in mm/s when probing */
-#define Z_PROBE_SPEED 30
-#define Z_PROBE_XY_SPEED 150
+#define Z_PROBE_SPEED 10
+#define Z_PROBE_XY_SPEED 100
 #define Z_PROBE_SWITCHING_DISTANCE 10.0 // Distance to safely switch off probe
 #define Z_PROBE_REPETITIONS 1 // Repetitions for probing at one point.
 /** The height is the difference between activated probe position and nozzle height. */
@@ -1412,12 +1412,12 @@ motorized bed leveling */
    The same 3 points are used for the G29 command.
 */
 #define FEATURE_AUTOLEVEL 1
-#define Z_PROBE_X1 -68.42
-#define Z_PROBE_Y1 -39.5
-#define Z_PROBE_X2 68.42
-#define Z_PROBE_Y2 -39.5
+#define Z_PROBE_X1 -119.74
+#define Z_PROBE_Y1 -69.13
+#define Z_PROBE_X2 119.74
+#define Z_PROBE_Y2 -69.13
 #define Z_PROBE_X3 0.0
-#define Z_PROBE_Y3 79.0
+#define Z_PROBE_Y3 138.25
 #define Z_PROBE_XY1_OFFSET 0.0
 #define Z_PROBE_XY2_OFFSET 0.0
 #define Z_PROBE_XY3_OFFSET 0.0
