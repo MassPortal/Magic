@@ -894,7 +894,7 @@ on this endstop.
 // If EEPROM is enabled these values will be overidden with the values in the EEPROM
 #define X_MAX_LENGTH 143
 #define Y_MAX_LENGTH 143
-#define Z_MAX_LENGTH 225
+#define Z_MAX_LENGTH 230
 // Coordinates for the minimum axis. Can also be negative if you want to have the bed start at 0 and the printer can go to the left side
 // of the bed. Maximum coordinate is given by adding the above X_MAX_LENGTH values.
 #define X_MIN_POS -72.5
@@ -1623,16 +1623,16 @@ Select the languages to use. On first startup user can select
 the language from a menu with activated languages. In Configuration->Language
 the language can be switched any time. */
 #define LANGUAGE_EN_ACTIVE 1 // English
-#define LANGUAGE_DE_ACTIVE 1 // German
-#define LANGUAGE_NL_ACTIVE 1 // Dutch
-#define LANGUAGE_PT_ACTIVE 1 // Brazilian portuguese
-#define LANGUAGE_IT_ACTIVE 1 // Italian
-#define LANGUAGE_ES_ACTIVE 1 // Spanish
-#define LANGUAGE_SE_ACTIVE 1 // Swedish
-#define LANGUAGE_FR_ACTIVE 1 // French
-#define LANGUAGE_CZ_ACTIVE 1 // Czech
-#define LANGUAGE_PL_ACTIVE 1 // Polish
-#define LANGUAGE_TR_ACTIVE 1 // Turkish
+#define LANGUAGE_DE_ACTIVE 0 // German
+#define LANGUAGE_NL_ACTIVE 0 // Dutch
+#define LANGUAGE_PT_ACTIVE 0 // Brazilian portuguese
+#define LANGUAGE_IT_ACTIVE 0 // Italian
+#define LANGUAGE_ES_ACTIVE 0 // Spanish
+#define LANGUAGE_SE_ACTIVE 0 // Swedish
+#define LANGUAGE_FR_ACTIVE 0 // French
+#define LANGUAGE_CZ_ACTIVE 0 // Czech
+#define LANGUAGE_PL_ACTIVE 0 // Polish
+#define LANGUAGE_TR_ACTIVE 0 // Turkish
 
 /* Some displays loose their settings from time to time. Try uncommenting the
 autorepair function if this is the case. It is not supported for all display
@@ -1646,7 +1646,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh ED"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v1.4"
-#define FIRMWARE_VERSION "200-"
+#define FIRMWARE_VERSION "205-8a1c4a4"
 
 
 #define DEBUGGING false
