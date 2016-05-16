@@ -1662,7 +1662,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Grand Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "GP35v1.0MV"
-#define FIRMWARE_VERSION "205-"
+#define FIRMWARE_VERSION "207-"
 
 
 //#define DEBUGGING false
