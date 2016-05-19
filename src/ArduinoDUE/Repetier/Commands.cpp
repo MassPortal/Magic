@@ -2838,6 +2838,12 @@ void Commands::processMCode(GCode *com)
             EEPROM::setVersion(com->S);
         break;
 #endif
+    case 887: // M887 echo received message
+        if(com->hasString())
+        {
+            echoString(com->text);
+        }
+        break;
     default:
         if(!EVENT_UNHANDLED_M_CODE(com) && Printer::debugErrors())
         {
