@@ -300,12 +300,6 @@ public:
     static uint8_t mode;
     static uint8_t fanSpeed; // Last fan speed set with M106/M107
 
-	static bool isPaused;
-	static bool hasMovedToPausePosition; // if has already moved to pause position after pause request
-	static bool canMoveToPausePosition; // is it safe to move to pause position (have we homed before?)
-	static void moveToPausePosition();
-	static void resumePrinting();
-	static float positionBeforePause[3]; //zPosition before pause
     static float zBedOffset;
     static uint8_t flag0,flag1; // 1 = stepper disabled, 2 = use external extruder interrupt, 4 = temp Sensor defect, 8 = homed
     static uint8_t flag2;
@@ -744,7 +738,6 @@ public:
     static INLINE void setBlockingReceive(uint8_t b)
     {
         flag2 = (b ? flag2 | PRINTER_FLAG2_BLOCK_RECEIVING : flag2 & ~PRINTER_FLAG2_BLOCK_RECEIVING);
-        Com::printFLN(b ? Com::tPauseCommunication : Com::tContinueCommunication);
     }
 
     static INLINE uint8_t isAutoretract()

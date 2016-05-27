@@ -3703,35 +3703,7 @@ break;
             HAL::resetHardware();
             break;
         case UI_ACTION_PAUSE:
-		if(!allowMoves) {
-			ret = UI_ACTION_PAUSE;
-			break;
-			}
-			if (Printer::isPaused || Printer::isMenuMode(MENU_MODE_SD_PRINTING + MENU_MODE_SD_PAUSED)) {
-				if(Printer::isMenuMode(MENU_MODE_SD_PRINTING + MENU_MODE_SD_PAUSED)) {
-					digitalWrite(PAUSE_LED_PIN, 1);
-					sd.continuePrint(true);
-				}
-				else {
-					Com::printFLN(PSTR("RequestResume:"));
-					UI_STATUS_UPD("");
-					Printer::resumePrinting();
-					WRITE(PAUSE_LED_PIN, 1);
-				}
-			    } else {
-					if(Printer::isMenuMode(MENU_MODE_SD_PRINTING)) {
-						digitalWrite(PAUSE_LED_PIN, 0);
-						sd.pausePrint(true);
-					}
-					else {
-						Printer::isPaused = true;
             Com::printFLN(PSTR("RequestPause:"));
-						UI_STATUS_UPD("Pause requested");
-						WRITE(PAUSE_LED_PIN, 0);
-					}
-		    }
-		    //just for the reference- this was used to pause RepetierHost
-		    //Com::printFLN(PSTR("RequestPause:"));            Com::printFLN(PSTR("RequestPause:"));
 	break;
 case UI_ACTION_CALIBRATE:
 			// Check to see if the printer has been factory-calibrated
@@ -3741,7 +3713,7 @@ case UI_ACTION_CALIBRATE:
 			}
 			else if (EEPROM::zProbeHeight() < 0.1 || EEPROM::zProbeHeight() > 4.0)
 				pushMenu(&ui_menu_avoid_uninit, false);
-			else if (Printer::isPaused || Printer::isZProbingActive() || Printer::isMenuMode(MENU_MODE_SD_PRINTING) || !allowMoves || PrintLine::hasLines())
+			else if (Printer::isZProbingActive() || Printer::isMenuMode(MENU_MODE_SD_PRINTING) || !allowMoves || PrintLine::hasLines())
 				pushMenu(&ui_menu_avoid_hot, false);
 			else if (heatedBedController.targetTemperatureC > 35.0 || extruder[0].tempControl.currentTemperatureC > 40.0) 
 				pushMenu(&ui_menu_avoid_hot, false);

@@ -67,10 +67,6 @@ uint8_t Printer::mode = DEFAULT_PRINTER_MODE;
 uint8_t Printer::fanSpeed = 0; // Last fan speed set with M106/M107
 float Printer::extrudeMultiplyError = 0;
 float Printer::extrusionFactor = 1.0;
-bool Printer::isPaused = false;
-bool Printer::hasMovedToPausePosition = false;
-bool Printer::canMoveToPausePosition = false;
-float Printer::positionBeforePause[3] = {0, 0, 0};
 float oldFeedrate = Printer::feedrate;
 
 uint8_t Printer::interruptEvent = 0;
@@ -1321,8 +1317,7 @@ void Printer::homeZAxis() // Delta z homing
 	// Check if homing failed.  If so, request pause!
 	if (!homingSuccess) {
 		setHomed(false); // Clear the homed flag
-		homeAxis(true,true,true);
-		//Com::printFLN(PSTR("RequestPause:Homing failed!"));
+		Com::printFLN(PSTR("Homing failed!"));
 	}
     // Correct different endstop heights
     // These can be adjusted by two methods. You can use offsets stored by determining the center
@@ -1750,39 +1745,6 @@ void Printer::zBabystep()
     //HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 1);
 }
 
-void Printer::moveToPausePosition() {
-	if (!hasMovedToPausePosition) {
-		Commands::waitUntilEndOfAllMoves();
-		oldFeedrate = Printer::feedrate;
-		if (canMoveToPausePosition) {
-			positionBeforePause[0] = currentPosition[0];
-			positionBeforePause[1] = currentPosition[1];
-			positionBeforePause[2] = currentPosition[2];
-			if (currentPosition[Z_AXIS]< (Printer::zLength - 8)) {
-				//Move 3mm up
-				PrintLine::moveRelativeDistanceInSteps(0, 0, 3 * Printer::axisStepsPerMM[Z_AXIS], 0, oldFeedrate, true, true);
-				Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
-				Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::zLength - 5, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
-			}
-			else
-				homeAxis(true,true,true);
-		}
-		hasMovedToPausePosition = true;
-		Commands::waitUntilEndOfAllMoves();
-		UI_STATUS_UPD_RAM(UI_TEXT_PAUSED);
-	}
-}
-
-void Printer::resumePrinting() {
-	if (canMoveToPausePosition && hasMovedToPausePosition) {
-		if (positionBeforePause[Z_AXIS]< (Printer::zLength - 5))
-			Printer::moveTo(0, 0, positionBeforePause[2]+5, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
-		Printer::moveTo(positionBeforePause[0],positionBeforePause[1], positionBeforePause[2], IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
-	}
-	Printer::feedrate = oldFeedrate;
-	Printer::isPaused = false;
-	Printer::hasMovedToPausePosition = false;
-}
 void Printer::setCaseLight(bool on) {
 #if CASE_LIGHTS_PIN > -1
     WRITE(CASE_LIGHTS_PIN,on);
