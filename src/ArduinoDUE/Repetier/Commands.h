@@ -51,4 +51,5 @@ private:
     static int lowestRAMValueSend;
 };
 bool cmpf(float a, float b);
+void enableZprobe(bool probeState);
 #endif // COMMANDS_H_INCLUDED
