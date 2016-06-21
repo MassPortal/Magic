@@ -195,7 +195,6 @@ have problems with other modules using the eeprom */
 #define EPR_DOORSW_VER					3310
 #define EPR_PROBE_TYPE					3314
 #define EPR_HEAD_VER					3318
-#define EPR_FRAME_VER					3322
 #define EPR_PS_VER						3326
 #define EPR_BED_LED						3330
 
@@ -636,6 +635,74 @@ static inline void setTowerZFloor(float newZ) {
         return ACCELERATION_FACTOR_TOP;
 #endif
     }
-
+	static inline int8_t getPrinterModel() {
+		return HAL::eprGetByte(EPR_PRINTER_MODEL);
+	}
+	static inline int8_t getExtruderCount() {
+		return HAL::eprGetByte(EPR_EXTRUDER_COUNT);
+	}	
+	static inline int32_t getHeatbedType() {
+		return HAL::eprGetInt32(EPR_HEATBED_TYPE);
+	}
+	static inline int8_t getUIfaceType() {
+		return HAL::eprGetByte(EPR_UINTERFACE_TYPE);
+	}
+	static inline float getNozzleSize() {
+		return HAL::eprGetFloat(EPR_NOZZLE_SIZE);
+	}
+	static inline int8_t getFanType() {
+		return HAL::eprGetByte(EPR_FAN_TYPE);
+	}
+	static inline int getRearConnVer() {
+		return HAL::eprGetInt32(EPR_REAR_CONN_VER);
+	}
+	static inline int8_t getFilamentSensor() {
+		return HAL::eprGetByte(EPR_FILAMENT_SENSOR);
+	}
+	static inline int32_t getSSWVer() {
+		return HAL::eprGetInt32(EPR_SSW_VER);
+	}
+	static inline int8_t getVentilation() {
+		return HAL::eprGetByte(EPR_VENTILATION);
+	}
+	static inline float getZProbeActX() {
+		return HAL::eprGetFloat(EPR_Z_PROBE_ACT_X);
+	}
+	static inline float getZProbeActY() {
+		return HAL::eprGetFloat(EPR_Z_PROBE_ACT_Y);
+	}
+	static inline int32_t getFusbVer() {
+		return HAL::eprGetInt32(EPR_FUSB_VER);
+	}
+	static inline int32_t getEstopVer() {
+		return HAL::eprGetInt32(EPR_ESTP_VER);
+	}
+	static inline int32_t getHWVer() {
+		return HAL::eprGetInt32(EPR_HW_VER);
+	}
+	static inline int8_t getCartVer() {
+		return HAL::eprGetByte(EPR_CART_VER);
+	}
+	static inline int8_t getChTempSens() {
+		return HAL::eprGetByte(EPR_CHTEMP_SENS);
+	}
+	static inline int8_t getChHeatVer() {
+		return HAL::eprGetByte(EPR_CHHEAT_VER);
+	}
+	static inline int8_t getDoorSwVer() {
+		return HAL::eprGetByte(EPR_DOORSW_VER);
+	}
+	static inline int8_t getProbeType() {
+		return HAL::eprGetByte(EPR_PROBE_TYPE);
+	}
+	static inline int8_t getHeadVer() {
+		return HAL::eprGetByte(EPR_HEAD_VER);
+	}
+	static inline int8_t getPSVer() {
+		return HAL::eprGetByte(EPR_PS_VER);
+	}
+	static inline int8_t getBedLED() {
+		return HAL::eprGetByte(EPR_BED_LED);
+	}
 };
 #endif

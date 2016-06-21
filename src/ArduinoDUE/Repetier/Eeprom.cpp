@@ -512,6 +512,29 @@ void EEPROM::initalizeUncached()
     HAL::eprSetFloat(EPR_BENDING_CORRECTION_C,BENDING_CORRECTION_C);
     HAL::eprSetFloat(EPR_ACCELERATION_FACTOR_TOP,Z_ACCELERATION_TOP);
 
+	HAL::eprSetByte(EPR_PRINTER_MODEL, PRINTER_MODEL);
+	HAL::eprSetByte(EPR_EXTRUDER_COUNT, EXTRUDER_COUNT);
+	HAL::eprSetInt32(EPR_HEATBED_TYPE, HEATBED_TYPE);
+	HAL::eprSetByte(EPR_UINTERFACE_TYPE, UINTERFACE_TYPE);
+	HAL::eprSetFloat(EPR_NOZZLE_SIZE, NOZZLE_SIZE);
+	HAL::eprSetByte(EPR_FAN_TYPE, FAN_TYPE);
+	HAL::eprSetInt32(EPR_REAR_CONN_VER, REAR_CONN_VER);
+	HAL::eprSetByte(EPR_FILAMENT_SENSOR, FILAMENT_SENSOR);
+	HAL::eprSetInt32(EPR_SSW_VER, SSW_VER);
+	HAL::eprSetByte(EPR_VENTILATION, VENTILATION);
+	HAL::eprSetFloat(EPR_Z_PROBE_ACT_X, Z_PROBE_ACT_X);
+	HAL::eprSetFloat(EPR_Z_PROBE_ACT_Y, Z_PROBE_ACT_Y);
+	HAL::eprSetInt32(EPR_FUSB_VER, FUSB_VER);
+	HAL::eprSetInt32(EPR_ESTP_VER, ESTP_VER);
+	HAL::eprSetInt32(EPR_HW_VER, HW_VER);
+	HAL::eprSetByte(EPR_CART_VER, CART_VER);
+	HAL::eprSetByte(EPR_CHTEMP_SENS, CHTEMP_SENS);
+	HAL::eprSetByte(EPR_CHHEAT_VER, CHHEAT_VER);
+	HAL::eprSetByte(EPR_DOORSW_VER, DOORSW_VER);
+	HAL::eprSetByte(EPR_PROBE_TYPE, PROBE_TYPE);
+	HAL::eprSetByte(EPR_HEAD_VER, HEAD_VER);
+	HAL::eprSetByte(EPR_PS_VER, PS_VER);
+	HAL::eprSetByte(EPR_BED_LED, BED_LED);
 }
 
 void EEPROM::readDataFromEEPROM(bool includeExtruder)
@@ -749,6 +772,31 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
             HAL::eprSetFloat(EPR_BENDING_CORRECTION_C,BENDING_CORRECTION_C);
             HAL::eprSetFloat(EPR_ACCELERATION_FACTOR_TOP,ACCELERATION_FACTOR_TOP);
         }
+		if (version < 17) {
+			HAL::eprSetByte(EPR_PRINTER_MODEL, PRINTER_MODEL);
+			HAL::eprSetByte(EPR_EXTRUDER_COUNT, EXTRUDER_COUNT);
+			HAL::eprSetInt32(EPR_HEATBED_TYPE, HEATBED_TYPE);
+			HAL::eprSetByte(EPR_UINTERFACE_TYPE, UINTERFACE_TYPE);
+			HAL::eprSetFloat(EPR_NOZZLE_SIZE, NOZZLE_SIZE);
+			HAL::eprSetByte(EPR_FAN_TYPE, FAN_TYPE);
+			HAL::eprSetInt32(EPR_REAR_CONN_VER, REAR_CONN_VER);
+			HAL::eprSetByte(EPR_FILAMENT_SENSOR, FILAMENT_SENSOR);
+			HAL::eprSetInt32(EPR_SSW_VER, SSW_VER);
+			HAL::eprSetByte(EPR_VENTILATION, VENTILATION);
+			HAL::eprSetFloat(EPR_Z_PROBE_ACT_X, Z_PROBE_ACT_X);
+			HAL::eprSetFloat(EPR_Z_PROBE_ACT_Y, Z_PROBE_ACT_Y);
+			HAL::eprSetInt32(EPR_FUSB_VER, FUSB_VER);
+			HAL::eprSetInt32(EPR_ESTP_VER, ESTP_VER);
+			HAL::eprSetInt32(EPR_HW_VER, HW_VER);
+			HAL::eprSetByte(EPR_CART_VER, CART_VER);
+			HAL::eprSetByte(EPR_CHTEMP_SENS, CHTEMP_SENS);
+			HAL::eprSetByte(EPR_CHHEAT_VER, CHHEAT_VER);
+			HAL::eprSetByte(EPR_DOORSW_VER, DOORSW_VER);
+			HAL::eprSetByte(EPR_PROBE_TYPE, PROBE_TYPE);
+			HAL::eprSetByte(EPR_HEAD_VER, HEAD_VER);
+			HAL::eprSetByte(EPR_PS_VER, PS_VER);
+			HAL::eprSetByte(EPR_BED_LED, BED_LED);
+		}
         /*        if (version<8) {
         #if DRIVE_SYSTEM==DELTA
                   // Prior to verion 8, the cartesian max was stored in the zmax
@@ -1038,6 +1086,29 @@ void EEPROM::writeSettings()
         }
 #endif
     }
+	writeByte(EPR_PRINTER_MODEL, Com::tPrinterModel);
+	writeByte(EPR_EXTRUDER_COUNT, Com::tExtruderCount);
+	writeInt(EPR_HEATBED_TYPE, Com::tHeatbedType);
+	writeByte(EPR_UINTERFACE_TYPE, Com::tUinterfaceType);
+	writeFloat(EPR_NOZZLE_SIZE, Com::tNozzleSize);
+	writeByte(EPR_FAN_TYPE, Com::tFanType);
+	writeInt(EPR_REAR_CONN_VER, Com::tRearConnVer);
+	writeByte(EPR_FILAMENT_SENSOR, Com::tFilamentSensor);
+	writeInt(EPR_SSW_VER, Com::tSSWVer);
+	writeByte(EPR_VENTILATION, Com::tVentilation);
+	writeFloat(EPR_Z_PROBE_ACT_X, Com::tZProbeActX);
+	writeFloat(EPR_Z_PROBE_ACT_Y, Com::tZProbeActY);
+	writeInt(EPR_FUSB_VER, Com::tFusbVer);
+	writeInt(EPR_ESTP_VER, Com::tEstpVer);
+	writeInt(EPR_HW_VER, Com::tHWVer);
+	writeByte(EPR_CART_VER, Com::tCartVer);
+	writeByte(EPR_CHTEMP_SENS, Com::tChTempSens);
+	writeByte(EPR_CHHEAT_VER, Com::tChHeatVer);
+	writeByte(EPR_DOORSW_VER, Com::tDoorSwVer);
+	writeByte(EPR_PROBE_TYPE, Com::tProbeType);
+	writeByte(EPR_HEAD_VER, Com::tHeadVer);
+	writeByte(EPR_PS_VER, Com::tPSVer);
+	writeByte(EPR_BED_LED, Com::tBedLED);
 #else
     Com::printErrorF(Com::tNoEEPROMSupport);
 #endif
