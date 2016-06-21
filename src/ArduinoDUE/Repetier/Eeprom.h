@@ -20,7 +20,7 @@
 #define _EEPROM_H
 
 // Id to distinguish version changes
-#define EEPROM_PROTOCOL_VERSION 16
+#define EEPROM_PROTOCOL_VERSION 17
 
 /** Where to start with our datablock in memory. Can be moved if you
 have problems with other modules using the eeprom */
@@ -174,6 +174,30 @@ have problems with other modules using the eeprom */
 #define EPR_Z_PROBE_XY2_OFFSET		   3226
 #define EPR_Z_PROBE_XY3_OFFSET		   3230
 #define EPR_BED_LED_BRIGHTNESS		   3234
+#define EPR_PRINTER_MODEL			   3238
+#define EPR_EXTRUDER_COUNT			   3242
+#define EPR_HEATBED_TYPE			   3246
+#define EPR_UINTERFACE_TYPE			   3250
+#define EPR_NOZZLE_SIZE				   3254
+#define EPR_FAN_TYPE				   3258
+#define EPR_REAR_CONN_VER			   3262
+#define EPR_FILAMENT_SENSOR			   3266
+#define EPR_SSW_VER					   3270
+#define EPR_VENTILATION				   3274
+#define EPR_Z_PROBE_ACT_X			   3278
+#define EPR_Z_PROBE_ACT_Y			   3282
+#define EPR_FUSB_VER					3286
+#define EPR_ESTP_VER					3290
+#define EPR_HW_VER						3294
+#define EPR_CART_VER					3298
+#define EPR_CHTEMP_SENS					3302
+#define EPR_CHHEAT_VER					3306
+#define EPR_DOORSW_VER					3310
+#define EPR_PROBE_TYPE					3314
+#define EPR_HEAD_VER					3318
+#define EPR_FRAME_VER					3322
+#define EPR_PS_VER						3326
+#define EPR_BED_LED						3330
 
 #ifndef Z_PROBE_BED_DISTANCE
 #define Z_PROBE_BED_DISTANCE 5.0

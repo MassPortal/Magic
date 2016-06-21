@@ -1620,10 +1620,10 @@ computations, so do not enable it if your display works stable!
 //#define TRY_AUTOREPAIR_LCD_ERRORS
 
 // This is line 2 of the status display at startup. Change to your like.
-#define UI_PRINTER_NAME "Pharaoh ED"
+#define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v2.1"
-#define FIRMWARE_VERSION "205-"
+#define HARDWARE_VERSION "1U"
+#define FIRMWARE_VERSION "208-"
 
 
 //#define DEBUGGING false
