@@ -812,6 +812,23 @@ UI_MENU_SUBMENU_T(ui_menu_fan_sub,UI_TEXT_FANSPEED_ID,ui_menu_fan)
 #define UI_MENU_FAN_CNT 0
 #endif
 
+// **** Ventilation menu
+
+#if FAN3_PIN>-1 && FEATURE_VENTILATION
+UI_MENU_ACTIONCOMMAND(ui_menu_vent_off,UI_TEXT_VENT_OFF,UI_ACTION_VENT_OFF)
+UI_MENU_ACTIONCOMMAND(ui_menu_vent_extr,UI_TEXT_VENT_EXTRACT,UI_ACTION_VENT_EXTRACT)
+UI_MENU_ACTIONCOMMAND(ui_menu_vent_extr_fast,UI_TEXT_VENT_EXTRACT_FAST,UI_ACTION_VENT_EXTRACT_FAST)
+UI_MENU_ACTIONCOMMAND(ui_menu_vent_circ,UI_TEXT_VENT_CIRCULATION,UI_ACTION_VENT_CIRCULATION)
+//UI_MENU_ACTIONCOMMAND_T(ui_menu_fan_ignoreM106,UI_TEXT_IGNORE_M106_ID,UI_ACTION_IGNORE_M106)
+#define UI_MENU_VENT {UI_MENU_ADDCONDBACK &ui_menu_vent_off,&ui_menu_vent_extr,&ui_menu_vent_extr_fast,&ui_menu_vent_circ}
+UI_MENU(ui_menu_vent,UI_MENU_VENT,4+UI_MENU_BACKCNT)
+UI_MENU_SUBMENU(ui_menu_vent_sub,UI_TEXT_VENTILATION,ui_menu_vent)
+#define UI_MENU_VENT_COND &ui_menu_vent_sub,
+#define UI_MENU_VENT_CNT 1
+#else
+#define UI_MENU_VENT_CNT 0
+#endif
+
 //Utilities/perform menu
 #define UI_MENU_PERFORM {UI_MENU_ADDCONDBACK &ui_menu_home_all, &ui_menu_quick_changefil,&ui_menu_quick_stopstepper,&ui_menu_go_epos,&ui_menu_quick_cooldown, &ui_menu_fan_off BED_LED_ENT }
 UI_MENU(ui_menu_perform,UI_MENU_PERFORM,6+UI_MENU_BACKCNT+BED_LED_CNT)
@@ -1079,8 +1096,8 @@ UI_MENU_SUBMENU(ui_menu_preheat_sub, UI_TEXT_PREHEAT_EN,ui_menu_preheat)
 UI_MENU_SUBMENU(ui_menu_perform_sub, UI_TEXT_PERFORM,ui_menu_perform)
 UI_MENU_SUBMENU(ui_menu_about_sub, UI_TEXT_ABOUT,ui_page_about)
 
-#define UI_MENU_MAIN {UI_MENU_ADDCONDBACK  &ui_menu_main1, &ui_menu_preheat_sub, &ui_menu_perform_sub, SD_PRINTFILE_ENTRY UI_MENU_SD_COND UI_MENU_FAN_COND &ui_menu_prepare, &ui_menu_calibration, &ui_menu_about_sub }
-UI_MENU(ui_menu_main,UI_MENU_MAIN,6+UI_MENU_BACKCNT+UI_MENU_SD_CNT+UI_MENU_FAN_CNT+SD_PRINTFILE_ENTRY_CNT)
+#define UI_MENU_MAIN {UI_MENU_ADDCONDBACK  &ui_menu_main1, &ui_menu_preheat_sub, &ui_menu_perform_sub, SD_PRINTFILE_ENTRY UI_MENU_SD_COND UI_MENU_FAN_COND UI_MENU_VENT_COND &ui_menu_prepare, &ui_menu_calibration, &ui_menu_about_sub }
+UI_MENU(ui_menu_main,UI_MENU_MAIN,6+UI_MENU_BACKCNT+UI_MENU_SD_CNT+UI_MENU_FAN_CNT+UI_MENU_VENT_CNT+SD_PRINTFILE_ENTRY_CNT)
 /*
 UI_MENU_SUBMENU_T(ui_menu_main1, UI_TEXT_QUICK_SETTINGS_ID,ui_menu_quick)
 UI_MENU_SUBMENU_T(ui_menu_main2, UI_TEXT_POSITION_ID,ui_menu_positions)

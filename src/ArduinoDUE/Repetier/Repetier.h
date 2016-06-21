@@ -773,7 +773,8 @@ extern volatile uint osAnalogInputValues[ANALOG_INPUTS];
 #define PWM_BOARD_FAN PWM_HEATED_BED+1
 #define PWM_FAN1 PWM_BOARD_FAN+1
 #define PWM_FAN2 PWM_FAN1+1
-#define PWM_FAN_THERMO PWM_FAN2+1
+#define PWM_FAN3 PWM_FAN2+1
+#define PWM_FAN_THERMO PWM_FAN3+1
 #define NUM_PWM PWM_FAN_THERMO+1
 extern uint8_t pwm_pos[NUM_PWM]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
 #if USE_ADVANCE
@@ -831,6 +832,10 @@ extern uint8_t fanKickstart;
 #if FEATURE_FAN2_CONTROL
 extern uint8_t fan2Kickstart;
 #endif
+#if FEATURE_VENTILATION
+extern uint8_t fan3Kickstart;
+#endif
+
 
 #if SDSUPPORT
 extern char tempLongFilename[LONG_FILENAME_LENGTH+1];

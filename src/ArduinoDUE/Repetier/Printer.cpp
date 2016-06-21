@@ -371,7 +371,7 @@ void Printer::setFanSpeedDirectly(uint8_t speed) {
 #endif
 }
 void Printer::setFan2SpeedDirectly(uint8_t speed) {
-	#if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
+	#if FAN2_PIN>-1 && FEATURE_FAN_CONTROL
 	if(pwm_pos[PWM_FAN2] == speed)
 		return;
 	#if FAN_KICKSTART_TIME
@@ -383,6 +383,20 @@ void Printer::setFan2SpeedDirectly(uint8_t speed) {
 	#endif
 	pwm_pos[PWM_FAN2] = speed;
 #endif
+}
+void Printer::setFan3SpeedDirectly(uint8_t speed) {
+	#if FAN3_PIN>-1 && FEATURE_FAN_CONTROL
+	if(pwm_pos[PWM_FAN3] == speed)
+	return;
+	#if FAN_KICKSTART_TIME
+	if(fan3Kickstart == 0 && speed > pwm_pos[PWM_FAN3] && speed < 85)
+	{
+		if(pwm_pos[PWM_FAN3]) fan3Kickstart = FAN_KICKSTART_TIME / 100;
+		else                  fan3Kickstart = FAN_KICKSTART_TIME / 25;
+	}
+	#endif
+	pwm_pos[PWM_FAN3] = speed;
+	#endif
 }
 
 void Printer::reportPrinterMode() {
@@ -983,6 +997,10 @@ void Printer::setup()
 #if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
 	SET_OUTPUT(FAN2_PIN);
 	WRITE(FAN2_PIN, LOW);
+#endif
+#if FAN3_PIN > -1 && FEATURE_FAN2_CONTROL
+	SET_OUTPUT(FAN3_PIN);
+	WRITE(FAN3_PIN, LOW);
 #endif
 #if FAN_THERMO_PIN > -1
 	SET_OUTPUT(FAN_THERMO_PIN);
