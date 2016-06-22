@@ -1290,7 +1290,8 @@ void Commands::processGCode(GCode *com)
 #endif
         GCode::executeFString(Com::tZProbeStartScript);
 #if Z_PROBE_LATCHING_SWITCH
-        enableZprobe(true);
+		if (Printer::probeType == 2)
+			enableZprobe(true);
 #endif
         //bool iterate = com->hasP() && com->P>0;
         Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
@@ -1450,7 +1451,8 @@ void Commands::processGCode(GCode *com)
 #endif
 // VALTERS
 #if Z_PROBE_LATCHING_SWITCH
-        enableZprobe(false);
+		if (Printer::probeType == 2)
+			enableZprobe(false);
 #endif
 #if DRIVE_SYSTEM == DELTA
         Printer::homeAxis(true, true, true);

@@ -550,6 +550,7 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
 #endif
 //#define EPR_ACCELERATION_TYPE 1
 	Printer::PrinterId = HAL::eprGetInt32(EPR_PRINTER_ID);
+	Printer::probeType = HAL::eprGetByte(EPR_PROBE_TYPE);
     Printer::axisStepsPerMM[X_AXIS] = HAL::eprGetFloat(EPR_XAXIS_STEPS_PER_MM);
     Printer::axisStepsPerMM[Y_AXIS] = HAL::eprGetFloat(EPR_YAXIS_STEPS_PER_MM);
     Printer::axisStepsPerMM[Z_AXIS] = HAL::eprGetFloat(EPR_ZAXIS_STEPS_PER_MM);

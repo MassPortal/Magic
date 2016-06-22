@@ -275,6 +275,7 @@ class Printer
     static uint8_t debugLevel;
 public:
 	static long PrinterId;
+	static uint8_t probeType; //1-inductive, 2-toggle switch
 #if USE_ADVANCE
     static volatile int extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
     static ufast8_t maxExtruderSpeed;            ///< Timer delay for end extruder speed

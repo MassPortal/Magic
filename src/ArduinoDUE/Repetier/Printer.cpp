@@ -22,6 +22,7 @@
 #endif
 
 long Printer::PrinterId = 0;
+uint8_t Printer::probeType;
 #if USE_ADVANCE
 ufast8_t Printer::maxExtruderSpeed;            ///< Timer delay for end extruder speed
 volatile int Printer::extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
@@ -222,8 +223,8 @@ void Endstops::update() {
             newRead |= ENDSTOP_Z2_MINMAX_ID;
 #endif
 #if FEATURE_Z_PROBE
-    if(Z_PROBE_ON_HIGH ? READ(Z_PROBE_PIN) : !READ(Z_PROBE_PIN))
-        newRead |= ENDSTOP_Z_PROBE_ID;
+		if((Printer::probeType == 2) ? READ(Z_PROBE_PIN) : !READ(Z_PROBE_PIN))
+       newRead |= ENDSTOP_Z_PROBE_ID;
 #endif
     lastRead &= newRead;
 #ifdef EXTENDED_ENDSTOPS
