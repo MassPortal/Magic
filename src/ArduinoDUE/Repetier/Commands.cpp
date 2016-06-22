@@ -2970,14 +2970,14 @@ bool cmpf(float a, float b)
 // Activate or deactivate Z-Probe switch, added by Valters Celmiņš, 14.06.2016
 void enableZprobe(bool probeState)
 {
-  savedMaxPrintRadius = HAL::eprGetFloat(EPR_DELTA_MAX_RADIUS); // Get printer radius
+  savedMaxPrintRadius = EEPROM::deltaMaxRadius(); // Get printer radius
   if (probeState) // Probe has to be activated
   {
     // Probe switch activation (added by Valters Celmins, 13.06.2016)
     HAL::eprSetFloat(EPR_DELTA_MAX_RADIUS,savedMaxPrintRadius + 20); // Increase printable are outside limits to access retraction plate
     if(Endstops::zProbe()) // Check for probe switch state (invert logic)
     {
-      Printer::moveToReal(-90,-52, EEPROM::zProbeHeight() + 5.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move to trigger post; TODO: have to add EEPROM values
+      Printer::moveToReal(EEPROM::getZProbeActX(), EEPROM::getZProbeActY(), EEPROM::zProbeHeight() + 5.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move to trigger post; TODO: have to add EEPROM values
       while (Endstops::zProbe()) // Wait until switch is triggered (invert logic)
       {
         Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-7, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Pecking motion as we have no idea when switch is triggered until it is released
@@ -2996,7 +2996,7 @@ void enableZprobe(bool probeState)
     HAL::eprSetFloat(EPR_DELTA_MAX_RADIUS,savedMaxPrintRadius + 20); // Increase printable are outside limits to access retraction plate
     if(!Endstops::zProbe())  // Check for probe switch state (invert logic)
     {
-      Printer::moveToReal(-90,-52, EEPROM::zProbeHeight() + 5.0,IGNORE_COORDINATE,Printer::homingFeedrate[Z_AXIS]); // Move to trigger post; TODO: have to add EEPROM values
+      Printer::moveToReal(EEPROM::getZProbeActX(), EEPROM::getZProbeActY(), EEPROM::zProbeHeight() + 5.0,IGNORE_COORDINATE,Printer::homingFeedrate[Z_AXIS]); // Move to trigger post; TODO: have to add EEPROM values
       float returnPosition = 0;
       while (!Endstops::zProbe()) // Wait until switch is triggered (invert logic)
       {
