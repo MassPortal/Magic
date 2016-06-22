@@ -1378,11 +1378,12 @@ to recalibrate z.
 #define FEATURE_Z_PROBE true
 #define Z_PROBE_PIN ORIG_Z_MIN_PIN
 #define Z_PROBE_PULLUP 1
-#define Z_PROBE_ON_HIGH 0
+#define Z_PROBE_ON_HIGH 1 // changed by Valters - inverted probe due to z-probe switch action
 #define Z_PROBE_X_OFFSET -23
 #define Z_PROBE_Y_OFFSET -13
 #define Z_PROBE_Z_OFFSET 0
 #define Z_PROBE_BED_DISTANCE 10.0 // Higher than max bed level distance error in mm
+#define Z_PROBE_LATCHING_SWITCH true // true if latching switch mechanics is used in z-probe
 
 // Waits for a signal to start. Valid signals are probe hit and ok button.
 // This is needful if you have the probe trigger by hand.

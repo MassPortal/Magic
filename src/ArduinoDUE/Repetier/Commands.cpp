@@ -24,6 +24,7 @@
 const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS; // Sensitive pin list for M42
 int Commands::lowestRAMValue = MAX_RAM;
 int Commands::lowestRAMValueSend = MAX_RAM;
+float savedMaxPrintRadius;
 
 void Commands::commandLoop()
 {
@@ -1288,6 +1289,9 @@ void Commands::processGCode(GCode *com)
         Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 #endif
         GCode::executeFString(Com::tZProbeStartScript);
+#if Z_PROBE_LATCHING_SWITCH
+        enableZprobe(true);
+#endif
         //bool iterate = com->hasP() && com->P>0;
         Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
         float h1,h2,h3,hc,oldFeedrate = Printer::feedrate;
@@ -1443,6 +1447,10 @@ void Commands::processGCode(GCode *com)
         Printer::updateCurrentPosition(true);
 #if DEBUGGING
         printCurrentPosition(PSTR("G32 "));
+#endif
+// VALTERS
+#if Z_PROBE_LATCHING_SWITCH
+        enableZprobe(false);
 #endif
 #if DRIVE_SYSTEM == DELTA
         Printer::homeAxis(true, true, true);
@@ -2955,4 +2963,52 @@ void Commands::writeLowestFreeRAM()
 bool cmpf(float a, float b)
 {
 	return (fabs(a - b) < 0.0001f);
+}
+
+// Activate or deactivate Z-Probe switch, added by Valters Celmiņš, 14.06.2016
+void enableZprobe(bool probeState)
+{
+  savedMaxPrintRadius = HAL::eprGetFloat(EPR_DELTA_MAX_RADIUS); // Get printer radius
+  if (probeState) // Probe has to be activated
+  {
+    // Probe switch activation (added by Valters Celmins, 13.06.2016)
+    HAL::eprSetFloat(EPR_DELTA_MAX_RADIUS,savedMaxPrintRadius + 20); // Increase printable are outside limits to access retraction plate
+    if(Endstops::zProbe()) // Check for probe switch state (invert logic)
+    {
+      Printer::moveToReal(-90,-52, EEPROM::zProbeHeight() + 5.0, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move to trigger post; TODO: have to add EEPROM values
+      while (Endstops::zProbe()) // Wait until switch is triggered (invert logic)
+      {
+        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-7, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Pecking motion as we have no idea when switch is triggered until it is released
+        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]+5.5, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Rise to check
+        Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
+        Endstops::update(); // Update enstop positions
+        Endstops::update(); // and protection agains cross-talk
+      } 
+    }
+    HAL::eprSetFloat(EPR_DELTA_MAX_RADIUS,savedMaxPrintRadius); // Shrink printable area back to normal
+    // End of probe switch activation
+  }
+  else // Probe has to be deactivated
+  {
+    // Probe switch deactivation (added by Valters Celmins, 13.06.2016)
+    HAL::eprSetFloat(EPR_DELTA_MAX_RADIUS,savedMaxPrintRadius + 20); // Increase printable are outside limits to access retraction plate
+    if(!Endstops::zProbe())  // Check for probe switch state (invert logic)
+    {
+      Printer::moveToReal(-90,-52, EEPROM::zProbeHeight() + 5.0,IGNORE_COORDINATE,Printer::homingFeedrate[Z_AXIS]); // Move to trigger post; TODO: have to add EEPROM values
+      float returnPosition = 0;
+      while (!Endstops::zProbe()) // Wait until switch is triggered (invert logic)
+      {
+        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-0.5, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move down with 0.5mm step
+        returnPosition += 0.5;
+        Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
+        Endstops::update(); // Update enstop positions
+        Endstops::update(); // and protection agains cross-talk
+      } 
+      Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-2.6, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Final switch motion to lock it in upper state (triggering does not lock it in)
+      Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]+returnPosition+2.6, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+      //Printer::homeAxis(true, true, true); // Homing
+    }
+  HAL::eprSetFloat(EPR_DELTA_MAX_RADIUS,savedMaxPrintRadius); // Shrink printable area back to normal
+  // End of probe switch deactivation
+  }
 }
