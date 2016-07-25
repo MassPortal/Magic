@@ -230,9 +230,9 @@ void HAL::showStartReason() {
       break;
     case 1:
       // this is return from backup mode on SAM
-      Com::printInfoFLN(Com::tBrownOut);
+      Com::printErrorFLN(Com::tBrownOut);
     case 2:
-      Com::printInfoFLN(Com::tWatchdog);
+      Com::printErrorFLN(Com::tWatchdog);
       break;
     case 3:
       Com::printInfoFLN(Com::tSoftwareReset);
