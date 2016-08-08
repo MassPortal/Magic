@@ -1147,6 +1147,10 @@ void Commands::processGCode(GCode *com)
 		Have a P parameter which is used after init probing with G30 T.
 		It calculates the the Z-probe height and saves it into EEPROM
 		*/
+#if Z_PROBE_LATCHING_SWITCH
+		if (Printer::probeType == 2)
+			enableZprobe(true);
+#endif
 		if (com->hasP()){
 			UI_STATUS_UPD("Adj. probe height");
 			float probeHeight;
@@ -1237,9 +1241,14 @@ void Commands::processGCode(GCode *com)
 			UI_CLEAR_STATUS
 			UI_STATUS_UPD_RAM("Calibration complete");
 		}
+#if Z_PROBE_LATCHING_SWITCH
+		if (Printer::probeType == 2)
+			enableZprobe(true);
+#endif
         Commands::waitUntilEndOfAllMoves();
         Printer::feedrate = oldFeedrate;
         Printer::setAutolevelActive(oldAutolevel);		
+
     }
     break;
     case 31:  // G31 display hall sensor output
@@ -1305,6 +1314,7 @@ void Commands::processGCode(GCode *com)
         h3 = Printer::runZProbe(false,true);
         if(h3 < 0) break;
 #if Z_PROBE_LATCHING_SWITCH
+		if (Printer::probeType == 2)
         enableZprobe(false);
 #endif
 #if DEBUGGING
@@ -1432,7 +1442,7 @@ void Commands::processGCode(GCode *com)
 		//restore horizontal rod radius
 		Printer::radius0 = oldRadius;
             if(com->S == 2)
-                EEPROM::storeDataIntoEEPROM();
+                EEPROM::storeDataIntoEEPROM(false);
         }
         else
         {
@@ -1440,7 +1450,7 @@ void Commands::processGCode(GCode *com)
             Printer::currentPositionSteps[Z_AXIS] = (h3 + z) * Printer::axisStepsPerMM[Z_AXIS];
 #endif
             if(com->hasS() && com->S == 3)
-                EEPROM::storeDataIntoEEPROM();
+                EEPROM::storeDataIntoEEPROM(false);
         }
 #if DEBUGGING
 		printCurrentPosition(PSTR("G32 "));
@@ -2477,7 +2487,7 @@ void Commands::processMCode(GCode *com)
         Printer::setAutolevelActive(true);
         if(com->hasS() && com->S)
         {
-            EEPROM::storeDataIntoEEPROM();
+            EEPROM::storeDataIntoEEPROM(false);
         }
         break;
     case 321: // M321 Deactivate autoleveling
@@ -2486,14 +2496,14 @@ void Commands::processMCode(GCode *com)
         {
             if(com->S == 3)
                 Printer::resetTransformationMatrix(false);
-            EEPROM::storeDataIntoEEPROM();
+            EEPROM::storeDataIntoEEPROM(false);
         }
         break;
     case 322: // M322 Reset autoeveling matrix
         Printer::resetTransformationMatrix(false);
         if(com->hasS() && com->S)
         {
-            EEPROM::storeDataIntoEEPROM();
+            EEPROM::storeDataIntoEEPROM(false);
         }
         break;
 #endif // FEATURE_AUTOLEVEL
@@ -2972,7 +2982,7 @@ void enableZprobe(bool probeState)
     // Probe switch activation (changed by Valters Celmins, 25.07.2016)
     if(Endstops::zProbe()) // Check for probe switch state (invert logic)
     {
-      Printer::moveToReal(-175,-100, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed()); // Move to trigger post; TODO: have to add EEPROM values
+      Printer::moveToReal(EEPROM::getZProbeActX(), EEPROM::getZProbeActY(), EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed()); // Move to trigger post; TODO: have to add EEPROM values
       while (Endstops::zProbe()) // Wait until switch is triggered (invert logic)
       {
         Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-7, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Pecking motion as we have no idea when switch is triggered until it is released
@@ -2990,12 +3000,12 @@ void enableZprobe(bool probeState)
     // Probe switch deactivation (changed by Valters Celmins, 25.07.2016)
     if(!Endstops::zProbe())  // Check for probe switch state (invert logic)
     {
-      Printer::moveToReal(-175,-100, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE,EEPROM::zProbeXYSpeed()); // Move to trigger post; TODO: have to add EEPROM values
+      Printer::moveToReal(EEPROM::getZProbeActX(), EEPROM::getZProbeActX(), EEPROM::zProbeBedDistance(), IGNORE_COORDINATE,EEPROM::zProbeXYSpeed()); // Move to trigger post; TODO: have to add EEPROM values
       float returnPosition = 0;
       while (!Endstops::zProbe()) // Wait until switch is triggered (invert logic)
       {
-        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-0.5, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move down with 0.5mm step
-        returnPosition += 0.5;
+        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-0.4, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move down with 0.5mm step
+        returnPosition += 0.4;
         Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
         Endstops::update(); // Update enstop positions
         Endstops::update(); // and protection agains cross-talk
