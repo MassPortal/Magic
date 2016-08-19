@@ -751,15 +751,14 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
             HAL::eprSetByte(EPR_AUTORETRACT_ENABLED,AUTORETRACT_ENABLED);
         }
 
-	HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET,Z_PROBE_XY1_OFFSET);
-			HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET,Z_PROBE_XY2_OFFSET);
-			HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET,Z_PROBE_XY3_OFFSET);
-			HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET,Z_PROBE_Z_OFFSET);
         if(version < 14) {
 #if BED_LEDS
-	HAL::eprSetFloat(EPR_BED_LED_BRIGHTNESS,LED_MAX_RELATIVE_BRIGHTNESS);
+			HAL::eprSetFloat(EPR_BED_LED_BRIGHTNESS,LED_MAX_RELATIVE_BRIGHTNESS);
 #endif
-            HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET,Z_PROBE_Z_OFFSET);
+			HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET, Z_PROBE_XY1_OFFSET);
+			HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET, Z_PROBE_XY2_OFFSET);
+			HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET, Z_PROBE_XY3_OFFSET);
+			HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET, Z_PROBE_Z_OFFSET);
         }
         if(version < 15) {
             HAL::eprSetByte(EPR_SELECTED_LANGUAGE, 254); // activate selector on startup
