@@ -806,7 +806,7 @@ void Printer::setup()
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
 #endif
-    HAL::hwSetup();
+    // HAL::hwSetup(); // There was a HW setup few lines before, no need to repeat
 #ifdef ANALYZER
 // Channel->pin assignments
 #if ANALYZER_CH0>=0
@@ -1301,47 +1301,73 @@ void Printer::homeYAxis()
 }
 void Printer::homeZAxis() // Delta z homing
 {
-	bool homingSuccess = false;
-	Endstops::resetAccumulator();
-    deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
-	// New safe homing routine by Kyrre Aalerud
-	// This method will safeguard against sticky endstops such as may be gotten cheaply from china.
-	// This can lead to headcrashes and even fire, thus a safer algorithm to ensure the endstops actually respond as expected.
-	//Endstops::report();
-	// Check that all endstops (XYZ) were hit
-	//Endstops::fillFromAccumulator();
-	if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
-		// Back off for retest
-		PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS]/ENDSTOP_X_RETEST_REDUCTION_FACTOR, true, true);
-		//Endstops::report();
-		// Check for proper release of all (XYZ) endstops
+	bool homingSuccess = false; // By default fail homing (safety feature)
+
+	Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
+
+	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
+	PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
+	Endstops::update();
+	Endstops::update();
+
+	if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
+
+		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
+
+		Endstops::update();
+		Endstops::update();
+				
+		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
+			homingSuccess = true;
+		}
+
+	}
+/*
+	
+
+	
+		
+		Endstops::update();
+		Endstops::update();
+
 		if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
-			// Rehome with reduced speed
-			Endstops::resetAccumulator();
-		    deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
-		    Endstops::fillFromAccumulator();
-			//Endstops::report();
-			// Check that all endstops (XYZ) were hit again
-			if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
-				homingSuccess = true; // Assume success in case there is no back move
-#if defined(ENDSTOP_Z_BACK_ON_HOME)
-				if(ENDSTOP_Z_BACK_ON_HOME > 0) {
-					PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_ON_HOME * Z_HOME_DIR,0,homingFeedrate[Z_AXIS], true, true);
-					//Endstops::report();
-					// Check for missing release of any (XYZ) endstop
-					if (Endstops::xMax() || Endstops::yMax() || Endstops::zMax()) {
-						homingSuccess = false; // Reset success flag
-					}
-				}
-#endif
-			}
+			Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
+			
+			
 		}
 	}
+	else {
+		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]); // Move to end stops ASAP
+		
+		Endstops::update();
+		Endstops::update();
+			
+		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) { // If not all end stops are active, fail homing
+			PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
+		
+			Endstops::update();
+			Endstops::update();
+		
+			if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
+				Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
+		
+				Endstops::update();
+				Endstops::update();
+		
+				if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
+					homingSuccess = true;
+				}
+			}
+		}
+	} */
+
 	// Check if homing failed.  If so, request pause!
 	if (!homingSuccess) {
 		setHomed(false); // Clear the homed flag
 		Com::printFLN(PSTR("Homing failed!"));
 	}
+	Commands::checkForPeriodicalActions(true);
+
     // Correct different endstop heights
     // These can be adjusted by two methods. You can use offsets stored by determining the center
     // or you can use the xyzMinSteps from G100 calibration. Both have the same effect but only one

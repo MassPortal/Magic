@@ -904,6 +904,8 @@ on this endstop.
 #define X_MIN_POS -72.5
 #define Y_MIN_POS -72.5
 #define Z_MIN_POS 0
+// Defines homing unswing time delay (in ms) in homing procedure
+#define ZHOME_WAIT_UNSWING 0
 
 // ##########################################################################################
 // ##                           Movement settings                                          ##
