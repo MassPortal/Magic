@@ -1665,7 +1665,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v1U"
-#define FIRMWARE_VERSION "208-7b49a34"
+#define FIRMWARE_VERSION "211-"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0

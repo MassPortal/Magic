@@ -55,6 +55,7 @@ uint8_t Printer::relativeExtruderCoordinateMode = false;  ///< Determines Absolu
 
 long Printer::currentPositionSteps[E_AXIS_ARRAY];
 float Printer::currentPosition[Z_AXIS_ARRAY];
+float Printer::lastProbeActHeight = 0.0;
 float Printer::lastCmdPos[Z_AXIS_ARRAY];
 long Printer::destinationSteps[E_AXIS_ARRAY];
 float Printer::coordinateOffset[Z_AXIS_ARRAY] = {0,0,0};
@@ -1392,7 +1393,7 @@ void Printer::homeZAxis() // Delta z homing
     PrintLine::moveRelativeDistanceInSteps(0, 0, dm, 0, homingFeedrate[Z_AXIS], true, false);
     currentPositionSteps[X_AXIS] = 0; // now we are really here
     currentPositionSteps[Y_AXIS] = 0;
-    currentPositionSteps[Z_AXIS] = zMaxSteps - zBedOffset * axisStepsPerMM[Z_AXIS]; // Extruder is now exactly in the delta center
+    currentPositionSteps[Z_AXIS] = zMaxSteps; // Extruder is now exactly in the delta center
     coordinateOffset[X_AXIS] = 0;
     coordinateOffset[Y_AXIS] = 0;
     coordinateOffset[Z_AXIS] = 0;
@@ -1425,7 +1426,7 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HOME_DELTA_ID));
     // Homing Z axis means that you must home X and Y
     homeZAxis();
-    moveToReal(0,0,Printer::zLength - zBedOffset,IGNORE_COORDINATE,homingFeedrate[Z_AXIS]); // Move to designed coordinates including translation
+    moveToReal(0,0,Printer::zLength,IGNORE_COORDINATE,homingFeedrate[Z_AXIS]); // Move to designed coordinates including translation
     updateCurrentPosition(true);
     UI_CLEAR_STATUS
     Commands::printCurrentPosition(PSTR("homeAxis "));
@@ -1947,7 +1948,10 @@ void Printer::showConfiguration() {
     Com::config(PSTR("ZMax:"),zMin + zLength);
     Com::config(PSTR("XSize:"), xLength);
     Com::config(PSTR("YSize:"), yLength);
-    Com::config(PSTR("ZSize:"), zLength);
+	Com::config(PSTR("ZSize:"), zLength);
+	Com::config(PSTR("OffsetX:"), offsetX);
+	Com::config(PSTR("OffsetY:"), offsetY);
+	Com::config(PSTR("OffsetZ:"), offsetZ);
     Com::config(PSTR("XPrintAccel:"), maxAccelerationMMPerSquareSecond[X_AXIS]);
     Com::config(PSTR("YPrintAccel:"), maxAccelerationMMPerSquareSecond[Y_AXIS]);
     Com::config(PSTR("ZPrintAccel:"), maxAccelerationMMPerSquareSecond[Z_AXIS]);
