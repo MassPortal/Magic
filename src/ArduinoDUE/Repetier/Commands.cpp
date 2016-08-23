@@ -1331,8 +1331,10 @@ void Commands::processGCode(GCode *com)
         h3 = Printer::runZProbe(false,true);
         if(h3 < 0) break;
 #if Z_PROBE_LATCHING_SWITCH
-		if (Printer::probeType == 2)
-        enableZprobe(false);
+		if (!com->hasP()) {
+			if (Printer::probeType == 2)
+				enableZprobe(false);
+		}
 #endif
 		Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 #if DEBUGGING
@@ -1435,6 +1437,10 @@ void Commands::processGCode(GCode *com)
 #endif
 			float tempfl = Printer::currentPosition[Z_AXIS];
 			Com::printFLN("Old printer height: ",Printer::zLength);
+#if Z_PROBE_LATCHING_SWITCH
+			if (!Endstops::zProbe()) // if probe is activated
+				tempfl -= EEPROM::zProbeHeight(); // adjust height
+#endif
             Printer::zLength += (h3 + z) - tempfl;
 
 #else

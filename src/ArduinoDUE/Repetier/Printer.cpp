@@ -1204,7 +1204,8 @@ void Printer::setup()
 #endif // DRIVE_SYSTEM
     Extruder::selectExtruderById(0);
 #if FEATURE_WATCHDOG
-    HAL::startWatchdog();
+	//Avoid watchdog bootloop by disabling this
+    //HAL::startWatchdog();
 #endif // FEATURE_WATCHDOG
 #if SDSUPPORT
     sd.mount();
