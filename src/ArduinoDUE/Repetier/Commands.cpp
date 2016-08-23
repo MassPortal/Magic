@@ -1354,7 +1354,7 @@ void Commands::processGCode(GCode *com)
 #if DEBUGGING
 			Com::printFLN(PSTR("XY1 offset: "),EEPROM::zProbeXY1offset());
 #endif	
-			if (EEPROM::zProbeXY1offset() > 1.0) {
+			if (abs(EEPROM::zProbeXY1offset()) > 1.0) {
 				foff = EEPROM::zProbeXY1offset() - h1;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET, foff);
 				Com::printFLN(PSTR("XY1 offset after: "),EEPROM::zProbeXY1offset());
@@ -1367,7 +1367,7 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR("XY2 offset: "),EEPROM::zProbeXY2offset());
 #endif	
 			foff =  EEPROM::zProbeXY2offset();
-			if (EEPROM::zProbeXY2offset() > 1.0){
+			if (abs(EEPROM::zProbeXY2offset()) > 1.0){
 				foff = EEPROM::zProbeXY2offset() - h2;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET, foff);
 				Com::printFLN(PSTR("XY2 offset after: "),EEPROM::zProbeXY2offset());
@@ -1379,7 +1379,7 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR("XY3 offset: "),EEPROM::zProbeXY3offset());
 #endif
 			foff =  EEPROM::zProbeXY3offset();
-			if (EEPROM::zProbeXY3offset() > 1.0){
+			if (abs(EEPROM::zProbeXY3offset()) > 1.0){
 				foff = EEPROM::zProbeXY3offset() - h3;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET, foff);
 				Com::printFLN(PSTR("XY3 offset after: "),EEPROM::zProbeXY3offset());
@@ -1499,14 +1499,12 @@ void Commands::processGCode(GCode *com)
 			Printer::setAutolevelActive(false);
 			//Printer::zLength = Z_MAX_LENGTH;
 			//HAL::eprSetFloat(EPR_Z_LENGTH, Z_MAX_LENGTH);
-			Com::printFLN("Starting... NB! Remember to reset the zLength!");
+			Printer::zLength = retDefHWVer();
+			HAL::eprSetFloat(EPR_Z_LENGTH, Printer::zLength);
+
 			Printer::updateDerivedParameter();
 			Printer::homeAxis(true, true, true);
 			Printer::updateCurrentPosition(true);
-#if Z_PROBE_LATCHING_SWITCH
-			if (Printer::probeType == 2)
-				enableZprobe(true);
-#endif
 			Printer::moveTo(0, 0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 
 			//Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
@@ -1516,7 +1514,7 @@ void Commands::processGCode(GCode *com)
 			Printer::updateDerivedParameter();
 			printCurrentPosition(PSTR("M114 "));
 		if (com->hasX()) {
-			float xf =  EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
+			float xf =  EEPROM::zProbeBedDistance() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			Com::printFLN(PSTR(" xf: "),xf);
 			Com::printFLN(PSTR(" xz: "),Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET, xf);
@@ -1524,7 +1522,7 @@ void Commands::processGCode(GCode *com)
 			Printer::moveTo(EEPROM::zProbeX2(),EEPROM::zProbeY2(),IGNORE_COORDINATE,IGNORE_COORDINATE,EEPROM::zProbeXYSpeed());
 		}
 		if (com->hasY()) {
-			float yf = EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
+			float yf = EEPROM::zProbeBedDistance() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			Com::printFLN(PSTR(" yf: "),yf);
 			Com::printFLN(PSTR(" yz: "),Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET, yf);
@@ -1532,7 +1530,7 @@ void Commands::processGCode(GCode *com)
 			Printer::moveTo(EEPROM::zProbeX3(),EEPROM::zProbeY3(),IGNORE_COORDINATE,IGNORE_COORDINATE,EEPROM::zProbeXYSpeed());
 		}
 		if (com->hasZ()) {
-			float zf = EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
+			float zf = EEPROM::zProbeBedDistance() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			Com::printFLN(PSTR(" zf: "),zf);
 			Com::printFLN(PSTR(" zz: "),Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET, zf);
