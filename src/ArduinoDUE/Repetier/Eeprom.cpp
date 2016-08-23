@@ -452,6 +452,7 @@ void EEPROM::storeDataIntoEEPROM(uint8_t corrupted)
 }
 void EEPROM::initalizeUncached()
 {
+	Com::printErrorFLN(PSTR("EEPROM reset to defaults!"));
     HAL::eprSetFloat(EPR_Z_PROBE_HEIGHT,Z_PROBE_HEIGHT);
     HAL::eprSetFloat(EPR_Z_PROBE_SPEED,Z_PROBE_SPEED);
     HAL::eprSetFloat(EPR_Z_PROBE_XY_SPEED,Z_PROBE_XY_SPEED);

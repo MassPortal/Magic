@@ -53,6 +53,7 @@ int16_t Printer::zBabystepsMissing = 0;
 uint8_t Printer::relativeCoordinateMode = false;  ///< Determines absolute (false) or relative Coordinates (true).
 uint8_t Printer::relativeExtruderCoordinateMode = false;  ///< Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 
+bool Printer::retDefAxisDir[Z_AXIS_ARRAY];
 long Printer::currentPositionSteps[E_AXIS_ARRAY];
 float Printer::currentPosition[Z_AXIS_ARRAY];
 float Printer::lastProbeActHeight = 0.0;
@@ -62,6 +63,7 @@ float Printer::coordinateOffset[Z_AXIS_ARRAY] = {0,0,0};
 uint8_t Printer::flag0 = 0;
 uint8_t Printer::flag1 = 0;
 uint8_t Printer::flag2 = 0;
+uint8_t Printer::flag3 = 0;
 uint8_t Printer::debugLevel = 6; ///< Bitfield defining debug output. 1 = echo, 2 = info, 4 = error, 8 = dry run., 16 = Only communication, 32 = No moves
 fast8_t Printer::stepsPerTimerCall = 1;
 uint8_t Printer::menuMode = 0;
@@ -1166,6 +1168,14 @@ void Printer::setup()
     Extruder::initExtruder();
     // sets autoleveling in eeprom init
     EEPROM::init(); // Read settings from eeprom if wanted
+
+	//Load axis direction from EEPROM and set flags
+	Commands::fillDefAxisDir();
+
+	Printer::setXdir(retDefAxisDir[X_AXIS]);
+	Printer::setYdir(retDefAxisDir[Y_AXIS]);
+	Printer::setZdir(retDefAxisDir[Z_AXIS]);
+
     UI_INITIALIZE;
     for(uint8_t i = 0; i < E_AXIS_ARRAY; i++)
     {

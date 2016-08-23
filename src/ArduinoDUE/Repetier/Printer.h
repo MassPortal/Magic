@@ -94,6 +94,9 @@ union wizardVar {
 #define PRINTER_FLAG2_JAMCONTROL_DISABLED   32
 #define PRINTER_FLAG2_HOMING                64
 #define PRINTER_FLAG2_ALL_E_MOTORS          128 // Set all e motors flag
+#define PRINTER_FLAG3_X_DIR					1
+#define PRINTER_FLAG3_Y_DIR					2
+#define PRINTER_FLAG3_Z_DIR					4
 
 // List of possible interrupt events (1-255 allowed)
 #define PRINTER_INTERRUPT_EVENT_JAM_DETECTED 1
@@ -309,12 +312,13 @@ public:
 	static float positionBeforePause[3]; //zPosition before pause
     static float zBedOffset;
     static uint8_t flag0,flag1; // 1 = stepper disabled, 2 = use external extruder interrupt, 4 = temp Sensor defect, 8 = homed
-    static uint8_t flag2;
+    static uint8_t flag2, flag3;
     static fast8_t stepsPerTimerCall;
     static uint32_t interval;    ///< Last step duration in ticks.
     static uint32_t timer;              ///< used for acceleration/deceleration timing
     static uint32_t stepNumber;         ///< Step number in current move.
     static float coordinateOffset[Z_AXIS_ARRAY];
+	static bool retDefAxisDir[Z_AXIS_ARRAY];
     static int32_t currentPositionSteps[E_AXIS_ARRAY];     ///< Position in steps from origin.
     static float currentPosition[Z_AXIS_ARRAY];
 	static float lastProbeActHeight;
@@ -491,6 +495,37 @@ public:
     static void setFanSpeedDirectly(uint8_t speed);
     static void setFan2SpeedDirectly(uint8_t speed);
 	static void setFan3SpeedDirectly(uint8_t speed);
+
+	static INLINE bool xDirection()
+	{
+		return !bool(flag3 & PRINTER_FLAG3_X_DIR);
+	}
+
+	static INLINE void setXdir(bool b)
+	{
+		flag3 = (b ? flag3 & ~PRINTER_FLAG3_X_DIR : flag3 | PRINTER_FLAG3_X_DIR);
+	}
+
+	static INLINE bool yDirection()
+	{
+		return !bool(flag3 & PRINTER_FLAG3_Y_DIR);
+	}
+
+	static INLINE void setYdir(bool b)
+	{
+		flag3 = (b ? flag3 & ~PRINTER_FLAG3_Y_DIR : flag3 | PRINTER_FLAG3_Y_DIR);
+	}
+
+	static INLINE bool zDirection()
+	{
+		return !bool(flag3 & PRINTER_FLAG3_Z_DIR);
+	}
+
+	static INLINE void setZdir(bool b)
+	{
+		flag3 = (b ? flag3 & ~PRINTER_FLAG3_Z_DIR : flag3 | PRINTER_FLAG3_Z_DIR);
+	}
+
     /** \brief Disable stepper motor for x direction. */
     static INLINE void disableXStepper()
     {
@@ -565,16 +600,16 @@ public:
     {
         if(positive)
         {
-            WRITE(X_DIR_PIN,!INVERT_X_DIR);
+            WRITE(X_DIR_PIN,!xDirection());
 #if FEATURE_TWO_XSTEPPER
-            WRITE(X2_DIR_PIN,!INVERT_X_DIR);
+            WRITE(X2_DIR_PIN,!xDirection());
 #endif
         }
         else
         {
-            WRITE(X_DIR_PIN,INVERT_X_DIR);
+            WRITE(X_DIR_PIN, xDirection());
 #if FEATURE_TWO_XSTEPPER
-            WRITE(X2_DIR_PIN,INVERT_X_DIR);
+            WRITE(X2_DIR_PIN, xDirection());
 #endif
         }
     }
@@ -583,16 +618,16 @@ public:
     {
         if(positive)
         {
-            WRITE(Y_DIR_PIN, !INVERT_Y_DIR);
+            WRITE(Y_DIR_PIN, !yDirection());
 #if FEATURE_TWO_YSTEPPER
-            WRITE(Y2_DIR_PIN, !INVERT_Y_DIR);
+            WRITE(Y2_DIR_PIN, !yDirection());
 #endif
         }
         else
         {
-            WRITE(Y_DIR_PIN, INVERT_Y_DIR);
+            WRITE(Y_DIR_PIN, yDirection());
 #if FEATURE_TWO_YSTEPPER
-            WRITE(Y2_DIR_PIN, INVERT_Y_DIR);
+            WRITE(Y2_DIR_PIN, yDirection());
 #endif
         }
     }
@@ -600,39 +635,39 @@ public:
     {
         if(positive)
         {
-            WRITE(Z_DIR_PIN, !INVERT_Z_DIR);
+            WRITE(Z_DIR_PIN, !zDirection());
 #if FEATURE_TWO_ZSTEPPER
-            WRITE(Z2_DIR_PIN, !INVERT_Z_DIR);
+            WRITE(Z2_DIR_PIN, !zDirection());
 #endif
 #if FEATURE_THREE_ZSTEPPER
-            WRITE(Z3_DIR_PIN, !INVERT_Z_DIR);
+            WRITE(Z3_DIR_PIN, !zDirection());
 #endif
         }
         else
         {
-            WRITE(Z_DIR_PIN, INVERT_Z_DIR);
+            WRITE(Z_DIR_PIN, zDirection());
 #if FEATURE_TWO_ZSTEPPER
-            WRITE(Z2_DIR_PIN, INVERT_Z_DIR);
+            WRITE(Z2_DIR_PIN, zDirection());
 #endif
 #if FEATURE_THREE_ZSTEPPER
-            WRITE(Z3_DIR_PIN, INVERT_Z_DIR);
+            WRITE(Z3_DIR_PIN, zDirection());
 #endif
         }
     }
 
     static INLINE bool getZDirection()
     {
-        return ((READ(Z_DIR_PIN) != 0) ^ INVERT_Z_DIR);
+        return ((READ(Z_DIR_PIN) != 0) ^ zDirection());
     }
 
     static INLINE bool getYDirection()
     {
-        return((READ(Y_DIR_PIN) != 0) ^ INVERT_Y_DIR);
+        return((READ(Y_DIR_PIN) != 0) ^ yDirection());
     }
 
     static INLINE bool getXDirection()
     {
-        return((READ(X_DIR_PIN) != 0) ^ INVERT_X_DIR);
+        return((READ(X_DIR_PIN) != 0) ^ xDirection());
     }
 
     static INLINE uint8_t isLargeMachine()

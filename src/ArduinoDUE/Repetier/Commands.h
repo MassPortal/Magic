@@ -47,6 +47,8 @@ public:
     static void checkFreeMemory();
     static void writeLowestFreeRAM();
 	static void setBedLed(int light);
+	static float retDefHWVer();
+	static void fillDefAxisDir();
 private:
     static int lowestRAMValue;
     static int lowestRAMValueSend;

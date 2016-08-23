@@ -3061,3 +3061,55 @@ void enableZprobe(bool probeState)
   // End of probe switch deactivation
   }
 }
+
+//Get height according to the HW version stored in EEPROM
+float Commands::retDefHWVer()
+{
+	switch (EEPROM::getHWVer()) {
+	case 2020:
+		return 230.0;
+		break;
+	case 2030:
+	case 2031:
+	case 2032:
+		return 250.0;
+		break;
+	case 3010:
+		return 360.0;
+		break;
+	case 3510:
+		return 410.0;
+		break;
+	case 4010:
+		return 470.0;
+		break;
+	default:
+		return 210.0;
+	}
+}
+
+//Get tower rotation direction depending on HW version
+void Commands::fillDefAxisDir()
+{
+	switch (EEPROM::getHWVer()) {
+	case 2020:
+	case 3010:
+	case 3510:
+	case 4010:
+		Printer::retDefAxisDir[X_AXIS] = true;
+		Printer::retDefAxisDir[Y_AXIS] = false;
+		Printer::retDefAxisDir[Z_AXIS] = true;
+		break;
+	case 2030:
+	case 2031:
+	case 2032:
+		Printer::retDefAxisDir[X_AXIS] = false;
+		Printer::retDefAxisDir[Y_AXIS] = false;
+		Printer::retDefAxisDir[Z_AXIS] = false;
+		break;
+	default:
+		Printer::retDefAxisDir[X_AXIS] = true;
+		Printer::retDefAxisDir[Y_AXIS] = false;
+		Printer::retDefAxisDir[Z_AXIS] = true;
+	}
+}
