@@ -1454,7 +1454,10 @@ void Commands::processGCode(GCode *com)
 			if (!Endstops::zProbe()) // if probe is activated
 				tempfl -= EEPROM::zProbeHeight(); // adjust height
 #endif
-            Printer::zLength += (h3 + z) - tempfl;
+			//Printer::zLength += (h3 + z) - tempfl;
+			float avgH = (h1 + h2 + h3) / 3;
+			Com::printFLN("Height compensation: ", avgH - EEPROM::zProbeBedDistance());
+			Printer::zLength += (avgH - EEPROM::zProbeBedDistance());
 
 #else
             int32_t zBottom = Printer::currentPositionSteps[Z_AXIS] = (h3 + z) * Printer::axisStepsPerMM[Z_AXIS];
