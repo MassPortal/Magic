@@ -1182,7 +1182,7 @@ void Commands::processGCode(GCode *com)
 			if (Printer::probeType == 2) {
 				//Move to safe distance above the bed
 				Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				enableZprobe(true);
+				if (!enableZprobe(true)) return;
 			}
 #endif
 #endif
@@ -1252,7 +1252,7 @@ void Commands::processGCode(GCode *com)
 				EEPROM::update(com);
 #if Z_PROBE_LATCHING_SWITCH
 				if (Printer::probeType == 2)
-					enableZprobe(false);
+					if (!enableZprobe(false)) return;
 				Printer::moveTo(0.0, 0.0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 #endif
 				Printer::homeAxis(true, true, true);
@@ -1304,8 +1304,8 @@ void Commands::processGCode(GCode *com)
 		Commands::setFanSpeed(0);
 
 		//remember and reset horizontal rod radius
-		float oldRadius = Printer::radius0;
-		Printer::radius0 = ROD_RADIUS;
+		//float oldRadius = Printer::radius0;
+		//Printer::radius0 = ROD_RADIUS;
 
         // It is not possible to go to the edges at the top, also users try
         // it often and wonder why the coordinate system is then wrong.
@@ -1316,24 +1316,36 @@ void Commands::processGCode(GCode *com)
         GCode::executeFString(Com::tZProbeStartScript);
 #if Z_PROBE_LATCHING_SWITCH
 		if (Printer::probeType == 2)
-        enableZprobe(true);
+			if (!enableZprobe(true)) return;
 #endif
         //bool iterate = com->hasP() && com->P>0;
         Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
         float h1,h2,h3,hc,oldFeedrate = Printer::feedrate;
         Printer::moveTo(EEPROM::zProbeX1(),EEPROM::zProbeY1(),IGNORE_COORDINATE,IGNORE_COORDINATE,EEPROM::zProbeXYSpeed());
         h1 = Printer::runZProbe(true,false,Z_PROBE_REPETITIONS,false);
-        if(h1 < -1) break;
+		if (h1 < 0) {
+			Printer::resetTransformationMatrix(false);
+			Printer::homeAxis(true, true, true);
+			break;
+		}
         Printer::moveTo(EEPROM::zProbeX2(),EEPROM::zProbeY2(),IGNORE_COORDINATE,IGNORE_COORDINATE,EEPROM::zProbeXYSpeed());
         h2 = Printer::runZProbe(false,false);
-        if(h2 < -1) break;
+        if(h2 < 0) {
+			Printer::resetTransformationMatrix(false);
+			Printer::homeAxis(true, true, true);
+			break;
+		}
         Printer::moveTo(EEPROM::zProbeX3(),EEPROM::zProbeY3(),IGNORE_COORDINATE,IGNORE_COORDINATE,EEPROM::zProbeXYSpeed());
         h3 = Printer::runZProbe(false,true);
-        if(h3 < 0) break;
+        if(h3 < 0) {
+			Printer::resetTransformationMatrix(false);
+			Printer::homeAxis(true, true, true);
+			break;
+		}
 #if Z_PROBE_LATCHING_SWITCH
 		if (!com->hasP()) {
 			if (Printer::probeType == 2)
-				enableZprobe(false);
+				if (!enableZprobe(false)) return;
 		}
 #endif
 		Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
@@ -1342,6 +1354,7 @@ void Commands::processGCode(GCode *com)
 		Com::printFLN(PSTR("h2: "),Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h2);
 		Com::printFLN(PSTR("h3: "),Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h3);
 #endif
+
 #if DRIVE_SYSTEM == DELTA
 		//Allows additional offset for each probe point to compensate head slanting at maximum dimensions
 		if(com->hasX())
@@ -1462,7 +1475,7 @@ void Commands::processGCode(GCode *com)
 		}
 		
 		//restore horizontal rod radius
-		Printer::radius0 = oldRadius;
+		//Printer::radius0 = oldRadius;
             if(com->S == 2)
                 EEPROM::storeDataIntoEEPROM(false);
         }
@@ -1505,7 +1518,7 @@ void Commands::processGCode(GCode *com)
 			Printer::setAutolevelActive(false);
 			//Printer::zLength = Z_MAX_LENGTH;
 			//HAL::eprSetFloat(EPR_Z_LENGTH, Z_MAX_LENGTH);
-			Printer::zLength = retDefHWVer();
+			Printer::zLength = retDefHeight();
 			HAL::eprSetFloat(EPR_Z_LENGTH, Printer::zLength);
 
 			Printer::updateDerivedParameter();
@@ -1541,10 +1554,6 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR(" zz: "),Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET, zf);
 			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance()*2, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-#if Z_PROBE_LATCHING_SWITCH
-			if (Printer::probeType == 2)
-				enableZprobe(false);
-#endif
 			Printer::moveTo(0,0,IGNORE_COORDINATE,IGNORE_COORDINATE,EEPROM::zProbeXYSpeed());
 			Printer::homeAxis(true, true, true);
 		}
@@ -3267,8 +3276,8 @@ bool cmpf(float a, float b)
 	return (fabs(a - b) < 0.0001f);
 }
 
-// Activate or deactivate Z-Probe switch, added by Valters CelmiÅ†Å?, 14.06.2016
-void enableZprobe(bool probeState)
+// Activate or deactivate Z-Probe switch
+bool enableZprobe(bool probeState)
 {
   if (probeState) // Probe has to be activated
   {
@@ -3278,6 +3287,8 @@ void enableZprobe(bool probeState)
       Printer::moveToReal(EEPROM::getZProbeActX(), EEPROM::getZProbeActY(), EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed()); // Move to trigger post
 	  if (Printer::lastProbeActHeight > 0.1) // Restore activation height
 		  Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::lastProbeActHeight, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed()); // Move to trigger post
+	  float probeDepth = Printer::currentPosition[Z_AXIS] - (0.1 * Commands::retDefHeight() + EEPROM::zProbeBedDistance());
+
       while (Endstops::zProbe()) // Wait until switch is triggered (invert logic)
       {
         Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-7, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Pecking motion as we have no idea when switch is triggered until it is released
@@ -3285,6 +3296,10 @@ void enableZprobe(bool probeState)
         Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
         Endstops::update(); // Update enstop positions
         Endstops::update(); // and protection agains cross-talk
+		if (Printer::currentPosition[Z_AXIS] < probeDepth) {
+			Com::printErrorFLN("[003] Could not activate z-probe!");
+			return false;
+		}
       } 
 	  Printer::lastProbeActHeight = Printer::currentPosition[Z_AXIS]+2.5 + Printer::zBedOffset; // Save activation height
       Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
@@ -3304,6 +3319,7 @@ void enableZprobe(bool probeState)
     {
       Printer::moveToReal(EEPROM::getZProbeActX(), EEPROM::getZProbeActY(), EEPROM::zProbeBedDistance(), IGNORE_COORDINATE,EEPROM::zProbeXYSpeed()); // Move to trigger post
       float returnPosition = 0;
+	  float probeDepth = Printer::currentPosition[Z_AXIS] - (0.1 * Commands::retDefHeight() + EEPROM::zProbeBedDistance());
       while (!Endstops::zProbe()) // Wait until switch is triggered (invert logic)
       {
         Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-0.4, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move down with 0.5mm step
@@ -3311,6 +3327,10 @@ void enableZprobe(bool probeState)
         Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
         Endstops::update(); // Update enstop positions
         Endstops::update(); // and protection agains cross-talk
+		if (Printer::currentPosition[Z_AXIS] < probeDepth) {
+			Com::printErrorFLN("[003] Could not deactivate z-probe!");
+			return false; //break out
+		}
       } 
       Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-2.6, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Final switch motion to lock it in upper state (triggering does not lock it in)
       Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]+returnPosition+2.6, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
@@ -3318,6 +3338,7 @@ void enableZprobe(bool probeState)
 	Com::printInfoFLN("Probe switch deactivated");
   // End of probe switch deactivation
   }
+  return true;
 }
 
 //Get height according to the HW version stored in EEPROM
