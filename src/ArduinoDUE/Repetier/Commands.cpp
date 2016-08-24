@@ -3069,7 +3069,7 @@ void enableZprobe(bool probeState)
 }
 
 //Get height according to the HW version stored in EEPROM
-float Commands::retDefHWVer()
+float Commands::retDefHeight()
 {
 	switch (EEPROM::getHWVer()) {
 	case 2020:
@@ -3087,7 +3087,7 @@ float Commands::retDefHWVer()
 		return 410.0;
 		break;
 	case 4010:
-		return 470.0;
+		return 465.0;
 		break;
 	default:
 		return 210.0;
