@@ -1554,6 +1554,258 @@ void Commands::processGCode(GCode *com)
 
 	break;
 #endif
+	case 37: {
+		Com::printFLN("DIY measure...");
+		float px0 = 0.0,
+			py0 = 0.0,
+			px1 = EEPROM::zProbeX1(),
+			px2 = EEPROM::zProbeX2(),
+			px3 = EEPROM::zProbeX3(),
+			py1 = EEPROM::zProbeY1(),
+			py2 = EEPROM::zProbeY2(),
+			py3 = EEPROM::zProbeY3(),
+
+			p2x4 = 0.0,
+			p2y4 = -79.0,
+			p2x5 = 68.42,
+			p2y5 = 39.5,
+			p2x6 = -68.42,
+			p2y6 = 39.5,
+
+			p3x4 = 0.0,
+			p3y4 = -118.5,
+			p3x5 = 102.634,
+			p3y5 = 59.254,
+			p3x6 = -102.634,
+			p3y6 = 59.254,
+
+			p4x4 = 0.0,
+			p4y4 = -158,
+			p4x5 = 136.846,
+			p4y5 = 79.006,
+			p4x6 = -136.846,
+			p4y6 = 79.006,
+			
+			pAbove = 5.0;
+
+		//If MP40
+		if (Commands::retDefHeight() > 400) {
+			//If above probing height
+			if (Printer::currentPosition[Z_AXIS] > EEPROM::zProbeBedDistance() + 1.0) {
+				//Go to first position at 0.0
+				Printer::homeAxis(true, true, true);
+				//Move to safe distance above the bed
+				Printer::moveToReal(px0, py0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			} 
+			//If in the center 
+			else if ((abs(Printer::currentPosition[X_AXIS] - px0)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py0)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 2nd position
+				Printer::moveToReal(px1, py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+				} 
+			//If in the 2nd position
+			else if ((abs(Printer::currentPosition[X_AXIS] - px1)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py1)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 3rd position
+				Printer::moveToReal(px2, py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+				}
+			else if ((abs(Printer::currentPosition[X_AXIS] - px2)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py2)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 4th position
+				Printer::moveToReal(px3, py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - px3)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py3)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 5th position
+				Printer::moveToReal(p4x4, p4y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p4x4)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y4)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 6th position
+				Printer::moveToReal(p4x5, p4y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p4x5)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y5)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 7th position
+				Printer::moveToReal(p4x6, p4y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p4x6)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y6)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to first position
+				Printer::moveToReal(px0, py0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else
+				Com::printWarningFLN("Not in a valid position!");
+		}
+		//If MP30
+		else if (Commands::retDefHeight() > 300) {
+			//If above probing height
+			if (Printer::currentPosition[Z_AXIS] > EEPROM::zProbeBedDistance() + 1.0) {
+				//Go to first position at 0.0
+				Printer::homeAxis(true, true, true);
+				//Move to safe distance above the bed
+				Printer::moveToReal(px0, py0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			//If in the center 
+			else if ((abs(Printer::currentPosition[X_AXIS] - px0)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py0)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 2nd position
+				Printer::moveToReal(px1, py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			//If in the 2nd position
+			else if ((abs(Printer::currentPosition[X_AXIS] - px1)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py1)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 3rd position
+				Printer::moveToReal(px2, py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - px2)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py2)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 4th position
+				Printer::moveToReal(px3, py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - px3)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py3)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 5th position
+				Printer::moveToReal(p3x4, p3y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p3x4)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y4)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 6th position
+				Printer::moveToReal(p3x5, p3y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p3x5)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y5)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 7th position
+				Printer::moveToReal(p3x6, p3y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p3x6) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y6) < 1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to first position
+				Printer::moveToReal(px0, py0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else
+				Com::printWarningFLN("Not in a valid position!");
+		}
+		//If MP20
+		else {
+			//If above probing height
+			if (Printer::currentPosition[Z_AXIS] > EEPROM::zProbeBedDistance() + 1.0) {
+				//Go to first position at 0.0
+				Printer::homeAxis(true, true, true);
+				//Move to safe distance above the bed
+				Printer::moveToReal(px0, py0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			//If in the center 
+			else if ((abs(Printer::currentPosition[X_AXIS] - px0)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py0)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 2nd position
+				Printer::moveToReal(px1, py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			//If in the 2nd position
+			else if ((abs(Printer::currentPosition[X_AXIS] - px1)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py1)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 3rd position
+				Printer::moveToReal(px2, py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - px2)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py2)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 4th position
+				Printer::moveToReal(px3, py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - px3)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - py3)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 5th position
+				Printer::moveToReal(p2x4, p2y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p2x4)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y4)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 6th position
+				Printer::moveToReal(p2x5, p2y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p2x5)<1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y5)<1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to 7th position
+				Printer::moveToReal(p2x6, p2y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else if ((abs(Printer::currentPosition[X_AXIS] - p2x6) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y6) < 1.0)) {
+				//Move to safe distance above the bed
+				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				//Go to first position
+				Printer::moveToReal(px0, py0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			}
+			else
+				Com::printWarningFLN("Not in a valid position!");
+		}
+	
+	}
 #if DISTORTION_CORRECTION
 	case 33: {
 		if(com->hasL()) { // G33 L0 - List distortion matrix
