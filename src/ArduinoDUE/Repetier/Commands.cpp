@@ -1369,7 +1369,7 @@ void Commands::processGCode(GCode *com)
 #if DEBUGGING
 			Com::printFLN(PSTR("XY1 offset: "),EEPROM::zProbeXY1offset());
 #endif	
-			if (abs(EEPROM::zProbeXY1offset()) > 1.0) {
+			if (abs(EEPROM::zProbeXY1offset()) > 3.0) {
 				foff = EEPROM::zProbeXY1offset() - h1;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET, foff);
 				Com::printFLN(PSTR("XY1 offset after: "),EEPROM::zProbeXY1offset());
@@ -1382,7 +1382,7 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR("XY2 offset: "),EEPROM::zProbeXY2offset());
 #endif	
 			foff =  EEPROM::zProbeXY2offset();
-			if (abs(EEPROM::zProbeXY2offset()) > 1.0){
+			if (abs(EEPROM::zProbeXY2offset()) > 3.0){
 				foff = EEPROM::zProbeXY2offset() - h2;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET, foff);
 				Com::printFLN(PSTR("XY2 offset after: "),EEPROM::zProbeXY2offset());
@@ -1394,7 +1394,7 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(PSTR("XY3 offset: "),EEPROM::zProbeXY3offset());
 #endif
 			foff =  EEPROM::zProbeXY3offset();
-			if (abs(EEPROM::zProbeXY3offset()) > 1.0){
+			if (abs(EEPROM::zProbeXY3offset()) > 3.0){
 				foff = EEPROM::zProbeXY3offset() - h3;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET, foff);
 				Com::printFLN(PSTR("XY3 offset after: "),EEPROM::zProbeXY3offset());
