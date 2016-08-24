@@ -3075,31 +3075,43 @@ void UIDisplay::startAction(int action)
 }
 
 #if UI_BED_COATING
+inline void setBedOffset() {
+	char arr[30];
+	char fl[20];
+	strcpy(arr, "M897 I");
+	sprintf(fl, "%f", Printer::zBedOffset);
+	strcat(arr, fl);
+	GCode::executeFString(arr);
+}
+
 void UIDisplay::menuAdjustHeight(const UIMenu *men,float offset)
 {
 #if EEPROM_MODE != 0
+	
     //If there is something to change
     if (EEPROM::zProbeZOffset() != offset)
     {
-        HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET, offset);
-        EEPROM::storeDataIntoEEPROM(false);
+		Printer::zBedOffset = offset;
+		setBedOffset();
+		// Display message
+		pushMenu(men, false);
+		BEEP_SHORT;
+		menuLevel = 0;
+		activeAction = 0;
+		UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_PRINTER_READY_ID));
     }
 #endif
-    Printer::zBedOffset = offset;
-    //Display message
-    pushMenu(men, false);
-    BEEP_SHORT;
-    Printer::homeAxis(true, true, true);
-    Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL "));
-    menuLevel = 0;
-    activeAction = 0;
-    UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_PRINTER_READY_ID));
 }
 #endif
 void UIDisplay::finishAction(unsigned int action)
 {
-    if (action == UI_ACTION_COATING_CUSTOM)
-        menuAdjustHeight(&ui_menu_coating_custom,Printer::zBedOffset);
+	if (action == UI_ACTION_COATING_CUSTOM) {
+		setBedOffset();
+	}
+	menuLevel = 0;
+	activeAction = 0;
+	UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_PRINTER_READY_ID));
+       // menuAdjustHeight(&ui_menu_coating_custom,Printer::zBedOffset);
     }
 // Actions are events from user input. Depending on the current state, each
 // action can behave differently. Other actions do always the same like home, disable extruder etc.
@@ -3797,7 +3809,7 @@ break;
 	break;
 case UI_ACTION_CALIBRATE:
 			// Check to see if the printer has been factory-calibrated
-			if (Printer::zLength < (Z_MAX_LENGTH - 200.0f) || Printer::zLength > Z_MAX_LENGTH) {
+			if (Printer::zLength < (Commands::retDefHeight() - 200.0f) || Printer::zLength > Commands::retDefHeight()) {
 				Com::printErrorFLN(PSTR("Corrupted Z-length!"));
 				pushMenu(&ui_menu_avoid_uninit, false);
 			}
