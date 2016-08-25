@@ -20,7 +20,7 @@
 #define _EEPROM_H
 
 // Id to distinguish version changes
-#define EEPROM_PROTOCOL_VERSION 16
+#define EEPROM_PROTOCOL_VERSION 17
 
 /** Where to start with our datablock in memory. Can be moved if you
 have problems with other modules using the eeprom */
@@ -174,6 +174,29 @@ have problems with other modules using the eeprom */
 #define EPR_Z_PROBE_XY2_OFFSET		   3226
 #define EPR_Z_PROBE_XY3_OFFSET		   3230
 #define EPR_BED_LED_BRIGHTNESS		   3234
+#define EPR_PRINTER_MODEL			   3238
+#define EPR_EXTRUDER_COUNT			   3242
+#define EPR_HEATBED_TYPE			   3246
+#define EPR_UINTERFACE_TYPE			   3250
+#define EPR_NOZZLE_SIZE				   3254
+#define EPR_FAN_TYPE				   3258
+#define EPR_REAR_CONN_VER			   3262
+#define EPR_FILAMENT_SENSOR			   3266
+#define EPR_SSW_VER					   3270
+#define EPR_VENTILATION				   3274
+#define EPR_Z_PROBE_ACT_X			   3278
+#define EPR_Z_PROBE_ACT_Y			   3282
+#define EPR_FUSB_VER					3286
+#define EPR_ESTP_VER					3290
+#define EPR_HW_VER						3294
+#define EPR_CART_VER					3298
+#define EPR_CHTEMP_SENS					3302
+#define EPR_CHHEAT_VER					3306
+#define EPR_DOORSW_VER					3310
+#define EPR_PROBE_TYPE					3314
+#define EPR_HEAD_VER					3318
+#define EPR_PS_VER						3326
+#define EPR_BED_LED						3330
 
 #ifndef Z_PROBE_BED_DISTANCE
 #define Z_PROBE_BED_DISTANCE 5.0
@@ -612,6 +635,74 @@ static inline void setTowerZFloor(float newZ) {
         return ACCELERATION_FACTOR_TOP;
 #endif
     }
-
+	static inline int8_t getPrinterModel() {
+		return HAL::eprGetByte(EPR_PRINTER_MODEL);
+	}
+	static inline int8_t getExtruderCount() {
+		return HAL::eprGetByte(EPR_EXTRUDER_COUNT);
+	}	
+	static inline int32_t getHeatbedType() {
+		return HAL::eprGetInt32(EPR_HEATBED_TYPE);
+	}
+	static inline int8_t getUIfaceType() {
+		return HAL::eprGetByte(EPR_UINTERFACE_TYPE);
+	}
+	static inline float getNozzleSize() {
+		return HAL::eprGetFloat(EPR_NOZZLE_SIZE);
+	}
+	static inline int8_t getFanType() {
+		return HAL::eprGetByte(EPR_FAN_TYPE);
+	}
+	static inline int getRearConnVer() {
+		return HAL::eprGetInt32(EPR_REAR_CONN_VER);
+	}
+	static inline int8_t getFilamentSensor() {
+		return HAL::eprGetByte(EPR_FILAMENT_SENSOR);
+	}
+	static inline int32_t getSSWVer() {
+		return HAL::eprGetInt32(EPR_SSW_VER);
+	}
+	static inline int8_t getVentilation() {
+		return HAL::eprGetByte(EPR_VENTILATION);
+	}
+	static inline float getZProbeActX() {
+		return HAL::eprGetFloat(EPR_Z_PROBE_ACT_X);
+	}
+	static inline float getZProbeActY() {
+		return HAL::eprGetFloat(EPR_Z_PROBE_ACT_Y);
+	}
+	static inline int32_t getFusbVer() {
+		return HAL::eprGetInt32(EPR_FUSB_VER);
+	}
+	static inline int32_t getEstopVer() {
+		return HAL::eprGetInt32(EPR_ESTP_VER);
+	}
+	static inline int32_t getHWVer() {
+		return HAL::eprGetInt32(EPR_HW_VER);
+	}
+	static inline int8_t getCartVer() {
+		return HAL::eprGetByte(EPR_CART_VER);
+	}
+	static inline int8_t getChTempSens() {
+		return HAL::eprGetByte(EPR_CHTEMP_SENS);
+	}
+	static inline int8_t getChHeatVer() {
+		return HAL::eprGetByte(EPR_CHHEAT_VER);
+	}
+	static inline int8_t getDoorSwVer() {
+		return HAL::eprGetByte(EPR_DOORSW_VER);
+	}
+	static inline int8_t getProbeType() {
+		return HAL::eprGetByte(EPR_PROBE_TYPE);
+	}
+	static inline int8_t getHeadVer() {
+		return HAL::eprGetByte(EPR_HEAD_VER);
+	}
+	static inline int8_t getPSVer() {
+		return HAL::eprGetByte(EPR_PS_VER);
+	}
+	static inline int8_t getBedLED() {
+		return HAL::eprGetByte(EPR_BED_LED);
+	}
 };
 #endif

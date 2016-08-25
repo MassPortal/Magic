@@ -461,7 +461,9 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 	waitForZProbeStart();
 	for(int8_t r = 0; r < repeat; r++)
 	{
-		probeDepth = 2 * (Printer::zMaxSteps - Printer::zMinSteps); // probe should always hit within this distance
+		//MAX 10% of total printer height + z-probe - bed distance
+		probeDepth = (0.1 * Commands::retDefHeight() + EEPROM::zProbeBedDistance())  * axisStepsPerMM[Z_AXIS]; // probe should always hit within this distance
+		//Com::printFLN("ProbeDepth: ", probeDepth / axisStepsPerMM[Z_AXIS]);
 		stepsRemainingAtZHit = -1; // Marker that we did not hit z probe
 		//int32_t offx = axisStepsPerMM[X_AXIS] * EEPROM::zProbeXOffset();
 		//int32_t offy = axisStepsPerMM[Y_AXIS] * EEPROM::zProbeYOffset();
@@ -487,7 +489,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 		if(r + 1 < repeat) // go only shortest possible move up for repetitions
 		PrintLine::moveRelativeDistanceInSteps(0, 0, shortMove, 0, EEPROM::zProbeSpeed(), true, false);
 	}
-	float distance = static_cast<float>(sum) * invAxisStepsPerMM[Z_AXIS] / static_cast<float>(repeat) + EEPROM::zProbeHeight();
+	float distance = static_cast<float>(sum) * invAxisStepsPerMM[Z_AXIS] / static_cast<float>(repeat);
 	#if Z_PROBE_Z_OFFSET_MODE == 1
 	distance += EEPROM::zProbeZOffset(); // We measured including coating, so we need to add coating thickness!
 	#endif

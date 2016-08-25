@@ -47,9 +47,12 @@ public:
     static void checkFreeMemory();
     static void writeLowestFreeRAM();
 	static void setBedLed(int light);
+	static float retDefHeight();
+	static void fillDefAxisDir();
 private:
     static int lowestRAMValue;
     static int lowestRAMValueSend;
 };
 bool cmpf(float a, float b);
+bool enableZprobe(bool probeState);
 #endif // COMMANDS_H_INCLUDED
