@@ -1665,31 +1665,31 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v3.0DV"
-#define FIRMWARE_VERSION "214-"
+#define FIRMWARE_VERSION "214-c90589d"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0
-#define HEATBED_TYPE			   0
+#define HEATBED_TYPE			   2
 #define UINTERFACE_TYPE			   0
 #define NOZZLE_SIZE				   0
 #define FAN_TYPE				   0
 #define REAR_CONN_VER			   0
 #define FILAMENT_SENSOR			   0
 #define SSW_VER					   0
-#define VENTILATION				   0
+#define VENTILATION				   2
 #define Z_PROBE_ACT_X			   0
 #define Z_PROBE_ACT_Y			   0
-#define FUSB_VER					0
-#define ESTP_VER					0
+#define FUSB_VER					16241
+#define ESTP_VER					15031
 #define HW_VER						2031
 #define CART_VER					0
 #define CHTEMP_SENS					0
 #define CHHEAT_VER					0
 #define DOORSW_VER					0
-#define PROBE_TYPE					0
+#define PROBE_TYPE					1
 #define HEAD_VER					0
 #define PS_VER						0
-#define BED_LED						0
+#define BED_LED						2
 
 //#define DEBUGGING false
 #define BED_LEDS true
