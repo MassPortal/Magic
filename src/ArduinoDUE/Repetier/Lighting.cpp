@@ -88,7 +88,7 @@ void Lighting::loop()
 	
 	if (!(LedBrightness>0.0)) //avoid processing if relative brightness set to 0
 	{
-		SetAllLeds(0, 0, 0);
+		//SetAllLeds(0, 0, 0);
 		return;
 	}	
 	//Avoid interruptions

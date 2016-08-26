@@ -1451,8 +1451,9 @@ void Commands::processGCode(GCode *com)
 			float tempfl = Printer::currentPosition[Z_AXIS];
 			Com::printFLN("Old printer height: ",Printer::zLength);
 #if Z_PROBE_LATCHING_SWITCH
-			if (!Endstops::zProbe()) // if probe is activated
-				tempfl -= EEPROM::zProbeHeight(); // adjust height
+			if (Printer::probeType == 2)
+				if (!Endstops::zProbe()) // if probe is activated
+					tempfl -= EEPROM::zProbeHeight(); // adjust height
 #endif
 			//Printer::zLength += (h3 + z) - tempfl;
 			float avgH = (h1 + h2 + h3) / 3;
@@ -2341,7 +2342,7 @@ void Commands::processMCode(GCode *com)
         if(com->hasP() || (com->hasS() && com->S == 0))
             Commands::waitUntilEndOfAllMoves();
 #endif
-        if (com->hasS())
+        if (com->hasS()) 
         {
             if(com->hasT() && com->T < NUM_EXTRUDER)
                 Extruder::setTemperatureForExtruder(com->S, com->T, com->hasF() && com->F > 0);
@@ -2349,7 +2350,7 @@ void Commands::processMCode(GCode *com)
                 Extruder::setTemperatureForExtruder(com->S, Extruder::current->id, com->hasF() && com->F > 0);
         }
 #if BED_LEDS
-		Light.ShowTemps();
+		//Light.ShowTemps();
 #endif
 #endif
         break;
@@ -2359,7 +2360,7 @@ void Commands::processMCode(GCode *com)
         if(Printer::debugDryrun()) break;
         if (com->hasS()) Extruder::setHeatedBedTemperature(com->S,com->hasF() && com->F > 0);
 #if BED_LEDS
-		Light.ShowTemps();
+		//Light.ShowTemps();
 #endif
         break;
     case 105: // M105  get temperature. Always returns the current temperature, doesn't wait until move stopped
