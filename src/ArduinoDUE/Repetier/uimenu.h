@@ -830,8 +830,8 @@ UI_MENU_SUBMENU(ui_menu_vent_sub,UI_TEXT_VENTILATION,ui_menu_vent)
 #endif
 
 //Utilities/perform menu
-#define UI_MENU_PERFORM {UI_MENU_ADDCONDBACK &ui_menu_home_all, &ui_menu_quick_changefil,&ui_menu_quick_stopstepper,&ui_menu_go_epos,&ui_menu_quick_cooldown, &ui_menu_fan_off BED_LED_ENT }
-UI_MENU(ui_menu_perform,UI_MENU_PERFORM,6+UI_MENU_BACKCNT+BED_LED_CNT)
+#define UI_MENU_PERFORM {UI_MENU_ADDCONDBACK &ui_menu_home_all, &ui_menu_quick_stopstepper,&ui_menu_go_epos,&ui_menu_quick_cooldown, &ui_menu_fan_off BED_LED_ENT }
+UI_MENU(ui_menu_perform,UI_MENU_PERFORM,5+UI_MENU_BACKCNT+BED_LED_CNT)
 
 //Control menu
 #define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply, &ui_menu_fan_fanspeed, &ui_menu_ext_temp0, &ui_menu_bed_temp UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT MENU_PSON_ENTRY DEBUG_PRINT_EXTRA}

@@ -1199,7 +1199,7 @@ void Printer::setup()
 #if DELTA_HOME_ON_POWER
     homeAxis(true,true,true);
 #endif
-    setAutoretract(EEPROM_BYTE(AUTORETRACT_ENABLED));
+    //setAutoretract(EEPROM_BYTE(AUTORETRACT_ENABLED));
     Commands::printCurrentPosition(PSTR("Printer::setup "));
 #endif // DRIVE_SYSTEM
     Extruder::selectExtruderById(0);

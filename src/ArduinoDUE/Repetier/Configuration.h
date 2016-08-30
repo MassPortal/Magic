@@ -473,10 +473,10 @@ cog. Direct drive extruder need 0. */
 
 /** If enabled you can select the distance your filament gets retracted during a
 M140 command, after a given temperature is reached. */
-#define RETRACT_DURING_HEATUP true
+#define RETRACT_DURING_HEATUP false
 
 /** Allow retraction with G10/G11 removing requirement for retraction setting in slicer. Also allows filament change if lcd is configured. */
-#define FEATURE_RETRACTION 1
+#define FEATURE_RETRACTION 0
 /** autoretract converts pure extrusion moves into retractions. Beware that 
  simple extrusion e.g. over Repetier-Host will then not work! */
 #define AUTORETRACT_ENABLED 0
@@ -1665,7 +1665,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v1U"
-#define FIRMWARE_VERSION "215-"
+#define FIRMWARE_VERSION "216-"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0
