@@ -706,6 +706,7 @@ bool GCode::parseBinary(uint8_t *buffer,bool fromSerial)
 bool GCode::parseAscii(char *line,bool fromSerial)
 {
     char *pos = line;
+	char *chk = line;
     params = 0;
     params2 = 0;
     internalCommand = !fromSerial;
@@ -909,11 +910,15 @@ bool GCode::parseAscii(char *line,bool fromSerial)
 	        params |= 4096; // Needs V2 for saving
 	        break;
         }
+
+		
         case '*' : //checksum
         {
             uint8_t checksum_given = parseLongValue(pos);
             uint8_t checksum = 0;
-            while(line != (pos - 1)) checksum ^= *line++;
+			while (line != (pos - 1)) {
+				checksum ^= *line++;
+			}
 #if FEATURE_CHECKSUM_FORCED
             Printer::flag0 |= PRINTER_FLAG0_FORCE_CHECKSUM;
 #endif
@@ -927,6 +932,51 @@ bool GCode::parseAscii(char *line,bool fromSerial)
             }
             break;
         }
+		case '#': //Advanced Fletcher checksum for ASCII
+		{
+			long checksum_given = parseLongValue(pos);
+			long checksum = 0;
+			 // for fletcher-16 checksum
+			unsigned int sum1 = 0, sum2 = 0;
+			while (chk != (pos - 1)) {
+				sum1 += *chk++;
+				if (sum1 >= 255) sum1 -= 255;
+				sum2 += sum1;
+				if (sum2 >= 255) sum2 -= 255;
+
+				//checksum = sum1 * 1000 + sum2;
+				//Com::printF("C:", checksum);
+			}
+			checksum = sum1 * 1000 + sum2;
+
+			if (checksum_given != checksum)
+			{
+				if (Printer::debugErrors())
+				{
+					Com::printErrorFLN("Wrong Adv. Checksum");
+					//Com::printFLN("Given:", checksum_given);
+					//Com::printFLN("Calce:", checksum);
+				}
+				return false;
+			}
+
+
+#if FEATURE_CHECKSUM_FORCED
+			Printer::flag0 |= PRINTER_FLAG0_FORCE_CHECKSUM;
+#endif
+			if (checksum != checksum_given)
+			{
+				if (Printer::debugErrors())
+				{
+					Com::printErrorFLN("Wrong Adv. Checksum");
+				}
+				return false; // mismatch
+			}
+			break;
+		}
+		
+
+
         default:
             break;
         }// end switch
