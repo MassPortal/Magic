@@ -959,24 +959,8 @@ bool GCode::parseAscii(char *line,bool fromSerial)
 				}
 				return false;
 			}
-
-
-#if FEATURE_CHECKSUM_FORCED
-			Printer::flag0 |= PRINTER_FLAG0_FORCE_CHECKSUM;
-#endif
-			if (checksum != checksum_given)
-			{
-				if (Printer::debugErrors())
-				{
-					Com::printErrorFLN("Wrong Adv. Checksum");
-				}
-				return false; // mismatch
-			}
 			break;
 		}
-		
-
-
         default:
             break;
         }// end switch
