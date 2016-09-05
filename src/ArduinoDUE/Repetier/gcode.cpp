@@ -536,12 +536,12 @@ bool GCode::parseBinary(uint8_t *buffer,bool fromSerial)
         uint8_t tlen = len > 21 ? 21 : len;
         len -= tlen;
         do
-        {
+    {
             sum1 += *p++;
             if(sum1 >= 255) sum1 -= 255;
             sum2 += sum1;
             if(sum2 >= 255) sum2 -= 255;
-        }
+    }
         while (--tlen);
     }
     sum1 -= *p++;
@@ -711,6 +711,9 @@ bool GCode::parseAscii(char *line,bool fromSerial)
     params2 = 0;
     internalCommand = !fromSerial;
     char c;
+#if FEATURE_CHECKSUM_FORCED
+	bool hasCsm = false;
+#endif
     while ( (c = *(pos++)) )
     {
         if(c == '(' || c == '%') break; // alternative comment or program block
@@ -916,12 +919,14 @@ bool GCode::parseAscii(char *line,bool fromSerial)
         {
             uint8_t checksum_given = parseLongValue(pos);
             uint8_t checksum = 0;
+#if FEATURE_CHECKSUM_FORCED
+			//NB! Uncomment if you want to print directly from Host 
+			// with just basic checksums!
+			//hasCsm = true;
+#endif
 			while (line != (pos - 1)) {
 				checksum ^= *line++;
 			}
-#if FEATURE_CHECKSUM_FORCED
-            Printer::flag0 |= PRINTER_FLAG0_FORCE_CHECKSUM;
-#endif
             if(checksum != checksum_given)
             {
                 if(Printer::debugErrors())
@@ -938,6 +943,10 @@ bool GCode::parseAscii(char *line,bool fromSerial)
 			long checksum = 0;
 			 // for fletcher-16 checksum
 			unsigned int sum1 = 0, sum2 = 0;
+#if FEATURE_CHECKSUM_FORCED
+			Printer::flag0 |= PRINTER_FLAG0_FORCE_CHECKSUM;
+			hasCsm = true;
+#endif
 			while (chk != (pos - 1)) {
 				sum1 += *chk++;
 				if (sum1 >= 255) sum1 -= 255;
@@ -974,6 +983,9 @@ bool GCode::parseAscii(char *line,bool fromSerial)
         if(formatErrors < 3) return false;
     }
     else formatErrors = 0;
+#if FEATURE_CHECKSUM_FORCED
+	return hasCsm;
+#endif
     return true;
 }
 
