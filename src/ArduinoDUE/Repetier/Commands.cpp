@@ -3036,9 +3036,11 @@ void Commands::processMCode(GCode *com)
 	case 896: //Run custom action by its ID
 	if(com->hasS() && com->S)
 	{
+#if FEATURE_CONTROLLER == CONTROLLER_LCD_MP_PHARAOH_DUE
 		if(com->S > 0 && com->S <2000)
 			uid.executeAction(com->S, true);
 		else
+#endif
 			Com::printWarningFLN(PSTR("Not a valid action ID!"));
 	}
 	break;

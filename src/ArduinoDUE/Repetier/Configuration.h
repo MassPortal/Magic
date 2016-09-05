@@ -1185,7 +1185,7 @@ If the cache contains less then MOVE_CACHE_LOW segments, the time per segment is
 If a move would be shorter, the feedrate will be reduced. This should prevent buffer underflows. Set this to 0 if you
 don't care about empty buffers during print.
 */
-#define MOVE_CACHE_LOW 10
+#define MOVE_CACHE_LOW 40
 /** \brief Cycles per move, if move cache is low.
 
 This value must be high enough, that the buffer has time to fill up. The problem only occurs at the beginning of a print or
@@ -1665,7 +1665,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v1U"
-#define FIRMWARE_VERSION "216-"
+#define FIRMWARE_VERSION "217-"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0
