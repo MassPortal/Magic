@@ -531,18 +531,12 @@ bool GCode::parseBinary(uint8_t *buffer,bool fromSerial)
     // http://en.wikipedia.org/wiki/Fletcher's_checksum
     uint8_t *p = buffer;
     uint8_t len = binaryCommandSize - 2;
-    while (len)
-    {
-        uint8_t tlen = len > 21 ? 21 : len;
-        len -= tlen;
-        do
+    while (len--)
     {
             sum1 += *p++;
             if(sum1 >= 255) sum1 -= 255;
             sum2 += sum1;
             if(sum2 >= 255) sum2 -= 255;
-    }
-        while (--tlen);
     }
     sum1 -= *p++;
     sum2 -= *p;
