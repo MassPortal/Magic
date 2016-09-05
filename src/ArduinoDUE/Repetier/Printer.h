@@ -1174,6 +1174,52 @@ public:
 #if JSON_OUTPUT
     static void showJSONStatus(int type);
 #endif
+	static uint8_t ledVal;
+	static INLINE uint8_t ledCount(bool extLed) {
+		switch (Printer::ledVal) {
+		case 0:
+		case 1: return 0;
+			break;
+		case 2: //MP20 old
+			if (extLed)
+				return 5;
+			else
+				return 12;
+			break;
+		case 3:
+			if (extLed)
+				return 0;
+			else
+				return 1;
+			break;
+		case 102: //MP20 new
+			if (extLed)
+				return 0;
+			else
+				return 12;
+			break;
+		case 103: //MP30
+			if (extLed)
+				return 0;
+			else
+				return 15;
+			break;
+		case 104: //MP40
+			if (extLed)
+				return 0;
+			else
+				return 19;
+			break;
+		case 105: //MP40
+			if (extLed)
+				return 0;
+			else
+				return 16;
+			break;
+		default:
+			return 0;
+		}
+	}
 private:
     static void homeXAxis();
     static void homeYAxis();

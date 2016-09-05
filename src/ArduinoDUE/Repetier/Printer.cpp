@@ -76,6 +76,7 @@ bool Printer::hasMovedToPausePosition = false;
 bool Printer::canMoveToPausePosition = false;
 float Printer::positionBeforePause[3] = {0, 0, 0};
 float oldFeedrate = Printer::feedrate;
+uint8_t Printer::ledVal = 0;
 
 uint8_t Printer::interruptEvent = 0;
 #if EEPROM_MODE != 0
@@ -1176,6 +1177,7 @@ void Printer::setup()
 	Printer::setYdir(retDefAxisDir[Y_AXIS]);
 	Printer::setZdir(retDefAxisDir[Z_AXIS]);
 
+	Printer::ledVal = EEPROM::getBedLED();
     UI_INITIALIZE;
     for(uint8_t i = 0; i < E_AXIS_ARRAY; i++)
     {

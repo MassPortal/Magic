@@ -36,30 +36,30 @@ void Lighting::init()
 }
 
 void Lighting::factoryTest(){
-	for (int i = 0; i < LED_COUNT; i++)
+	for (int i = 0; i < Printer::ledCount(false); i++)
 	{
 		SetLedInstantly(i, 0, 0, 0);
 		delay(20); // Wait (ms)
 	}
-	for (int i = 0; i < LED_COUNT; i++)
+	for (int i = 0; i < Printer::ledCount(false); i++)
 	{
 		SetLedInstantly(i, 255, 0, 0);
 		delay(20); // Wait (ms)
 	}
 	delay(400); // Wait (ms)
-	for (int i = 0; i < LED_COUNT; i++)
+	for (int i = 0; i < Printer::ledCount(false); i++)
 	{
 		SetLedInstantly(i, 0, 255, 0);
 		delay(20); // Wait (ms)
 	}
 	delay(400); // Wait (ms)
-	for (int i = 0; i < LED_COUNT; i++)
+	for (int i = 0; i < Printer::ledCount(false); i++)
 	{
 		SetLedInstantly(i, 0, 0, 255);
 		delay(20); // Wait (ms)
 	}
 	delay(400); // Wait (ms)
-	for (int i = 0; i < LED_COUNT; i++)
+	for (int i = 0; i < Printer::ledCount(false); i++)
 	{
 		SetLedInstantly(i, 255, 255, 255);
 		delay(20); // Wait (ms)
@@ -167,25 +167,25 @@ void Lighting::ShowTemps()
 		eb = (255 - e) / reductor;
 	}
 
-	ary[LED_EXTRUDER][0] = 255;
-	ary[LED_EXTRUDER][1] = 255;
-	ary[LED_EXTRUDER][2] = 255;
+	ary[Printer::ledCount(true)][0] = 255;
+	ary[Printer::ledCount(true)][1] = 255;
+	ary[Printer::ledCount(true)][2] = 255;
 	if (b < 1)
 		SetAllBedLeds(255, 255, 255);
 	else
 		SetAllBedLeds(b, bg, bb);
-		ary[LED_EXTRUDER][0] = b;
-		ary[LED_EXTRUDER][1] = bg;
-		ary[LED_EXTRUDER][2] = bb;
+		ary[Printer::ledCount(true)][0] = b;
+		ary[Printer::ledCount(true)][1] = bg;
+		ary[Printer::ledCount(true)][2] = bb;
 	
 	if (e <  1)	 {
-		SetLed(LED_EXTRUDER, 255, 255, 255);
+		SetLed(Printer::ledCount(true), 255, 255, 255);
 	}
 	else 	   {
-		SetLed(LED_EXTRUDER, e, eg, eb);
-		ary[LED_EXTRUDER][0] = e;
-		ary[LED_EXTRUDER][1] = eg;
-		ary[LED_EXTRUDER][2] = eb;
+		SetLed(Printer::ledCount(true), e, eg, eb);
+		ary[Printer::ledCount(true)][0] = e;
+		ary[Printer::ledCount(true)][1] = eg;
+		ary[Printer::ledCount(true)][2] = eb;
 	}
 		
 	CommitLeds();
@@ -200,7 +200,7 @@ void Lighting::SetShowType(ShowType SType)
 
 void Lighting::SetAllLeds(uint8_t r, uint8_t g, uint8_t b)
 {
-	for (int i = 0; i < LED_COUNT; i++)
+	for (int i = 0; i < Printer::ledCount(false); i++)
 	{
 		SetLed(i, r, g, b);
 		ary[i][0] = r;
@@ -211,9 +211,9 @@ void Lighting::SetAllLeds(uint8_t r, uint8_t g, uint8_t b)
 }
 void Lighting::SetAllBedLeds(uint8_t r, uint8_t g, uint8_t b)
 {
-	for (int i = 0; i < LED_COUNT; i++)
+	for (int i = 0; i < Printer::ledCount(false); i++)
 	{
-		if (!(i==LED_EXTRUDER)) {
+		if (!(i==Printer::ledCount(true))) {
 			SetLed(i, r, g, b);
 			ary[i][0] = r;
 			ary[i][1] = g;

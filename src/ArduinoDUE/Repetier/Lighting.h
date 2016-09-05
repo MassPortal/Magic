@@ -6,7 +6,7 @@
 #include "Repetier.h"
 #include "Adafruit_NeoPixel.h"
 
-#define LED_COUNT 12
+#define LED_COUNT 19
 #define LED_LOOP_DEVIDER 100
 #define LED_EXTRUDER 5
 #ifndef LED_MAX_RELATIVE_BRIGHTNESS
@@ -19,7 +19,7 @@ class Lighting
  public:
 	 Lighting();
 
-	 Adafruit_NeoPixel LED = Adafruit_NeoPixel(12, 5, NEO_GRB + NEO_KHZ800);
+	 Adafruit_NeoPixel LED = Adafruit_NeoPixel(LED_COUNT, 5, NEO_GRB + NEO_KHZ800);
 	 enum ShowType {
 		 Off,
 		 SolidRed,

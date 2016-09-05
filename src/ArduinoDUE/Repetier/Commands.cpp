@@ -3030,6 +3030,7 @@ void Commands::processMCode(GCode *com)
 		break;
 	case 890://M890 factory led test
 #if BED_LEDS
+		Com::printFLN("BED LEDS: ", Printer::ledCount(false));
 		Light.factoryTest();
 #endif
 		break;
