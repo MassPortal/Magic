@@ -34,7 +34,7 @@
 #include "Adafruit_NeoPixel.h"
 
 Adafruit_NeoPixel::Adafruit_NeoPixel() :
-	numLEDs(12), numBytes(12 * 3), pin(5), brightness(0),
+	numLEDs(19), numBytes(19 * 3), pin(5), brightness(0),
 	pixels(NULL), type(NEO_GRB + NEO_KHZ800), endTime(0)
 {
 	//n=12, p=5, t=NEO_GRB + NEO_KHZ800;

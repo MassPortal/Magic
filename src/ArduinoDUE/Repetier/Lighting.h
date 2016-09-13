@@ -7,7 +7,7 @@
 #include "Adafruit_NeoPixel.h"
 
 #define LED_COUNT 19
-#define LED_LOOP_DEVIDER 100
+#define LED_LOOP_DEVIDER 20
 #define LED_EXTRUDER 5
 #ifndef LED_MAX_RELATIVE_BRIGHTNESS
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
@@ -28,6 +28,7 @@ class Lighting
 		 FixedRGB,
 		 ShowTemperatures
 	 };
+	 uint8_t LED_CNT, EXT_LED;
 	 int  ThisStep;
 	 int  CurrentShow;
 	 int  CurrentShowStep;
@@ -48,7 +49,7 @@ class Lighting
 	 void loop();
 	 void ShowTemps();
 	 void SetShowType(ShowType SType);
-	 int ary[12][3];
+	 int ary[LED_COUNT][3];
 	
 };
 

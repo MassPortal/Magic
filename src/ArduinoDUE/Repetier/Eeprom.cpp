@@ -548,6 +548,9 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
     stepperInactiveTime = HAL::eprGetInt32(EPR_STEPPER_INACTIVE_TIME);
 #if BED_LEDS
 	Light.LedBrightness = HAL::eprGetFloat(EPR_BED_LED_BRIGHTNESS);
+	Printer::ledVal = EEPROM::getBedLED();
+	Light.LED_CNT = Printer::ledCount(false);
+	Light.EXT_LED = Printer::ledCount(true);
 #endif
 //#define EPR_ACCELERATION_TYPE 1
 	Printer::PrinterId = HAL::eprGetInt32(EPR_PRINTER_ID);

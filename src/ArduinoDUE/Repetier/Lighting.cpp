@@ -12,6 +12,8 @@ Lighting::Lighting()
 	ExtruderTarget	= 160;
 	ExtruderCurrent	= 0;
 	ThisStep = LED_LOOP_DEVIDER+1;
+	LED_CNT = 0;
+	EXT_LED = 0;
 }
 void Lighting::init()
 {
@@ -22,6 +24,8 @@ void Lighting::init()
 	LED.begin();
 	//smooth fade in to blue to avoid instant turn-on. total time of this blocking code is 250ms. worth it.
 	//slower/longer fade would cause problems to boot and/or connect host software
+	LED_CNT = Printer::ledCount(false);
+	EXT_LED = Printer::ledCount(true);
 	SetAllLeds(0, 0, 0);
 	if (EEPROM_MODE > 0)
 		LedBrightness = EEPROM::bedLedBrightness();
@@ -36,30 +40,30 @@ void Lighting::init()
 }
 
 void Lighting::factoryTest(){
-	for (int i = 0; i < Printer::ledCount(false); i++)
+	for (int i = 0; i < LED_CNT; i++)
 	{
 		SetLedInstantly(i, 0, 0, 0);
 		delay(20); // Wait (ms)
 	}
-	for (int i = 0; i < Printer::ledCount(false); i++)
+	for (int i = 0; i < LED_CNT; i++)
 	{
 		SetLedInstantly(i, 255, 0, 0);
 		delay(20); // Wait (ms)
 	}
 	delay(400); // Wait (ms)
-	for (int i = 0; i < Printer::ledCount(false); i++)
+	for (int i = 0; i < LED_CNT; i++)
 	{
 		SetLedInstantly(i, 0, 255, 0);
 		delay(20); // Wait (ms)
 	}
 	delay(400); // Wait (ms)
-	for (int i = 0; i < Printer::ledCount(false); i++)
+	for (int i = 0; i < LED_CNT; i++)
 	{
 		SetLedInstantly(i, 0, 0, 255);
 		delay(20); // Wait (ms)
 	}
 	delay(400); // Wait (ms)
-	for (int i = 0; i < Printer::ledCount(false); i++)
+	for (int i = 0; i < LED_CNT; i++)
 	{
 		SetLedInstantly(i, 255, 255, 255);
 		delay(20); // Wait (ms)
@@ -167,25 +171,25 @@ void Lighting::ShowTemps()
 		eb = (255 - e) / reductor;
 	}
 
-	ary[Printer::ledCount(true)][0] = 255;
-	ary[Printer::ledCount(true)][1] = 255;
-	ary[Printer::ledCount(true)][2] = 255;
+	ary[EXT_LED][0] = 255;
+	ary[EXT_LED][1] = 255;
+	ary[EXT_LED][2] = 255;
 	if (b < 1)
 		SetAllBedLeds(255, 255, 255);
 	else
 		SetAllBedLeds(b, bg, bb);
-		ary[Printer::ledCount(true)][0] = b;
-		ary[Printer::ledCount(true)][1] = bg;
-		ary[Printer::ledCount(true)][2] = bb;
+		ary[EXT_LED][0] = b;
+		ary[EXT_LED][1] = bg;
+		ary[EXT_LED][2] = bb;
 	
 	if (e <  1)	 {
-		SetLed(Printer::ledCount(true), 255, 255, 255);
+		SetLed(EXT_LED, 255, 255, 255);
 	}
 	else 	   {
-		SetLed(Printer::ledCount(true), e, eg, eb);
-		ary[Printer::ledCount(true)][0] = e;
-		ary[Printer::ledCount(true)][1] = eg;
-		ary[Printer::ledCount(true)][2] = eb;
+		SetLed(EXT_LED, e, eg, eb);
+		ary[EXT_LED][0] = e;
+		ary[EXT_LED][1] = eg;
+		ary[EXT_LED][2] = eb;
 	}
 		
 	CommitLeds();
@@ -200,7 +204,7 @@ void Lighting::SetShowType(ShowType SType)
 
 void Lighting::SetAllLeds(uint8_t r, uint8_t g, uint8_t b)
 {
-	for (int i = 0; i < Printer::ledCount(false); i++)
+	for (int i = 0; i < LED_CNT; i++)
 	{
 		SetLed(i, r, g, b);
 		ary[i][0] = r;
@@ -211,9 +215,9 @@ void Lighting::SetAllLeds(uint8_t r, uint8_t g, uint8_t b)
 }
 void Lighting::SetAllBedLeds(uint8_t r, uint8_t g, uint8_t b)
 {
-	for (int i = 0; i < Printer::ledCount(false); i++)
+	for (int i = 0; i < LED_CNT; i++)
 	{
-		if (!(i==Printer::ledCount(true))) {
+		if (!(i==EXT_LED)) {
 			SetLed(i, r, g, b);
 			ary[i][0] = r;
 			ary[i][1] = g;

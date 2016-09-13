@@ -804,9 +804,6 @@ void Printer::setup()
 #endif
     //HAL::delayMilliseconds(500);  // add a delay at startup to give hardware time for initalization
     HAL::hwSetup();
-#if BED_LEDS
-	Light.init();
-#endif
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
 #endif
@@ -1177,7 +1174,6 @@ void Printer::setup()
 	Printer::setYdir(retDefAxisDir[Y_AXIS]);
 	Printer::setZdir(retDefAxisDir[Z_AXIS]);
 
-	Printer::ledVal = EEPROM::getBedLED();
     UI_INITIALIZE;
     for(uint8_t i = 0; i < E_AXIS_ARRAY; i++)
     {
@@ -1229,6 +1225,9 @@ void Printer::setup()
     EVENT_INITIALIZE;
 #ifdef STARTUP_GCODE
 GCode::executeFString(Com::tStartupGCode);
+#endif
+#if BED_LEDS
+Light.init();
 #endif
 #if EEPROM_MODE != 0 && UI_DISPLAY_TYPE != NO_DISPLAY
     if(EEPROM::getStoredLanguage() == 254) {
