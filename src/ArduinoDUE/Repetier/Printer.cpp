@@ -1256,7 +1256,7 @@ void Printer::defaultLoopActions()
             Printer::kill(true);
     }
 #if SDCARDDETECT>-1 && SDSUPPORT
-    sd.automount();
+    //sd.automount();
 #endif
     DEBUG_MEMORY;
 }
