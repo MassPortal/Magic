@@ -77,6 +77,7 @@ bool Printer::canMoveToPausePosition = false;
 float Printer::positionBeforePause[3] = {0, 0, 0};
 float oldFeedrate = Printer::feedrate;
 uint8_t Printer::ledVal = 0;
+bool Printer::allowBelow = true;
 
 uint8_t Printer::interruptEvent = 0;
 #if EEPROM_MODE != 0

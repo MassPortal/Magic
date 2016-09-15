@@ -406,6 +406,7 @@ public:
     static float memoryZ;
     static float memoryE;
     static float memoryF;
+	static bool allowBelow; /// allow probing below Z max length
 #if GANTRY
     static int8_t motorX;
     static int8_t motorYorZ;

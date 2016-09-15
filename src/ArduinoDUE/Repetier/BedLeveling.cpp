@@ -462,7 +462,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 	for(int8_t r = 0; r < repeat; r++)
 	{
 		//MAX 10% of total printer height + z-probe - bed distance
-		probeDepth = (0.1 * Commands::retDefHeight() + EEPROM::zProbeBedDistance())  * axisStepsPerMM[Z_AXIS]; // probe should always hit within this distance
+		probeDepth = (0.1 * Commands::retDefHeight() * Printer::allowBelow  + EEPROM::zProbeBedDistance())  * axisStepsPerMM[Z_AXIS]; // probe should always hit within this distance
 		//Com::printFLN("ProbeDepth: ", probeDepth / axisStepsPerMM[Z_AXIS]);
 		stepsRemainingAtZHit = -1; // Marker that we did not hit z probe
 		//int32_t offx = axisStepsPerMM[X_AXIS] * EEPROM::zProbeXOffset();
@@ -470,9 +470,10 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 		//PrintLine::moveRelativeDistanceInSteps(-offx,-offy,0,0,EEPROM::zProbeXYSpeed(),true,true);
 		setZProbingActive(true);
 		PrintLine::moveRelativeDistanceInSteps(0, 0, -probeDepth, 0, EEPROM::zProbeSpeed(), true, true);
-		if(stepsRemainingAtZHit < 0)
+		if(stepsRemainingAtZHit < 0 && Printer::allowBelow)
 		{
 			Com::printErrorFLN(Com::tZProbeFailed);
+			setZProbingActive(false);
 			return -1;
 		}
 		setZProbingActive(false);
@@ -502,8 +503,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 	}
 	#endif
 	distance += bendingCorrectionAt(currentPosition[X_AXIS], currentPosition[Y_AXIS]);
-	Com::printF(Com::tZProbe, distance);
-	Com::printF(Com::tSpaceXColon, realXPosition());
+	Com::printF(Com::tSpace, realXPosition());
 	#if DISTORTION_CORRECTION
 	if(Printer::distortion.isEnabled()) {
 		Com::printF(Com::tSpaceYColon, realYPosition());
@@ -512,8 +512,9 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 		Com::printFLN(Com::tSpaceYColon, realYPosition());		
 	}
 	#else
-	Com::printFLN(Com::tSpaceYColon, realYPosition());
+	Com::printF(Com::tSpace, realYPosition());
 	#endif
+	Com::printFLN(Com::tSpace, distance);
 	// Go back to start position
 	PrintLine::moveRelativeDistanceInSteps(0, 0, lastCorrection - currentPositionSteps[Z_AXIS], 0, EEPROM::zProbeSpeed(), true, false);
 	//PrintLine::moveRelativeDistanceInSteps(offx,offy,0,0,EEPROM::zProbeXYSpeed(),true,true);
