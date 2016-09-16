@@ -95,6 +95,9 @@ void Extruder::manageTemperatures()
 			continue;
 		}
 #endif
+#if CHAMBER_SENSOR_PIN > -1
+		if (act == &chamberController) continue;
+#endif
         // Handle automatic cooling of extruders
         if(controller < NUM_EXTRUDER)
         {
@@ -800,7 +803,7 @@ void Extruder::setHeatedBedTemperature(float temperatureInCelsius,bool beep)
 float Extruder::getHeatedBedTemperature()
 {
 #if HAVE_HEATED_BED
-    TemperatureController *c = tempController[NUM_TEMPERATURE_LOOPS-1];
+    TemperatureController *c = tempController[HEATED_BED_INDEX];
     return c->currentTemperatureC;
 #else
     return -1;
@@ -809,13 +812,22 @@ float Extruder::getHeatedBedTemperature()
 float Extruder::getHeatedBedTargetTemperature()
 {
 #if HAVE_HEATED_BED
-	TemperatureController *c = tempController[NUM_TEMPERATURE_LOOPS-1];
+	TemperatureController *c = tempController[HEATED_BED_INDEX];
 	return c->targetTemperatureC;
 #else
 	return -1;
 #endif
 }
 
+float Extruder::getChamberTemperature()
+{
+#if CHAMBER_SENSOR_PIN > -1
+	TemperatureController *d = tempController[CHAMBER_CONTROLLER_INDEX];
+	return d->currentTemperatureC;
+#else
+	return -1;
+#endif
+}
 #if MIXING_EXTRUDER > 0
 void Extruder::setMixingWeight(uint8_t extr,int weight)
 {
@@ -2020,7 +2032,8 @@ bool reportTempsensorError()
     if(!Printer::isAnyTempsensorDefect()) return false;
     for(uint8_t i = 0; i < NUM_TEMPERATURE_LOOPS; i++)
     {
-        if(i == NUM_EXTRUDER) Com::printF(Com::tHeatedBed);
+        if(i == HEATED_BED_INDEX) Com::printF(Com::tHeatedBed);
+		else if (i == CHAMBER_CONTROLLER_INDEX) Com::printF(Com::tChamber);
         else Com::printF(Com::tExtruderSpace,i);
 		TemperatureController *act = tempController[i];
         int temp = act->currentTemperatureC;
@@ -2356,6 +2369,14 @@ TemperatureController thermoController = {PWM_FAN_THERMO,FAN_THERMO_THERMISTOR_T
 ,0,0,0,0};
 #endif
 
+#if CHAMBER_SENSOR_PIN > -1
+TemperatureController chamberController = { 0,CHAMBER_TEMPSENSOR_TYPE,CHAMBER_ANALOG_INDEX,0,0,0,0,0,0
+#if TEMP_PID
+,0,255,0,10,1,1,255,0,0,0,{ 0,0,0,0 }
+#endif
+,0,0,0,0 };
+#endif
+
 #if NUM_TEMPERATURE_LOOPS > 0
 TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
 {
@@ -2391,5 +2412,13 @@ TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
 	,&thermoController
 #endif
 #endif // FAN_THERMO_PIN
+
+#if CHAMBER_SENSOR_PIN > -1
+#if NUM_EXTRUDER == 0 && !HAVE_HEATED_BED
+	&chamberController
+#else
+	,&chamberController
+#endif
+#endif // CHAMBER_SENSOR_PIN
 };
 #endif

@@ -37,6 +37,7 @@ public:
     static void waitUntilEndOfAllBuffers();
     static void printCurrentPosition(FSTRINGPARAM(s));
     static void printTemperatures(bool showRaw = false);
+	static void printTemperature();
     static void setFanSpeed(int speed, bool immediately = false); /// Set fan speed 0..255
     static void setFan2Speed(int speed); /// Set fan speed 0..255
 	static void setFan3Speed(int speed); /// Set fan speed 0..255

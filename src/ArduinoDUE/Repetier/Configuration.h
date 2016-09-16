@@ -735,6 +735,9 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 #define MIN_DEFECT_TEMPERATURE -10
 #define MAX_DEFECT_TEMPERATURE 310
 
+#define CHAMBER_TEMPSENSOR_TYPE 97
+/** Analog pin of analog sensor to read temperature of the chamber.  */
+#define CHAMBER_SENSOR_PIN TEMP_4_PIN
 // ##########################################################################################
 // ##                             Laser configuration                                      ##
 // ##########################################################################################

@@ -218,6 +218,11 @@ void Commands::printTemperatures(bool showRaw)
     Com::println();
 #endif
 }
+
+void Commands::printTemperature() {
+	Com::printFLN("Chamber: ", Extruder::getChamberTemperature());
+}
+
 void Commands::changeFeedrateMultiply(int factor)
 {
     if(factor < 25) factor = 25;
@@ -2488,6 +2493,9 @@ void Commands::processMCode(GCode *com)
 #endif
         break;
     case 105: // M105  get temperature. Always returns the current temperature, doesn't wait until move stopped
+		if (com->hasS())
+			printTemperature();
+		else
         printTemperatures(com->hasX());
         break;
     case 109: // M109 - Wait for extruder heater to reach target.

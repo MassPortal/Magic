@@ -283,6 +283,7 @@ public:
     static void initHeatedBed();
     static void setHeatedBedTemperature(float temp_celsius,bool beep = false);
     static float getHeatedBedTemperature();
+	static float getChamberTemperature();
 	static float getHeatedBedTargetTemperature();
     static void setTemperatureForExtruder(float temp_celsius,uint8_t extr,bool beep = false, bool wait = false);
     static void pauseExtruders();
@@ -301,7 +302,15 @@ extern TemperatureController thermoController;
 #else
 #define THERMO_CONTROLLER_INDEX HEATED_BED_INDEX
 #endif
-#define NUM_TEMPERATURE_LOOPS THERMO_CONTROLLER_INDEX+1
+
+#if CHAMBER_SENSOR_PIN > -1
+#define CHAMBER_CONTROLLER_INDEX THERMO_CONTROLLER_INDEX+1
+extern TemperatureController chamberController;
+#else
+#define CHAMBER_CONTROLLER_INDEX THERMO_CONTROLLER_INDEX
+#endif
+
+#define NUM_TEMPERATURE_LOOPS CHAMBER_CONTROLLER_INDEX+1
 
 #define TEMP_INT_TO_FLOAT(temp) ((float)(temp)/(float)(1<<CELSIUS_EXTRA_BITS))
 #define TEMP_FLOAT_TO_INT(temp) ((int)((temp)*(1<<CELSIUS_EXTRA_BITS)))
