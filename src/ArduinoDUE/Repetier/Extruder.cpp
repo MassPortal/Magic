@@ -98,6 +98,10 @@ void Extruder::manageTemperatures()
 #if CHAMBER_SENSOR_PIN > -1
 		if (act == &chamberController) continue;
 #endif
+#if HAVE_HEATED_BED
+		if (act == &heatedBedController)
+			if (Printer::bedType < 2) continue; // Skip in case we don't have heated bed
+#endif
         // Handle automatic cooling of extruders
         if(controller < NUM_EXTRUDER)
         {
@@ -133,23 +137,23 @@ void Extruder::manageTemperatures()
 
 
         // Check for obvious sensor errors
-        if(act->currentTemperatureC < MIN_DEFECT_TEMPERATURE || act->currentTemperatureC > MAX_DEFECT_TEMPERATURE)   // no temp sensor or short in sensor, disable heater
-        {
-            errorDetected = 1;
-            if(extruderTempErrors < 10)    // Ignore short temporary failures
-                extruderTempErrors++;
-            else
-            {
-                act->flags |= TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT;
-                if(!Printer::isAnyTempsensorDefect())
-                {
+		if (act->currentTemperatureC < MIN_DEFECT_TEMPERATURE || act->currentTemperatureC > MAX_DEFECT_TEMPERATURE)   // no temp sensor or short in sensor, disable heater
+		{
+			errorDetected = 1;
+			if (extruderTempErrors < 10)    // Ignore short temporary failures
+				extruderTempErrors++;
+			else
+			{
+				act->flags |= TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT;
+				if (!Printer::isAnyTempsensorDefect())
+				{
 					newDefectFound = true;
-                    Printer::setAnyTempsensorDefect();
-                    reportTempsensorError();
-                }
-                EVENT_HEATER_DEFECT(controller);
-            }
-        }
+					Printer::setAnyTempsensorDefect();
+					reportTempsensorError();
+				}
+				EVENT_HEATER_DEFECT(controller);
+			}
+		}
 #if HAVE_HEATED_BED
 		else if(controller == NUM_EXTRUDER && Extruder::getHeatedBedTemperature() > HEATED_BED_MAX_TEMP + 5) {
             errorDetected = 1;

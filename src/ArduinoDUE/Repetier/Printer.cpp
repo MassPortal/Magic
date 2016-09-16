@@ -23,6 +23,7 @@
 
 long Printer::PrinterId = 0;
 uint8_t Printer::probeType;
+uint16_t Printer::bedType;
 #if USE_ADVANCE
 ufast8_t Printer::maxExtruderSpeed;            ///< Timer delay for end extruder speed
 volatile int Printer::extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
