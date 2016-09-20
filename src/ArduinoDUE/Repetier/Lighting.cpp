@@ -26,16 +26,17 @@ void Lighting::init()
 	//slower/longer fade would cause problems to boot and/or connect host software
 	LED_CNT = Printer::ledCount(false);
 	EXT_LED = Printer::ledCount(true);
-	SetAllLeds(0, 0, 0);
+	Com::printInfoFLN("LEDs init");
+	//SetAllLeds(0, 0, 0);
 	if (EEPROM_MODE > 0)
 		LedBrightness = EEPROM::bedLedBrightness();
 	else
 		LedBrightness = LED_MAX_RELATIVE_BRIGHTNESS;
-	if (LedBrightness>0.0)
+	if (Printer::ledVal > 1 && LedBrightness>0.01)
 	for (int i = 0; i < 255; i++)
 	{
 		SetAllLeds(0, 0, i);
-		delay(1);
+		delay(10);
 	}
 }
 
@@ -191,7 +192,7 @@ void Lighting::ShowTemps()
 		ary[EXT_LED][1] = eg;
 		ary[EXT_LED][2] = eb;
 	}
-		
+	Com::printInfoFLN("LEDsShowTemp");
 	CommitLeds();
 
 }
@@ -241,7 +242,8 @@ void Lighting::SetLedInstantly(uint8_t i, uint8_t r, uint8_t g, uint8_t b)
 }
 void Lighting::CommitLeds()
 {
-	LED.show(); // Sends the data to the LEDs
+	if (Printer::ledVal > 1 && LedBrightness > 0.01)
+		LED.show(); // Sends the data to the LEDs
 }
 
 Lighting Light = Lighting();

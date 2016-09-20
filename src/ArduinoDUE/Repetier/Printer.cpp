@@ -564,7 +564,7 @@ void Printer::kill(uint8_t only_steppers)
     }
     else UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_STEPPER_DISABLED_ID));
 #if BED_LEDS
-	Light.ShowTemps();
+	if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
 #if FAN_BOARD_PIN>-1
 #if HAVE_HEATED_BED
@@ -769,7 +769,7 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 				if(fabs(com->E) * extrusionFactor > EXTRUDE_MAXLENGTH) {
 				p = 0;
 				if (debugErrors())
-				Com::printWarningFLN("Ignoring - E rel exceeds max E length");
+					Com::printWarningFLN("Ignoring - E rel exceeds max E length");
 			}
             destinationSteps[E_AXIS] = currentPositionSteps[E_AXIS] + p;
         }
@@ -783,7 +783,7 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 				if (fabs(p - currentPositionSteps[E_AXIS]) * extrusionFactor > EXTRUDE_MAXLENGTH * axisStepsPerMM[E_AXIS]) {
 				currentPositionSteps[E_AXIS] = p;
 				if (debugErrors())
-				Com::printWarningFLN("Ignoring - E exceeds max E length");
+					Com::printWarningFLN("Ignoring - E exceeds max E length");
 			}
             destinationSteps[E_AXIS] = p;
         }
@@ -800,7 +800,7 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     {
         currentPositionSteps[E_AXIS] = destinationSteps[E_AXIS];
 		if (debugErrors())
-		Com::printWarningFLN("Ignoring - XYZ position not allowed");
+			Com::printWarningFLN("Ignoring - XYZ position not allowed");
         return false; // ignore move
     }
     return !com->hasNoXYZ() || (com->hasE() && destinationSteps[E_AXIS] != currentPositionSteps[E_AXIS]); // ignore unproductive moves
@@ -1457,7 +1457,7 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     Commands::printCurrentPosition(PSTR("homeAxis "));
     setAutolevelActive(autoLevel);
 #if BED_LEDS
-		Light.ShowTemps();
+		if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
 }
 #else

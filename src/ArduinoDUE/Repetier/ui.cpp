@@ -2823,7 +2823,7 @@ ZPOS2:
 		else if (!extruder->tempControl.targetTemperatureC > 0)
 			UI_STATUS_UPD_F(UI_TEXT_PRINTER_READY_EN)
 #if BED_LEDS
-		Light.ShowTemps();
+		if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
     }
 #endif
@@ -2858,7 +2858,7 @@ ZPOS2:
 		else if (!heatedBedController.targetTemperatureC > 0)
 			UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY_EN)
 #if BED_LEDS
-			Light.ShowTemps();
+			if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
     }
     break;
@@ -3247,7 +3247,7 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
 			activeAction = 0;
 			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING_EN " " UI_TEXT_PLA);
 #if BED_LEDS
-			Light.ShowTemps();
+			if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
             break;
         case UI_ACTION_PREHEAT_ABS:
@@ -3266,7 +3266,7 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
 			activeAction = 0;
 			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING_EN " " UI_TEXT_ABS);
 #if BED_LEDS
-			Light.ShowTemps();
+			if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
             break;
 		case UI_ACTION_PREHEAT_PET:
@@ -3285,7 +3285,7 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
 			activeAction = 0;
 			UI_STATUS_UPD_RAM(UI_TEXT_PREHEATING_EN " " UI_TEXT_PET);
 #if BED_LEDS
-			Light.ShowTemps();
+			if (Printer::ledVal > 1) Light.ShowTemps();
 #endif			
 break;
         case UI_ACTION_COOLDOWN:
@@ -3299,7 +3299,7 @@ break;
 			activeAction = 0;
 			UI_STATUS_UPD_RAM(UI_TEXT_COOLDOWN_EN);
 #if BED_LEDS
-			Light.ShowTemps();
+			if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
             break;
         case UI_ACTION_HEATED_BED_OFF:
@@ -3309,7 +3309,7 @@ break;
 			activeAction = 0;
 			UI_STATUS_UPD_RAM(UI_TEXT_COOLDOWN_EN);
 #if BED_LEDS
-			Light.ShowTemps();
+			if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
 #endif
             break;
@@ -3319,7 +3319,7 @@ break;
 			activeAction = 0;
 			UI_STATUS_UPD_RAM(UI_TEXT_COOLDOWN_EN);
 #if BED_LEDS
-			Light.ShowTemps();
+			if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
             break;
 #if NUM_EXTRUDER > 1
@@ -3345,7 +3345,7 @@ break;
 			activeAction = 0;
 			UI_STATUS_UPD_RAM(UI_TEXT_STEPPER_DISABLED_EN);
 #if BED_LEDS
-			Light.ShowTemps();
+			if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
             break;
         case UI_ACTION_RESET_EXTRUDER:
