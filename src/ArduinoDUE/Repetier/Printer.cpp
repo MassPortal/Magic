@@ -760,22 +760,26 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 
         if(relativeCoordinateMode || relativeExtruderCoordinateMode)
         {
-            if(
+			if (
 #if MIN_EXTRUDER_TEMP > 20
-                (Extruder::current->tempControl.currentTemperatureC < MIN_EXTRUDER_TEMP && !Printer::isColdExtrusionAllowed()) ||
+				(Extruder::current->tempControl.currentTemperatureC < MIN_EXTRUDER_TEMP && !Printer::isColdExtrusionAllowed()) ||
 #endif
-                fabs(com->E) * extrusionFactor > EXTRUDE_MAXLENGTH)
-                p = 0;
+				fabs(com->E) * extrusionFactor > EXTRUDE_MAXLENGTH) {
+				p = 0;
+				Com::printWarningFLN("Ignoring - E rel exceeds max E length");
+			}
             destinationSteps[E_AXIS] = currentPositionSteps[E_AXIS] + p;
         }
         else
         {
-            if(
+			if (
 #if MIN_EXTRUDER_TEMP > 20
-                (Extruder::current->tempControl.currentTemperatureC < MIN_EXTRUDER_TEMP  && !Printer::isColdExtrusionAllowed()) ||
+				(Extruder::current->tempControl.currentTemperatureC < MIN_EXTRUDER_TEMP  && !Printer::isColdExtrusionAllowed()) ||
 #endif
-                fabs(p - currentPositionSteps[E_AXIS]) * extrusionFactor > EXTRUDE_MAXLENGTH * axisStepsPerMM[E_AXIS])
-                currentPositionSteps[E_AXIS] = p;
+				fabs(p - currentPositionSteps[E_AXIS]) * extrusionFactor > EXTRUDE_MAXLENGTH * axisStepsPerMM[E_AXIS]) {
+				currentPositionSteps[E_AXIS] = p;
+				Com::printWarningFLN("Ignoring - E exceeds max E length");
+			}
             destinationSteps[E_AXIS] = p;
         }
     }
@@ -790,6 +794,7 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     if(!Printer::isPositionAllowed(lastCmdPos[X_AXIS], lastCmdPos[Y_AXIS], lastCmdPos[Z_AXIS]))
     {
         currentPositionSteps[E_AXIS] = destinationSteps[E_AXIS];
+		Com::printWarningFLN("Ignoring - XYZ position not allowed");
         return false; // ignore move
     }
     return !com->hasNoXYZ() || (com->hasE() && destinationSteps[E_AXIS] != currentPositionSteps[E_AXIS]); // ignore unproductive moves
