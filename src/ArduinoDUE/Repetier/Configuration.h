@@ -81,7 +81,7 @@ gets used, or you will get probelms with checksums etc.
 - 100 is programming port on due
 - 101 is native port on due. Us eit to support both ports at the same time!
 */
-#define BLUETOOTH_SERIAL   -1                      // Port number (1..3) - For RADDS use 1
+#define BLUETOOTH_SERIAL   101                      // Port number (1..3) - For RADDS use 1
 #define BLUETOOTH_BAUD     115200                 // communication speed
 
 
@@ -1115,7 +1115,7 @@ additional stepper interrupts with all it's overhead. As a result you can go as 
 /** If you need frequencies off more then 30000 you definitely need to enable this. If you have only 1/8 stepping
 enabling this may cause to stall your moves when 20000Hz is reached.
 */
-#define ALLOW_QUADSTEPPING 0
+#define ALLOW_QUADSTEPPING 1
 /** If you reach STEP_DOUBLER_FREQUENCY the firmware will do 2 or 4 steps with nearly no delay. That can be too fast
 for some printers causing an early stall.
 
@@ -1669,7 +1669,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v1U"
-#define FIRMWARE_VERSION "218-abc123"
+#define FIRMWARE_VERSION "219-"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0

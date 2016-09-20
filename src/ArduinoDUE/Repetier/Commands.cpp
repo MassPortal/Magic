@@ -1854,7 +1854,7 @@ void Commands::processGCode(GCode *com)
 			 Custom(-izable) probing function for measuring at 
 				or around a given point.
 			 Possible parameters:
-			 T - go home and center before/after probing procedure
+			 H - go home and center before/after probing procedure
 				0 - [default] do not go home at all
 				1 - go home after finishing
 				2 - go home before probing
@@ -1864,14 +1864,14 @@ void Commands::processGCode(GCode *com)
 				4 - use with X and Y parameters to define custom point
 			 X/Y[-/+radius corrdinates] - use with P4
 			 I[0.0-999.0] - distance between each probing point repetition. Default = 1.0
-			 M[1-999] - ^2 how far to probe arond given coordinate (square center)
+			 S[1-999] - ^2 how far to probe arond given coordinate (square center)
 			 Z[] - don't disable autolevel before probing
 			 J[0/1] - allow probing below zMaxLength. NB! Probe won't
 				trigger if given bed probing point is actually
 				lower than max Z length and will output defined 
 				Z-probe-bed	distance. Default = allow
 			 E.g.:
-			 G38 P4 X-69.42 Y-39.5 H3 J0 M1
+			 G38 P4 X-69.42 Y-39.5 H3 J0 S1
 			 Does homing, moves to X:-69.42 Y:-39.5, probes bed once
 				(if reachable) and returns home.			
 			 */
@@ -1879,7 +1879,7 @@ void Commands::processGCode(GCode *com)
 	{
 		if (!com->hasZ()) 
 			Printer::setAutolevelActive(false);
-		if (com->hasT() && com->T > 1.1) {
+		if (com->hasH() && com->H > 1.1) {
 			Printer::homeAxis(true, true, true);
 			Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 		}
@@ -1900,8 +1900,8 @@ void Commands::processGCode(GCode *com)
 		float ptx = 0.0;
 		float pty = 0.0;
 		float incr = 1.0;
-		if (com->hasM() && com->M > 0)
-			Max = com->M;
+		if (com->hasS() && com->S > 0)
+			Max = com->S;
 		if (com->hasI() && com->I != 0.0)
 			incr = com->I;
 		float zx1, zy1;
@@ -1957,7 +1957,7 @@ void Commands::processGCode(GCode *com)
 		}
 		//Com::printFLN("Finished");
 		//Printer::setAutolevelActive(false);
-		if (com->hasT() && (com->T > 0.1 && com->T < 2 || com->T > 2.1)) {
+		if (com->hasH() && (com->H > 0.1 && com->H < 2 || com->H > 2.1)) {
 #if Z_PROBE_LATCHING_SWITCH
 			if (Printer::probeType == 2)
 				if (!Endstops::zProbe())
@@ -2463,7 +2463,7 @@ void Commands::processMCode(GCode *com)
 
     case 104: // M104 temperature
 #if NUM_EXTRUDER > 0
-        if(reportTempsensorError()) break;
+		if (reportTempsensorError()) break;
         previousMillisCmd = HAL::timeInMilliseconds();
         if(Printer::debugDryrun()) break;
 #ifdef EXACT_TEMPERATURE_TIMING
@@ -2473,8 +2473,8 @@ void Commands::processMCode(GCode *com)
             Commands::waitUntilEndOfAllMoves();
 #endif
         if (com->hasS()) 
-        {
-            if(com->hasT() && com->T < NUM_EXTRUDER)
+        {	
+			if(com->hasT() && com->T < NUM_EXTRUDER)
                 Extruder::setTemperatureForExtruder(com->S, com->T, com->hasF() && com->F > 0);
             else
                 Extruder::setTemperatureForExtruder(com->S, Extruder::current->id, com->hasF() && com->F > 0);
@@ -2497,7 +2497,7 @@ void Commands::processMCode(GCode *com)
 		if (com->hasS())
 			printTemperature();
 		else
-        printTemperatures(com->hasX());
+			printTemperatures(com->hasX());
         break;
     case 109: // M109 - Wait for extruder heater to reach target.
 #if NUM_EXTRUDER > 0
