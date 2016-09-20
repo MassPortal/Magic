@@ -84,6 +84,8 @@ void Lighting::loop()
 		LastPositionHash = Printer::stepNumber;
 		return;
 	}
+	// If printer has commands in buffer
+	if (PrintLine::hasLines()) return;
 	///===
 	if (Printer::isZProbingActive())
 		return;

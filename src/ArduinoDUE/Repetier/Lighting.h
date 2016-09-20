@@ -7,7 +7,7 @@
 #include "Adafruit_NeoPixel.h"
 
 #define LED_COUNT 19
-#define LED_LOOP_DEVIDER 20
+#define LED_LOOP_DEVIDER 60
 #define LED_EXTRUDER 5
 #ifndef LED_MAX_RELATIVE_BRIGHTNESS
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
