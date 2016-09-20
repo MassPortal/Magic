@@ -131,7 +131,7 @@ void Extruder::manageTemperatures()
         } // extruder controller
         // do skip temperature control while auto tuning is in progress
         if(controller == autotuneIndex) continue;
-#if MIXING_EXTRUDER
+#if MIXING_EXTRUDER  || MIXING_SEMI
         if(controller > 0 && controller < NUM_EXTRUDER) continue; // Mixing extruder only test for ext 0
 #endif // MIXING_EXTRUDER
 
@@ -669,7 +669,7 @@ void Extruder::selectExtruderById(uint8_t extruderId)
 void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t extr, bool beep, bool wait)
 {
 #if NUM_EXTRUDER > 0
-#if MIXING_EXTRUDER
+#if MIXING_EXTRUDER || MIXING_SEMI
     extr = 0; // map any virtual extruder number to 0
 #endif // MIXING_EXTRUDER
     bool alloffs = true;
@@ -687,8 +687,10 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
     if(beep && temperatureInCelsius > MAX_ROOM_TEMPERATURE)
         tc->setAlarm(true);
     if(temperatureInCelsius >= EXTRUDER_FAN_COOL_TEMP) extruder[extr].coolerPWM = extruder[extr].coolerSpeed;
-    Com::printF(Com::tTargetExtr,extr,0);
+    /*
+	Com::printF(Com::tTargetExtr,extr,0);
     Com::printFLN(Com::tColon,temperatureInCelsius,0);
+	*/
 #if FEATURE_DITTO_PRINTING
     if(Extruder::dittoMode && extr == 0)
     {

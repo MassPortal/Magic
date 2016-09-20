@@ -50,6 +50,7 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 
 /** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. */
 #define MIXING_EXTRUDER 0
+#define MIXING_SEMI 1
 
 #define SHARED_EXTRUDER_HEATER true
 
