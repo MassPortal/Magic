@@ -36,7 +36,7 @@ void Lighting::init()
 	for (int i = 0; i < 255; i++)
 	{
 		SetAllLeds(0, 0, i);
-		delay(10);
+		delay(5);
 	}
 }
 
