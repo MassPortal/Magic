@@ -192,8 +192,10 @@ void Lighting::ShowTemps()
 		ary[EXT_LED][1] = eg;
 		ary[EXT_LED][2] = eb;
 	}
-	Com::printInfoFLN("LEDsShowTemp");
-	CommitLeds();
+	if (Printer::ledVal > 1 && LedBrightness > 0.01) {
+		Com::printInfoFLN("LEDsShowTemp");
+		CommitLeds();
+	}
 
 }
 void Lighting::SetShowType(ShowType SType)
