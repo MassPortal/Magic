@@ -151,6 +151,7 @@ uint8_t GCode::computeBinarySize(char *ptr)  // unsigned int bitfield) {
 
 void GCode::requestResend()
 {
+	++Printer::resends;
     HAL::serialFlush();
     commandsReceivingWritePosition = 0;
     if(sendAsBinary)

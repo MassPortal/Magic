@@ -128,6 +128,7 @@ int32_t Printer::levelingP1[3];
 int32_t Printer::levelingP2[3];
 int32_t Printer::levelingP3[3];
 #endif
+int16_t Printer::resends = 0;
 float Printer::minimumSpeed;               ///< lowest allowed speed to keep integration error small
 float Printer::minimumZSpeed;
 int32_t Printer::xMaxSteps;                   ///< For software endstops, limit of move in positive direction.

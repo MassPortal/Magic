@@ -368,6 +368,7 @@ public:
 	static float thermoMaxTemp;
 #endif
     static int16_t zBabystepsMissing;
+	static int16_t resends;
     static float minimumSpeed;               ///< lowest allowed speed to keep integration error small
     static float minimumZSpeed;              ///< lowest allowed speed to keep integration error small
     static int32_t xMaxSteps;                   ///< For software endstops, limit of move in positive direction.

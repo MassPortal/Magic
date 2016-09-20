@@ -1073,6 +1073,7 @@ void Commands::processGCode(GCode *com)
 			Printer::homeAxis(homeAllAxis || com->hasX(), homeAllAxis || com->hasY(), homeAllAxis || com->hasZ());
 		Printer::updateCurrentPosition();
 		Printer::canMoveToPausePosition = true;
+		Com::printFLN("Retries: ", Printer::resends);
 	}
 	break;
 #if FEATURE_Z_PROBE
