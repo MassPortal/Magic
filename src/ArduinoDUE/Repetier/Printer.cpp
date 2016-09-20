@@ -762,10 +762,12 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
         {
 			if (
 #if MIN_EXTRUDER_TEMP > 20
-				(Extruder::current->tempControl.currentTemperatureC < MIN_EXTRUDER_TEMP && !Printer::isColdExtrusionAllowed()) ||
+				(Extruder::current->tempControl.currentTemperatureC < MIN_EXTRUDER_TEMP && !Printer::isColdExtrusionAllowed())) 
+				p = 0; else
 #endif
-				fabs(com->E) * extrusionFactor > EXTRUDE_MAXLENGTH) {
+				if(fabs(com->E) * extrusionFactor > EXTRUDE_MAXLENGTH) {
 				p = 0;
+				if (debugErrors())
 				Com::printWarningFLN("Ignoring - E rel exceeds max E length");
 			}
             destinationSteps[E_AXIS] = currentPositionSteps[E_AXIS] + p;
@@ -774,10 +776,12 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
         {
 			if (
 #if MIN_EXTRUDER_TEMP > 20
-				(Extruder::current->tempControl.currentTemperatureC < MIN_EXTRUDER_TEMP  && !Printer::isColdExtrusionAllowed()) ||
+				(Extruder::current->tempControl.currentTemperatureC < MIN_EXTRUDER_TEMP  && !Printer::isColdExtrusionAllowed()))
+				currentPositionSteps[E_AXIS] = p; else
 #endif
-				fabs(p - currentPositionSteps[E_AXIS]) * extrusionFactor > EXTRUDE_MAXLENGTH * axisStepsPerMM[E_AXIS]) {
+				if (fabs(p - currentPositionSteps[E_AXIS]) * extrusionFactor > EXTRUDE_MAXLENGTH * axisStepsPerMM[E_AXIS]) {
 				currentPositionSteps[E_AXIS] = p;
+				if (debugErrors())
 				Com::printWarningFLN("Ignoring - E exceeds max E length");
 			}
             destinationSteps[E_AXIS] = p;
@@ -794,6 +798,7 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     if(!Printer::isPositionAllowed(lastCmdPos[X_AXIS], lastCmdPos[Y_AXIS], lastCmdPos[Z_AXIS]))
     {
         currentPositionSteps[E_AXIS] = destinationSteps[E_AXIS];
+		if (debugErrors())
 		Com::printWarningFLN("Ignoring - XYZ position not allowed");
         return false; // ignore move
     }
