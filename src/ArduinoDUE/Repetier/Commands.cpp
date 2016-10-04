@@ -1854,7 +1854,7 @@ void Commands::processGCode(GCode *com)
 			 Custom(-izable) probing function for measuring at 
 				or around a given point.
 			 Possible parameters:
-			 H - go home and center before/after probing procedure
+			 R - go home and center before/after probing procedure
 				0 - [default] do not go home at all
 				1 - go home after finishing
 				2 - go home before probing
@@ -1871,7 +1871,7 @@ void Commands::processGCode(GCode *com)
 				lower than max Z length and will output defined 
 				Z-probe-bed	distance. Default = allow
 			 E.g.:
-			 G38 P4 X-69.42 Y-39.5 H3 J0 S1
+			 G38 P4 X-69.42 Y-39.5 R3 J0 S1
 			 Does homing, moves to X:-69.42 Y:-39.5, probes bed once
 				(if reachable) and returns home.			
 			 */
@@ -1879,7 +1879,7 @@ void Commands::processGCode(GCode *com)
 	{
 		if (!com->hasZ()) 
 			Printer::setAutolevelActive(false);
-		if (com->hasH() && com->H > 1.1) {
+		if (com->hasR() && com->R > 1.1) {
 			Printer::homeAxis(true, true, true);
 			Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 		}
@@ -1957,7 +1957,7 @@ void Commands::processGCode(GCode *com)
 		}
 		//Com::printFLN("Finished");
 		//Printer::setAutolevelActive(false);
-		if (com->hasH() && (com->H > 0.1 && com->H < 2 || com->H > 2.1)) {
+		if (com->hasR() && (com->R > 0.1 && com->R < 2 || com->R > 2.1)) {
 #if Z_PROBE_LATCHING_SWITCH
 			if (Printer::probeType == 2)
 				if (!Endstops::zProbe())
