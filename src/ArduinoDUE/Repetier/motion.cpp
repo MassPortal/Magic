@@ -1721,9 +1721,9 @@ uint8_t PrintLine::queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, u
         difference[axis] = Printer::destinationSteps[axis] - Printer::currentPositionSteps[axis];
         if(axis == E_AXIS)
         {
-            if(Printer::mode == PRINTER_MODE_FFF)
-            {
-                Printer::extrudeMultiplyError += (static_cast<float>(difference[E_AXIS]) * Printer::extrusionFactor);
+			if (Printer::mode == PRINTER_MODE_FFF)
+			{
+				Printer::extrudeMultiplyError += (static_cast<float>(difference[E_AXIS]) * Printer::extrusionFactor);
                 difference[E_AXIS] = static_cast<int32_t>(Printer::extrudeMultiplyError);
                 Printer::extrudeMultiplyError -= difference[E_AXIS];
                 axis_diff[E_AXIS] = difference[E_AXIS] * Printer::invAxisStepsPerMM[E_AXIS];

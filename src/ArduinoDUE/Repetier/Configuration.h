@@ -245,7 +245,7 @@ Overridden if EEPROM activated.*/
 // length of filament pulled inside the heater. For repsnap or older
 // skeinforge use higher values.
 //  Overridden if EEPROM activated.
-#define EXT0_MAX_FEEDRATE 400
+#define EXT0_MAX_FEEDRATE 110
 // Feedrate from halted extruder in mm/s
 //  Overridden if EEPROM activated.
 #define EXT0_MAX_START_FEEDRATE 10
@@ -380,8 +380,8 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // length of filament pulled inside the heater. For repsnap or older
 // skeinforge use heigher values.
 //  Overridden if EEPROM activated.
-#define EXT1_MAX_FEEDRATE 400
-#define EXT2_MAX_FEEDRATE 400
+#define EXT1_MAX_FEEDRATE 110
+#define EXT2_MAX_FEEDRATE 110
 // Feedrate from halted extruder in mm/s
 //  Overridden if EEPROM activated.
 #define EXT1_MAX_START_FEEDRATE 10
@@ -1218,7 +1218,7 @@ Without a correct adjusted advance algorithm, you get blobs at points, where acc
 effect increases with speed and acceleration difference. Using the advance method decreases this effect.
 For more informations, read the wiki.
 */
-#define USE_ADVANCE 1
+#define USE_ADVANCE 0
 
 /** \brief enables quadratic component.
 
@@ -1668,8 +1668,8 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1U"
-#define FIRMWARE_VERSION "219-"
+#define HARDWARE_VERSION "v1U-exp"
+#define FIRMWARE_VERSION "220-rc"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0

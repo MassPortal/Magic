@@ -2810,7 +2810,7 @@ void Commands::processMCode(GCode *com)
         {
             InterruptProtectedBlock noInts;
             Printer::extruderStepsNeeded += com->S;
-        }
+		}
         break;
     case 232: // M232
         Com::printF(Com::tLinearStepsColon,maxadv2);

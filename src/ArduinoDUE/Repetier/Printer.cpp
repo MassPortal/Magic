@@ -1219,7 +1219,7 @@ void Printer::setup()
     //HAL::startWatchdog();
 #endif // FEATURE_WATCHDOG
 #if SDSUPPORT
-    sd.mount();
+    //sd.mount();
 #endif
 #if FEATURE_SERVO                   // set servos to neutral positions at power_up
   #if defined(SERVO0_NEUTRAL_POS) && SERVO0_NEUTRAL_POS >= 500
@@ -1240,7 +1240,8 @@ void Printer::setup()
 GCode::executeFString(Com::tStartupGCode);
 #endif
 #if BED_LEDS
-Light.init();
+if (EEPROM::getBedLED()>1)
+	Light.init();
 #endif
 #if EEPROM_MODE != 0 && UI_DISPLAY_TYPE != NO_DISPLAY
     if(EEPROM::getStoredLanguage() == 254) {
