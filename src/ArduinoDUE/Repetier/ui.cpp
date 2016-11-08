@@ -3776,25 +3776,25 @@ break;
             HAL::resetHardware();
             break;
 		case UI_ACTION_DOOR_FRONT:
-			Com::printF("FW:Front door ");
+			Com::printF("FW:1=");
 			if (READ(X_MIN_PIN) != 0) {
 				Printer::fDoorOpen = true;
-				Com::printFLN("open");
+				Com::printFLN("1#Front door open");
 			}
 			else  {
 				Printer::fDoorOpen = false;
-				Com::printFLN("closed");
+				Com::printFLN("0#Front door closed");
 			}
 			break;
 		case UI_ACTION_DOOR_SIDE:
-			Com::printF("FW:Side door ");
+			Com::printF("FW:2=");
 			if (READ(Y_MIN_PIN) != 0) {
 				Printer::sDoorOpen = true;
-				Com::printFLN("open");
+				Com::printFLN("1#Side door(s) open");
 			}
 			else {
 				Printer::sDoorOpen = false;
-				Com::printFLN("closed");
+				Com::printFLN("0#Side door(s) closed");
 			}
 			break;
         case UI_ACTION_PAUSE:
