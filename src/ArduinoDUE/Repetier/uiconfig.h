@@ -404,7 +404,7 @@ void uiCheckKeys(uint16_t &action) {
     UI_KEYS_BUTTON_LOW(29,UI_ACTION_BACK); //44 push button, connects gnd to pin
     UI_KEYS_BUTTON_LOW(37,UI_ACTION_MENU_SDCARD ); //33 push button, connects gnd to pin
 //  UI_KEYS_BUTTON_LOW(43,UI_ACTION_OK); // push button, connects gnd to pin
-    
+
     //pause button- when connected to GND, sends pause request to host
 	//UI_KEYS_BUTTON_LOW(X_MIN_PIN, UI_ACTION_PAUSE);
 #endif
@@ -460,8 +460,14 @@ void uiCheckSlowKeys(uint16_t &action) {
   // ----- End RGB shield ----------
   */
 #endif
-	UI_KEYS_BUTTON_LOHI(X_MIN_PIN, UI_ACTION_DOOR_FRONT, Printer::fDoorOpen);
-	UI_KEYS_BUTTON_LOHI(Y_MIN_PIN, UI_ACTION_DOOR_SIDE, Printer::sDoorOpen);
+	if (READ(X_MIN_PIN) != Printer::fDoorOpen) {
+		Printer::fDoorOpen = READ(X_MIN_PIN);
+		uid.executeAction(UI_ACTION_DOOR_FRONT, true);
+	}
+	if (READ(Y_MIN_PIN) != Printer::sDoorOpen) {
+		Printer::sDoorOpen = READ(Y_MIN_PIN);
+		uid.executeAction(UI_ACTION_DOOR_SIDE, true);
+	}
 }
 
 #endif

@@ -3777,23 +3777,19 @@ break;
             break;
 		case UI_ACTION_DOOR_FRONT:
 			Com::printF("FW:1=");
-			if (READ(X_MIN_PIN) != 0) {
-				Printer::fDoorOpen = true;
+			if (Printer::fDoorOpen) {				
 				Com::printFLN("1#Front door open");
 			}
 			else  {
-				Printer::fDoorOpen = false;
 				Com::printFLN("0#Front door closed");
 			}
 			break;
 		case UI_ACTION_DOOR_SIDE:
 			Com::printF("FW:2=");
-			if (READ(Y_MIN_PIN) != 0) {
-				Printer::sDoorOpen = true;
+			if (Printer::sDoorOpen) {
 				Com::printFLN("1#Side door(s) open");
 			}
 			else {
-				Printer::sDoorOpen = false;
 				Com::printFLN("0#Side door(s) closed");
 			}
 			break;

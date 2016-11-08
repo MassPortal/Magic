@@ -1668,7 +1668,7 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1U-exp"
+#define HARDWARE_VERSION "v1U"
 #define FIRMWARE_VERSION "220-rc"
 
 #define PRINTER_MODEL			   0

@@ -3251,6 +3251,7 @@ void Commands::processMCode(GCode *com)
 			case 5: //Resends for current session
 				Com::printF("",Printer::resends);
 				Com::printFLN("#Re-sends ");
+				break;
 			default:
 				Com::printFLN("-1#Error: Not a valid request!");
 				break;
