@@ -21,6 +21,7 @@
 // The uimenu.h declares static variables of menus, which must be declared only once.
 // It does not define interfaces for other modules, so should never be included elsewhere
 #include "uimenu.h"
+#include "uiconfig.h"
 
 extern const int8_t encoder_table[16] PROGMEM ;
 char shortFilename[LONG_FILENAME_LENGTH+1] = {0};

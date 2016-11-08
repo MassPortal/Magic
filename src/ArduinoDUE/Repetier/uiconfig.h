@@ -380,6 +380,7 @@ void uiInitKeys() {
 
   //PAUSE BUTTON, digital pin 47, on AUX3, NO button, connects to GND
   UI_KEYS_INIT_BUTTON_LOW(X_MIN_PIN);
+  UI_KEYS_INIT_BUTTON_LOW(Y_MIN_PIN);  
 
   //Illumination LED for pause button, connected to E2 screw terminals
 #ifdef PAUSE_LED
@@ -405,7 +406,7 @@ void uiCheckKeys(uint16_t &action) {
 //  UI_KEYS_BUTTON_LOW(43,UI_ACTION_OK); // push button, connects gnd to pin
     
     //pause button- when connected to GND, sends pause request to host
-    UI_KEYS_BUTTON_LOW(X_MIN_PIN,UI_ACTION_PAUSE);
+	//UI_KEYS_BUTTON_LOW(X_MIN_PIN, UI_ACTION_PAUSE);
 #endif
 }
 inline void uiCheckSlowEncoder() {
@@ -459,8 +460,8 @@ void uiCheckSlowKeys(uint16_t &action) {
   // ----- End RGB shield ----------
   */
 #endif
-
-  //UI_KEYS_MATRIX(32,47,45,43,41,39,37,35);
+	UI_KEYS_BUTTON_LOHI(X_MIN_PIN, UI_ACTION_DOOR_FRONT, Printer::fDoorOpen);
+	UI_KEYS_BUTTON_LOHI(Y_MIN_PIN, UI_ACTION_DOOR_SIDE, Printer::sDoorOpen);
 }
 
 #endif

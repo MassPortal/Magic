@@ -1912,7 +1912,7 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_DISPLAY_D6_PIN		46		// PINL.5, 40, D_D6
 #define UI_DISPLAY_D7_PIN		47		// PINK.4, 85, D_D7
 #define UI_DELAYPERCHAR		   50
-
+/*
 #ifdef UI_MAIN
 void uiInitKeys() {
   UI_KEYS_INIT_BUTTON_LOW(33); // push button, connects gnd to pin
@@ -1934,17 +1934,18 @@ void uiInitKeys() {
 #endif
 }
 void uiCheckKeys(uint16_t &action) {
-    UI_KEYS_BUTTON_LOW(33,UI_ACTION_OK); //35 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(35,UI_ACTION_PREVIOUS); //34 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(31,UI_ACTION_NEXT); //43 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(29,UI_ACTION_BACK); //44 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(37,UI_ACTION_MENU_SDCARD ); //33 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(X_MIN_PIN,/*UI_ACTION_RESET*/UI_ACTION_PAUSE);
+	UI_KEYS_BUTTON_LOW(33, UI_ACTION_OK); //35 push button, connects gnd to pin
+	UI_KEYS_BUTTON_LOW(35, UI_ACTION_PREVIOUS); //34 push button, connects gnd to pin
+	UI_KEYS_BUTTON_LOW(31, UI_ACTION_NEXT); //43 push button, connects gnd to pin
+	UI_KEYS_BUTTON_LOW(29, UI_ACTION_BACK); //44 push button, connects gnd to pin
+	UI_KEYS_BUTTON_LOW(37, UI_ACTION_MENU_SDCARD); //33 push button, connects gnd to pin
+    UI_KEYS_BUTTON_LOW(X_MIN_PIN,UI_ACTION_PAUSE);
 }
 inline void uiCheckSlowEncoder() {}
 void uiCheckSlowKeys(uint16_t &action) {}
 
 #endif
+*/
 #endif // CONTROLLER_LCD_MP_PHARAOH_DUE
 
 #ifndef UI_HAS_I2C_ENCODER
