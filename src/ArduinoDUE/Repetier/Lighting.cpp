@@ -195,7 +195,9 @@ void Lighting::ShowTemps()
 		ary[EXT_LED][2] = eb;
 	}
 	if (Printer::ledVal > 1 && LedBrightness > 0.01) {
+#if DEBUGGING
 		Com::printInfoFLN("LEDsShowTemp");
+#endif
 		CommitLeds();
 	}
 

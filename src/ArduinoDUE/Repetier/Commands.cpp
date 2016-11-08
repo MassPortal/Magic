@@ -220,7 +220,8 @@ void Commands::printTemperatures(bool showRaw)
 }
 
 void Commands::printTemperature() {
-	Com::printFLN("Chamber: ", Extruder::getChamberTemperature());
+	Com::printF("FW:4=", Extruder::getChamberTemperature());
+	Com::printFLN("#Chamber temp");
 }
 
 void Commands::changeFeedrateMultiply(int factor)
@@ -1073,7 +1074,6 @@ void Commands::processGCode(GCode *com)
 			Printer::homeAxis(homeAllAxis || com->hasX(), homeAllAxis || com->hasY(), homeAllAxis || com->hasZ());
 		Printer::updateCurrentPosition();
 		Printer::canMoveToPausePosition = true;
-		Com::printFLN("Retries: ", Printer::resends);
 	}
 	break;
 #if FEATURE_Z_PROBE
@@ -3236,6 +3236,21 @@ void Commands::processMCode(GCode *com)
 				else
 					Com::printFLN("0#Side door(s) closed");
 				break;
+			case 3: //Z probe switch
+				Endstops::update();
+				Endstops::update();
+				if ((Printer::probeType == 2) ? !Endstops::zProbe(): Endstops::zProbe())
+					Com::printFLN("1#Probe switch activated");
+				else
+					Com::printFLN("0#Probe switch deactivated");
+				break;
+			case 4: //Chamber temperature	
+				Com::printFloat(Extruder::getChamberTemperature(),2);
+				Com::printFLN("#Chamber temp");
+				break;
+			case 5: //Resends for current session
+				Com::printF("",Printer::resends);
+				Com::printFLN("#Re-sends ");
 			default:
 				Com::printFLN("-1#Error: Not a valid request!");
 				break;
