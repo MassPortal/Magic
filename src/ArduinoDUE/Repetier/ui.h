@@ -223,6 +223,8 @@ What display type do you use?
 #define UI_ACTION_VENT_CIRCULATION      1611
 #define UI_ACTION_VENT_OFF				1612
 #define UI_ACTION_VENT_EXTRACT_FAST		1613
+#define UI_ACTION_DOOR_FRONT			1614
+#define UI_ACTION_DOOR_SIDE				1615
 
 // 1700-1956 language selectors
 
