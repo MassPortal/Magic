@@ -3218,6 +3218,30 @@ void Commands::processMCode(GCode *com)
 		Com::println();
 	}
 	break;
+	case 898: //Status command
+		if (com->hasS() && com->S > 0 && com->S < 9999)
+		{
+			Com::printF("FW:", com->S);
+			Com::printF("=");
+			switch (com->S) {
+			case 1: //Front door
+				if (Printer::fDoorOpen)
+					Com::printFLN("1#Front door open");
+				else
+					Com::printFLN("0#Front door closed");
+				break;
+			case 2: //Side doors
+				if (Printer::sDoorOpen)
+					Com::printFLN("1#Side door(s) open");
+				else
+					Com::printFLN("0#Side door(s) closed");
+				break;
+			default:
+				Com::printFLN("-1#Error: Not a valid request!");
+				break;
+			}
+		}
+		break;
     case 601:
         if(com->hasS() && com->S > 0)
             Extruder::pauseExtruders();
