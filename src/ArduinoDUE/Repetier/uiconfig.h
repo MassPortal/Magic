@@ -372,6 +372,7 @@ void uiInitKeys() {
   UI_KEYS_INIT_BUTTON_LOW(29);
   UI_KEYS_INIT_BUTTON_LOW(37);
   UI_KEYS_INIT_BUTTON_LOW(35);
+  UI_KEYS_INIT_BUTTON_LOW(KILL_PIN); // ENCODER_B - pin 52
 
 //  UI_KEYS_INIT_CLICKENCODER_LOW(47,45); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
 //  UI_KEYS_INIT_BUTTON_LOW(43); // push button, connects gnd to pin
@@ -402,7 +403,8 @@ void uiCheckKeys(uint16_t &action) {
     UI_KEYS_BUTTON_LOW(35,UI_ACTION_PREVIOUS); //34 push button, connects gnd to pin
     UI_KEYS_BUTTON_LOW(31,UI_ACTION_NEXT); //43 push button, connects gnd to pin
     UI_KEYS_BUTTON_LOW(29,UI_ACTION_BACK); //44 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(37,UI_ACTION_MENU_SDCARD ); //33 push button, connects gnd to pin
+	UI_KEYS_BUTTON_LOW(37, UI_ACTION_MENU_SDCARD); //33 push button, connects gnd to pin
+	UI_KEYS_BUTTON_LOW(KILL_PIN, UI_ACTION_KILL ); //33 push button, connects gnd to pin
 //  UI_KEYS_BUTTON_LOW(43,UI_ACTION_OK); // push button, connects gnd to pin
 
     //pause button- when connected to GND, sends pause request to host
