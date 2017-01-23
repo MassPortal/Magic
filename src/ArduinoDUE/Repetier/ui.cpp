@@ -2465,7 +2465,7 @@ int UIDisplay::okAction(bool allowMoves)
         case UI_ACTION_WIZARD_FILAMENTCHANGE: // filament change is finished
 //            BEEP_SHORT;
             popMenu(true);
-            Extruder::current->retractDistance(EEPROM_FLOAT(RETRACTION_LENGTH));
+            //Extruder::current->retractDistance(EEPROM_FLOAT(RETRACTION_LENGTH));
 #if FILAMENTCHANGE_REHOME
 #if Z_HOME_DIR > 0
             Printer::homeAxis(true, true, FILAMENTCHANGE_REHOME == 2);
@@ -2473,10 +2473,11 @@ int UIDisplay::okAction(bool allowMoves)
             Printer::homeAxis(true, true, false);
 #endif
 #endif
-            Printer::GoToMemoryPosition(true, true, false, false, Printer::homingFeedrate[X_AXIS]);
-            Printer::GoToMemoryPosition(false, false, true, false, Printer::homingFeedrate[Z_AXIS]);
-            Extruder::current->retractDistance(-EEPROM_FLOAT(RETRACTION_LENGTH));
-            Printer::currentPositionSteps[E_AXIS] = Printer::popWizardVar().l; // set e to starting position
+			Printer::GoToMemoryPosition(false, false, true, false, Printer::homingFeedrate[Z_AXIS]);
+            Printer::GoToMemoryPosition(true, true, false, false, Printer::homingFeedrate[X_AXIS]);  
+            Extruder::current->retractDistance(-FILAMENTCHANGE_LONGRETRACT);
+			Extruder::current->retractDistance(-FILAMENTCHANGE_SHORTRETRACT);
+            //Printer::currentPositionSteps[E_AXIS] = Printer::popWizardVar().l; // set e to starting position
             Printer::setBlockingReceive(false);
 #if EXTRUDER_JAM_CONTROL
             Extruder::markAllUnjammed();
@@ -3617,12 +3618,15 @@ break;
 			if (Printer::currentPosition[Z_AXIS] == 0.0)
 				Printer::homeAxis(true, true, true); //Home to avoid hitting the surface
             Printer::MemoryPosition();
+			
             Extruder::current->retractDistance(FILAMENTCHANGE_SHORTRETRACT);
-            float newZ = FILAMENTCHANGE_Z_ADD + Printer::currentPosition[Z_AXIS];
-            Printer::currentPositionSteps[E_AXIS] = 0;
-            Printer::moveToReal(Printer::currentPosition[X_AXIS], Printer::currentPosition[Y_AXIS], newZ, 0, Printer::homingFeedrate[Z_AXIS]);
-            Printer::moveToReal(FILAMENTCHANGE_X_POS, FILAMENTCHANGE_Y_POS, newZ, 0, Printer::homingFeedrate[X_AXIS]);
+            //float newZ = FILAMENTCHANGE_Z_ADD + Printer::currentPosition[Z_AXIS];
+			Printer::currentPositionSteps[E_AXIS] = 0;
+			Printer::homeAxis(true, true, true); //Home to avoid hitting the surface
+            //Printer::moveToReal(Printer::currentPosition[X_AXIS], Printer::currentPosition[Y_AXIS], newZ, 0, Printer::homingFeedrate[Z_AXIS]);
+            //Printer::moveToReal(FILAMENTCHANGE_X_POS, FILAMENTCHANGE_Y_POS, newZ, 0, Printer::homingFeedrate[X_AXIS]);
             Extruder::current->retractDistance(FILAMENTCHANGE_LONGRETRACT);
+			Printer::currentPositionSteps[E_AXIS] = 0;
             Extruder::current->disableCurrentExtruderMotor();
         }
         break;
