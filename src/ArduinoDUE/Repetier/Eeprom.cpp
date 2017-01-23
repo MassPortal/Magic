@@ -548,6 +548,11 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
     stepperInactiveTime = HAL::eprGetInt32(EPR_STEPPER_INACTIVE_TIME);
 #if BED_LEDS
 	Light.LedBrightness = HAL::eprGetFloat(EPR_BED_LED_BRIGHTNESS);
+		if (Light.LedBrightness < 0.01) {
+			Light.SetAllLeds(0, 0, 0);
+			Com::printFLN("LEDs OFF");
+			Light.LED.show(); //do this once
+		}
 	Printer::ledVal = EEPROM::getBedLED();
 	Light.LED_CNT = Printer::ledCount(false);
 	Light.EXT_LED = Printer::ledCount(true);

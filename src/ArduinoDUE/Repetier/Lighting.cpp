@@ -90,17 +90,18 @@ void Lighting::loop()
 	if (Printer::isZProbingActive())
 		return;
 	//Update EEPROM
-	if (LedBrightness != EEPROM::bedLedBrightness())
-	HAL::eprSetFloat(EPR_BED_LED_BRIGHTNESS, LedBrightness);
+	/*if (LedBrightness != EEPROM::bedLedBrightness()) {
+		HAL::eprSetFloat(EPR_BED_LED_BRIGHTNESS, LedBrightness);
 	
-	if (!(LedBrightness>0.0)) //avoid processing if relative brightness set to 0
-	{
+		if (!(LedBrightness>0.0)) //avoid processing if relative brightness set to 0
+		{
 		//SetAllLeds(0, 0, 0);
-		return;
-	}	
+			return;
+		}
+	}*/
 	//Avoid interruptions
 	//Printer::setZProbingActive(true);
-		
+
 	SetShowType(ShowTemperatures); //temorary - to test bed heating with leds
 	
 	switch (CurrentShow) {
