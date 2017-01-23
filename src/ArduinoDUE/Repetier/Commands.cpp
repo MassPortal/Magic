@@ -1507,21 +1507,23 @@ void Commands::processGCode(GCode *com)
 		printCurrentPosition(PSTR("G32 "));
 #endif
 #if DRIVE_SYSTEM == DELTA
-		Printer::homeAxis(true, true, true);
-#endif
-		Printer::feedrate = oldFeedrate;
-		//Resume bed heating
-#if HAVE_HEATED_BED
-		if (!Printer::debugDryrun()) {
-			Commands::waitUntilEndOfAllMoves();
-			Extruder::setHeatedBedTemperature(lastBedTemp);
+		if (!com->hasP()) { //If we have the P param. don't do homing
+			Printer::homeAxis(true, true, true);
 		}
 #endif
-		//Restore fan speed
-		Commands::setFanSpeed(lastFanSpeed, false);
-		Commands::setFanSpeed(lastFanSpeed);
-	}
-	break;
+			Printer::feedrate = oldFeedrate;
+			//Resume bed heating
+#if HAVE_HEATED_BED
+			if (!Printer::debugDryrun()) {
+				Commands::waitUntilEndOfAllMoves();
+				Extruder::setHeatedBedTemperature(lastBedTemp);
+			}
+#endif
+			//Restore fan speed
+			Commands::setFanSpeed(lastFanSpeed, false);
+			Commands::setFanSpeed(lastFanSpeed);
+		}
+		break;
 #endif
 	case 36: // G36
 		if (com->hasS()) {
@@ -1825,7 +1827,7 @@ void Commands::processGCode(GCode *com)
 		}
 
 	}
-	break;
+			 break;
 #if DISTORTION_CORRECTION
 	case 33: {
 		if (com->hasL()) { // G33 L0 - List distortion matrix
@@ -1850,6 +1852,24 @@ void Commands::processGCode(GCode *com)
 	}
 			 break;
 #endif
+	case 35: {
+#if Z_PROBE_LATCHING_SWITCH
+		if (Printer::probeType == 2) {
+			if (com->hasS()) {
+				if (com->S > 0) {
+					enableZprobe(true);
+				}
+				else
+				{
+					enableZprobe(false);
+				}
+			}
+		}
+		else
+			Com::printErrorFLN("ERR2: Not a latching switch probe!");
+#endif
+	}
+			 break;
 			 /*
 			 Custom(-izable) probing function for measuring at 
 				or around a given point.
