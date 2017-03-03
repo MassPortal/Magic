@@ -834,8 +834,8 @@ UI_MENU_SUBMENU(ui_menu_vent_sub,UI_TEXT_VENTILATION,ui_menu_vent)
 UI_MENU(ui_menu_perform,UI_MENU_PERFORM,5+UI_MENU_BACKCNT+BED_LED_CNT)
 
 //Control menu
-#define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply, &ui_menu_fan_fanspeed, &ui_menu_ext_temp0, &ui_menu_bed_temp UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT MENU_PSON_ENTRY DEBUG_PRINT_EXTRA}
-UI_MENU(ui_menu_quick,UI_MENU_QUICK,5+UI_MENU_BACKCNT+MENU_PSON_COUNT+DEBUG_PRINT_COUNT+UI_TOGGLE_LIGHT_COUNT+UI_CHANGE_FIL_CNT)
+#define UI_MENU_QUICK {UI_MENU_ADDCONDBACK &ui_menu_quick_speedmultiply,&ui_menu_quick_flowmultiply, &ui_menu_fan_fanspeed, &ui_menu_ext_temp0, &ui_menu_bed_temp UI_TOOGLE_LIGHT_ENTRY UI_CHANGE_FIL_ENT MENU_PSON_ENTRY DEBUG_PRINT_EXTRA BABY_ENTRY}
+UI_MENU(ui_menu_quick,UI_MENU_QUICK,5+UI_MENU_BACKCNT+MENU_PSON_COUNT+DEBUG_PRINT_COUNT+UI_TOGGLE_LIGHT_COUNT+UI_CHANGE_FIL_CNT+BABY_CNT)
 
 // **** SD card menu
 

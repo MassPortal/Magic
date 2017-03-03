@@ -2494,8 +2494,8 @@ void Commands::processMCode(GCode *com)
 #endif
         if (com->hasS()) 
         {	
-			if(com->hasT() && com->T < NUM_EXTRUDER)
-                Extruder::setTemperatureForExtruder(com->S, com->T, com->hasF() && com->F > 0);
+			if (com->hasT() && com->T < NUM_EXTRUDER)
+				Extruder::setTemperatureForExtruder(com->S, com->T, com->hasF() && com->F > 0);
             else
                 Extruder::setTemperatureForExtruder(com->S, Extruder::current->id, com->hasF() && com->F > 0);
         }
@@ -2528,7 +2528,7 @@ void Commands::processMCode(GCode *com)
         Commands::waitUntilEndOfAllMoves();
         Extruder *actExtruder = Extruder::current;
         if(com->hasT() && com->T < NUM_EXTRUDER) actExtruder = &extruder[com->T];
-        if (com->hasS()) Extruder::setTemperatureForExtruder(com->S, actExtruder->id, /*com->hasF() && com->F > 0,*/ true);
+        if (com->hasS()) Extruder::setTemperatureForExtruder(com->S, actExtruder->id, /*com->hasF() && com->F > 0,*/ true, true);
         /*        UI_STATUS_UPD(UI_TEXT_HEATING_EXTRUDER);
 #if defined(SKIP_M109_IF_WITHIN) && SKIP_M109_IF_WITHIN > 0
         if(abs(actExtruder->tempControl.currentTemperatureC - actExtruder->tempControl.targetTemperatureC) < (SKIP_M109_IF_WITHIN)) break; // Already in range
