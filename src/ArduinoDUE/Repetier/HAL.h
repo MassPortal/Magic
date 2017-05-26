@@ -37,6 +37,7 @@
 #include "pins.h"
 #include "Print.h"
 #include "fastio.h"
+#include "Pressure.h"
 
 // Hack to make 84 MHz Due clock work without changes to pre-existing code
 // which would otherwise have problems with int overflow.
@@ -830,7 +831,7 @@ class HAL
     static void i2cCompleted (void);
     static void i2cTxFinished(void);
     static void i2cWriting( uint8_t data );
-    static unsigned char i2cWrite( unsigned char data );
+    static unsigned char i2cWrite( uint8_t data );
     static unsigned char i2cReadAck(void);
     static unsigned char i2cReadNak(void);
 

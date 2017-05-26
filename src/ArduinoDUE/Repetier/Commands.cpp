@@ -20,6 +20,7 @@
 */
 
 #include "Repetier.h"
+#include "Pressure.h"
 
 const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS; // Sensitive pin list for M42
 int Commands::lowestRAMValue = MAX_RAM;
@@ -2710,6 +2711,10 @@ void Commands::processMCode(GCode *com)
 #endif
         break;
 #endif // MIXING_EXTRUDER
+	case 193:
+		Com::printF("Fw:10=", pressureGetAvg());
+		Com::printF("\n");
+		break;
     case 200: // M200 T<extruder> D<diameter>
     {
         uint8_t extruderId = Extruder::current->id;
