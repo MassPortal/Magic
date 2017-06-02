@@ -68,6 +68,15 @@ void Commands::commandLoop()
             UI_MEDIUM;
         }
         Printer::defaultLoopActions();
+        /* Change this to something useful*/
+        /* Raspberry should filter these messages out*/
+        /* Only applys for movement commands*/
+        if (PrintLine::NExecuted) {
+            Com::printF("Error: ex ");
+            Com::printNumber(PrintLine::NExecuted);
+            Com::println();
+            PrintLine::NExecuted = 0;
+        }
     }
 }
 
@@ -3388,6 +3397,7 @@ void Commands::executeGCode(GCode *com)
             }
         }
     }
+    if (com->hasN()) PrintLine::NNext = com->N; // Update next line number
     if(com->hasG()) processGCode(com);
     else if(com->hasM()) processMCode(com);
     else if(com->hasT())      // Process T code
