@@ -443,7 +443,7 @@ e) Add bending correction
 
 Then we return the measured and corrected z distance.
 */
-float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript)
+float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript, bool doNotLift)
 {
 	float oldOffX = Printer::offsetX;
 	float oldOffY = Printer::offsetY;
@@ -516,7 +516,10 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 	#endif
 	Com::printFLN(Com::tSpace, distance);
 	// Go back to start position
-	PrintLine::moveRelativeDistanceInSteps(0, 0, lastCorrection - currentPositionSteps[Z_AXIS], 0, EEPROM::zProbeSpeed(), true, false);
+	if (!doNotLift)
+		PrintLine::moveRelativeDistanceInSteps(0, 0, lastCorrection - currentPositionSteps[Z_AXIS], 0, EEPROM::zProbeSpeed(), true, false);
+	else
+		PrintLine::moveRelativeDistanceInSteps(0, 0, currentPositionSteps[Z_AXIS], 0, EEPROM::zProbeSpeed(), true, false);
 	//PrintLine::moveRelativeDistanceInSteps(offx,offy,0,0,EEPROM::zProbeXYSpeed(),true,true);
 	if(last)
 	finishProbing();

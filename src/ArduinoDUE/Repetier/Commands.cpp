@@ -1525,6 +1525,59 @@ void Commands::processGCode(GCode *com)
 		}
 		break;
 #endif
+#if DISTORTION_CORRECTION
+	case 33: {
+		if (com->hasL()) { // G33 L0 - List distortion matrix
+			Printer::distortion.showMatrix();
+		}
+		else if (com->hasR()) { // G33 R0 - Reset distortion matrix
+			Printer::distortion.resetCorrection();
+		}
+		else if (com->hasX() || com->hasY() || com->hasZ()) { // G33 X<xpos> Y<ypos> Z<zCorrection> - Set correction for nearest point
+			if (com->hasX() && com->hasY() && com->hasZ()) {
+				Printer::distortion.set(com->X, com->Y, com->Z);
+			}
+			else {
+				Com::printErrorFLN(PSTR("You need to define X, Y and Z to set a point!"));
+			}
+		}
+		else { // G33
+			float oldFeedrate = Printer::feedrate;
+			Printer::measureDistortion();
+			Printer::feedrate = oldFeedrate;
+		}
+	}
+	break;
+#endif
+			 /*
+			 G35 - (de-)activates latching probe switch.
+			 Use parameter S1 to activate or S0 to deactivate
+			 */
+	case 35: {
+#if Z_PROBE_LATCHING_SWITCH
+		if (Printer::probeType == 2) {
+			if (com->hasS()) {
+				if (com->S > 0) {
+					enableZprobe(true);
+				}
+				else
+				{
+					enableZprobe(false);
+				}
+			}
+		}
+		else
+			Com::printErrorFLN("ERR2: Not a latching switch probe!");
+#endif
+	}
+	break;
+		/*
+		G36 - Calibration command for compensating slant of the print head at predefined probe points.
+			Stores comensation values in EEPROM as Z_PROBE_XYn_OFFSET. These values are then substracted
+			when doing automatic calibration procedure.
+			Start with S parameter and then use X,Y,Z parameters subsequently to get the actual nozzle height
+			at each	of those points.
+		*/
 	case 36: // G36
 		if (com->hasS()) {
 			Printer::setAutolevelActive(false);
@@ -1575,42 +1628,26 @@ void Commands::processGCode(GCode *com)
 
 		break;
 #endif
+		/*
+		G37 - Iterates by moving through 7 points around the bed (1 in the center, 3 in front of the towers,
+			3 opposite of each tower). The point coordinates are taken from the EEPROM.
+			Optional parameter P - defines height in mm to rise the head before moving it to next location.
+		*/
 	case 37: {
 		Com::printFLN("DIY measure...");
 		float px0 = 0.0,
 			py0 = 0.0,
-			px1 = EEPROM::zProbeX1(),
-			px2 = EEPROM::zProbeX2(),
-			px3 = EEPROM::zProbeX3(),
-			py1 = EEPROM::zProbeY1(),
-			py2 = EEPROM::zProbeY2(),
-			py3 = EEPROM::zProbeY3(),
-
-			p2x4 = 0.0,
-			p2y4 = -79.0,
-			p2x5 = 68.42,
-			p2y5 = 39.5,
-			p2x6 = -68.42,
-			p2y6 = 39.5,
-
-			p3x4 = 0.0,
-			p3y4 = -118.5,
-			p3x5 = 102.634,
-			p3y5 = 59.254,
-			p3x6 = -102.634,
-			p3y6 = 59.254,
-
-			p4x4 = 0.0,
-			p4y4 = -158,
-			p4x5 = 136.846,
-			p4y5 = 79.006,
-			p4x6 = -136.846,
-			p4y6 = 79.006,
-
+			px1 = EEPROM::zProbeX1(), //-68.42
+			px2 = EEPROM::zProbeX2(), //68.42
+			px3 = EEPROM::zProbeX3(), //0.0
+			py1 = EEPROM::zProbeY1(), //-39.5
+			py2 = EEPROM::zProbeY2(), //-39.5
+			py3 = EEPROM::zProbeY3(), //79
 			pAbove = 5.0;
+		if (com->hasP())
+			if ((com->P > -pAbove) && (com->P < Commands::retDefHeight()))
+				pAbove = com->P;
 
-		//If MP40
-		if (Commands::retDefHeight() > 400) {
 			//If above probing height
 			if (Printer::currentPosition[Z_AXIS] > EEPROM::zProbeBedDistance() + 1.0) {
 				//Go to first position at 0.0
@@ -1650,27 +1687,27 @@ void Commands::processGCode(GCode *com)
 				//Move to safe distance above the bed
 				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				//Go to 5th position
-				Printer::moveToReal(p4x4, p4y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::moveToReal(px3, -py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
 				printCurrentPosition(PSTR("M114 "));
 			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p4x4) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y4) < 1.0)) {
+			else if ((abs(Printer::currentPosition[X_AXIS] - px3) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - (-py3)) < 1.0)) {
 				//Move to safe distance above the bed
 				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				//Go to 6th position
-				Printer::moveToReal(p4x5, p4y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::moveToReal(px2, -py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
 				printCurrentPosition(PSTR("M114 "));
 			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p4x5) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y5) < 1.0)) {
+			else if ((abs(Printer::currentPosition[X_AXIS] - px2) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - (-py2)) < 1.0)) {
 				//Move to safe distance above the bed
 				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				//Go to 7th position
-				Printer::moveToReal(p4x6, p4y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+				Printer::moveToReal(px1, -py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
 				printCurrentPosition(PSTR("M114 "));
 			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p4x6) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y6) < 1.0)) {
+			else if ((abs(Printer::currentPosition[X_AXIS] - px1) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - (-py1)) < 1.0)) {
 				//Move to safe distance above the bed
 				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				//Go to first position
@@ -1680,198 +1717,10 @@ void Commands::processGCode(GCode *com)
 			}
 			else
 				Com::printWarningFLN("Not in a valid position!");
-		}
-		//If MP30
-		else if (Commands::retDefHeight() > 300) {
-			//If above probing height
-			if (Printer::currentPosition[Z_AXIS] > EEPROM::zProbeBedDistance() + 1.0) {
-				//Go to first position at 0.0
-				Printer::homeAxis(true, true, true);
-				//Move to safe distance above the bed
-				Printer::moveToReal(px0, py0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			//If in the center 
-			else if ((abs(Printer::currentPosition[X_AXIS] - px0) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py0) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 2nd position
-				Printer::moveToReal(px1, py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			//If in the 2nd position
-			else if ((abs(Printer::currentPosition[X_AXIS] - px1) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py1) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 3rd position
-				Printer::moveToReal(px2, py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - px2) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py2) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 4th position
-				Printer::moveToReal(px3, py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - px3) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py3) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 5th position
-				Printer::moveToReal(p3x4, p3y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p3x4) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y4) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 6th position
-				Printer::moveToReal(p3x5, p3y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p3x5) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y5) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 7th position
-				Printer::moveToReal(p3x6, p3y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p3x6) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y6) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to first position
-				Printer::moveToReal(px0, py0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else
-				Com::printWarningFLN("Not in a valid position!");
-		}
-		//If MP20
-		else {
-			//If above probing height
-			if (Printer::currentPosition[Z_AXIS] > EEPROM::zProbeBedDistance() + 1.0) {
-				//Go to first position at 0.0
-				Printer::homeAxis(true, true, true);
-				//Move to safe distance above the bed
-				Printer::moveToReal(px0, py0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			//If in the center 
-			else if ((abs(Printer::currentPosition[X_AXIS] - px0) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py0) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 2nd position
-				Printer::moveToReal(px1, py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			//If in the 2nd position
-			else if ((abs(Printer::currentPosition[X_AXIS] - px1) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py1) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 3rd position
-				Printer::moveToReal(px2, py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - px2) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py2) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 4th position
-				Printer::moveToReal(px3, py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - px3) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py3) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 5th position
-				Printer::moveToReal(p2x4, p2y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p2x4) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y4) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 6th position
-				Printer::moveToReal(p2x5, p2y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p2x5) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y5) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to 7th position
-				Printer::moveToReal(p2x6, p2y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else if ((abs(Printer::currentPosition[X_AXIS] - p2x6) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y6) < 1.0)) {
-				//Move to safe distance above the bed
-				Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, pAbove, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				//Go to first position
-				Printer::moveToReal(px0, py0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			}
-			else
-				Com::printWarningFLN("Not in a valid position!");
-		}
-
 	}
-			 break;
-#if DISTORTION_CORRECTION
-	case 33: {
-		if (com->hasL()) { // G33 L0 - List distortion matrix
-			Printer::distortion.showMatrix();
-		}
-		else if (com->hasR()) { // G33 R0 - Reset distortion matrix
-			Printer::distortion.resetCorrection();
-		}
-		else if (com->hasX() || com->hasY() || com->hasZ()) { // G33 X<xpos> Y<ypos> Z<zCorrection> - Set correction for nearest point
-			if (com->hasX() && com->hasY() && com->hasZ()) {
-				Printer::distortion.set(com->X, com->Y, com->Z);
-			}
-			else {
-				Com::printErrorFLN(PSTR("You need to define X, Y and Z to set a point!"));
-			}
-		}
-		else { // G33
-			float oldFeedrate = Printer::feedrate;
-			Printer::measureDistortion();
-			Printer::feedrate = oldFeedrate;
-		}
-	}
-			 break;
-#endif
-	case 35: {
-#if Z_PROBE_LATCHING_SWITCH
-		if (Printer::probeType == 2) {
-			if (com->hasS()) {
-				if (com->S > 0) {
-					enableZprobe(true);
-				}
-				else
-				{
-					enableZprobe(false);
-				}
-			}
-		}
-		else
-			Com::printErrorFLN("ERR2: Not a latching switch probe!");
-#endif
-	}
-			 break;
+	break;
 			 /*
-			 Custom(-izable) probing function for measuring at 
+			 G38 - Custom(-izable) probing function for measuring at 
 				or around a given point.
 			 Possible parameters:
 			 R - go home and center before/after probing procedure
@@ -1882,6 +1731,8 @@ void Commands::processGCode(GCode *com)
 			 P[0-4] - probing coordinate point. Default - 0 = at center,
 				1-3 at corresponding predefined zProbe XY points,
 				4 - use with X and Y parameters to define custom point
+				5 - single measurement at current X and Y *probe* position 
+				6 - single measurement at current position and stay at trigger point
 			 X/Y[-/+radius corrdinates] - use with P4
 			 I[0.0-999.0] - distance between each probing point repetition. Default = 1.0
 			 S[1-999] - ^2 how far to probe arond given coordinate (square center)
@@ -1890,6 +1741,7 @@ void Commands::processGCode(GCode *com)
 				trigger if given bed probing point is actually
 				lower than max Z length and will output defined 
 				Z-probe-bed	distance. Default = allow
+			 Z - do not disable autoleveling
 			 E.g.:
 			 G38 P4 X-69.42 Y-39.5 R3 J0 S1
 			 Does homing, moves to X:-69.42 Y:-39.5, probes bed once
@@ -1917,14 +1769,15 @@ void Commands::processGCode(GCode *com)
 
 		int ST = 0;
 		int Max = 1;
-		float ptx = 0.0;
-		float pty = 0.0;
-		float incr = 1.0;
+		float ptx = 0.0, pty = 0.0,
+			zx1 = 0.0, zy1 = 0.0,
+			incr = 1.0;
+		
 		if (com->hasS() && com->S > 0)
 			Max = com->S;
 		if (com->hasI() && com->I != 0.0)
 			incr = com->I;
-		float zx1, zy1;
+
 		if (com->hasP())
 			switch (com->P) {
 			case 0: {
@@ -1948,12 +1801,15 @@ void Commands::processGCode(GCode *com)
 			}
 					break;
 			case 4: { //custom point at coordinates given
-				zx1 = 0.0;
-				zy1 = 0.0;
 				if (com->hasX())
 					zx1 = com->X;
 				if (com->hasY())
 					zy1 = com->Y;
+			}
+					break;
+			case 5: {
+				zx1 = Printer::currentPosition[X_AXIS];
+				zy1 = Printer::currentPosition[Y_AXIS];
 			}
 					break;
 			default: {
@@ -1963,21 +1819,36 @@ void Commands::processGCode(GCode *com)
 					break;
 			}
 
-		ptx = zx1 - (Max / 2);
-		pty = zy1 - (Max / 2);
 
-		Printer::moveTo(zx1, zy1, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+		if (com->hasP()) 
+			if (com->P == 5) {
+				//Run single probe at current position
+				Printer::runZProbe(false, true, Z_PROBE_REPETITIONS,false, false);
+			}
+			else if (com->P == 6) {
+				//Run single probe at current position and stay at trigger point
+				Printer::runZProbe(false, true, Z_PROBE_REPETITIONS, false, true);
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
+			} else {
 
-		for (int mx = ST; (ptx + mx) < Max; mx += incr) {
-			Printer::moveTo(ptx + mx, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-			for (int my = ST; (pty + my) < Max; my += incr) {
-				Printer::moveTo(IGNORE_COORDINATE, pty + my, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-				Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
+			ptx = zx1 - (Max / 2);
+			pty = zy1 - (Max / 2);
+
+			Printer::moveTo(zx1, zy1, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+
+			for (int mx = ST; (ptx + mx) < Max; mx += incr) {
+				Printer::moveTo(ptx + mx, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+				for (int my = ST; (pty + my) < Max; my += incr) {
+					Printer::moveTo(IGNORE_COORDINATE, pty + my, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+					Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
+				}
 			}
 		}
 		//Com::printFLN("Finished");
 		//Printer::setAutolevelActive(false);
 		if (com->hasR() && (com->R > 0.1 && com->R < 2 || com->R > 2.1)) {
+			Com::printFLN("HasR!");
 #if Z_PROBE_LATCHING_SWITCH
 			if (Printer::probeType == 2)
 				if (!Endstops::zProbe())
@@ -3479,6 +3350,9 @@ bool cmpf(float a, float b)
 // Activate or deactivate Z-Probe switch
 bool enableZprobe(bool probeState)
 {
+	Commands::waitUntilEndOfAllMoves();
+	Endstops::update();
+	Endstops::update();
   if (probeState) // Probe has to be activated
   {
     // Probe switch activation
