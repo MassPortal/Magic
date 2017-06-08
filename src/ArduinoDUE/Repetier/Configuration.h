@@ -50,9 +50,9 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 
 /** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. */
 #define MIXING_EXTRUDER 0
-#define MIXING_SEMI 1
+#define MIXING_SEMI 0
 
-#define SHARED_EXTRUDER_HEATER true
+#define SHARED_EXTRUDER_HEATER false
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // Arduino Due with RADDS     = 402
@@ -229,7 +229,7 @@ Overridden if EEPROM activated.*/
 // 100 is AD595
 // 101 is MAX6675
 // 102 is MAX31855
-#define EXT0_TEMPSENSOR_TYPE 100
+#define EXT0_TEMPSENSOR_TYPE 13
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 // Which pin enables the heater
@@ -316,7 +316,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT0_SELECT_COMMANDS "M117 Extruder 1"
 #define EXT0_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT0_EXTRUDER_COOLER_PIN HEATER_2_PIN
+#define EXT0_EXTRUDER_COOLER_PIN -1//HEATER_2_PIN
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT0_EXTRUDER_COOLER_SPEED 255
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
@@ -356,13 +356,13 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // 99 Generic thermistor table 3
 // 100 is AD595
 // 101 is MAX6675
-#define EXT1_TEMPSENSOR_TYPE 100
-#define EXT2_TEMPSENSOR_TYPE 100
+#define EXT1_TEMPSENSOR_TYPE 13
+#define EXT2_TEMPSENSOR_TYPE -1
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT1_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
-#define EXT2_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
+#define EXT1_TEMPSENSOR_PIN TEMP_0_PIN
+#define EXT2_TEMPSENSOR_PIN -1
 // Which pin enables the heater
-#define EXT1_HEATER_PIN -1
+#define EXT1_HEATER_PIN HEATER_2_PIN
 #define EXT2_HEATER_PIN -1
 #define EXT1_STEP_PIN E1_STEP_PIN
 #define EXT2_STEP_PIN E2_STEP_PIN
@@ -459,8 +459,8 @@ cog. Direct drive extruder need 0. */
 #define EXT1_DESELECT_COMMANDS ""
 #define EXT2_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT1_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
-#define EXT2_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
+#define EXT1_EXTRUDER_COOLER_PIN -1
+#define EXT2_EXTRUDER_COOLER_PIN -1
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT1_EXTRUDER_COOLER_SPEED 255
 #define EXT2_EXTRUDER_COOLER_SPEED 255
@@ -1806,6 +1806,22 @@ If you have leveling with bed coating or fixed z min you can use this menu to ad
   Read Events.h for more informations. To activate, uncomment the following define.
 */
 //#define CUSTOM_EVENTS
+
+
+
+/* #PD You can have 2 additional coolers controlled by temperature. */
+#define COOLER_PIN		HEATER_3_PIN
+#define COOLER_MIN_PWM	0
+#define COOLER_MAX_PWM	255
+#define COOLER_MIN_TEMP 50
+#define COOLER_MAX_TEMP 70
+
+// Analog pin number or channel for due boards
+#define COOLER0_SENSOR_PIN		TEMP_2_PIN
+#define COOLER0_SENSOR_TYPE		13
+
+#define COOLER1_SENSOR_PIN		TEMP_3_PIN
+#define COOLER1_SENSOR_TYPE		13
 
 #endif
 

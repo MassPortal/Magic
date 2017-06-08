@@ -192,25 +192,25 @@ STEPPER_CURRENT_CONTROL
 // To set microstepping on startup set START_GCODE to e.g.
 // "M42 P67 S255\nM42 P68 S255\nM42 P69 S255"
 
-#define SDSUPPORT      1
-#define SDPOWER 	   -1
+#define SDSUPPORT				-1
+#define SDPOWER 				-1
 //4// 4,10,52 if using HW SPI.
-#define SDSS		    4
-#define SPI_PIN         77
-#define SPI_CHAN        0
-#define ORIG_SDCARDDETECT       -1
-#define SDCARDDETECTINVERTED 0
-#define LED_PIN 	   -1
-#define PAUSE_LED_PIN	-1
-#define BED_LED_PIN		5
+#define SDSS					4
+#define SPI_PIN					77
+#define SPI_CHAN				0
+#define ORIG_SDCARDDETECT		-1
+#define SDCARDDETECTINVERTED	0
+#define LED_PIN 				-1
+#define PAUSE_LED_PIN			-1
+#define BED_LED_PIN				5
 //9 
-#define ORIG_FAN_PIN	HEATER_3_PIN
+#define ORIG_FAN_PIN			HEATER_3_PIN //random pin to atleast compile code, actually not used (#SpaghettiCode)
 //8 
-#define ORIG_FAN2_PIN   8
-#define ORIG_FAN3_PIN   9
+#define ORIG_FAN2_PIN			8 //printed object cooling
+#define ORIG_FAN3_PIN			9 //ventilation
 #define ORIG_PS_ON_PIN          -1
-#define KILL_PIN	   50
-#define SUICIDE_PIN    -1  //PIN that has to be turned on right after start, to keep power flowing.
+#define KILL_PIN				50
+#define SUICIDE_PIN				-1  //PIN that has to be turned on right after start, to keep power flowing.
 
 // 20 or 70
 #define SDA_PIN 				20  	
@@ -1065,6 +1065,6 @@ STEPPER_CURRENT_CONTROL
 #define SDCARDDETECT ORIG_SDCARDDETECT
 
 #define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, LED_PIN, ORIG_PS_ON_PIN, \
-						HEATER_0_PIN, HEATER_1_PIN, FAN_PIN, E0_PINS E1_PINS E2_PINS TEMP_0_PIN, TEMP_1_PIN,SDSS }
+						HEATER_0_PIN, HEATER_1_PIN, E0_PINS E1_PINS E2_PINS SDSS }
 #endif
 
