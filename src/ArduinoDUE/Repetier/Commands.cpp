@@ -24,6 +24,7 @@
 const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS; // Sensitive pin list for M42
 int Commands::lowestRAMValue = MAX_RAM;
 int Commands::lowestRAMValueSend = MAX_RAM;
+HX711 hx711;
 
 void Commands::commandLoop()
 {
@@ -223,6 +224,13 @@ void Commands::printTemperature() {
 	Com::printF("FW:4=", Extruder::getChamberTemperature());
 	Com::printFLN("#Chamber temp");
 }
+
+#if USE_PRESSURE_SENSOR
+void Commands::printPressureValue(int times) {
+	Com::printF("FW:9=", hx711.get_units(times));
+	Com::printFLN("#Pressure value");
+}
+#endif
 
 void Commands::changeFeedrateMultiply(int factor)
 {
@@ -2515,7 +2523,20 @@ void Commands::processMCode(GCode *com)
         break;
     case 105: // M105  get temperature. Always returns the current temperature, doesn't wait until move stopped
 		if (com->hasS())
-			printTemperature();
+			if (com->S == 1)
+				printTemperature();
+#if USE_PRESSURE_SENSOR
+			else if (com->S == 5 && com->hasP() && com->P != 0)
+				printPressureValue(com->P);
+			else if (com->S == 51 && com->hasP() && com->P != 0)
+			{
+				hx711.begin(HX_DOUT, HX_PD_SCK);
+				hx711.set_scale(1000.f);
+				hx711.tare(com->P);
+			}
+#endif
+			else
+				printTemperature();
 		else
 			printTemperatures(com->hasX());
         break;

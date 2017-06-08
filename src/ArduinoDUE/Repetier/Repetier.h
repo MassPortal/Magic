@@ -956,4 +956,8 @@ extern int debugWaitLoop;
 #include "CustomEvents.h"
 #endif
 
+#ifdef USE_PRESSURE_SENSOR
+#include "HX711.h"
+#endif
+
 #endif

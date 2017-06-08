@@ -1807,5 +1807,15 @@ If you have leveling with bed coating or fixed z min you can use this menu to ad
 */
 //#define CUSTOM_EVENTS
 
+
+#define USE_PRESSURE_SENSOR		true
+#define PRESSURE_SENSOR_PIN		33
+#define PRESSURE_SENSOR_TYPE	103
+
+#if USE_PRESSURE_SENSOR
+#define HX_PD_SCK				37
+#define HX_DOUT					35
+#endif
+
 #endif
 
