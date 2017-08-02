@@ -18,20 +18,12 @@ STEPPER_CURRENT_CONTROL
 #define CURRENT_CONTROL_LTC2600 3  // Use LTC2600 like Foltyn 3D Master
 #define CURRENT_CONTROL_ALLIGATOR 4  //Use External DAC like Alligator
 
-/*
-  arm does not have a eeprom build in. Therefore boards can add a
-  eeprom. Board definition must set the right type of eeprom
-*/
-
 #define EEPROM_NONE 0
 #define EEPROM_I2C  1
 #define EEPROM_SPI_ALLIGATOR 2
 
 // RADDS Board
 // http://www.dr-henschke.de/RADDS_due.html
-#ifndef __SAM3X8E__
-#error Oops!  Make sure you have 'Arduino Due' selected from the 'Tools -> Boards' menu.
-#endif
 
 /*****************************************************************
 * Arduino Due Pin Assignments
@@ -171,30 +163,12 @@ STEPPER_CURRENT_CONTROL
 #define HEATER_PINS_INVERTED 0
 #endif
 
-// Available chip select pins for HW SPI are 4 10 52
-#if (SDSS == 4) || (SDSS == 10) || (SDSS == 52) || (SDSS == 77) 
-#if (SDSS == 10)
-#define SPI_PIN         77
-#define SPI_CHAN        0
-#else
-#if (SDSS == 52) 
-#define SPI_PIN         86
-#define SPI_CHAN        2
-#else // SDSS == 4
-#if (SDSS == 4)
 #define SPI_PIN         87
 #define SPI_CHAN        1
-#else //SDSS == 77
-#define SPI_PIN         77
-#define SPI_CHAN        0
-  #endif
-  #endif
-#endif
 #define MOSI_PIN        75
 #define MISO_PIN        74
 #define SCK_PIN         76
-//#define DUE_SOFTWARE_SPI
-#endif
+
 
 
 // Original pin assignmats to be used in configuration tool
