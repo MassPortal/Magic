@@ -3292,31 +3292,6 @@ void Commands::processMCode(GCode *com)
         dacCommitEeprom();
 #endif
         break;
-#if 0 && UI_DISPLAY_TYPE != NO_DISPLAY
-    // some debuggingcommands normally disabled
-    case 888:
-        Com::printFLN(PSTR("Selected language:"),(int)Com::selectedLanguage);
-        Com::printF(PSTR("Translation:"));
-        Com::printFLN(Com::translatedF(0));
-        break;
-    case 889:
-        uid.showLanguageSelectionWizard();
-        break;
-    case 890:
-        {
-            if(com->hasX() && com->hasY()) {
-                float c = Printer::bendingCorrectionAt(com->X,com->Y);
-                Com::printF(PSTR("Bending at ("),com->X);
-                Com::printF(PSTR(","),com->Y);
-                Com::printFLN(PSTR(") = "),c);
-            }
-        }
-        break;
-    case 891:
-        if(com->hasS())
-            EEPROM::setVersion(com->S);
-        break;
-#endif
     case 887: // M887 echo received message
         if(com->hasString())
         {

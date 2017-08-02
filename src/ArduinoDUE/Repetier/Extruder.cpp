@@ -618,11 +618,7 @@ void Extruder::selectExtruderById(uint8_t extruderId)
         Printer::maxPrintAccelerationStepsPerSquareSecond[E_AXIS] = Printer::maxAccelerationMMPerSquareSecond[E_AXIS] * Printer::axisStepsPerMM[E_AXIS];
 #if USE_ADVANCE
     Printer::maxExtruderSpeed = (ufast8_t)floor(HAL::maxExtruderTimerFrequency() / (Extruder::current->maxFeedrate * Extruder::current->stepsPerMM));
-#if CPU_ARCH == ARCH_ARM
     if(Printer::maxExtruderSpeed > 40) Printer::maxExtruderSpeed = 40;
-#else
-    if(Printer::maxExtruderSpeed > 15) Printer::maxExtruderSpeed = 15;
-#endif
     float maxdist = Extruder::current->maxFeedrate * Extruder::current->maxFeedrate * 0.00013888 / Extruder::current->maxAcceleration;
     maxdist -= Extruder::current->maxStartFeedrate * Extruder::current->maxStartFeedrate * 0.5 / Extruder::current->maxAcceleration;
     float fmax = ((float)HAL::maxExtruderTimerFrequency() / ((float)Printer::maxExtruderSpeed * Printer::axisStepsPerMM[E_AXIS])); // Limit feedrate to interrupt speed
@@ -1645,30 +1641,14 @@ void TemperatureController::updateCurrentTemperature()
         break;
     }
     case 60: // AD8495 (Delivers 5mV/degC vs the AD595's 10mV)
-#if CPU_ARCH == ARCH_AVR
-        currentTemperatureC = ((float)currentTemperature * 1000.0f / (1024 << (2 - ANALOG_REDUCE_BITS)));
-#else
         currentTemperatureC = ((float)currentTemperature * 660.0f / (1024 << (2 - ANALOG_REDUCE_BITS)));
-#endif
         break;
     case 61: // AD8495 1.25V Vref offset (like Adafruit 8495 breakout board)
-#if CPU_ARCH == ARCH_AVR
-        currentTemperatureC = ((float)currentTemperature * 1000.0f / (1024 << (2 - ANALOG_REDUCE_BITS))) - 250.0f;
-#else
         currentTemperatureC = ((float)currentTemperature * 660.0f / (1024 << (2 - ANALOG_REDUCE_BITS))) - 250.0f;
-#endif
         break;
     case 100: // AD595 / AD597   10mV/°C
         //return (int)((long)raw_temp * 500/(1024<<(2-ANALOG_REDUCE_BITS)));
-#if CPU_ARCH == ARCH_AVR
         currentTemperatureC = ((float)currentTemperature * 500.0f / (1024 << (2 - ANALOG_REDUCE_BITS)));
-#else
-#if FEATURE_CONTROLLER == CONTROLLER_LCD_MP_PHARAOH_DUE
-        currentTemperatureC = ((float)currentTemperature * 500.0f / (1024 << (2 - ANALOG_REDUCE_BITS)));
-#else
-        currentTemperatureC = ((float)currentTemperature * 330.0f / (1024 << (2 - ANALOG_REDUCE_BITS)));
-#endif
-#endif
         break;
 #ifdef SUPPORT_MAX6675
     case 101: // MAX6675

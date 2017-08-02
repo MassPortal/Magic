@@ -28,9 +28,6 @@
 #error Please add new parameter STEP_DOUBLER_FREQUENCY to your configuration.
 #else
 #if STEP_DOUBLER_FREQUENCY < 10000 || STEP_DOUBLER_FREQUENCY > 20000
-#if CPU_ARCH==ARCH_AVR
-#error STEP_DOUBLER_FREQUENCY should be in range 10000-16000.
-#endif
 #endif
 #endif
 #ifdef EXTRUDER_SPEED
@@ -80,9 +77,7 @@ volatile int waitRelax = 0; // Delay filament relax at the end of print, could b
 
 PrintLine PrintLine::lines[PRINTLINE_CACHE_SIZE]; ///< Cache for print moves.
 PrintLine *PrintLine::cur = NULL;               ///< Current printing line
-#if CPU_ARCH == ARCH_ARM
 volatile bool PrintLine::nlFlag = false;
-#endif
 ufast8_t PrintLine::linesWritePos = 0;            ///< Position where we write the next cached line move.
 volatile ufast8_t PrintLine::linesCount = 0;      ///< Number of lines cached 0 = nothing to do.
 ufast8_t PrintLine::linesPos = 0;                 ///< Position for executing line movement.
@@ -504,15 +499,9 @@ void PrintLine::updateStepsParameter()
     float endFactor   = endSpeed   * invFullSpeed;
     vStart = vMax * startFactor; //starting speed
     vEnd   = vMax * endFactor;
-#if CPU_ARCH == ARCH_AVR
-    uint32_t vmax2 = HAL::U16SquaredToU32(vMax);
-    accelSteps = ((vmax2 - HAL::U16SquaredToU32(vStart)) / (accelerationPrim << 1)) + 1; // Always add 1 for missing precision
-    decelSteps = ((vmax2 - HAL::U16SquaredToU32(vEnd))  /(accelerationPrim << 1)) + 1;
-#else
     uint64_t vmax2 = static_cast<uint64_t>(vMax) * static_cast<uint64_t>(vMax);
     accelSteps = ((vmax2 - static_cast<uint64_t>(vStart) * static_cast<uint64_t>(vStart)) / (accelerationPrim << 1)) + 1; // Always add 1 for missing precision
     decelSteps = ((vmax2 - static_cast<uint64_t>(vEnd) * static_cast<uint64_t>(vEnd)) / (accelerationPrim << 1)) + 1;
-#endif
 
 #if USE_ADVANCE
 #if ENABLE_QUADRATIC_ADVANCE
@@ -1070,14 +1059,9 @@ inline uint16_t PrintLine::calculateDeltaSubSegments(uint8_t softEndstop)
     int32_t delta,diff;
     int32_t destinationSteps[Z_AXIS_ARRAY], destinationDeltaSteps[TOWER_ARRAY];
     // Save current position
-#if (CPU_ARCH == ARCH_AVR) && !EXACT_DELTA_MOVES
-    for(uint8_t i = 0; i < Z_AXIS_ARRAY; i++)
-        destinationSteps[i] = Printer::currentPositionSteps[i];
-#else
     float dx[Z_AXIS_ARRAY];
     for(int i = 0; i < Z_AXIS_ARRAY; i++)
         dx[i] = static_cast<float>(Printer::destinationSteps[i] - Printer::currentPositionSteps[i]) / static_cast<float>(numDeltaSegments);
-#endif
 //	out.println_byte_P(PSTR("Calculate delta segments:"), p->numDeltaSegments);
 #ifdef DEBUG_STEPCOUNT
     totalStepsRemaining = 0;
@@ -1088,30 +1072,10 @@ inline uint16_t PrintLine::calculateDeltaSubSegments(uint8_t softEndstop)
     {
         DeltaSegment *d = &segments[s - 1];
 
-#if (CPU_ARCH == ARCH_AVR) && !EXACT_DELTA_MOVES
-        for(i = 0; i < Z_AXIS_ARRAY; i++)
-        {
-            // End of segment in cartesian steps
-
-            // This method generates small waves which get larger with increasing number of delta segments. smaller??
-            diff = Printer::destinationSteps[i] - destinationSteps[i];
-            if(s == 1)
-                destinationSteps[i] += diff;
-            else if(s == 2)
-                destinationSteps[i] += (diff >> 1);
-            else if(s == 4)
-                destinationSteps[i] += (diff >> 2);
-            else if(diff<0)
-                destinationSteps[i] -= HAL::Div4U2U(-diff, s);
-            else
-                destinationSteps[i] += HAL::Div4U2U(diff, s);
-        }
-#else
         float segment = static_cast<float>(numDeltaSegments - s + 1);
         for(i = 0; i < Z_AXIS_ARRAY; i++) // End of segment in cartesian steps
             // Perfect approximation, but slower, so we limit it to faster processors like arm
             destinationSteps[i] = static_cast<int32_t>(floor(0.5 + dx[i] * segment)) + Printer::currentPositionSteps[i];
-#endif
         // Verify that delta calc has a solution
         if (transformCartesianStepsToDeltaSteps(destinationSteps, destinationDeltaSteps))
         {
@@ -1619,11 +1583,7 @@ DeltaSegment *curd;
 int32_t curd_errupd, stepsPerSegRemaining;
 int32_t PrintLine::bresenhamStep() // Version for delta printer
 {
-#if CPU_ARCH == ARCH_ARM
     if(!PrintLine::nlFlag)
-#else
-    if(cur == NULL)
-#endif
     {
         setCurrentLine();
         if(cur->isBlocked())   // This step is in computation - shouldn't happen
@@ -1635,9 +1595,7 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
                 Com::printFLN(Com::tBLK, (int32_t)linesCount);
             }
             cur = NULL;
-#if CPU_ARCH == ARCH_ARM
             PrintLine::nlFlag = false;
-#endif
             return 2000;
         }
         HAL::allowInterrupts();
@@ -1659,9 +1617,7 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
             if(linesCount <= cur->getWaitForXLinesFilled())
             {
                 cur = NULL;
-#if CPU_ARCH==ARCH_ARM
                 PrintLine::nlFlag = false;
-#endif
                 return 2000;
             }
             long wait = cur->getWaitTicks();
@@ -1849,19 +1805,15 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
                 //deltaSegmentCount--;
             }
         }
-#if CPU_ARCH != ARCH_AVR
         if(loop < maxLoops - 1)
         {
-#endif
             Printer::insertStepperHighDelay();
             Printer::endXYZSteps();
 #if USE_ADVANCE
             if(!Printer::isAdvanceActivated()) // Use interrupt for movement
 #endif
                 Extruder::unstep();
-#if CPU_ARCH != ARCH_AVR
         }
-#endif
     } // for loop
 
     HAL::allowInterrupts(); // Allow interrupts for other types, timer1 is still disabled
@@ -1959,14 +1911,12 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
         Printer::interval >>= 1; // 50% of time to next call to do cur=0
         DEBUG_MEMORY;
     } // Do even
-#if CPU_ARCH != ARCH_AVR
     Printer::insertStepperHighDelay();
     Printer::endXYZSteps();
 #if USE_ADVANCE
     if(!Printer::isAdvanceActivated()) // Use interrupt for movement
 #endif
-        Extruder::unstep();
-#endif
+    Extruder::unstep();
     return Printer::interval;
 }
 

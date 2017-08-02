@@ -164,9 +164,7 @@ class UIDisplay;
 class PrintLine   // RAM usage: 24*4+15 = 113 Byte
 {
     friend class UIDisplay;
-#if CPU_ARCH==ARCH_ARM
     static volatile bool nlFlag;
-#endif
 public:
     static ufast8_t linesPos; // Position for executing line movement
     static PrintLine lines[];
@@ -546,9 +544,7 @@ public:
     static INLINE void setCurrentLine()
     {
         cur = &lines[linesPos];
-#if CPU_ARCH==ARCH_ARM
         PrintLine::nlFlag = true;
-#endif
     }
     // Only called from within interrupts
     static INLINE void removeCurrentLineForbidInterrupt()
@@ -556,9 +552,7 @@ public:
         linesPos++;
         if(linesPos >= PRINTLINE_CACHE_SIZE) linesPos = 0;
         cur = NULL;
-#if CPU_ARCH == ARCH_ARM
         nlFlag = false;
-#endif
         HAL::forbidInterrupts();
         --linesCount;
         if(!linesCount)

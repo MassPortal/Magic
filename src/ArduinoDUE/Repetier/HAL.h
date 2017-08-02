@@ -179,7 +179,6 @@ typedef char prog_char;
 // Protects a variable scope for interrupts. Uses RAII to force clearance of
 // Interrupt block at the end resp. sets them to previous state.
 // Uses ABSEPRI to allow higher level interrupts then the one changing firmware data
-#if 1
 class InterruptProtectedBlock {
   public:
     INLINE void protect() {
@@ -199,30 +198,6 @@ class InterruptProtectedBlock {
       __enable_irq();
     }
 };
-#else
-class InterruptProtectedBlock {
-    uint32_t mask;
-  public:
-    inline void protect() {
-      mask = __get_PRIMASK();;
-      __disable_irq();
-    }
-
-    inline void unprotect() {
-      __set_PRIMASK(mask);
-    }
-
-    inline InterruptProtectedBlock(bool later = false) {
-      mask = __get_PRIMASK();
-      if (!later)
-        __disable_irq();
-    }
-
-    inline ~InterruptProtectedBlock() {
-      __set_PRIMASK(mask);
-    }
-};
-#endif
 
 #define EEPROM_OFFSET               0
 #define SECONDS_TO_TICKS(s) (unsigned long)(s*(float)F_CPU)
@@ -536,49 +511,7 @@ class HAL
     // Write any data type to EEPROM
     static inline void eprBurnValue(unsigned int pos, int size, union eeval_t newvalue)
     {
-#if EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
-      uint8_t eeprom_temp[3];
-
-      /*write enable*/
-      eeprom_temp[0] = 6;//WREN
-      WRITE( SPI_EEPROM1_CS , LOW );
-      spiSend(SPI_CHAN_EEPROM1 , eeprom_temp , 1);
-      WRITE( SPI_EEPROM1_CS , HIGH );
-      delayMilliseconds(1);
-
-      /*write addr*/
-      eeprom_temp[0] = 2;//WRITE
-      eeprom_temp[1] = ((pos >> 8) & 0xFF); //addrH
-      eeprom_temp[2] = (pos & 0xFF); //addrL
-      WRITE( SPI_EEPROM1_CS , LOW );
-      spiSend(SPI_CHAN_EEPROM1 , eeprom_temp , 3);
-
-      spiSend(SPI_CHAN_EEPROM1 , &(newvalue.b[0]) , 1);
-      for (int i = 1; i < size; i++) {
-        pos++;
-        // writes cannot cross page boundary
-        if ((pos % EEPROM_PAGE_SIZE) == 0) {
-          // burn current page then address next one
-          WRITE( SPI_EEPROM1_CS , HIGH );
-          delayMilliseconds(EEPROM_PAGE_WRITE_TIME);
-
-          /*write enable*/
-          eeprom_temp[0] = 6;//WREN
-          WRITE( SPI_EEPROM1_CS , LOW );
-          spiSend(SPI_CHAN_EEPROM1 , eeprom_temp , 1);
-          WRITE( SPI_EEPROM1_CS , HIGH );
-
-          eeprom_temp[0] = 2;//WRITE
-          eeprom_temp[1] = ((pos >> 8) & 0xFF); //addrH
-          eeprom_temp[2] = (pos & 0xFF); //addrL
-          WRITE( SPI_EEPROM1_CS , LOW );
-          spiSend(SPI_CHAN_EEPROM1 , eeprom_temp , 3);
-        }
-        spiSend(SPI_CHAN_EEPROM1 , &(newvalue.b[i]) , 1);
-      }
-      WRITE( SPI_EEPROM1_CS , HIGH );
-      delayMilliseconds(EEPROM_PAGE_WRITE_TIME);   // wait for page write to complete
-#elif EEPROM_AVAILABLE == EEPROM_I2C
+#if EEPROM_AVAILABLE == EEPROM_I2C
       i2cStartAddr(EEPROM_SERIAL_ADDR << 1 | I2C_WRITE, pos);
       i2cWriting(newvalue.b[0]);        // write first byte
       for (int i = 1; i < size; i++) {
@@ -596,35 +529,13 @@ class HAL
       }
       i2cStop();          // signal end of transaction
       delayMilliseconds(EEPROM_PAGE_WRITE_TIME);   // wait for page write to complete
-#endif//(MOTHERBOARD==500) || (MOTHERBOARD==501)
+#endif
     }
 
     // Read any data type from EEPROM that was previously written by eprBurnValue
     static inline union eeval_t eprGetValue(unsigned int pos, int size)
     {
-#if EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
-      int i = 0;
-      eeval_t v;
-      uint8_t eeprom_temp[3];
-      size--;
-
-      eeprom_temp[0] = 3;//READ
-      eeprom_temp[1] = ((pos >> 8) & 0xFF); //addrH
-      eeprom_temp[2] = (pos & 0xFF); //addrL
-      WRITE( SPI_EEPROM1_CS , HIGH );
-      WRITE( SPI_EEPROM1_CS , LOW );
-
-      spiSend(SPI_CHAN_EEPROM1 , eeprom_temp , 3);
-
-      for (i = 0; i < size; i++) {
-        // read an incomming byte
-        v.b[i] = spiReceive(SPI_CHAN_EEPROM1);
-      }
-      // read last byte
-      v.b[i] = spiReceive(SPI_CHAN_EEPROM1);
-      WRITE( SPI_EEPROM1_CS , HIGH );
-      return v;
-#elif EEPROM_AVAILABLE == EEPROM_I2C
+#if EEPROM_AVAILABLE == EEPROM_I2C
       int i;
       eeval_t v;
 
@@ -640,7 +551,7 @@ class HAL
       // read last byte
       v.b[i] = i2cReadNak();
       return v;
-#endif //(MOTHERBOARD==500) || (MOTHERBOARD==501)
+#endif
     }
 
     static inline void allowInterrupts()
@@ -704,99 +615,6 @@ class HAL
     static int getFreeRam();
     static void resetHardware();
 
-    // SPI related functions
-
-#ifdef DUE_SOFTWARE_SPI
-    // bitbanging transfer
-    // run at ~100KHz (necessary for init)
-    static uint8_t spiTransfer(uint8_t b)  // using Mode 0
-    {
-      for (int bits = 0; bits < 8; bits++) {
-        if (b & 0x80) {
-          WRITE(MOSI_PIN, HIGH);
-        } else {
-          WRITE(MOSI_PIN, LOW);
-        }
-        b <<= 1;
-
-        WRITE(SCK_PIN, HIGH);
-        delayMicroseconds(5);
-
-        if (READ(MISO_PIN)) {
-          b |= 1;
-        }
-        WRITE(SCK_PIN, LOW);
-        delayMicroseconds(5);
-      }
-      return b;
-    }
-    static inline void spiBegin()
-    {
-      SET_OUTPUT(SDSS);
-      WRITE(SDSS, HIGH);
-      SET_OUTPUT(SCK_PIN);
-      SET_INPUT(MISO_PIN);
-      SET_OUTPUT(MOSI_PIN);
-    }
-
-    static inline void spiInit(uint8_t spiClock)
-    {
-      WRITE(SDSS, HIGH);
-      WRITE(MOSI_PIN, HIGH);
-      WRITE(SCK_PIN, LOW);
-    }
-    static inline uint8_t spiReceive()
-    {
-      WRITE(SDSS, LOW);
-      uint8_t b = spiTransfer(0xff);
-      WRITE(SDSS, HIGH);
-      return b;
-    }
-    static inline void spiReadBlock(uint8_t*buf, uint16_t nbyte)
-    {
-      if (nbyte == 0) return;
-      WRITE(SDSS, LOW);
-      for (int i = 0; i < nbyte; i++)
-      {
-        buf[i] = spiTransfer(0xff);
-      }
-      WRITE(SDSS, HIGH);
-
-    }
-    static inline void spiSend(uint8_t b) {
-      WRITE(SDSS, LOW);
-      uint8_t response = spiTransfer(b);
-      WRITE(SDSS, HIGH);
-    }
-
-    static inline void spiSend(const uint8_t* buf , size_t n)
-    {
-      uint8_t response;
-      if (n == 0) return;
-      WRITE(SDSS, LOW);
-      for (uint16_t i = 0; i < n; i++) {
-        response = spiTransfer(buf[i]);
-      }
-      WRITE(SDSS, HIGH);
-    }
-
-    inline __attribute__((always_inline))
-    static void spiSendBlock(uint8_t token, const uint8_t* buf)
-    {
-      uint8_t response;
-
-      WRITE(SDSS, LOW);
-      response = spiTransfer(token);
-
-      for (uint16_t i = 0; i < 512; i++)
-      {
-        response = spiTransfer(buf[i]);
-      }
-      WRITE(SDSS, HIGH);
-    }
-
-#else
-
     // hardware SPI
     static void spiBegin();
     // spiClock is 0 to 6, relecting AVR clock dividers 2,4,8,16,32,64,128
@@ -805,11 +623,6 @@ class HAL
     // Write single byte to SPI
     static void spiSend(byte b);
     static void spiSend(const uint8_t* buf , size_t n);
-#if MOTHERBOARD == 500 || MOTHERBOARD == 501
-    static void spiSend(uint32_t chan , const uint8_t* buf , size_t n);
-    static void spiSend(uint32_t chan, byte b);
-    static uint8_t spiReceive(uint32_t chan);
-#endif
     // Read single byte from SPI
     static uint8_t spiReceive();
     // Read from SPI into buffer
@@ -818,7 +631,6 @@ class HAL
     // Write from buffer to SPI
 
     static void spiSendBlock(uint8_t token, const uint8_t* buf);
-#endif  /*DUE_SOFTWARE_SPI*/
 
     // I2C Support
     static void i2cInit(unsigned long clockSpeedHz);

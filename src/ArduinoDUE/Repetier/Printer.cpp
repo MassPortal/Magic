@@ -2008,10 +2008,8 @@ void Printer::showJSONStatus(int type) {
             Com::printF(PSTR("],\"firmwareElectronics\":\""));
 #ifdef RAMPS_V_1_3
             Com::printF(PSTR("RAMPS"));
-#elif (CPU_ARCH == ARCH_ARM)
-            Com::printF(PSTR("Arduino Due"));
 #else
-            Com::printF(PSTR("AVR"));
+            Com::printF(PSTR("Arduino Due"));
 #endif
             Com::printF(PSTR("\",\"firmwareName\":\"Repetier\",\"firmwareVersion\":\""));
             Com::printF(PSTR(REPETIER_VERSION));

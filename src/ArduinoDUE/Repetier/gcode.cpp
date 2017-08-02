@@ -1074,11 +1074,7 @@ void GCodeFileInfo::init(SdBaseFile &file) {
 	this->layerHeight = 0.0;
 	if (!file.isOpen()) return;
 	bool genByFound = false, layerHeightFound = false, filamentNeedFound = false;
-	#if CPU_ARCH==ARCH_AVR
-	#define GCI_BUF_SIZE 120
-	#else
 	#define GCI_BUF_SIZE 1024
-	#endif
 	// READ 4KB FROM THE BEGINNING
 	char buf[GCI_BUF_SIZE];
 	for (int i = 0; i < 4096; i += GCI_BUF_SIZE-50) {
