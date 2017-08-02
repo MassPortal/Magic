@@ -175,6 +175,12 @@ public:
     ufast8_t joinFlags;
     volatile ufast8_t flags;
     uint8_t secondSpeed; // for laser intensity or fan control
+    static volatile uint32_t NCurrent;
+    static volatile uint32_t NNext;
+    static volatile uint32_t NFirst;
+    static volatile uint32_t NLast;
+    static volatile uint32_t NExecuted;
+    volatile static uint32_t NBuff[];
 private:
     fast8_t primaryAxis;
     ufast8_t dir;                       ///< Direction of movement. 1 = X+, 2 = Y+, 4= Z+, values can be combined.
@@ -643,8 +649,13 @@ public:
     // Only called from within interrupts
     static INLINE void removeCurrentLineForbidInterrupt()
     {
+        NBuff[linesPos] = 0; // erase old indetifier
         linesPos++;
-        if(linesPos >= PRINTLINE_CACHE_SIZE) linesPos = 0;
+        if (linesPos >= PRINTLINE_CACHE_SIZE) linesPos = 0;
+        if (NBuff[linesPos] != NCurrent) {
+            if (NCurrent) NExecuted = NCurrent;
+            NCurrent = NBuff[linesPos]; // Change current 'N' changes
+        }
         cur = NULL;
 #if CPU_ARCH == ARCH_ARM
         nlFlag = false;
@@ -656,6 +667,7 @@ public:
     }
     static INLINE void pushLine()
     {
+        NBuff[linesWritePos] = NNext; // Add coresponding 'N' to line cache
         linesWritePos++;
         if(linesWritePos >= PRINTLINE_CACHE_SIZE) linesWritePos = 0;
         Printer::setMenuMode(MENU_MODE_PRINTING, true);

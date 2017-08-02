@@ -78,7 +78,11 @@ float maxadvspeed = 0;
 uint8_t pwm_pos[NUM_PWM]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
 volatile int waitRelax = 0; // Delay filament relax at the end of print, could be a simple timeout
 
-PrintLine PrintLine::lines[PRINTLINE_CACHE_SIZE]; ///< Cache for print moves.
+PrintLine PrintLine::lines[PRINTLINE_CACHE_SIZE];           ///< Cache for print moves.
+volatile uint32_t PrintLine::NBuff[PRINTLINE_CACHE_SIZE];   ///< Cache for coresponding 'N' G-code line numbers
+volatile uint32_t PrintLine::NNext;                         ///< 'N' for next G-code
+volatile uint32_t PrintLine::NCurrent;                      ///< 'N' for current G-code
+volatile uint32_t PrintLine::NExecuted = 0;
 PrintLine *PrintLine::cur = NULL;               ///< Current printing line
 #if CPU_ARCH == ARCH_ARM
 volatile bool PrintLine::nlFlag = false;
