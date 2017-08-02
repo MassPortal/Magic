@@ -483,7 +483,7 @@ inline void memcopy4(void *dest,void *source) {
 
 #include "ui.h"
 #if BED_LEDS
-#include "Lighting.h";
+#include "Lighting.h"
 #endif
 #include "Communication.h"
 

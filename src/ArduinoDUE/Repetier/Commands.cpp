@@ -1924,7 +1924,8 @@ void Commands::processGCode(GCode *com)
 			Max = com->S;
 		if (com->hasI() && com->I != 0.0)
 			incr = com->I;
-		float zx1, zy1;
+        float zx1 = 0;
+        float zy1 = 0;
 		if (com->hasP())
 			switch (com->P) {
 			case 0: {
@@ -1977,7 +1978,7 @@ void Commands::processGCode(GCode *com)
 		}
 		//Com::printFLN("Finished");
 		//Printer::setAutolevelActive(false);
-		if (com->hasR() && (com->R > 0.1 && com->R < 2 || com->R > 2.1)) {
+		if (com->hasR() && ((com->R > 0.1 && com->R < 2) || com->R > 2.1)) {
 #if Z_PROBE_LATCHING_SWITCH
 			if (Printer::probeType == 2)
 				if (!Endstops::zProbe())

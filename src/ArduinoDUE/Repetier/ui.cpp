@@ -1371,7 +1371,7 @@ void UIDisplay::parse(const char *txt,bool ram)
             else if(c2 >= '0' && c2 <= '9') fvalue = extruder[c2 - '0'].tempControl.targetTemperatureC;
 #else
 			// Semi mixing extruder
-			if (c2 >= '0' && c2 <= '9' || c2 == 'c')
+			if ((c2 >= '0' && c2 <= '9') || c2 == 'c')
 				fvalue = extruder[0].tempControl.targetTemperatureC;
 #endif
 #if HAVE_HEATED_BED
@@ -1457,7 +1457,7 @@ void UIDisplay::parse(const char *txt,bool ram)
             }
 			if(c2 == 'F')
 			{
-				for (int i=0; i<sizeof(shortFilename); i++)
+				for (size_t i=0; i<sizeof(shortFilename); i++)
 					addChar(shortFilename[i]);
 				break;
 			}

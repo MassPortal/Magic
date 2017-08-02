@@ -37,7 +37,7 @@ class Lighting
 	 float BedCurrent;
 	 float ExtruderTarget;
 	 float ExtruderCurrent;
-	 int LastPositionHash;
+	 uint32_t LastPositionHash;
 	 float LedBrightness;
 	 void init();
 	 void SetAllLeds(uint8_t r, uint8_t g, uint8_t b);

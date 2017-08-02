@@ -214,7 +214,7 @@ Define the pin
 
 #else // Direct display connections
 #define UI_DISPLAY_RS_PIN		42		// PINK.1, 88, D_RS
-#define UI_DISPLAY_RW_PIN		-1
+#define UI_DISPLAY_RW_PIN		59
 #define UI_DISPLAY_ENABLE_PIN	43		// PINK.3, 86, D_E
 #define UI_DISPLAY_D0_PIN		44		// PINF.5, 92, D_D4
 #define UI_DISPLAY_D1_PIN		45		// PINK.2, 87, D_D5
@@ -227,11 +227,10 @@ Define the pin
 #define UI_DELAYPERCHAR		   50
 
 // Special pins for some u8g driven display
-
+// XXX thats one overowered pin 
 #define UI_DISPLAY_CS1 59
 #define UI_DISPLAY_CS2 59
 #define UI_DISPLAY_DI 59
-#define UI_DISPLAY_RW_PIN 59
 #define UI_DISPLAY_RESET_PIN 59
 #endif
 

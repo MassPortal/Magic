@@ -845,7 +845,7 @@ void Adafruit_NeoPixel::show(void) {
   #define TIME_400_1 ((int)(1.20 * SCALE + 0.5) - (5 * INST))
   #define PERIOD_400 ((int)(2.50 * SCALE + 0.5) - (5 * INST))
 
-  int             pinMask, time0, time1, period, t;
+  uint32_t             pinMask, time0, time1, period, t;
   Pio            *port;
   volatile WoReg *portSet, *portClear, *timeValue, *timeReset;
   uint8_t        *p, *end, pix, mask;
