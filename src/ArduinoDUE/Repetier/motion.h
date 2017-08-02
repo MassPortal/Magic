@@ -506,9 +506,7 @@ public:
     }
     INLINE void startXStep()
     {
-#if !(GANTRY)
         Printer::startXStep();
-#endif
 #ifdef DEBUG_STEPCOUNT
         totalStepsRemaining--;
 #endif

@@ -145,21 +145,12 @@ float Printer::offsetZ;                     ///< Z-offset for different extruder
 speed_t Printer::vMaxReached;               ///< Maximumu reached speed
 uint32_t Printer::msecondsPrinting;         ///< Milliseconds of printing time (means time with heated extruder)
 float Printer::filamentPrinted;             ///< mm of filament printed since counting started
-#if ENABLE_BACKLASH_COMPENSATION
-float Printer::backlashX;
-float Printer::backlashY;
-float Printer::backlashZ;
-uint8_t Printer::backlashDir;
-#endif
 float Printer::memoryX;
 float Printer::memoryY;
 float Printer::memoryZ;
 float Printer::memoryE;
 float Printer::memoryF = -1;
-#if GANTRY
-int8_t Printer::motorX;
-int8_t Printer::motorYorZ;
-#endif
+
 #if FAN_THERMO_PIN > -1
 float Printer::thermoMinTemp = FAN_THERMO_MIN_TEMP;
 float Printer::thermoMaxTemp = FAN_THERMO_MAX_TEMP;
@@ -1031,10 +1022,6 @@ void Printer::setup()
     CNCDriver::initialize();
 #endif // defined
 
-#if GANTRY
-    Printer::motorX = 0;
-    Printer::motorYorZ = 0;
-#endif
 #ifdef RED_BLUE_STATUS_LEDS
     SET_OUTPUT(RED_STATUS_LED);
     SET_OUTPUT(BLUE_STATUS_LED);

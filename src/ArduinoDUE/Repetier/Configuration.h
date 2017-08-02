@@ -89,21 +89,6 @@ gets used, or you will get probelms with checksums etc.
 // If it is incompatible you will get compiler errors about write functions not beeing compatible!
 //#define COMPAT_PRE1
 
-/* Define the type of axis movements needed for your printer. The typical case
-is a full cartesian system where x, y and z moves are handled by separate motors.
-
-0 = full cartesian system, xyz have seperate motors.
-1 = z axis + xy H-gantry (x_motor = x+y, y_motor = x-y)
-2 = z axis + xy H-gantry (x_motor = x+y, y_motor = y-x)
-3 = Delta printers (Rostock, Kossel, RostockMax, Cerberus, etc)
-4 = Tuga printer (Scott-Russell mechanism)
-5 = Bipod system (not implemented)
-8 = y axis + xz H-gantry (x_motor = x+z, z_motor = x-z)
-9 = y axis + xz H-gantry (x_motor = x+z, z_motor = z-x)
-Cases 1, 2, 8 and 9 cover all needed xy and xz H gantry systems. If you get results mirrored etc. you can swap motor connections for x and y.
-If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
-*/
-
 /* You can write some gcode to be executed on startup. Use this e.g. to set some 
 pins. Separate multiple gcodes with \n
 */
@@ -998,8 +983,6 @@ you can also change the values online and autoleveling will store the results he
 #define DELTA_X_ENDSTOP_OFFSET_STEPS 0
 #define DELTA_Y_ENDSTOP_OFFSET_STEPS 0
 #define DELTA_Z_ENDSTOP_OFFSET_STEPS 0
-
-// ========== Tuga special settings =============
 
 /** \brief Number of delta moves in each line. Moves that exceed this figure will be split into multiple lines.
 Increasing this figure can use a lot of memory since 7 bytes * size of line buffer * MAX_SELTA_SEGMENTS_PER_LINE
