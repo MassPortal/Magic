@@ -98,6 +98,8 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
             writeMonitor();
         counter250ms = 5;
         EVENT_TIMER_500MS;
+		if (managePressure)
+			Commands::printPressureValue();
     }
     // If called from queueDelta etc. it is an error to start a new move since it
     // would invalidate old computation resulting in unpredicted behaviour.
@@ -251,6 +253,15 @@ void Commands::printCooler0Temperature() {
 void Commands::printCooler1Temperature() {
 	Com::printF("FW:8=", Extruder::getCooler1Temperature());
 	Com::printFLN("#Cooler1 temp");
+}
+
+void Commands::printPressureValue() {
+#if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
+	BTAdapter.print("FW:9=");
+	BTAdapter.println(pressureGetAvg());
+#endif
+	//Com::printF("FW:9=", Extruder::getPressureValue());
+	//Com::printFLN("#Pressure value");
 }
 
 void Commands::changeFeedrateMultiply(int factor)
@@ -2464,6 +2475,10 @@ void Commands::processMCode(GCode *com)
 				printCooler0Temperature();
 			else if (com->S == 4)
 				printCooler1Temperature();
+			else if (com->S == 5) {
+				managePressure = !managePressure;
+				Com::printFLN("Pressure value output toggled on Serial1");
+			}
 			else
 				printChamberTemperature();
 		else

@@ -41,6 +41,7 @@ public:
 	static void printChamberTemperature();
 	static void printCooler0Temperature();
 	static void printCooler1Temperature();
+	static void printPressureValue();
     static void setFanSpeed(int speed, bool immediately = false); /// Set fan speed 0..255
     static void setFan2Speed(int speed); /// Set fan speed 0..255
 	static void setFan3Speed(int speed); /// Set fan speed 0..255

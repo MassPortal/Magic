@@ -12,6 +12,7 @@
 // Toggels the heater power if necessary.
 extern bool reportTempsensorError(); ///< Report defect sensors
 extern uint8_t manageMonitor;
+extern bool managePressure;
 #define HTR_OFF 0
 #define HTR_PID 1
 #define HTR_SLOWBANG 2

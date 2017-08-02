@@ -1823,5 +1823,11 @@ If you have leveling with bed coating or fixed z min you can use this menu to ad
 #define COOLER1_SENSOR_PIN		TEMP_3_PIN
 #define COOLER1_SENSOR_TYPE		13
 
+#define SUPPORT_PRESSURE_SENSOR
+#define PRESSURE_SENSOR_PIN		33
+#define PRESSURE_SENSOR_TYPE	103
+#define HX_PD_SCK				27
+#define HX_DOUT					25
+
 #endif
 

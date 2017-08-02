@@ -22,6 +22,7 @@
 #include "Repetier.h"
 
 uint8_t manageMonitor = 0; ///< Temp. we want to monitor with our host. 1+NUM_EXTRUDER is heated bed
+bool managePressure = false;
 unsigned int counterPeriodical = 0;
 volatile uint8_t executePeriodical = 0;
 uint8_t counter250ms = 25;
