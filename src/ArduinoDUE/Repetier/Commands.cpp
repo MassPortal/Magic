@@ -229,9 +229,28 @@ void Commands::printTemperatures(bool showRaw)
 #endif
 }
 
-void Commands::printTemperature() {
+void Commands::printChamberTemperature() {
 	Com::printF("FW:4=", Extruder::getChamberTemperature());
 	Com::printFLN("#Chamber temp");
+}
+
+void Commands::printHeaterTemperature(int index) {
+	if(index == 0)
+		Com::printF("FW:5=", Extruder::getHeaterTemperature(index));
+	else
+		Com::printF("FW:6=", Extruder::getHeaterTemperature(index));
+	Com::printF("#Heater", index);
+	Com::printFLN(" temp");
+}
+
+void Commands::printCooler0Temperature() {
+	Com::printF("FW:7=", Extruder::getCooler0Temperature());
+	Com::printFLN("#Cooler0 temp");
+}
+
+void Commands::printCooler1Temperature() {
+	Com::printF("FW:8=", Extruder::getCooler1Temperature());
+	Com::printFLN("#Cooler1 temp");
 }
 
 void Commands::changeFeedrateMultiply(int factor)
@@ -307,6 +326,13 @@ void Commands::setFan3Speed(int speed)
 	Printer::setFan3SpeedDirectly(speed);
 	Com::printFLN(Com::tFan3speed,speed); // send only new values to break update loops!
 	#endif
+}
+void Commands::setCoolerSpeed(int speed)
+{
+#if COOLER_PIN >- 1
+	speed = constrain(speed, 0, 255);
+	pwm_pos[PWM_COOLER] = speed;
+#endif
 }
 void Commands::reportPrinterUsage()
 {
@@ -2525,7 +2551,16 @@ void Commands::processMCode(GCode *com)
         break;
     case 105: // M105  get temperature. Always returns the current temperature, doesn't wait until move stopped
 		if (com->hasS())
-			printTemperature();
+			if (com->S == 1)
+				printHeaterTemperature(0);
+			else if (com->S == 2)
+				printHeaterTemperature(1);
+			else if (com->S == 3)
+				printCooler0Temperature();
+			else if (com->S == 4)
+				printCooler1Temperature();
+			else
+				printChamberTemperature();
 		else
 			printTemperatures(com->hasX());
         break;
@@ -2634,14 +2669,16 @@ void Commands::processMCode(GCode *com)
         break;
 #endif
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
-    case 106: // M106 Fan On
+    case 106: // M106 Fan/Cooler On
         if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND))
         {
             if(com->hasP())
 				if(com->P == 1)
-	            setFan2Speed(com->hasS() ? com->S : 255);
-			else
-					setFan3Speed(com->hasS() ? com->S : 255);				
+					setFan2Speed(com->hasS() ? com->S : 255);
+				else if(com->P == 2)
+					setFan3Speed(com->hasS() ? com->S : 255);
+				else
+					setCoolerSpeed(com->hasS() ? com->S : 255);
 			else
             setFanSpeed(com->hasS() ? com->S : 255);
         }

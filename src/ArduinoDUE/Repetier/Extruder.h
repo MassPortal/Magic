@@ -282,8 +282,11 @@ public:
     static void initExtruder();
     static void initHeatedBed();
     static void setHeatedBedTemperature(float temp_celsius,bool beep = false);
+	static float getHeaterTemperature(int index);
     static float getHeatedBedTemperature();
 	static float getChamberTemperature();
+	static float getCooler0Temperature();
+	static float getCooler1Temperature();
 	static float getHeatedBedTargetTemperature();
     static void setTemperatureForExtruder(float temp_celsius,uint8_t extr,bool beep = false, bool wait = false);
     static void pauseExtruders();
@@ -310,7 +313,21 @@ extern TemperatureController chamberController;
 #define CHAMBER_CONTROLLER_INDEX THERMO_CONTROLLER_INDEX
 #endif
 
-#define NUM_TEMPERATURE_LOOPS CHAMBER_CONTROLLER_INDEX+1
+#if COOLER0_SENSOR_PIN > -1
+#define COOLER0_CONTROLLER_INDEX CHAMBER_CONTROLLER_INDEX+1
+extern TemperatureController cooler0Controller;
+#else
+#define COOLER0_CONTROLLER_INDEX CHAMBER_CONTROLLER_INDEX
+#endif
+
+#if COOLER1_SENSOR_PIN > -1
+#define COOLER1_CONTROLLER_INDEX COOLER0_CONTROLLER_INDEX+1
+extern TemperatureController cooler1Controller;
+#else
+#define COOLER1_CONTROLLER_INDEX COOLER0_CONTROLLER_INDEX
+#endif
+
+#define NUM_TEMPERATURE_LOOPS COOLER1_CONTROLLER_INDEX+1
 
 #define TEMP_INT_TO_FLOAT(temp) ((float)(temp)/(float)(1<<CELSIUS_EXTRA_BITS))
 #define TEMP_FLOAT_TO_INT(temp) ((int)((temp)*(1<<CELSIUS_EXTRA_BITS)))

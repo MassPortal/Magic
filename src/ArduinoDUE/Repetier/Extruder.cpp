@@ -98,6 +98,14 @@ void Extruder::manageTemperatures()
 #if CHAMBER_SENSOR_PIN > -1
 		if (act == &chamberController) continue;
 #endif
+#if COOLER0_SENSOR_PIN > -1
+		if (act == &cooler0Controller) continue;
+#endif
+
+#if COOLER1_SENSOR_PIN > -1
+		if (act == &cooler1Controller) continue;
+#endif
+
 #if HAVE_HEATED_BED
 		if (act == &heatedBedController)
 			if (Printer::bedType < 2) continue; // Skip in case we don't have heated bed
@@ -834,6 +842,42 @@ float Extruder::getChamberTemperature()
 	return -1;
 #endif
 }
+
+float Extruder::getHeaterTemperature(int index)
+{
+#if NUM_EXTRUDER > -1
+	if (NUM_EXTRUDER > index)
+	{
+		TemperatureController *e = tempController[index];
+		return e->currentTemperatureC;
+	}
+	else
+		return -1;
+#else
+	return -1;
+#endif
+}
+
+float Extruder::getCooler0Temperature()
+{
+#if COOLER0_SENSOR_PIN > -1
+	TemperatureController *f = tempController[COOLER0_CONTROLLER_INDEX];
+	return f->currentTemperatureC;
+#else
+	return -1;
+#endif
+}
+
+float Extruder::getCooler1Temperature()
+{
+#if COOLER1_SENSOR_PIN > -1
+	TemperatureController *g = tempController[COOLER1_CONTROLLER_INDEX];
+	return g->currentTemperatureC;
+#else
+	return -1;
+#endif
+}
+
 #if MIXING_EXTRUDER > 0
 void Extruder::setMixingWeight(uint8_t extr,int weight)
 {
@@ -1474,11 +1518,19 @@ const short temptable_12[NUMTEMPS_12][2] PROGMEM =
     {351*4, 140*8},{386*4, 134*8},{421*4, 128*8},{456*4, 122*8},{491*4, 117*8},{526*4, 112*8},{561*4, 107*8},{596*4, 102*8},{631*4, 97*8},{666*4, 91*8},
     {701*4, 86*8},{736*4, 81*8},{771*4, 76*8},{806*4, 70*8},{841*4, 63*8},{876*4, 56*8},{911*4, 48*8},{946*4, 38*8},{981*4, 23*8},{1005*4, 5*8},{1016*4, 0*8}
 };
-#define NUMTEMPS_13 19
+#define NUMTEMPS_13 49 //19
 const short temptable_13[NUMTEMPS_13][2] PROGMEM =
 {
-    {0,0},{908,8},{942,10*8},{982,20*8},{1015,8*30},{1048,8*40},{1080,8*50},{1113,8*60},{1146,8*70},{1178,8*80},{1211,8*90},{1276,8*110},{1318,8*120}
-    ,{1670,8*230},{2455,8*500},{3445,8*900},{3666,8*1000},{3871,8*1100},{4095,8*2000}
+	/*{0,0},{908,8},{942,10*8},{982,20*8},{1015,8*30},{1048,8*40},{1080,8*50},{1113,8*60}
+	,{1146,8*70},{1178,8*80},{1211,8*90},{1276,8*110},{1318,8*120},{1670,8*230}
+	,{2455,8*500},{3445,8*900},{3666,8*1000},{3871,8*1100},{4095,8*2000}*/
+
+	{0,0},{909,1},{942,10},{983,20},{1016,30},{1049,40},{1081,50},{1114,60},{1147,70}
+	,{1180,80},{1212,90},{1245,100},{1278,110},{1319,120},{1352,130},{1376,140},{1409,150}
+	,{1442,160},{1475,170},{1507,180},{1540,190},{1573,200},{1606,210},{1638,220},{1671,230}
+	,{1696,240},{1729,250},{1761,260},{1786,270},{1819,280},{1851,290},{1876,300},{1909,310}
+	,{1942,320},{1974,330},{1999,340},{2032,350},{2056,360},{2089,370},{2114,380},{2146,390}
+	,{2179,400},{2458,500},{2728,600},{2974,700},{3219,800},{3449,900},{3670,1000},{3875,1100}
 };
 #if NUM_TEMPS_USERTHERMISTOR0 > 0
 const short temptable_5[NUM_TEMPS_USERTHERMISTOR0][2] PROGMEM = USER_THERMISTORTABLE0 ;
@@ -1634,7 +1686,8 @@ void TemperatureController::updateCurrentTemperature()
             newtemp = pgm_read_word(&temptable[i++]);
             if (newraw > currentTemperature)
             {
-                currentTemperatureC = TEMP_INT_TO_FLOAT(oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(newraw-oldraw));
+                currentTemperatureC = (float)oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(float)(newraw-oldraw);
+				//currentTemperatureC = TEMP_INT_TO_FLOAT(currentTemperatureC);
                 return;
             }
             oldtemp = newtemp;
@@ -1709,8 +1762,6 @@ void TemperatureController::updateCurrentTemperature()
             newtemp = temptable[i++];
             if (newraw > currentTemperature)
             {
-                //OUT_P_I("RC O:",oldtemp);OUT_P_I_LN(" OR:",oldraw);
-                //OUT_P_I("RC N:",newtemp);OUT_P_I_LN(" NR:",newraw);
                 currentTemperatureC = TEMP_INT_TO_FLOAT(oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(newraw-oldraw));
                 return;
             }
@@ -2383,6 +2434,22 @@ TemperatureController chamberController = { 0,CHAMBER_TEMPSENSOR_TYPE,CHAMBER_AN
 ,0,0,0,0 };
 #endif
 
+#if COOLER0_SENSOR_PIN > -1
+TemperatureController cooler0Controller = { 0,COOLER0_SENSOR_TYPE,COOLER0_ANALOG_INDEX,0,0,0,0,0,0
+#if TEMP_PID
+,0,255,0,10,1,1,255,0,0,0,{ 0,0,0,0 }
+#endif
+,0,0,0,0 };
+#endif
+
+#if COOLER1_SENSOR_PIN > -1
+TemperatureController cooler1Controller = { 0,COOLER1_SENSOR_TYPE,COOLER1_ANALOG_INDEX,0,0,0,0,0,0
+#if TEMP_PID
+,0,255,0,10,1,1,255,0,0,0,{ 0,0,0,0 }
+#endif
+,0,0,0,0 };
+#endif
+
 #if NUM_TEMPERATURE_LOOPS > 0
 TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
 {
@@ -2426,5 +2493,22 @@ TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
 	,&chamberController
 #endif
 #endif // CHAMBER_SENSOR_PIN
+
+#if COOLER0_SENSOR_PIN > -1
+#if NUM_EXTRUDER == 0 && !HAVE_HEATED_BED
+	&cooler0Controller
+#else
+	,&cooler0Controller
+#endif
+#endif // COOLER0_SENSOR_PIN
+
+#if COOLER1_SENSOR_PIN > -1
+#if NUM_EXTRUDER == 0 && !HAVE_HEATED_BED
+	&cooler1Controller
+#else
+	,&cooler1Controller
+#endif
+#endif // COOLER1_SENSOR_PIN
+
 };
 #endif
