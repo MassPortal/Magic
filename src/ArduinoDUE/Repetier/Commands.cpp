@@ -1735,21 +1735,32 @@ void Commands::processGCode(GCode *com)
 				6 - single measurement at current position and stay at trigger point
 			 X/Y[-/+radius corrdinates] - use with P4
 			 I[0.0-999.0] - distance between each probing point repetition. Default = 1.0
-			 S[1-999] - ^2 how far to probe arond given coordinate (square center)
-			 Z[] - don't disable autolevel before probing
+			 S[0-999] - /2 how far to probe arond given coordinate (square center)
 			 J[0/1] - allow probing below zMaxLength. NB! Probe won't
 				trigger if given bed probing point is actually
 				lower than max Z length and will output defined 
 				Z-probe-bed	distance. Default = allow
-			 Z - do not disable autoleveling
+			 Z - do not disable/change autoleveling status
+				TIP: Use M321 to disable autoleveling for current session
+			 M - how many times to repeat the probing
+			 D[0/1] - set probing center at the probe coordinates or nozzle
+					The XY coordinates in output are relative. They're either at Z-probe XY offset
+					or actual nozzle position.
+					With D1 probing cannot be done from homing position as it will trigger error,
+					unless the zMaxLength is just twice the probing distance.
 			 E.g.:
-			 G38 P4 X-69.42 Y-39.5 R3 J0 S1
-			 Does homing, moves to X:-69.42 Y:-39.5, probes bed once
+			 G38 P4 X-69.42 Y-39.5 R3 J0
+				Does homing, moves to X:-69.42 Y:-39.5, probes bed once
 				(if reachable) and returns home.			
+			 G38 P0 I2 S10
+				Probes the bed from center (X=0,Y=0) in a square pattern
+				at 36 points (10/2 + 1)^2 with 2 mm steps (distance between each point in X/Y dir.)
+				where each side is 10 mm wide. I.e. from -5.0,-5.0 to 5.0,5.0
 			 */
 	case 38:
 	{
-		if (!com->hasZ()) 
+		bool autoLevelActive = Printer::isAutolevelActive();
+		if (!com->hasZ())
 			Printer::setAutolevelActive(false);
 		if (com->hasR() && com->R > 1.1) {
 			Printer::homeAxis(true, true, true);
@@ -1760,21 +1771,31 @@ void Commands::processGCode(GCode *com)
 			Printer::allowBelow = false;
 #if Z_PROBE_LATCHING_SWITCH
 		if (Printer::probeType == 2)
-			if (Endstops::zProbe())
+			if (!Endstops::zProbe())
 				enableZprobe(true);
 #endif
 		//bool iterate = com->hasP() && com->P>0;
 		/*Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;*/
 		float h1, h2, h3, hc, oldFeedrate = Printer::feedrate;
 
-		int ST = 0;
-		int Max = 1;
+		int Max = 0;
 		float ptx = 0.0, pty = 0.0,
 			zx1 = 0.0, zy1 = 0.0,
 			incr = 1.0;
-		
-		if (com->hasS() && com->S > 0)
+		bool probeCenterFirst = true, probeCenterLast = false;
+		uint8_t repeat = Z_PROBE_REPETITIONS;
+		//repetition:
+		if (com->hasM() && com->M > 0.1)
+			repeat = com->M;
+		//Probing oordinate center
+		if (com->hasD())
+			if (com->D > 0.1) {
+				probeCenterFirst = false , probeCenterLast = true;
+			}
+		//Width of the probing matrix square in mm
+		if (com->hasS() && com->S >= 0)
 			Max = com->S;
+		//Seperation distance between points
 		if (com->hasI() && com->I != 0.0)
 			incr = com->I;
 
@@ -1823,32 +1844,43 @@ void Commands::processGCode(GCode *com)
 		if (com->hasP()) 
 			if (com->P == 5) {
 				//Run single probe at current position
-				Printer::runZProbe(false, true, Z_PROBE_REPETITIONS,false, false);
+				Com::print("DM=");
+				Printer::runZProbe(probeCenterFirst, false, repeat, false, false);
+				Printer::updateCurrentPosition(true);
+				//printCurrentPosition(PSTR("M114 "));
 			}
 			else if (com->P == 6) {
 				//Run single probe at current position and stay at trigger point
-				Printer::runZProbe(false, true, Z_PROBE_REPETITIONS, false, true);
+				Com::print("DM2=");
+				Printer::runZProbe(probeCenterFirst, false, repeat, false, true);
 				Printer::updateCurrentPosition(true);
 				printCurrentPosition(PSTR("M114 "));
 			} else {
+				int ST = 0;
+				ptx = zx1 - (Max / 2);
+				pty = zy1 - (Max / 2);
 
-			ptx = zx1 - (Max / 2);
-			pty = zy1 - (Max / 2);
-
-			Printer::moveTo(zx1, zy1, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-
-			for (int mx = ST; (ptx + mx) < Max; mx += incr) {
-				Printer::moveTo(ptx + mx, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-				for (int my = ST; (pty + my) < Max; my += incr) {
-					Printer::moveTo(IGNORE_COORDINATE, pty + my, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-					Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
+				Printer::moveTo(zx1, zy1, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+				int maxX = Max + ptx + incr,
+					maxY = Max + pty + incr;
+				for (int mx = ST; (ptx + mx) < maxX; mx += incr) {
+					Printer::moveTo(ptx + mx , IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+					for (int my = ST; (pty + my) < maxY; my += incr) {
+						Printer::moveTo(IGNORE_COORDINATE, pty + my, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+						if (((ptx + mx) >= maxX) && ((pty + my) >= maxX)) {
+							Com::printFLN("Last");
+							probeCenterLast = true;
+						}
+						Com::print("MM="); Printer::runZProbe(probeCenterFirst, probeCenterLast, repeat, false);
+					}
 				}
-			}
+				Printer::updateCurrentPosition(true);
+				printCurrentPosition(PSTR("M114 "));
 		}
 		//Com::printFLN("Finished");
 		//Printer::setAutolevelActive(false);
 		if (com->hasR() && (com->R > 0.1 && com->R < 2 || com->R > 2.1)) {
-			Com::printFLN("HasR!");
+			//Com::printFLN("HasR!");
 #if Z_PROBE_LATCHING_SWITCH
 			if (Printer::probeType == 2)
 				if (!Endstops::zProbe())
@@ -1858,6 +1890,8 @@ void Commands::processGCode(GCode *com)
 			Printer::homeAxis(true, true, true);
 		}
 		Printer::allowBelow = true;
+		if (!com->hasZ())
+			Printer::setAutolevelActive(autoLevelActive);
 	}
 		break;
     case 90: // G90
