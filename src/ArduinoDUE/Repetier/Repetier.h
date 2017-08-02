@@ -216,11 +216,7 @@ inline void memcopy4(void *dest,void *source) {
 #define MICROSTEP2 HIGH,LOW
 #define MICROSTEP4 LOW,HIGH
 #define MICROSTEP8 HIGH,HIGH
-#if (MOTHERBOARD == 501)
-#define MICROSTEP16 LOW,LOW
-#else
 #define MICROSTEP16 HIGH,HIGH
-#endif
 #define MICROSTEP32 HIGH,HIGH
 
 #define GCODE_BUFFER_SIZE 1
