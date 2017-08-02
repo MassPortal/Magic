@@ -590,7 +590,7 @@ class UIDisplay {
     void createChar(uint8_t location, const uint8_t charmap[]);
     void initialize(); // Initialize display and keys
     void waitForKey();
-    void printRow(uint8_t r, char *txt, char *txt2, uint8_t changeAtCol); // Print row on display
+    void printRow(uint8_t r,const char *txt,const char *txt2, uint8_t changeAtCol); // Print row on display
     void printRowP(uint8_t r,PGM_P txt);
     void parse(const char *txt,bool ram); /// Parse output and write to printCols;
     void refreshPage();
@@ -625,7 +625,7 @@ extern UIDisplay uid;
 // Returns either the file name or just the extension
 String getFilePart(const char filename, boolean extension);
 // Compares file names' extension to the given one. Returns true if they match.
-bool hasExtension(char* filename, char* extension);
+bool hasExtension(const char* filename,const char* extension);
 #if FEATURE_CONTROLLER == UICONFIG_CONTROLLER
 #include "uiconfig.h"
 #endif

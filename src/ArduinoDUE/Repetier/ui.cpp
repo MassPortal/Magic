@@ -280,7 +280,7 @@ const long baudrates[] PROGMEM = {9600,14400,19200,28800,38400,56000,57600,76800
 static const uint8_t LCDLineOffsets[] PROGMEM = UI_LINE_OFFSETS;
 static const char versionString[] PROGMEM = UI_VERSION_STRING;
 
-String getFilePart(char* filename, boolean extension) {
+String getFilePart(const char* filename, boolean extension) {
 	String fn = filename;
 	uint8_t ind = fn.lastIndexOf(".") ;
 	if (extension)
@@ -289,7 +289,7 @@ String getFilePart(char* filename, boolean extension) {
 		return fn.substring(0,ind).c_str();
 }
 
-bool hasExtension(char* filename, char* extension) {
+bool hasExtension(const char* filename,const char* extension) {
 	if (getFilePart(filename, true).compareTo(extension) == 0)
 		return true;
 	else
@@ -591,7 +591,7 @@ void initializeLCD()
 // ----------- end direct LCD driver
 #endif
 #if UI_DISPLAY_TYPE < DISPLAY_ARDUINO_LIB
-void UIDisplay::printRow(uint8_t r,char *txt,char *txt2,uint8_t changeAtCol)
+void UIDisplay::printRow(uint8_t r,const char *txt,const char *txt2,uint8_t changeAtCol)
 {
     changeAtCol = RMath::min(UI_COLS, changeAtCol);
     uint8_t col = 0;
@@ -1383,16 +1383,18 @@ void UIDisplay::parse(const char *txt,bool ram)
         case 'F': // FAN speed
             if(c2 == 's') addInt(floor(Printer::getFanSpeed() * 100 / 255 + 0.5f), 3);
             if(c2=='i') addStringP((Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND) ? ui_selected : ui_unselected);
-            if(c2=='j')
+            if(c2=='j') {
 			 if (!pwm_pos[PWM_FAN3])
 					addStringP((pwm_pos[PWM_FAN2]==FAN_SLOW) ? ui_selected : ui_unselected);
 				else
 					addStringP(ui_unselected);
-            if(c2=='l')
+             }
+            if(c2=='l') {
 				if (!pwm_pos[PWM_FAN3])
 					addStringP((pwm_pos[PWM_FAN2]>FAN_SLOW) ? ui_selected : ui_unselected);
 				else
 					addStringP(ui_unselected);
+            }
             if(c2=='k') addStringP((pwm_pos[PWM_FAN3]) ? ui_selected : ui_unselected);
             if(c2=='p') addStringP((pwm_pos[PWM_FAN2] || pwm_pos[PWM_FAN3]) ? ui_unselected : ui_selected);
             break;
