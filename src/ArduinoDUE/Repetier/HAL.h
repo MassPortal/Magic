@@ -661,43 +661,48 @@ class HAL
     }
     static inline void serialSetBaudrate(long baud)
     {
+		RFSERIAL.begin(baud);
 #if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
       BTAdapter.begin(baud);
-#else
-      RFSERIAL.begin(baud);
 #endif
+      
+
     }
     static inline bool serialByteAvailable()
     {
+		return RFSERIAL.available();
 #if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
       return BTAdapter.available();
-#else
-      return RFSERIAL.available();
 #endif
+	  
+
     }
     static inline uint8_t serialReadByte()
     {
+		return RFSERIAL.read();
 #if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
       return BTAdapter.read();
-#else
-      return RFSERIAL.read();
 #endif
+	  
+
     }
     static inline void serialWriteByte(char b)
     {
+		RFSERIAL.write(b);
 #if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
-      BTAdapter.write(b);
-#else
-      RFSERIAL.write(b);
+     // BTAdapter.write(b);
 #endif
+    
+
     }
     static inline void serialFlush()
     {
+		RFSERIAL.flush();
 #if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
       BTAdapter.flush();
-#else
-      RFSERIAL.flush();
 #endif
+     
+
     }
     static void setupTimer();
     static void showStartReason();
