@@ -51,7 +51,6 @@
 /** Wait for the extruder to finish it's down movement */
 #define FLAG_JOIN_WAIT_EXTRUDER_DOWN 128
 // Printing related data
-#if NONLINEAR_SYSTEM
 // Allow the delta cache to store segments for every line in line cache. Beware this gets big ... fast.
 // DELTASEGMENTS_PER_PRINTLINE *
 #define DELTA_CACHE_SIZE (DELTASEGMENTS_PER_PRINTLINE * PRINTLINE_CACHE_SIZE)
@@ -160,7 +159,7 @@ typedef struct
     }
 } DeltaSegment;
 extern uint8_t lastMoveID;
-#endif
+
 class UIDisplay;
 class PrintLine   // RAM usage: 24*4+15 = 113 Byte
 {
@@ -193,12 +192,11 @@ private:
     float endSpeed;                 ///< Exit speed in mm/s
     float minSpeed;
     float distance;
-#if NONLINEAR_SYSTEM
     uint8_t numDeltaSegments;		///< Number of delta segments left in line. Decremented by stepper timer.
     uint8_t moveID;					///< ID used to identify moves which are all part of the same line
     int32_t numPrimaryStepPerSegment;	///< Number of primary bresenham axis steps in each delta segment
     DeltaSegment segments[DELTASEGMENTS_PER_PRINTLINE];
-#endif
+
     ticks_t fullInterval;     ///< interval at full speed in ticks/step.
     uint16_t accelSteps;        ///< How much steps does it take, to reach the plateau.
     uint16_t decelSteps;        ///< How much steps does it take, to reach the end speed.
@@ -345,19 +343,12 @@ public:
 
     inline void setXMoveFinished()
     {
-#if DRIVE_SYSTEM == CARTESIAN || NONLINEAR_SYSTEM
         dir &= ~16;
-#else
-        dir &= ~48;
-#endif
     }
     inline void setYMoveFinished()
     {
-#if DRIVE_SYSTEM == CARTESIAN || NONLINEAR_SYSTEM
         dir &= ~32;
-#else
-        dir &= ~48;
-#endif
+
     }
     inline void setZMoveFinished()
     {
@@ -517,31 +508,6 @@ public:
     {
 #if !(GANTRY)
         Printer::startXStep();
-#else
-#if DRIVE_SYSTEM == XY_GANTRY || DRIVE_SYSTEM == XZ_GANTRY
-        if(isXPositiveMove())
-        {
-            Printer::motorX++;
-            Printer::motorYorZ++;
-        }
-        else
-        {
-            Printer::motorX--;
-            Printer::motorYorZ--;
-        }
-#endif
-#if DRIVE_SYSTEM == YX_GANTRY || DRIVE_SYSTEM == ZX_GANTRY
-        if(isXPositiveMove())
-        {
-            Printer::motorX++;
-            Printer::motorYorZ--;
-        }
-        else
-        {
-            Printer::motorX--;
-            Printer::motorYorZ++;
-        }
-#endif
 #endif
 #ifdef DEBUG_STEPCOUNT
         totalStepsRemaining--;
@@ -549,34 +515,7 @@ public:
     }
     INLINE void startYStep()
     {
-#if !(GANTRY) || DRIVE_SYSTEM == ZX_GANTRY || DRIVE_SYSTEM == XZ_GANTRY
         Printer::startYStep();
-#else
-#if DRIVE_SYSTEM == XY_GANTRY
-        if(isYPositiveMove())
-        {
-            Printer::motorX++;
-            Printer::motorYorZ--;
-        }
-        else
-        {
-            Printer::motorX--;
-            Printer::motorYorZ++;
-        }
-#endif
-#if DRIVE_SYSTEM == YX_GANTRY
-        if(isYPositiveMove())
-        {
-            Printer::motorX++;
-            Printer::motorYorZ++;
-        }
-        else
-        {
-            Printer::motorX--;
-            Printer::motorYorZ--;
-        }
-#endif
-#endif // GANTRY
 #ifdef DEBUG_STEPCOUNT
         totalStepsRemaining--;
 #endif
@@ -584,34 +523,7 @@ public:
     }
     INLINE void startZStep()
     {
-#if !(GANTRY) || DRIVE_SYSTEM == YX_GANTRY || DRIVE_SYSTEM == XY_GANTRY
         Printer::startZStep();
-#else
-#if DRIVE_SYSTEM == XZ_GANTRY
-        if(isZPositiveMove())
-        {
-            Printer::motorX++;
-            Printer::motorYorZ--;
-        }
-        else
-        {
-            Printer::motorX--;
-            Printer::motorYorZ++;
-        }
-#endif
-#if DRIVE_SYSTEM == ZX_GANTRY
-        if(isZPositiveMove())
-        {
-            Printer::motorX++;
-            Printer::motorYorZ++;
-        }
-        else
-        {
-            Printer::motorX--;
-            Printer::motorYorZ--;
-        }
-#endif
-#endif
 #ifdef DEBUG_STEPCOUNT
         totalStepsRemaining--;
 #endif
@@ -678,12 +590,6 @@ public:
     static inline void backwardPlanner(ufast8_t p,ufast8_t last);
     static void updateTrapezoids();
     static uint8_t insertWaitMovesIfNeeded(uint8_t pathOptimize, uint8_t waitExtraLines);
-#if NONLINEAR_SYSTEM == 0
-    static void queueCartesianMove(uint8_t check_endstops,uint8_t pathOptimize);
-#if DISTORTION_CORRECTION
-	static void queueCartesianSegmentTo(uint8_t check_endstops, uint8_t pathOptimize);
-#endif
-#endif	
     static void moveRelativeDistanceInSteps(int32_t x,int32_t y,int32_t z,int32_t e,float feedrate,bool waitEnd,bool check_endstop,bool pathOptimize = true);
     static void moveRelativeDistanceInStepsReal(int32_t x,int32_t y,int32_t z,int32_t e,float feedrate,bool waitEnd,bool pathOptimize = true);
 #if ARC_SUPPORT
@@ -697,16 +603,14 @@ public:
     {
         p = (p == PRINTLINE_CACHE_SIZE - 1 ? 0 : p + 1);
     }
-#if NONLINEAR_SYSTEM
     static uint8_t queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, uint8_t softEndstop);
     static inline void queueEMove(int32_t e_diff,uint8_t check_endstops,uint8_t pathOptimize);
     inline uint16_t calculateDeltaSubSegments(uint8_t softEndstop);
     static inline void calculateDirectionAndDelta(int32_t difference[], ufast8_t *dir, int32_t delta[]);
     static inline uint8_t calculateDistance(float axis_diff[], uint8_t dir, float *distance);
-#if SOFTWARE_LEVELING && DRIVE_SYSTEM == DELTA
+#if SOFTWARE_LEVELING
     static void calculatePlane(int32_t factors[], int32_t p1[], int32_t p2[], int32_t p3[]);
     static float calcZOffset(int32_t factors[], int32_t pointX, int32_t pointY);
-#endif
 #endif
 };
 

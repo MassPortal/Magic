@@ -79,9 +79,6 @@ void EEPROM::restoreEEPROMSettingsFromConfiguration()
     Printer::homingFeedrate[Y_AXIS] = HOMING_FEEDRATE_Y;
     Printer::homingFeedrate[Z_AXIS] = HOMING_FEEDRATE_Z;
     Printer::maxJerk = MAX_JERK;
-#if DRIVE_SYSTEM != DELTA
-    Printer::maxZJerk = MAX_ZJERK;
-#endif
 #if RAMP_ACCELERATION
     Printer::maxAccelerationMMPerSquareSecond[X_AXIS] = MAX_ACCELERATION_UNITS_PER_SQ_SECOND_X;
     Printer::maxAccelerationMMPerSquareSecond[Y_AXIS] = MAX_ACCELERATION_UNITS_PER_SQ_SECOND_Y;
@@ -107,11 +104,6 @@ void EEPROM::restoreEEPROMSettingsFromConfiguration()
     Printer::xMin = X_MIN_POS;
     Printer::yMin = Y_MIN_POS;
     Printer::zMin = Z_MIN_POS;
-#if ENABLE_BACKLASH_COMPENSATION
-    Printer::backlashX = X_BACKLASH;
-    Printer::backlashY = Y_BACKLASH;
-    Printer::backlashZ = Z_BACKLASH;
-#endif
     Extruder *e;
 #if NUM_EXTRUDER>0
     e = &extruder[0];
@@ -332,9 +324,6 @@ void EEPROM::storeDataIntoEEPROM(uint8_t corrupted)
     HAL::eprSetFloat(EPR_Y_HOMING_FEEDRATE,Printer::homingFeedrate[Y_AXIS]);
     HAL::eprSetFloat(EPR_Z_HOMING_FEEDRATE,Printer::homingFeedrate[Z_AXIS]);
     HAL::eprSetFloat(EPR_MAX_JERK,Printer::maxJerk);
-#if DRIVE_SYSTEM != DELTA
-    HAL::eprSetFloat(EPR_MAX_ZJERK,Printer::maxZJerk);
-#endif
 #if RAMP_ACCELERATION
     HAL::eprSetFloat(EPR_X_MAX_ACCEL,Printer::maxAccelerationMMPerSquareSecond[X_AXIS]);
     HAL::eprSetFloat(EPR_Y_MAX_ACCEL,Printer::maxAccelerationMMPerSquareSecond[Y_AXIS]);
@@ -370,18 +359,11 @@ void EEPROM::storeDataIntoEEPROM(uint8_t corrupted)
     HAL::eprSetFloat(EPR_X_LENGTH,Printer::xLength);
     HAL::eprSetFloat(EPR_Y_LENGTH,Printer::yLength);
     HAL::eprSetFloat(EPR_Z_LENGTH,Printer::zLength);
-#if NONLINEAR_SYSTEM
     HAL::eprSetFloat(EPR_DELTA_HORIZONTAL_RADIUS, Printer::radius0);
-#endif
-#if ENABLE_BACKLASH_COMPENSATION
-    HAL::eprSetFloat(EPR_BACKLASH_X,Printer::backlashX);
-    HAL::eprSetFloat(EPR_BACKLASH_Y,Printer::backlashY);
-    HAL::eprSetFloat(EPR_BACKLASH_Z,Printer::backlashZ);
-#else
+
     HAL::eprSetFloat(EPR_BACKLASH_X,0);
     HAL::eprSetFloat(EPR_BACKLASH_Y,0);
     HAL::eprSetFloat(EPR_BACKLASH_Z,0);
-#endif
 #if FEATURE_AUTOLEVEL
     HAL::eprSetByte(EPR_AUTOLEVEL_ACTIVE,Printer::isAutolevelActive());
     for(uint8_t i = 0; i < 9; i++)
@@ -476,7 +458,6 @@ void EEPROM::initalizeUncached()
     HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,AXISCOMP_TANXZ);
     HAL::eprSetFloat(EPR_Z_PROBE_BED_DISTANCE,Z_PROBE_BED_DISTANCE);
     Printer::zBedOffset = HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
-#if DRIVE_SYSTEM == DELTA
     HAL::eprSetFloat(EPR_DELTA_DIAGONAL_ROD_LENGTH,DELTA_DIAGONAL_ROD);
     HAL::eprSetFloat(EPR_DELTA_HORIZONTAL_RADIUS,ROD_RADIUS);
     HAL::eprSetInt16(EPR_DELTA_SEGMENTS_PER_SECOND_PRINT,DELTA_SEGMENTS_PER_SECOND_PRINT);
@@ -494,7 +475,6 @@ void EEPROM::initalizeUncached()
     HAL::eprSetFloat(EPR_DELTA_DIAGONAL_CORRECTION_A,DELTA_DIAGONAL_CORRECTION_A);
     HAL::eprSetFloat(EPR_DELTA_DIAGONAL_CORRECTION_B,DELTA_DIAGONAL_CORRECTION_B);
     HAL::eprSetFloat(EPR_DELTA_DIAGONAL_CORRECTION_C,DELTA_DIAGONAL_CORRECTION_C);
-#endif
     HAL::eprSetFloat(EPR_AXISCOMP_TANXY,AXISCOMP_TANXY);
     HAL::eprSetFloat(EPR_AXISCOMP_TANYZ,AXISCOMP_TANYZ);
     HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,AXISCOMP_TANXZ);
@@ -571,9 +551,6 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
     Printer::homingFeedrate[Y_AXIS] = HAL::eprGetFloat(EPR_Y_HOMING_FEEDRATE);
     Printer::homingFeedrate[Z_AXIS] = HAL::eprGetFloat(EPR_Z_HOMING_FEEDRATE);
     Printer::maxJerk = HAL::eprGetFloat(EPR_MAX_JERK);
-#if DRIVE_SYSTEM != DELTA
-    Printer::maxZJerk = HAL::eprGetFloat(EPR_MAX_ZJERK);
-#endif
 #if RAMP_ACCELERATION
     Printer::maxAccelerationMMPerSquareSecond[X_AXIS] = HAL::eprGetFloat(EPR_X_MAX_ACCEL);
     Printer::maxAccelerationMMPerSquareSecond[Y_AXIS] = HAL::eprGetFloat(EPR_Y_MAX_ACCEL);
@@ -599,14 +576,7 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
     Printer::xLength = HAL::eprGetFloat(EPR_X_LENGTH);
     Printer::yLength = HAL::eprGetFloat(EPR_Y_LENGTH);
     Printer::zLength = HAL::eprGetFloat(EPR_Z_LENGTH);
-#if NONLINEAR_SYSTEM
     Printer::radius0 = HAL::eprGetFloat(EPR_DELTA_HORIZONTAL_RADIUS);
-#endif
-#if ENABLE_BACKLASH_COMPENSATION
-    Printer::backlashX = HAL::eprGetFloat(EPR_BACKLASH_X);
-    Printer::backlashY = HAL::eprGetFloat(EPR_BACKLASH_Y);
-    Printer::backlashZ = HAL::eprGetFloat(EPR_BACKLASH_Z);
-#endif
 #if FEATURE_AUTOLEVEL
     if(version > 2)
     {
@@ -698,7 +668,6 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
         }
         if(version < 4)
         {
-#if DRIVE_SYSTEM == DELTA
             HAL::eprSetFloat(EPR_DELTA_DIAGONAL_ROD_LENGTH,DELTA_DIAGONAL_ROD);
             HAL::eprSetFloat(EPR_DELTA_HORIZONTAL_RADIUS,ROD_RADIUS);
             HAL::eprSetInt16(EPR_DELTA_SEGMENTS_PER_SECOND_PRINT,DELTA_SEGMENTS_PER_SECOND_PRINT);
@@ -706,9 +675,7 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
             HAL::eprSetInt16(EPR_DELTA_TOWERX_OFFSET_STEPS,DELTA_X_ENDSTOP_OFFSET_STEPS);
             HAL::eprSetInt16(EPR_DELTA_TOWERY_OFFSET_STEPS,DELTA_Y_ENDSTOP_OFFSET_STEPS);
             HAL::eprSetInt16(EPR_DELTA_TOWERZ_OFFSET_STEPS,DELTA_Z_ENDSTOP_OFFSET_STEPS);
-#endif
         }
-#if DRIVE_SYSTEM == DELTA
         if(version < 5)
         {
             HAL::eprSetFloat(EPR_DELTA_ALPHA_A,DELTA_ALPHA_A);
@@ -728,7 +695,6 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
             HAL::eprSetFloat(EPR_DELTA_DIAGONAL_CORRECTION_B,DELTA_DIAGONAL_CORRECTION_B);
             HAL::eprSetFloat(EPR_DELTA_DIAGONAL_CORRECTION_C,DELTA_DIAGONAL_CORRECTION_C);
         }
-#endif
         if(version < 8)
         {
             HAL::eprSetFloat(EPR_Z_PROBE_BED_DISTANCE,Z_PROBE_BED_DISTANCE);
@@ -919,46 +885,21 @@ void EEPROM::writeSettings()
     writeLong(EPR_PRINTING_TIME, Com::tEPRPrinterActive);
     writeLong(EPR_MAX_INACTIVE_TIME, Com::tEPRMaxInactiveTime);
     writeLong(EPR_STEPPER_INACTIVE_TIME, Com::tEPRStopAfterInactivty);
-//#define EPR_ACCELERATION_TYPE 1
-#if DRIVE_SYSTEM != DELTA
-    writeFloat(EPR_XAXIS_STEPS_PER_MM, Com::tEPRXStepsPerMM, 4);
-    writeFloat(EPR_YAXIS_STEPS_PER_MM, Com::tEPRYStepsPerMM, 4);
-#endif
     writeFloat(EPR_ZAXIS_STEPS_PER_MM, Com::tEPRZStepsPerMM, 4);
-#if DRIVE_SYSTEM != DELTA
-    writeFloat(EPR_X_MAX_FEEDRATE, Com::tEPRXMaxFeedrate);
-    writeFloat(EPR_Y_MAX_FEEDRATE, Com::tEPRYMaxFeedrate);
-#endif
     writeFloat(EPR_Z_MAX_FEEDRATE, Com::tEPRZMaxFeedrate);
-#if DRIVE_SYSTEM != DELTA
-    writeFloat(EPR_X_HOMING_FEEDRATE, Com::tEPRXHomingFeedrate);
-    writeFloat(EPR_Y_HOMING_FEEDRATE, Com::tEPRYHomingFeedrate);
-#endif
     writeFloat(EPR_Z_HOMING_FEEDRATE, Com::tEPRZHomingFeedrate);
     writeFloat(EPR_MAX_JERK, Com::tEPRMaxJerk);
-#if DRIVE_SYSTEM != DELTA
-    writeFloat(EPR_MAX_ZJERK, Com::tEPRMaxZJerk);
-#endif
     writeFloat(EPR_X_HOME_OFFSET, Com::tEPRXHomePos);
     writeFloat(EPR_Y_HOME_OFFSET, Com::tEPRYHomePos);
     writeFloat(EPR_Z_HOME_OFFSET, Com::tEPRZHomePos);
     writeFloat(EPR_X_LENGTH, Com::tEPRXMaxLength);
     writeFloat(EPR_Y_LENGTH, Com::tEPRYMaxLength);
     writeFloat(EPR_Z_LENGTH, Com::tEPRZMaxLength);
-#if ENABLE_BACKLASH_COMPENSATION
-    writeFloat(EPR_BACKLASH_X, Com::tEPRXBacklash);
-    writeFloat(EPR_BACKLASH_Y, Com::tEPRYBacklash);
-    writeFloat(EPR_BACKLASH_Z, Com::tEPRZBacklash);
-#endif
 
 #if RAMP_ACCELERATION
     //epr_out_float(EPR_X_MAX_START_SPEED,PSTR("X-axis start speed [mm/s]"));
     //epr_out_float(EPR_Y_MAX_START_SPEED,PSTR("Y-axis start speed [mm/s]"));
     //epr_out_float(EPR_Z_MAX_START_SPEED,PSTR("Z-axis start speed [mm/s]"));
-#if DRIVE_SYSTEM == TUGA
-    writeFloat(EPR_DELTA_DIAGONAL_ROD_LENGTH, Com::tEPRDiagonalRodLength);
-#endif
-#if DRIVE_SYSTEM == DELTA
     writeFloat(EPR_Z_MAX_ACCEL, Com::tEPRZAcceleration);
     writeFloat(EPR_Z_MAX_TRAVEL_ACCEL, Com::tEPRZTravelAcceleration);
 #if defined(INTERPOLATE_ACCELERATION_WITH_Z) && INTERPOLATE_ACCELERATION_WITH_Z != 0
@@ -981,17 +922,7 @@ void EEPROM::writeSettings()
     writeFloat(EPR_DELTA_DIAGONAL_CORRECTION_A, Com::tDeltaDiagonalCorrectionA);
     writeFloat(EPR_DELTA_DIAGONAL_CORRECTION_B, Com::tDeltaDiagonalCorrectionB);
     writeFloat(EPR_DELTA_DIAGONAL_CORRECTION_C, Com::tDeltaDiagonalCorrectionC);
-#else
-    writeFloat(EPR_X_MAX_ACCEL, Com::tEPRXAcceleration);
-    writeFloat(EPR_Y_MAX_ACCEL, Com::tEPRYAcceleration);
-    writeFloat(EPR_Z_MAX_ACCEL, Com::tEPRZAcceleration);
-    writeFloat(EPR_X_MAX_TRAVEL_ACCEL, Com::tEPRXTravelAcceleration);
-    writeFloat(EPR_Y_MAX_TRAVEL_ACCEL, Com::tEPRYTravelAcceleration);
-    writeFloat(EPR_Z_MAX_TRAVEL_ACCEL, Com::tEPRZTravelAcceleration);
-#if defined(INTERPOLATE_ACCELERATION_WITH_Z) && INTERPOLATE_ACCELERATION_WITH_Z != 0
-    writeFloat(EPR_ACCELERATION_FACTOR_TOP, Com::tEPRAccelerationFactorAtTop);
-#endif
-#endif
+
 #endif
 #if FEATURE_Z_PROBE
     writeFloat(EPR_Z_PROBE_HEIGHT, Com::tZProbeHeight);

@@ -980,14 +980,11 @@ void Commands::processGCode(GCode *com)
 #endif // defined
 		if (com->hasS()) Printer::setNoDestinationCheck(com->S != 0);
 		if (Printer::setDestinationStepsFromGCode(com)) // For X Y Z E F
-#if NONLINEAR_SYSTEM
 			if (!PrintLine::queueDeltaMove(ALWAYS_CHECK_ENDSTOPS, true, true))
 			{
 				Com::printWarningFLN(PSTR("executeGCode / queueDeltaMove returns error"));
 			}
-#else
-			PrintLine::queueCartesianMove(ALWAYS_CHECK_ENDSTOPS, true);
-#endif
+
 #if UI_HAS_KEYS
 		// ui can only execute motion commands if we are not waiting inside a move for an
 		// old move to finish. For normal response times, we always leave one free after
@@ -1084,13 +1081,11 @@ void Commands::processGCode(GCode *com)
 		Printer::measureDistortion();
 		Printer::feedrate = oldFeedrate;
 #else
-#if DRIVE_SYSTEM == DELTA
 		// It is not possible to go to the edges at the top, also users try
 		// it often and wonder why the coordinate system is then wrong.
 		// For that reason we ensure a correct behaviour by code.
 		Printer::homeAxis(true, true, true);
 		Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-#endif
 		GCode::executeFString(Com::tZProbeStartScript);
 		bool oldAutolevel = Printer::isAutolevelActive();
 		Printer::setAutolevelActive(false);
@@ -1111,15 +1106,10 @@ void Commands::processGCode(GCode *com)
 		if (com->hasS() && com->S)
 		{
 #if MAX_HARDWARE_ENDSTOP_Z
-#if DRIVE_SYSTEM==DELTA
 			Printer::updateCurrentPosition();
 			Printer::zLength += sum - Printer::currentPosition[Z_AXIS];
 			Printer::updateDerivedParameter();
 			Printer::homeAxis(true, true, true);
-#else
-			Printer::currentPositionSteps[Z_AXIS] = sum * Printer::axisStepsPerMM[Z_AXIS];
-			Printer::zLength = Printer::runZMaxProbe() + sum - ENDSTOP_Z_BACK_ON_HOME;
-#endif
 			Com::printInfoFLN(Com::tZProbeZReset);
 			Com::printFLN(Com::tZProbePrinterHeight, Printer::zLength);
 #else
@@ -1181,7 +1171,6 @@ void Commands::processGCode(GCode *com)
 		for manual height measurement.
 		*/
 		if (com->hasT()) {
-#if DRIVE_SYSTEM == DELTA
 			Printer::homeAxis(true, true, true);
 			Printer::updateCurrentPosition();
 #if Z_PROBE_LATCHING_SWITCH
@@ -1190,7 +1179,6 @@ void Commands::processGCode(GCode *com)
 				Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				if (!enableZprobe(true)) return;
 			}
-#endif
 #endif
 			//Move to safe distance above the bed
 			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
@@ -1288,7 +1276,6 @@ void Commands::processGCode(GCode *com)
 #if DISTORTION_CORRECTION
 		Printer::distortion.disable(true); // if level has changed, distortion is also invalid
 #endif 
-#if DRIVE_SYSTEM == DELTA
 		EEPROM::readDataFromEEPROM(false);
 		Printer::setAutolevelActive(false);
 		// Check to see if the printer has been factory-calibrated
@@ -1318,7 +1305,6 @@ void Commands::processGCode(GCode *com)
 		// For that reason we ensure a correct behavior by code.
 		Printer::homeAxis(true, true, true);
 		Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-#endif
 		GCode::executeFString(Com::tZProbeStartScript);
 #if Z_PROBE_LATCHING_SWITCH
 		if (Printer::probeType == 2)
@@ -1361,7 +1347,6 @@ void Commands::processGCode(GCode *com)
 		Com::printFLN(PSTR("h3: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h3);
 #endif
 
-#if DRIVE_SYSTEM == DELTA
 		//Allows additional offset for each probe point to compensate head slanting at maximum dimensions
 		if (com->hasX())
 			h1 += com->X;
@@ -1413,7 +1398,6 @@ void Commands::processGCode(GCode *com)
 		Com::printFLN(PSTR("h2d: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h2);
 		Com::printFLN(PSTR("h3d: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h3);
 #endif 
-#endif	
 		if (h3 < -1) break;
 #if defined(MOTORIZED_BED_LEVELING) && defined(NUM_MOTOR_DRIVERS) && NUM_MOTOR_DRIVERS >= 2
 		// h1 is reference heights, h2 => motor 0, h3 => motor 1
@@ -1449,7 +1433,6 @@ void Commands::processGCode(GCode *com)
 		if (com->hasS() && com->S < 4 && com->S > 0)
 		{
 #if MAX_HARDWARE_ENDSTOP_Z
-#if DRIVE_SYSTEM == DELTA
 
 #if DEBUGGING
 			Com::printFLN(PSTR(" Current pos. Z: "), Printer::currentPosition[Z_AXIS]);
@@ -1466,15 +1449,7 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN("Height compensation: ", avgH - EEPROM::zProbeBedDistance());
 			Printer::zLength += (avgH - EEPROM::zProbeBedDistance());
 
-#else
-			int32_t zBottom = Printer::currentPositionSteps[Z_AXIS] = (h3 + z) * Printer::axisStepsPerMM[Z_AXIS];
-			Printer::zLength = Printer::runZMaxProbe() + zBottom * Printer::invAxisStepsPerMM[Z_AXIS] - ENDSTOP_Z_BACK_ON_HOME;
-#endif
 			Com::printFLN("New printer height: ", Printer::zLength);
-#else // max hardware endstop
-#if DRIVE_SYSTEM != DELTA
-			Printer::currentPositionSteps[Z_AXIS] = (h3 + z) * Printer::axisStepsPerMM[Z_AXIS];
-#endif
 #endif
 			Printer::setAutolevelActive(true);
 			//Z-length compensation. NB! Inverted contrary to I!
@@ -1491,9 +1466,6 @@ void Commands::processGCode(GCode *com)
 		}
 		else
 		{
-#if DRIVE_SYSTEM != DELTA
-			Printer::currentPositionSteps[Z_AXIS] = (h3 + z) * Printer::axisStepsPerMM[Z_AXIS];
-#endif
 			if (com->hasS() && com->S == 3)
 				EEPROM::storeDataIntoEEPROM(false);
 		}
@@ -1506,11 +1478,9 @@ void Commands::processGCode(GCode *com)
 #if DEBUGGING
 		printCurrentPosition(PSTR("G32 "));
 #endif
-#if DRIVE_SYSTEM == DELTA
 		if (!com->hasP()) { //If we have the P param. don't do homing
 			Printer::homeAxis(true, true, true);
 		}
-#endif
 			Printer::feedrate = oldFeedrate;
 			//Resume bed heating
 #if HAVE_HEATED_BED
@@ -2015,7 +1985,6 @@ void Commands::processGCode(GCode *com)
         }
     }
     break;
-#if DRIVE_SYSTEM == DELTA
     case 100: // G100 Calibrate floor or rod radius
     {
         // Using manual control, adjust hot end to contact floor.
@@ -2202,7 +2171,6 @@ void Commands::processGCode(GCode *com)
         printCurrentPosition(PSTR("G134 "));
         break;
 
-#endif // DRIVE_SYSTEM
 #if FEATURE_Z_PROBE
     case 134: // - G134 Px Sx Zx - Calibrate nozzle height difference (need z probe in nozzle!) Px = reference extruder, Sx = only measure extrude x against reference, Zx = add to measured z distance for Sx for correction.
         {
@@ -2790,14 +2758,7 @@ void Commands::processMCode(GCode *com)
             Extruder::current->maxStartFeedrate = com->E;
             Extruder::selectExtruderById(Extruder::current->id);
         }
-#if DRIVE_SYSTEM != DELTA
-        if(com->hasZ())
-            Printer::maxZJerk = com->Z;
-        Com::printF(Com::tJerkColon,Printer::maxJerk);
-        Com::printFLN(Com::tZJerkColon,Printer::maxZJerk);
-#else
         Com::printFLN(Com::tJerkColon,Printer::maxJerk);
-#endif
         break;
     case 209: // M209 S<0/1> Enable/disable autoretraction
         if(com->hasS())
@@ -2865,9 +2826,7 @@ void Commands::processMCode(GCode *com)
         Printer::zLength -= Printer::currentPosition[Z_AXIS];
         Printer::currentPositionSteps[Z_AXIS] = 0;
         Printer::updateDerivedParameter();
-#if NONLINEAR_SYSTEM
         transformCartesianStepsToDeltaSteps(Printer::currentPositionSteps, Printer::currentDeltaPositionSteps);
-#endif
         Printer::updateCurrentPosition();
         Com::printFLN(Com::tZProbePrinterHeight,Printer::zLength);
 #if EEPROM_MODE != 0

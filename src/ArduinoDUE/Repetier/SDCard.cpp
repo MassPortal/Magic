@@ -139,11 +139,7 @@ void SDCard::pausePrint(bool intern)
         Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE,
                             Printer::memoryE - RETRACT_ON_PAUSE,
                             Printer::maxFeedrate[E_AXIS] / 2);
-#if DRIVE_SYSTEM == DELTA
         Printer::homeAxis(true, true, true);
-#else
-        Printer::moveToReal(Printer::xMin, Printer::yMin + Printer::yLength, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::maxFeedrate[X_AXIS]);
-#endif
         Printer::lastCmdPos[X_AXIS] = Printer::currentPosition[X_AXIS];
         Printer::lastCmdPos[Y_AXIS] = Printer::currentPosition[Y_AXIS];
         Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];
@@ -157,15 +153,10 @@ void SDCard::continuePrint(bool intern)
     if(intern) {
         GCode::executeFString(PSTR(PAUSE_END_COMMANDS));
 		//Move down first
-#if DRIVE_SYSTEM == DELTA
 		//Reset position in case the motors have timed out or head moved by external forces
 		Printer::homeAxis(true, true, true);
 		Printer::GoToMemoryPosition(false, false, true, false, Printer::homingFeedrate[Z_AXIS]);
 		Printer::GoToMemoryPosition(true, true, false, false, Printer::homingFeedrate[X_AXIS]);
-#else
-        Printer::GoToMemoryPosition(true, true, false, false, Printer::maxFeedrate[X_AXIS]);
-		Printer::GoToMemoryPosition(false, false, true, false, Printer::maxFeedrate[Z_AXIS] / 2.0f);
-#endif   
         Printer::GoToMemoryPosition(false, false, false, true, Printer::maxFeedrate[E_AXIS] / 2.0f);
     }
     Printer::setMenuMode(MENU_MODE_SD_PAUSED, false);
@@ -181,9 +172,7 @@ void SDCard::stopPrint()
     Printer::setMenuMode(MENU_MODE_SD_PRINTING,false);
     Printer::setMenuMode(MENU_MODE_SD_PAUSED,false);
 	GCode::executeFString(PSTR(SD_RUN_ON_STOP));
-#if DRIVE_SYSTEM == DELTA
 	Printer::homeAxis(true, true, true);
-#endif
     if(SD_STOP_HEATER_AND_MOTORS_ON_STOP) {
         Commands::waitUntilEndOfAllMoves();
         Printer::kill(true);

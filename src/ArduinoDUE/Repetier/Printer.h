@@ -143,13 +143,8 @@ private:
     void extrapolateCorner(fast8_t x, fast8_t y, fast8_t dx, fast8_t dy);
     void extrapolateCorners();
 // attributes
-#if DRIVE_SYSTEM == DELTA	
     int32_t step;
     int32_t radiusCorrectionSteps;
-#else
-	int32_t xCorrectionSteps,xOffsetSteps;
-	int32_t yCorrectionSteps,yOffsetSteps;
-#endif	
     int32_t zStart,zEnd;
 #if !DISTORTION_PERMANENT
     int32_t matrix[DISTORTION_CORRECTION_POINTS * DISTORTION_CORRECTION_POINTS];
@@ -328,7 +323,6 @@ public:
     static int32_t destinationSteps[E_AXIS_ARRAY];         ///< Target position in steps.
     static float extrudeMultiplyError; ///< Accumulated error during extrusion
     static float extrusionFactor; ///< Extrusion multiply factor
-#if NONLINEAR_SYSTEM
     static int32_t maxDeltaPositionSteps;
     static int32_t currentDeltaPositionSteps[E_TOWER_ARRAY];
     static floatLong deltaDiagonalStepsSquaredA;
@@ -346,16 +340,9 @@ public:
     static int16_t travelMovesPerSecond;
     static int16_t printMovesPerSecond;
     static float radius0;
-#else
-	static int32_t zCorrectionStepsIncluded; 	
-#endif
-#if FEATURE_Z_PROBE || MAX_HARDWARE_ENDSTOP_Z || NONLINEAR_SYSTEM
     static int32_t stepsRemainingAtZHit;
-#endif
-#if DRIVE_SYSTEM==DELTA
     static int32_t stepsRemainingAtXHit;
     static int32_t stepsRemainingAtYHit;
-#endif
 #ifdef SOFTWARE_LEVELING
     static int32_t levelingP1[3];
     static int32_t levelingP2[3];
@@ -389,31 +376,18 @@ public:
     static unsigned int extrudeMultiply;     ///< Flow multiplier in percdent (factor 1 = 100)
     static float maxJerk;                    ///< Maximum allowed jerk in mm/s
     static uint8_t interruptEvent;           ///< Event generated in interrupts that should/could be handled in main thread
-#if DRIVE_SYSTEM!=DELTA
-    static float maxZJerk;                   ///< Maximum allowed jerk in z direction in mm/s
-#endif
     static float offsetX;                     ///< X-offset for different extruder positions.
     static float offsetY;                     ///< Y-offset for different extruder positions.
     static float offsetZ;                     ///< Y-offset for different extruder positions.
     static speed_t vMaxReached;         ///< Maximumu reached speed
     static uint32_t msecondsPrinting;            ///< Milliseconds of printing time (means time with heated extruder)
     static float filamentPrinted;            ///< mm of filament printed since counting started
-#if ENABLE_BACKLASH_COMPENSATION
-    static float backlashX;
-    static float backlashY;
-    static float backlashZ;
-    static uint8_t backlashDir;
-#endif
     static float memoryX;
     static float memoryY;
     static float memoryZ;
     static float memoryE;
     static float memoryF;
 	static bool allowBelow; /// allow probing below Z max length
-#if GANTRY
-    static int8_t motorX;
-    static int8_t motorYorZ;
-#endif
 #ifdef DEBUG_SEGMENT_LENGTH
     static float maxRealSegmentLength;
 #endif
@@ -1053,26 +1027,9 @@ public:
     }
     static INLINE void disableAllowedStepper()
     {
-#if DRIVE_SYSTEM == XZ_GANTRY || DRIVE_SYSTEM == ZX_GANTRY
-        if(DISABLE_X && DISABLE_Z)
-        {
-            disableXStepper();
-            disableZStepper();
-        }
-        if(DISABLE_Y) disableYStepper();
-#else
-#if GANTRY
-        if(DISABLE_X && DISABLE_Y)
-        {
-            disableXStepper();
-            disableYStepper();
-        }
-#else
         if(DISABLE_X) disableXStepper();
         if(DISABLE_Y) disableYStepper();
-#endif
         if(DISABLE_Z) disableZStepper();
-#endif
     }
     static INLINE float realXPosition()
     {
@@ -1125,7 +1082,6 @@ public:
 	{
 		return (int)pwm_pos[PWM_FAN3];
 	}
-#if NONLINEAR_SYSTEM
     static INLINE void setDeltaPositions(long xaxis, long yaxis, long zaxis)
     {
         currentDeltaPositionSteps[A_TOWER] = xaxis;
@@ -1133,7 +1089,6 @@ public:
         currentDeltaPositionSteps[C_TOWER] = zaxis;
     }
     static void deltaMoveToTopEndstops(float feedrate);
-#endif
 #if MAX_HARDWARE_ENDSTOP_Z
     static float runZMaxProbe();
 #endif

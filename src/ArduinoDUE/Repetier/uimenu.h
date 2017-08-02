@@ -556,13 +556,8 @@ UI_MENU_CHANGEACTION_T(ui_menu_off_zpos,UI_TEXT_Z_OFFSET_ID,UI_ACTION_ZOFF)
 UI_MENU(ui_menu_offsets,UI_MENU_OFFSETS,UI_MENU_BACKCNT+3)
 UI_MENU_SUBMENU_T(ui_menu_go_offsets, UI_TEXT_OFFSETS_ID,ui_menu_offsets)
 
-#if DRIVE_SYSTEM != DELTA     //Positioning menu for non-delta
-#define UI_MENU_POSITIONS {UI_MENU_ADDCONDBACK &ui_menu_home_all,&ui_menu_home_x,&ui_menu_home_y,&ui_menu_home_z UI_SPEED_X UI_SPEED_Y UI_SPEED_Z ,&ui_menu_go_epos SERVOPOS_ENTRY,&ui_menu_go_offsets}
-UI_MENU(ui_menu_positions,UI_MENU_POSITIONS,6 + 3 * UI_SPEED + UI_MENU_BACKCNT + SERVOPOS_COUNT)
-#else                   //Positioning menu for delta (removes individual x,y,z homing)
 #define UI_MENU_POSITIONS {UI_MENU_ADDCONDBACK &ui_menu_home_all  UI_SPEED_X UI_SPEED_Y UI_SPEED_Z ,&ui_menu_go_epos SERVOPOS_ENTRY,&ui_menu_go_offsets}
 UI_MENU(ui_menu_positions,UI_MENU_POSITIONS,3 + 3 * UI_SPEED + UI_MENU_BACKCNT + SERVOPOS_COUNT)
-#endif
 
 // **** Delta calibration menu
 #if Z_HOME_DIR > 0
@@ -896,29 +891,6 @@ UI_MENU_ACTIONCOMMAND_T(ui_menu_debug_dryrun, UI_TEXT_DBG_DRYRUN_ID, UI_ACTION_D
 //#define UI_MENU_DEBUGGING {UI_MENU_ADDCONDBACK &ui_menu_debug_echo,&ui_menu_debug_info,&ui_menu_debug_error,&ui_menu_debug_dryrun}
 //UI_MENU(ui_menu_debugging,UI_MENU_DEBUGGING,4 + UI_MENU_BACKCNT)
 
-// **** Acceleration settings
-#if DRIVE_SYSTEM != DELTA
-UI_MENU_CHANGEACTION_T(ui_menu_accel_printx,  UI_TEXT_PRINT_X_ID,UI_ACTION_PRINT_ACCEL_X)
-UI_MENU_CHANGEACTION_T(ui_menu_accel_printy,  UI_TEXT_PRINT_Y_ID,UI_ACTION_PRINT_ACCEL_Y)
-UI_MENU_CHANGEACTION_T(ui_menu_accel_printz,  UI_TEXT_PRINT_Z_ID,UI_ACTION_PRINT_ACCEL_Z)
-UI_MENU_CHANGEACTION_T(ui_menu_accel_travelx, UI_TEXT_MOVE_X_ID,UI_ACTION_MOVE_ACCEL_X)
-UI_MENU_CHANGEACTION_T(ui_menu_accel_travely, UI_TEXT_MOVE_Y_ID,UI_ACTION_MOVE_ACCEL_Y)
-UI_MENU_CHANGEACTION_T(ui_menu_accel_travelz, UI_TEXT_MOVE_Z_ID,UI_ACTION_MOVE_ACCEL_Z)
-UI_MENU_CHANGEACTION_T(ui_menu_accel_jerk,    UI_TEXT_JERK_ID,UI_ACTION_MAX_JERK)
-UI_MENU_CHANGEACTION_T(ui_menu_accel_zjerk,   UI_TEXT_ZJERK_ID,UI_ACTION_MAX_ZJERK)
-#define UI_MENU_ACCEL {UI_MENU_ADDCONDBACK &ui_menu_accel_printx,&ui_menu_accel_printy,&ui_menu_accel_printz,&ui_menu_accel_travelx,&ui_menu_accel_travely,&ui_menu_accel_travelz,&ui_menu_accel_jerk,&ui_menu_accel_zjerk}
-UI_MENU(ui_menu_accel,UI_MENU_ACCEL,8+UI_MENU_BACKCNT)
-
-// **** Feedrates
-UI_MENU_CHANGEACTION_T(ui_menu_feedrate_maxx,  UI_TEXT_FEED_MAX_X_ID,  UI_ACTION_MAX_FEEDRATE_X)
-UI_MENU_CHANGEACTION_T(ui_menu_feedrate_maxy,  UI_TEXT_FEED_MAX_Y_ID,  UI_ACTION_MAX_FEEDRATE_Y)
-UI_MENU_CHANGEACTION_T(ui_menu_feedrate_maxz,  UI_TEXT_FEED_MAX_Z_ID,  UI_ACTION_MAX_FEEDRATE_Z)
-UI_MENU_CHANGEACTION_T(ui_menu_feedrate_homex, UI_TEXT_FEED_HOME_X_ID, UI_ACTION_HOMING_FEEDRATE_X)
-UI_MENU_CHANGEACTION_T(ui_menu_feedrate_homey, UI_TEXT_FEED_HOME_Y_ID, UI_ACTION_HOMING_FEEDRATE_Y)
-UI_MENU_CHANGEACTION_T(ui_menu_feedrate_homez, UI_TEXT_FEED_HOME_Z_ID, UI_ACTION_HOMING_FEEDRATE_Z)
-#define UI_MENU_FEEDRATE {UI_MENU_ADDCONDBACK &ui_menu_feedrate_maxx,&ui_menu_feedrate_maxy,&ui_menu_feedrate_maxz,&ui_menu_feedrate_homex,&ui_menu_feedrate_homey,&ui_menu_feedrate_homez}
-UI_MENU(ui_menu_feedrate,UI_MENU_FEEDRATE,6 + UI_MENU_BACKCNT)
-#else
 UI_MENU_CHANGEACTION_T(ui_menu_accel_printz,UI_TEXT_PRINT_Z_DELTA_ID,UI_ACTION_PRINT_ACCEL_Z)
 UI_MENU_CHANGEACTION_T(ui_menu_accel_travelz,UI_TEXT_MOVE_Z_DELTA_ID,UI_ACTION_MOVE_ACCEL_Z)
 UI_MENU_CHANGEACTION_T(ui_menu_accel_jerk,UI_TEXT_JERK_ID,UI_ACTION_MAX_JERK)
@@ -930,7 +902,6 @@ UI_MENU_CHANGEACTION_T(ui_menu_feedrate_maxz,UI_TEXT_FEED_MAX_Z_DELTA_ID,UI_ACTI
 UI_MENU_CHANGEACTION_T(ui_menu_feedrate_homez,UI_TEXT_FEED_HOME_Z_DELTA_ID,UI_ACTION_HOMING_FEEDRATE_Z)
 #define UI_MENU_FEEDRATE {UI_MENU_ADDCONDBACK &ui_menu_feedrate_maxz,&ui_menu_feedrate_homez}
 UI_MENU(ui_menu_feedrate,UI_MENU_FEEDRATE,2+UI_MENU_BACKCNT)
-#endif
 
 // **** General configuration settings
 
@@ -1060,7 +1031,7 @@ UI_MENU_ACTION2_T(ui_menu_eeprom_loaded, UI_ACTION_DUMMY, UI_TEXT_EEPROM_LOADEDA
 #define UI_MENU_EEPROM_COND
 #define UI_MENU_EEPROM_CNT 0
 #endif
-#if defined(SOFTWARE_LEVELING) && DRIVE_SYSTEM == DELTA
+#if defined(SOFTWARE_LEVELING)
 #define UI_MENU_SL_COND ,&ui_menu_conf_level
 #define UI_MENU_SL_CNT 1
 UI_MENU_SUBMENU_T(ui_menu_conf_level, UI_TEXT_LEVEL_ID, ui_menu_level)

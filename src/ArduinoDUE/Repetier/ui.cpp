@@ -1278,9 +1278,6 @@ void UIDisplay::parse(const char *txt,bool ram)
             if(c2 >= 'x' && c2 <= 'z')       addFloat(Printer::maxAccelerationMMPerSquareSecond[c2 - 'x'], 5, 0);
             else if(c2 >= 'X' &&  c2 <= 'Z') addFloat(Printer::maxTravelAccelerationMMPerSquareSecond[c2-'X'], 5, 0);
             else if(c2 == 'j') addFloat(Printer::maxJerk, 3, 1);
-#if DRIVE_SYSTEM != DELTA
-            else if(c2 == 'J') addFloat(Printer::maxZJerk, 3, 1);
-#endif
             break;
 		case 'B':
             if(c2 == 'C')	 //Custom coating
@@ -1719,10 +1716,8 @@ void UIDisplay::parse(const char *txt,bool ram)
 #endif
             break;
         case 'y':
-#if DRIVE_SYSTEM == DELTA
             if(c2 >= '0' && c2 <= '3') fvalue = (float)Printer::currentDeltaPositionSteps[c2 - '0']*Printer::invAxisStepsPerMM[c2-'0'];
             addFloat(fvalue,3,2);
-#endif
             break;
         case 'z':
 #if EEPROM_MODE != 0 && FEATURE_Z_PROBE
@@ -2910,31 +2905,18 @@ ZPOS2:
     case UI_ACTION_PRINT_ACCEL_X:
     case UI_ACTION_PRINT_ACCEL_Y:
     case UI_ACTION_PRINT_ACCEL_Z:
-#if DRIVE_SYSTEM != DELTA
-        INCREMENT_MIN_MAX(Printer::maxAccelerationMMPerSquareSecond[action - UI_ACTION_PRINT_ACCEL_X],((action == UI_ACTION_PRINT_ACCEL_Z) ? 1 : 100),0,10000);
-#else
         INCREMENT_MIN_MAX(Printer::maxAccelerationMMPerSquareSecond[action - UI_ACTION_PRINT_ACCEL_X],100,0,10000);
-#endif
         Printer::updateDerivedParameter();
         break;
     case UI_ACTION_MOVE_ACCEL_X:
     case UI_ACTION_MOVE_ACCEL_Y:
     case UI_ACTION_MOVE_ACCEL_Z:
-#if DRIVE_SYSTEM != DELTA
-        INCREMENT_MIN_MAX(Printer::maxTravelAccelerationMMPerSquareSecond[action - UI_ACTION_MOVE_ACCEL_X],((action == UI_ACTION_MOVE_ACCEL_Z) ? 1 : 100),0,10000);
-#else
         INCREMENT_MIN_MAX(Printer::maxTravelAccelerationMMPerSquareSecond[action - UI_ACTION_MOVE_ACCEL_X],100,0,10000);
-#endif
         Printer::updateDerivedParameter();
         break;
     case UI_ACTION_MAX_JERK:
         INCREMENT_MIN_MAX(Printer::maxJerk,0.1,1,99.9);
         break;
-#if DRIVE_SYSTEM != DELTA
-    case UI_ACTION_MAX_ZJERK:
-        INCREMENT_MIN_MAX(Printer::maxZJerk,0.1,0.1,99.9);
-        break;
-#endif
     case UI_ACTION_HOMING_FEEDRATE_X:
     case UI_ACTION_HOMING_FEEDRATE_Y:
     case UI_ACTION_HOMING_FEEDRATE_Z:
@@ -3713,9 +3695,7 @@ break;
             Printer::zLength -= Printer::currentPosition[Z_AXIS];
             Printer::currentPositionSteps[Z_AXIS] = 0;
             Printer::updateDerivedParameter();
-#if NONLINEAR_SYSTEM
             transformCartesianStepsToDeltaSteps(Printer::currentPositionSteps, Printer::currentDeltaPositionSteps);
-#endif
             Printer::updateCurrentPosition(true);
             Com::printFLN(Com::tZProbePrinterHeight, Printer::zLength);
 #if EEPROM_MODE != 0

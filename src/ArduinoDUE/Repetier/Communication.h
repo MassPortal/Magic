@@ -136,7 +136,6 @@ FSTRINGVAR(tEEPROMUpdated)
 FSTRINGVAR(tFilamentSlipping)
 FSTRINGVAR(tPauseCommunication)
 FSTRINGVAR(tContinueCommunication)
-#if DRIVE_SYSTEM == DELTA
 FSTRINGVAR(tMeasurementReset)
 FSTRINGVAR(tMeasureDeltaSteps)
 FSTRINGVAR(tMeasureDelta)
@@ -158,12 +157,6 @@ FSTRINGVAR(tDeltaDiagonalCorrectionB)
 FSTRINGVAR(tDeltaDiagonalCorrectionC)
 FSTRINGVAR(tDBGDeltaNoMoveinDSegment)
 FSTRINGVAR(tEPRDeltaMaxRadius)
-#endif // DRIVE_SYSTEM
-#if DRIVE_SYSTEM==TUGA
-FSTRINGVAR(tInvalidDeltaCoordinate)
-FSTRINGVAR(tDBGDeltaNoMoveinDSegment)
-FSTRINGVAR(tEPRDiagonalRodLength)
-#endif
 #ifdef DEBUG_GENERIC
 FSTRINGVAR(tGenTemp)
 #endif // DEBUG_GENERICFSTRINGVALUE(Com::,"")
@@ -314,19 +307,6 @@ FSTRINGVAR(tEPRAccelerationFactorAtTop)
 FSTRINGVAR(tEPRZStepsPerMM)
 FSTRINGVAR(tEPRZMaxFeedrate)
 FSTRINGVAR(tEPRZHomingFeedrate)
-#if DRIVE_SYSTEM != DELTA
-FSTRINGVAR(tEPRMaxZJerk)
-FSTRINGVAR(tEPRXStepsPerMM)
-FSTRINGVAR(tEPRYStepsPerMM)
-FSTRINGVAR(tEPRXMaxFeedrate)
-FSTRINGVAR(tEPRYMaxFeedrate)
-FSTRINGVAR(tEPRXHomingFeedrate)
-FSTRINGVAR(tEPRYHomingFeedrate)
-FSTRINGVAR(tEPRXAcceleration)
-FSTRINGVAR(tEPRYAcceleration)
-FSTRINGVAR(tEPRXTravelAcceleration)
-FSTRINGVAR(tEPRYTravelAcceleration)
-#else
 FSTRINGVAR(tEPRDiagonalRodLength)
 FSTRINGVAR(tEPRHorizontalRadius)
 FSTRINGVAR(tEPRSegmentsPerSecondPrint)
@@ -369,7 +349,6 @@ FSTRINGVAR(tEPRDistanceRetractHeating)
 FSTRINGVAR(tEPRExtruderCoolerSpeed)
 FSTRINGVAR(tEPRAdvanceK)
 FSTRINGVAR(tEPRAdvanceL)
-#endif
 #if SDSUPPORT
 //FSTRINGVAR(tSDRemoved)
 //FSTRINGVAR(tSDInserted)

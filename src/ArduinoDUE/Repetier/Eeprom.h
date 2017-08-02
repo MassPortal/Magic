@@ -388,7 +388,6 @@ static inline void setVersion(uint8_t v) {
 #endif
     }
 
-#if NONLINEAR_SYSTEM
     static inline int16_t deltaSegmentsPerSecondMove() {
 #if EEPROM_MODE != 0
         return HAL::eprGetInt16(EPR_DELTA_SEGMENTS_PER_SECOND_MOVE);
@@ -410,8 +409,6 @@ static inline void setVersion(uint8_t v) {
         return DELTA_SEGMENTS_PER_SECOND_PRINT;
 #endif
     }
-#endif
-#if DRIVE_SYSTEM == DELTA
     static inline float deltaHorizontalRadius() {
 #if EEPROM_MODE != 0
         return HAL::eprGetFloat(EPR_DELTA_HORIZONTAL_RADIUS);
@@ -442,7 +439,6 @@ static inline void setVersion(uint8_t v) {
     }
 
     static inline void setRodRadius(float mm) {
-#if DRIVE_SYSTEM == DELTA
       Printer::radius0=mm;
       Printer::updateDerivedParameter();
 #if EEPROM_MODE != 0
@@ -455,13 +451,11 @@ static inline void setVersion(uint8_t v) {
       if(newcheck!=HAL::eprGetByte(EPR_INTEGRITY_BYTE))
           HAL::eprSetByte(EPR_INTEGRITY_BYTE,newcheck);
 #endif
-#endif
     }
     static inline void incrementRodRadius(float mm) {
           setRodRadius(mm + deltaHorizontalRadius());
     }
     static inline void setTowerXFloor(float newZ) {
-#if DRIVE_SYSTEM == DELTA
       Printer::xMin = newZ;
       Printer::updateDerivedParameter();
       Com::printFLN(PSTR("X (A) tower floor set to: "),Printer::xMin,3);
@@ -471,10 +465,8 @@ static inline void setVersion(uint8_t v) {
         if(newcheck!=HAL::eprGetByte(EPR_INTEGRITY_BYTE))
             HAL::eprSetByte(EPR_INTEGRITY_BYTE,newcheck);
 #endif
-#endif
     }
 static inline void setTowerYFloor(float newZ) {
-#if DRIVE_SYSTEM == DELTA
       Printer::yMin = newZ;
       Printer::updateDerivedParameter();
       Com::printFLN(PSTR("Y (B) tower floor set to: "), Printer::yMin, 3);
@@ -485,10 +477,8 @@ static inline void setTowerYFloor(float newZ) {
         if(newcheck != HAL::eprGetByte(EPR_INTEGRITY_BYTE))
             HAL::eprSetByte(EPR_INTEGRITY_BYTE,newcheck);
 #endif
-#endif
 }
 static inline void setTowerZFloor(float newZ) {
-#if DRIVE_SYSTEM == DELTA
       Printer::zMin = newZ;
       Printer::updateDerivedParameter();
       Com::printFLN(PSTR("Z (C) tower floor set to: "), Printer::zMin, 3);
@@ -497,7 +487,6 @@ static inline void setTowerZFloor(float newZ) {
       uint8_t newcheck = computeChecksum();
       if(newcheck != HAL::eprGetByte(EPR_INTEGRITY_BYTE))
         HAL::eprSetByte(EPR_INTEGRITY_BYTE,newcheck);
-#endif
 #endif
     }
     static inline void setDeltaTowerXOffsetSteps(int16_t steps) {
@@ -579,7 +568,6 @@ static inline void setTowerZFloor(float newZ) {
       return EEPROM_FLOAT(DELTA_MAX_RADIUS);
     }
 
-#endif
     static void initalizeUncached();
 #if MIXING_EXTRUDER
     static void storeMixingRatios(bool updateChecksums = true);
@@ -705,4 +693,5 @@ static inline void setTowerZFloor(float newZ) {
 		return HAL::eprGetByte(EPR_BED_LED);
 	}
 };
-#endif
+
+#endif /* _EEPROM_H*/

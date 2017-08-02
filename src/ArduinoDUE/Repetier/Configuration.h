@@ -103,7 +103,6 @@ is a full cartesian system where x, y and z moves are handled by separate motors
 Cases 1, 2, 8 and 9 cover all needed xy and xz H gantry systems. If you get results mirrored etc. you can swap motor connections for x and y.
 If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 */
-#define DRIVE_SYSTEM 3
 
 /* You can write some gcode to be executed on startup. Use this e.g. to set some 
 pins. Separate multiple gcodes with \n
@@ -116,7 +115,6 @@ pins. Separate multiple gcodes with \n
 
 /** Drive settings for the Delta printers
 */
-#if DRIVE_SYSTEM==DELTA
     // ***************************************************
     // *** These parameter are only for Delta printers ***
     // ***************************************************
@@ -147,23 +145,7 @@ pins. Separate multiple gcodes with \n
 #define XAXIS_STEPS_PER_MM AXIS_STEPS_PER_MM
 #define YAXIS_STEPS_PER_MM AXIS_STEPS_PER_MM
 #define ZAXIS_STEPS_PER_MM AXIS_STEPS_PER_MM
-#else
-// *******************************************************
-// *** These parameter are for all other printer types ***
-// *******************************************************
 
-/** Drive settings for printers with cartesian drive systems */
-/** \brief Number of steps for a 1mm move in x direction.
-For xy gantry use 2*belt moved!
-Overridden if EEPROM activated. */
-#define XAXIS_STEPS_PER_MM 98.425196
-/** \brief Number of steps for a 1mm move in y direction.
-For xy gantry use 2*belt moved!
-Overridden if EEPROM activated.*/
-#define YAXIS_STEPS_PER_MM 98.425196
-/** \brief Number of steps for a 1mm move in z direction  Overridden if EEPROM activated.*/
-#define ZAXIS_STEPS_PER_MM 2560
-#endif
 
 // ##########################################################################################
 // ##                           Extruder configuration                                     ##
@@ -936,7 +918,6 @@ on this endstop.
 #define DELTA_SEGMENTS_PER_SECOND_MOVE 100 // Less accurate setting for other moves
 
 // Delta settings
-#if DRIVE_SYSTEM==DELTA
 /** \brief Delta rod length (mm)
 */
 #define DELTA_DIAGONAL_ROD 210 // mm
@@ -1018,12 +999,7 @@ you can also change the values online and autoleveling will store the results he
 #define DELTA_Y_ENDSTOP_OFFSET_STEPS 0
 #define DELTA_Z_ENDSTOP_OFFSET_STEPS 0
 
-#endif
 // ========== Tuga special settings =============
-#if DRIVE_SYSTEM==TUGA
-/* Radius of the long arm in mm. */
-#define DELTA_DIAGONAL_ROD 240
-#endif
 
 /** \brief Number of delta moves in each line. Moves that exceed this figure will be split into multiple lines.
 Increasing this figure can use a lot of memory since 7 bytes * size of line buffer * MAX_SELTA_SEGMENTS_PER_LINE
@@ -1081,13 +1057,6 @@ Mega. Used only for nonlinear systems like delta or tuga. */
 // use the position you are at.
 #define ZHOME_X_POS IGNORE_COORDINATE
 #define ZHOME_Y_POS IGNORE_COORDINATE
-
-/* If you have a backlash in both z-directions, you can use this. For most printer, the bed will be pushed down by it's
-own weight, so this is nearly never needed. */
-#define ENABLE_BACKLASH_COMPENSATION 0
-#define Z_BACKLASH 0
-#define X_BACKLASH 0
-#define Y_BACKLASH 0
 
 /** Comment this to disable ramp acceleration */
 #define RAMP_ACCELERATION 1
