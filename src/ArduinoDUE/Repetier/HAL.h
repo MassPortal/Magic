@@ -41,10 +41,10 @@
 // Hack to make 84 MHz Due clock work without changes to pre-existing code
 // which would otherwise have problems with int overflow.
 #undef F_CPU
-#define F_CPU       21000000        // should be factor of F_CPU_TRUE
-#define F_CPU_TRUE  84000000        // actual CPU clock frequency
-#define EEPROM_BYTES 4096  // bytes of eeprom we simulate
-#define SUPPORT_64_BIT_MATH  // Gives better results with high resultion deltas
+#define F_CPU       21000000u   // should be factor of F_CPU_TRUE
+#define F_CPU_TRUE  84000000u   // actual CPU clock frequency
+#define EEPROM_BYTES 4096u      // bytes of eeprom we simulate
+#define SUPPORT_64_BIT_MATH     // Gives better results with high resultion deltas
 
 // another hack to keep AVR code happy (i.e. SdFat.cpp)
 #define SPR0    0
@@ -52,7 +52,7 @@
 
 // force SdFat to use HAL (whether or not using SW spi)
 #undef  SOFTWARE_SPI
-#define TIMER0_PRESCALE 128
+#define TIMER0_PRESCALE 128u
 
 // Some structures assume no padding, need to add this attribute on ARM
 #define PACK    __attribute__ ((packed))
@@ -124,13 +124,13 @@ typedef char prog_char;
 #define TWI_ID  				ID_TWI1
 
 
-#define EXTRUDER_CLOCK_FREQ     60000 // extruder stepper interrupt frequency
-#define PWM_CLOCK_FREQ          3906
-#define TIMER1_CLOCK_FREQ       244
-#define TIMER1_PRESCALE         2
+#define EXTRUDER_CLOCK_FREQ     60000u // extruder stepper interrupt frequency
+#define PWM_CLOCK_FREQ          3906u
+#define TIMER1_CLOCK_FREQ       244u
+#define TIMER1_PRESCALE         2u
 
 
-#define SERVO_CLOCK_FREQ        1000
+#define SERVO_CLOCK_FREQ        1000u
 #define SERVO_PRESCALE          2      // Using TCLOCK1 therefore 2
 #define SERVO2500US             (((F_CPU_TRUE / SERVO_PRESCALE) / 1000000) * 2500)
 #define SERVO5000US             (((F_CPU_TRUE / SERVO_PRESCALE) / 1000000) * 5000)
@@ -210,7 +210,7 @@ class InterruptProtectedBlock {
 #define ANALOG_REDUCE_FACTOR 1
 
 // maximum available RAM
-#define MAX_RAM 98303
+#define MAX_RAM 98303u
 
 #define bit_clear(x,y) x&= ~(1<<y) //cbi(x,y)
 #define bit_set(x,y)   x|= (1<<y)//sbi(x,y)
@@ -227,7 +227,7 @@ extern int spiDueDividors[];
 static uint32_t    tone_pin;
 
 /** Set max. frequency to 500000 Hz */
-#define LIMIT_INTERVAL (F_CPU/500000)
+#define LIMIT_INTERVAL (F_CPU/500000u)
 
 
 typedef unsigned int speed_t;
@@ -327,7 +327,7 @@ class HAL
       TC_Start(DELAY_TIMER, DELAY_TIMER_CHANNEL);
 #if EEPROM_AVAILABLE && EEPROM_MODE != EEPROM_NONE
       // Copy eeprom to ram for faster access
-      int i;
+      uint32_t i;
       for (i = 0; i < EEPROM_BYTES; i += 4) {
         eeval_t v = eprGetValue(i, 4);
         memcopy4(&virtualEeprom[i],&v.i);

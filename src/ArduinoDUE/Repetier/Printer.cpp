@@ -718,9 +718,6 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 void Printer::setup()
 {
     HAL::stopWatchdog();
-#if FEATURE_CONTROLLER == CONTROLLER_VIKI
-    HAL::delayMilliseconds(100);
-#endif // FEATURE_CONTROLLER
 #if UI_DISPLAY_TYPE != NO_DISPLAY
     Com::selectLanguage(0); // just make sure we have a language in case someone uses it early
 #endif
@@ -1508,7 +1505,7 @@ void Printer::showConfiguration() {
 #else
     Com::config(PSTR("Fan2:0"));
 #endif	
-    Com::config(PSTR("LCD:"),FEATURE_CONTROLLER != NO_CONTROLLER);
+    Com::config(PSTR("LCD:"), true);
     Com::config(PSTR("SoftwarePowerSwitch:"),PS_ON_PIN > -1);
     Com::config(PSTR("XHomeDir:"),X_HOME_DIR);
     Com::config(PSTR("YHomeDir:"),Y_HOME_DIR);

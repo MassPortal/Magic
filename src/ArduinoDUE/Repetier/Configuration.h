@@ -1735,5 +1735,5 @@ If you have leveling with bed coating or fixed z min you can use this menu to ad
 */
 //#define CUSTOM_EVENTS
 
-#endif
+#endif /* CONFIGURATION_H */
 

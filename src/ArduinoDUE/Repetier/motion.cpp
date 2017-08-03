@@ -145,7 +145,7 @@ void PrintLine::calculateMove(float axis_diff[], uint8_t pathOptimize)
     timeInTicks = timeForMove;
     UI_MEDIUM; // do check encoder
     // Compute the slowest allowed interval (ticks/step), so maximum feedrate is not violated
-    long limitInterval = timeForMove / stepsRemaining; // until not violated by other constraints it is your target speed
+    unsigned long limitInterval = timeForMove / stepsRemaining; // until not violated by other constraints it is your target speed
     if(isXMove())
     {
         axisInterval[X_AXIS] = fabs(axis_diff[X_AXIS]) * F_CPU / (Printer::maxFeedrate[X_AXIS] * stepsRemaining); // mm*ticks/s/(mm/s*steps) = ticks/step

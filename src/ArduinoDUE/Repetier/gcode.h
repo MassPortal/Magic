@@ -245,5 +245,4 @@ public:
 };
 #endif
 
-#endif
-
+#endif /* _GCODE_H */

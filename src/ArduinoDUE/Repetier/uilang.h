@@ -16,6 +16,9 @@
 
 */
 
+#ifndef UILANG_H
+#define UILANG_H
+
 #if !defined(UI_DISPLAY_CHARSET) || UI_DISPLAY_CHARSET > 3
 #define UI_DISPLAY_CHARSET 1
 #endif
@@ -3631,3 +3634,4 @@
 #define UI_TEXT_Y_OFFSET_TR "Set Y offset:%T1mm"
 #define UI_TEXT_Z_OFFSET_TR "Set Z offset:%T2mm"
 
+#endif /* UILANG_H */

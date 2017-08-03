@@ -270,9 +270,5 @@
 #define DIO91_PORT PIOB
 #define DIO91_PIN PIO_PB15A_CANRX1|PIO_PB14A_CANTX1
 
-#ifndef	DIO0_PIN
-#error pins for this chip not defined in arduino.h! If you write an appropriate pin definition and have this firmware work on your chip, please submit a pull request
-#endif
-
 #endif /* _FASTIO_H */
 

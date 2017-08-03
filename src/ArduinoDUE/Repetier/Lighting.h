@@ -55,4 +55,4 @@ class Lighting
 
 extern Lighting Light;
 
-#endif
+#endif /* _Lighting_h */

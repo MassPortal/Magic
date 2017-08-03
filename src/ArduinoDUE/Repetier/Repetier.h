@@ -921,4 +921,4 @@ extern int debugWaitLoop;
 #include "CustomEvents.h"
 #endif
 
-#endif
+#endif /* _REPETIER_H */

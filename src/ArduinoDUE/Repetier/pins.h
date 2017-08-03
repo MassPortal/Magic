@@ -127,7 +127,7 @@ STEPPER_CURRENT_CONTROL
 #define E3_PINS ORIG_E3_STEP_PIN,ORIG_E3_DIR_PIN,ORIG_E3_ENABLE_PIN,
 #define E4_PINS ORIG_E4_STEP_PIN,ORIG_E4_DIR_PIN,ORIG_E4_ENABLE_PIN,
 
-#define TWI_CLOCK_FREQ          400000
+#define TWI_CLOCK_FREQ          400e3
 // see eeprom device data sheet for the following values these are for 24xx256
 #define EEPROM_SERIAL_ADDR      0x50   // 7 bit i2c address (without R/W bit)
 #define EEPROM_PAGE_SIZE        64     // page write buffer size
@@ -168,8 +168,6 @@ STEPPER_CURRENT_CONTROL
 #define MOSI_PIN        75
 #define MISO_PIN        74
 #define SCK_PIN         76
-
-
 
 // Original pin assignmats to be used in configuration tool
 #define X_STEP_PIN ORIG_X_STEP_PIN
@@ -231,5 +229,5 @@ STEPPER_CURRENT_CONTROL
 
 #define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, LED_PIN, ORIG_PS_ON_PIN, \
 						HEATER_0_PIN, HEATER_1_PIN, FAN_PIN, E0_PINS E1_PINS E2_PINS TEMP_0_PIN, TEMP_1_PIN,SDSS }
-#endif
+#endif /* PINS_H */
 

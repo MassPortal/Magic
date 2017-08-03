@@ -1929,7 +1929,6 @@ extern const u8g_fntpgm_uint8_t u8g_font_blipfest_07n[] U8G_FONT_SECTION("u8g_fo
 }
 #endif
 
-#endif /* _U8G_H */
 
 /*
   Fontname: -Misc-Fixed-Medium-R-Normal--7-70-75-75-C-50-ISO10646-1
@@ -10698,4 +10697,4 @@ uint8_t u8g_dev_rot270_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg)
   return 1;
 }
 
-
+#endif /* _U8G_H */

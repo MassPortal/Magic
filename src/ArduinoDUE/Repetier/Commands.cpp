@@ -3114,7 +3114,7 @@ void Commands::processMCode(GCode *com)
               if(com->hasS())
                   Com::printFLN(Com::tInfo,(int32_t)HAL::integerSqrt(com->S));
               break;*/
-#if FEATURE_CONTROLLER != NO_CONTROLLER && FEATURE_RETRACTION
+#if FEATURE_RETRACTION
     case 600:
         uid.executeAction(UI_ACTION_WIZARD_FILAMENTCHANGE, true);
         break;
@@ -3150,11 +3150,9 @@ void Commands::processMCode(GCode *com)
 	case 896: //Run custom action by its ID
 	if(com->hasS() && com->S)
 	{
-#if FEATURE_CONTROLLER == CONTROLLER_LCD_MP_PHARAOH_DUE
 		if(com->S > 0 && com->S <2000)
 			uid.executeAction(com->S, true);
 		else
-#endif
 			Com::printWarningFLN(PSTR("Not a valid action ID!"));
 	}
 	break;
