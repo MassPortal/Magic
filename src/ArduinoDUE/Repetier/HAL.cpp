@@ -225,6 +225,7 @@ void HAL::showStartReason() {
       break;
     case 4:
       Com::printInfoFLN(Com::tExternalReset);
+      break;
   }
 }
 

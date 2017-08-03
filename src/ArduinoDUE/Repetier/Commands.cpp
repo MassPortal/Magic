@@ -3068,12 +3068,6 @@ void Commands::processMCode(GCode *com)
             Printer::maxRealSegmentLength = 0;
         break;
 #endif
-#ifdef DEBUG_REAL_JERK
-        Com::printFLN(PSTR("Max. jerk measured:"), Printer::maxRealJerk);
-        if(com->hasS())
-            Printer::maxRealJerk = 0;
-        break;
-#endif
         /*      case 535:  // M535
                     Com::printF(PSTR("Last commanded position:"),Printer::lastCmdPos[X_AXIS]);
                     Com::printF(Com::tComma,Printer::lastCmdPos[Y_AXIS]);
@@ -3503,5 +3497,6 @@ void Commands::fillDefAxisDir()
 		Printer::retDefAxisDir[X_AXIS] = true;
 		Printer::retDefAxisDir[Y_AXIS] = false;
 		Printer::retDefAxisDir[Z_AXIS] = true;
+        break;
 	}
 }
