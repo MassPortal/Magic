@@ -927,42 +927,6 @@ uint8_t transformCartesianStepsToDeltaSteps(int32_t cartesianPosSteps[], int32_t
         deltaPosSteps[C_TOWER] = SQRT(opt - temp) + zSteps;
         if (deltaPosSteps[C_TOWER] < Printer::deltaFloorSafetyMarginSteps && !Printer::isZProbingActive())
             RETURN_0("C hit floor");
-        /*
-                long temp = Printer::deltaAPosYSteps - cartesianPosSteps[Y_AXIS];
-                long opt = Printer::deltaDiagonalStepsSquaredA.l - temp * temp;
-                long temp2 = Printer::deltaAPosXSteps - cartesianPosSteps[X_AXIS];
-                if ((temp = opt - temp2 * temp2) >= 0)
-        #ifdef FAST_INTEGER_SQRT
-                    deltaPosSteps[A_TOWER] = HAL::integerSqrt(temp) + cartesianPosSteps[Z_AXIS];
-        #else
-                    deltaPosSteps[A_TOWER] = sqrt(temp) + cartesianPosSteps[Z_AXIS];
-        #endif
-                else
-                    return 0;
-
-                temp = Printer::deltaBPosYSteps - cartesianPosSteps[Y_AXIS];
-                opt = Printer::deltaDiagonalStepsSquaredB.l - temp * temp;
-                temp2 = Printer::deltaBPosXSteps - cartesianPosSteps[X_AXIS];
-                if ((temp = opt - temp2*temp2) >= 0)
-        #ifdef FAST_INTEGER_SQRT
-                    deltaPosSteps[B_TOWER] = HAL::integerSqrt(temp) + cartesianPosSteps[Z_AXIS];
-        #else
-                    deltaPosSteps[B_TOWER] = sqrt(temp) + cartesianPosSteps[Z_AXIS];
-        #endif
-                else
-                    return 0;
-
-                temp = Printer::deltaCPosYSteps - cartesianPosSteps[Y_AXIS];
-                opt = Printer::deltaDiagonalStepsSquaredC.l - temp * temp;
-                temp2 = Printer::deltaCPosXSteps - cartesianPosSteps[X_AXIS];
-                if ((temp = opt - temp2*temp2) >= 0)
-        #ifdef FAST_INTEGER_SQRT
-                    deltaPosSteps[C_TOWER] = HAL::integerSqrt(temp) + cartesianPosSteps[Z_AXIS];
-        #else
-                    deltaPosSteps[C_TOWER] = sqrt(temp) + cartesianPosSteps[Z_AXIS];
-        #endif
-                else
-                    return 0;*/
     }
     return 1;
 }
