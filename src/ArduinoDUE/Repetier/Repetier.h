@@ -216,7 +216,10 @@ inline void memcopy4(void *dest,void *source) {
 #define SPEED_MAX_MILLIS 60
 #define SPEED_MAGNIFICATION 100.0f
 
-#define SOFTWARE_LEVELING (defined(FEATURE_SOFTWARE_LEVELING))
+#ifdef FEATURE_SOFTWARE_LEVELING
+#define SOFTWARE_LEVELING FEATURE_SOFTWARE_LEVELING
+#endif
+
 /**  \brief Horizontal distance bridged by the diagonal push rod when the end effector is in the center. It is pretty close to 50% of the push rod length (250 mm).
 */
 #ifndef ROD_RADIUS
@@ -749,10 +752,6 @@ extern float maxadvspeed;
 #include "Extruder.h"
 
 extern uint8_t transformCartesianStepsToDeltaSteps(int32_t cartesianPosSteps[], int32_t deltaPosSteps[]);
-#if SOFTWARE_LEVELING
-extern void calculatePlane(long factors[], long p1[], long p2[], long p3[]);
-extern float calcZOffset(long factors[], long pointX, long pointY);
-#endif
 #ifndef FEATURE_DITTO_PRINTING
 #define FEATURE_DITTO_PRINTING false
 #endif
