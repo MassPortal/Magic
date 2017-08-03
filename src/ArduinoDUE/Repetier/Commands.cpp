@@ -2265,15 +2265,7 @@ void Commands::processMCode(GCode *com)
         break;
 #if SDSUPPORT
     case 20: // M20 - list SD card
-#if JSON_OUTPUT
-       if (com->hasString() && com->text[1] == '2') { // " S2 P/folder"
-            if (com->text[3] == 'P') {
-                sd.lsJSON(com->text + 4);
-            }
-        } else sd.ls();
-#else
         sd.ls();
-#endif
         break;
     case 21: // M21 - init SD card
         sd.mount();
@@ -2321,13 +2313,6 @@ void Commands::processMCode(GCode *com)
         {
             sd.fat.chdir();
             sd.makeDirectory(com->text);
-        }
-        break;
-#endif
-#if JSON_OUTPUT && SDSUPPORT
-    case 36: // M36 JSON File Info
-        if (com->hasString()) {
-            sd.JSONFileInfo(com->text);
         }
         break;
 #endif
@@ -2978,11 +2963,6 @@ void Commands::processMCode(GCode *com)
     case 402: // M402 Go to stored position
         Printer::GoToMemoryPosition(com->hasX(),com->hasY(),com->hasZ(),com->hasE(),(com->hasF() ? com->F : Printer::feedrate));
         break;
-#if JSON_OUTPUT
-    case 408:
-        Printer::showJSONStatus(com->hasS() ? static_cast<int>(com->S) : 0);
-        break;
-#endif
     case 450:
         Printer::reportPrinterMode();
         break;

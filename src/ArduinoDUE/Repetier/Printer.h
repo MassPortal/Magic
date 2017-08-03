@@ -1048,9 +1048,6 @@ public:
     static void showConfiguration();
     static void setCaseLight(bool on);
     static void reportCaseLightStatus();
-#if JSON_OUTPUT
-    static void showJSONStatus(int type);
-#endif
 	static uint8_t ledVal;
 	static INLINE uint8_t ledCount(bool extLed) {
 		switch (Printer::ledVal) {

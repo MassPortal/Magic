@@ -167,10 +167,6 @@ inline void memcopy4(void *dest,void *source) {
 	*((int32_t*)dest) = *((int32_t*)source);
 }
 
-#ifndef JSON_OUTPUT
-#define JSON_OUTPUT 0
-#endif
-
 #if FEATURE_Z_PROBE && Z_PROBE_PIN < 0
 #error You need to define Z_PROBE_PIN to use z probe!
 #endif
@@ -815,9 +811,6 @@ public:
     //SdFile root;
     //SdFile dir[SD_MAX_FOLDER_DEPTH+1];
     SdFile file;
-#if JSON_OUTPUT
-    GCodeFileInfo fileInfo;
-#endif
     uint32_t filesize;
     uint32_t sdpos;
     //char fullName[13*SD_MAX_FOLDER_DEPTH+13]; // Fill name
@@ -847,11 +840,6 @@ public:
     }
     void printStatus();
     void ls();
-#if JSON_OUTPUT
-    void lsJSON(const char *filename);
-    void JSONFileInfo(const char *filename);
-    static void printEscapeChars(const char *s);
-#endif
     void startWrite(char *filename);
     void deleteFile(char *filename);
     void finishWrite();

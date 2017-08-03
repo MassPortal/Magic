@@ -669,21 +669,8 @@ uint8_t SdBaseFile::lsRecursive(SdBaseFile *parent, uint8_t level, char *findFil
                     Com::print(fullName);
                     Com::printF(Com::tSlash);
                  }
-#if JSON_OUTPUT
-                if (isJson) {
-                    if (!firstFile) Com::print(',');
-				    Com::print('"');Com::print('*');
-                    SDCard::printEscapeChars(tempLongFilename);
-				    Com::print('"');
-                    firstFile = false;
-                } else {
-                    Com::print(tempLongFilename);
-                    Com::printFLN(Com::tSlash); // End with / to mark it as directory entry, so we can see empty directories.
-                }
-#else
                 Com::print(tempLongFilename);
                 Com::printFLN(Com::tSlash); // End with / to mark it as directory entry, so we can see empty directories.
-#endif
             }
             SdBaseFile next;
             char *tmp;
@@ -730,22 +717,11 @@ uint8_t SdBaseFile::lsRecursive(SdBaseFile *parent, uint8_t level, char *findFil
                     Com::print(fullName);
                     Com::printF(Com::tSlash);
                 }
-#if JSON_OUTPUT
-                if (isJson) {
-                    if (!firstFile) Com::printF(Com::tComma);
-				    Com::print('"');
-                    SDCard::printEscapeChars(tempLongFilename);
-				    Com::print('"');
-                    firstFile = false;
-                } else
-#endif
-                {
-                    Com::print(tempLongFilename);
+                Com::print(tempLongFilename);
 #if SD_EXTENDED_DIR
-                    Com::printF(Com::tSpace, (long) p->fileSize);
+                Com::printF(Com::tSpace, (long) p->fileSize);
 #endif
-                    Com::println();
-                }
+                Com::println();
             }
         }
     }
@@ -776,16 +752,6 @@ void SdBaseFile::ls(uint8_t flags, uint8_t indent) {
     parent = *this;
     lsRecursive(&parent, 0, NULL, NULL, false);
 }
-
-#if JSON_OUTPUT
-void SdBaseFile::lsJSON() {
-    SdBaseFile parent;
-    rewind();
-    *fullName = 0;
-    parent = *this;
-    lsRecursive(&parent, 0, NULL, NULL, true);
-}
-#endif
 
 //------------------------------------------------------------------------------
 // saves 32 bytes on stack for ls recursion
