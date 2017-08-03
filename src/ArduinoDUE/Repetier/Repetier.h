@@ -748,15 +748,11 @@ extern float maxadvspeed;
 
 #include "Extruder.h"
 
-void manage_inactivity(uint8_t debug);
-
-extern void finishNextSegment();
-extern uint8_t transformCartesianStepsToDeltaSteps(long cartesianPosSteps[], long deltaPosSteps[]);
+extern uint8_t transformCartesianStepsToDeltaSteps(int32_t cartesianPosSteps[], int32_t deltaPosSteps[]);
 #if SOFTWARE_LEVELING
 extern void calculatePlane(long factors[], long p1[], long p2[], long p3[]);
 extern float calcZOffset(long factors[], long pointX, long pointY);
 #endif
-extern void linear_move(long steps_remaining[]);
 #ifndef FEATURE_DITTO_PRINTING
 #define FEATURE_DITTO_PRINTING false
 #endif
@@ -769,7 +765,6 @@ extern millis_t previousMillisCmd;
 extern millis_t maxInactiveTime;
 extern millis_t stepperInactiveTime;
 
-extern void setupTimerInterrupt();
 extern void motorCurrentControlInit();
 extern void microstepInit();
 
@@ -850,16 +845,12 @@ public:
 #ifdef GLENN_DEBUG
     void writeToFile();
 #endif
-private:
-    uint8_t lsRecursive(SdBaseFile *parent,uint8_t level,char *findFilename);
-// SdFile *getDirectory(char* name);
 };
 
 extern SDCard sd;
 #endif
 
 extern volatile int waitRelax; // Delay filament relax at the end of print, could be a simple timeout
-extern void updateStepsParameter(PrintLine *p/*,uint8_t caller*/);
 
 #ifdef DEBUG_PRINT
 extern int debugWaitLoop;
