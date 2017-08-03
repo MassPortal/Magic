@@ -1075,7 +1075,7 @@ inline uint16_t PrintLine::calculateDeltaSubSegments(uint8_t softEndstop)
 #ifdef DEBUG_STEPCOUNT
                 totalStepsRemaining += d->deltaSteps[i];
 #endif
-                maxAxisMove = RMath::max(maxAxisMove,d->deltaSteps[i]);
+                if (d->deltaSteps[i] > maxAxisMove) maxAxisMove = d->deltaSteps[i];
                 Printer::currentDeltaPositionSteps[i] = destinationDeltaSteps[i];
             }
         }
@@ -1269,7 +1269,7 @@ uint8_t PrintLine::queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, u
 #ifdef DEBUG_SPLIT
         Com::printFLN(Com::tDBGDeltaZDelta, cartesianDeltaSteps[Z_AXIS]);
 #endif
-        segmentCount = (cartesianDeltaSteps[Z_AXIS] + (uint32_t)65534) / (uint32_t)65535;
+        segmentCount = (cartesianDeltaSteps[Z_AXIS] + (uint32_t)65530) / (uint32_t)65529; // not limit as t is used to flag errors 
     }
     // Now compute the number of lines needed
     int numLines = (segmentCount + DELTASEGMENTS_PER_PRINTLINE - 1) / DELTASEGMENTS_PER_PRINTLINE;
@@ -1282,7 +1282,7 @@ uint8_t PrintLine::queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, u
         for (fast8_t i = 0; i < Z_AXIS_ARRAY; i++)
             startPosition[i] = Printer::currentPositionSteps[i];
         startPosition[E_AXIS] = 0;
-        cartesianDistance /= numLines;
+        cartesianDistance /= static_cast<float>(numLines);
     }
 
 #ifdef DEBUG_SPLIT
@@ -1353,7 +1353,7 @@ uint8_t PrintLine::queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, u
 #ifdef DEBUG_SPLIT
         Com::printFLN(Com::tDBGDeltaMaxDS, (int32_t)maxDeltaStep);
 #endif
-        int32_t virtual_axis_move = (int32_t)maxDeltaStep * segmentsPerLine;
+        int32_t virtual_axis_move = static_cast<int32_t>(maxDeltaStep) * segmentsPerLine;
         if (virtual_axis_move == 0 && p->delta[E_AXIS] == 0)
         {
             if (numLines != 1)
@@ -1382,7 +1382,7 @@ uint8_t PrintLine::queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, u
         Com::printFLN(Com::tDBGDeltaVirtualAxisSteps, p->stepsRemaining);
 #endif
         p->calculateMove(axis_diff, pathOptimize);
-        for (uint8_t i = 0; i < E_AXIS_ARRAY; i++)
+        for (fast8_t i = 0; i < E_AXIS_ARRAY; i++)
         {
             Printer::currentPositionSteps[i] += fractionalSteps[i];
         }
