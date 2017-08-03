@@ -726,34 +726,6 @@ void Printer::setup()
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
 #endif
-    // HAL::hwSetup(); // There was a HW setup few lines before, no need to repeat
-#ifdef ANALYZER
-// Channel->pin assignments
-#if ANALYZER_CH0>=0
-    SET_OUTPUT(ANALYZER_CH0);
-#endif
-#if ANALYZER_CH1>=0
-    SET_OUTPUT(ANALYZER_CH1);
-#endif
-#if ANALYZER_CH2>=0
-    SET_OUTPUT(ANALYZER_CH2);
-#endif
-#if ANALYZER_CH3>=0
-    SET_OUTPUT(ANALYZER_CH3);
-#endif
-#if ANALYZER_CH4>=0
-    SET_OUTPUT(ANALYZER_CH4);
-#endif
-#if ANALYZER_CH5>=0
-    SET_OUTPUT(ANALYZER_CH5);
-#endif
-#if ANALYZER_CH6>=0
-    SET_OUTPUT(ANALYZER_CH6);
-#endif
-#if ANALYZER_CH7>=0
-    SET_OUTPUT(ANALYZER_CH7);
-#endif
-#endif
 
 #if defined(ENABLE_POWER_ON_STARTUP) && ENABLE_POWER_ON_STARTUP && (PS_ON_PIN>-1)
     SET_OUTPUT(PS_ON_PIN); //GND
