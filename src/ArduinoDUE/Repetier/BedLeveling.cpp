@@ -264,7 +264,7 @@ S = 1 : Measure zLength so homing works
 S = 2 : Like s = 1 plus store results in EEPROM for next connection.
 */
 void runBedLeveling(GCode *com) {
-	float h1,h2,h3,hc,oldFeedrate = Printer::feedrate;
+	float oldFeedrate = Printer::feedrate;
 	int s = com->hasS() ? com->S : -1;
 	#if DISTORTION_CORRECTION
 	bool distEnabled = Printer::distortion.isEnabled();
@@ -384,9 +384,7 @@ float Printer::runZMaxProbe()
 void Printer::startProbing(bool runScript) {
 	float oldOffX = Printer::offsetX;
 	float oldOffY = Printer::offsetY;
-	float oldOffZ = Printer::offsetZ;
-	if(runScript)
-	GCode::executeFString(Com::tZProbeStartScript);
+	if(runScript) GCode::executeFString(Com::tZProbeStartScript);
 	float maxStartHeight = EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() > 0 ? EEPROM::zProbeHeight() : 0) + 0.1;
 	if(currentPosition[Z_AXIS] > maxStartHeight) {
 		moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, maxStartHeight, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
@@ -433,9 +431,6 @@ Then we return the measured and corrected z distance.
 */
 float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript)
 {
-	float oldOffX = Printer::offsetX;
-	float oldOffY = Printer::offsetY;
-	float oldOffZ = Printer::offsetZ;
 	if(first)
 	startProbing(runStartScript);
 	Commands::waitUntilEndOfAllMoves();

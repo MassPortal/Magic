@@ -156,9 +156,6 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define PRINTER_MODE_FFF 0
 #define PRINTER_MODE_LASER 1
 #define PRINTER_MODE_CNC 2
-// we can not prevent this as some configs need a parameter and others not
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wunused-variable"
 
 #include "Configuration.h"
 

@@ -984,7 +984,7 @@ void PrintLine::calculateDirectionAndDelta(int32_t difference[], ufast8_t *dir, 
 inline uint16_t PrintLine::calculateDeltaSubSegments(uint8_t softEndstop)
 {
     uint8_t i;
-    int32_t delta,diff;
+    int32_t delta;
     int32_t destinationSteps[Z_AXIS_ARRAY], destinationDeltaSteps[TOWER_ARRAY];
     // Save current position
     float dx[Z_AXIS_ARRAY];
@@ -1108,7 +1108,7 @@ inline void PrintLine::queueEMove(int32_t extrudeDiff,uint8_t check_endstops,uin
 {
     Printer::unsetAllSteppersDisabled();
     waitForXFreeLines(1);
-    uint8_t newPath = insertWaitMovesIfNeeded(pathOptimize, 1);
+    insertWaitMovesIfNeeded(pathOptimize, 1);
     PrintLine *p = getNextWriteLine();
     float axisDiff[5]; // Axis movement in mm
     if(check_endstops) p->flags = FLAG_CHECK_ENDSTOPS;

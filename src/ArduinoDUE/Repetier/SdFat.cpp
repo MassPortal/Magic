@@ -650,9 +650,6 @@ void SdBaseFile::ls(uint8_t flags) {
 uint8_t SdBaseFile::lsRecursive(SdBaseFile *parent, uint8_t level, char *findFilename, SdBaseFile *pParentFound, bool isJson)
 {
     dir_t *p = NULL;
-    //uint8_t cnt=0;
-    //char *oldpathend = pathend;
-    bool firstFile = true;
 
     parent->rewind();
 

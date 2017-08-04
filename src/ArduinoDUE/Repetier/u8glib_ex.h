@@ -116,11 +116,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-// these warnings appear and are no problem.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-
 // ============= u8g.h ====================
 
 /*
@@ -9196,8 +9191,5 @@ uint8_t u8g_dev_rot270_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg)
   }
   return 1;
 }
-
-
-#pragma GCC diagnostic push
 
 #endif /* _U8G_H */

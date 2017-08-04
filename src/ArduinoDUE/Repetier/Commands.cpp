@@ -1297,7 +1297,7 @@ void Commands::processGCode(GCode *com)
 #endif
 		//bool iterate = com->hasP() && com->P>0;
 		Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
-		float h1, h2, h3, hc, oldFeedrate = Printer::feedrate;
+		float h1, h2, h3, oldFeedrate = Printer::feedrate;
 		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		h1 = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
 		if (h1 < 0) {
@@ -1401,7 +1401,8 @@ void Commands::processGCode(GCode *com)
 		Printer::buildTransformationMatrix(h1, h2, h3);
 		//-(Rxx*Ryz*y-Rxz*Ryx*y+(Rxz*Ryy-Rxy*Ryz)*x)/(Rxy*Ryx-Rxx*Ryy)
 		// z = z-deviation from origin due to bed transformation
-		float z = -((Printer::autolevelTransformation[0] * Printer::autolevelTransformation[5] -
+#if DEBUGGING
+        float z = -((Printer::autolevelTransformation[0] * Printer::autolevelTransformation[5] -
 			Printer::autolevelTransformation[2] * Printer::autolevelTransformation[3]) *
 			(float)Printer::currentPositionSteps[Y_AXIS] * Printer::invAxisStepsPerMM[Y_AXIS] +
 			(Printer::autolevelTransformation[2] * Printer::autolevelTransformation[4] -
@@ -1409,7 +1410,7 @@ void Commands::processGCode(GCode *com)
 			(float)Printer::currentPositionSteps[X_AXIS] * Printer::invAxisStepsPerMM[X_AXIS]) /
 			(Printer::autolevelTransformation[1] * Printer::autolevelTransformation[3] - Printer::autolevelTransformation[0] * Printer::autolevelTransformation[4]);
 		Printer::zMin = 0;
-#if DEBUGGING
+
 		Com::printFLN(PSTR("Z: "), z);
 #endif
 		//Parameter for compensating total height. E.g. in case of blue tape.		
@@ -1868,8 +1869,6 @@ void Commands::processGCode(GCode *com)
 #endif
 		//bool iterate = com->hasP() && com->P>0;
 		/*Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;*/
-		float h1, h2, h3, hc, oldFeedrate = Printer::feedrate;
-
 		int ST = 0;
 		int Max = 1;
 		float ptx = 0.0;
