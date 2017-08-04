@@ -62,7 +62,6 @@ void Commands::commandLoop()
 
 void Commands::checkForPeriodicalActions(bool allowNewMoves)
 {
-    Printer::handleInterruptEvent();
     EVENT_PERIODICAL;
     if(!executePeriodical) return;
     executePeriodical = 0;
@@ -2998,16 +2997,6 @@ void Commands::processMCode(GCode *com)
     case 502: // M502
         EEPROM::restoreEEPROMSettingsFromConfiguration();
         break;
-#if EXTRUDER_JAM_CONTROL
-#ifdef DEBUG_JAM
-    case 512:
-        Com::printFLN(PSTR("Jam signal:"),(int16_t)READ(EXT0_JAM_PIN));
-        break;
-#endif // DEBUG_JAM
-    case 513:
-        Extruder::markAllUnjammed();
-        break;
-#endif // EXTRUDER_JAM_CONTROL
 #ifdef DEBUG_QUEUE_MOVE
     case 533: // M533 Write move data
     {
@@ -3204,9 +3193,6 @@ void Commands::processMCode(GCode *com)
         Commands::waitUntilEndOfAllMoves();
         if(com->hasS()) Printer::setDebugJam(com->S > 0);
         if(com->hasP()) Printer::setJamcontrolDisabled(com->P > 0);
-        break;
-    case 603:
-        Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_DETECTED, true);
         break;
     case 907: // M907 Set digital trimpot/DAC motor current using axis codes.
     {

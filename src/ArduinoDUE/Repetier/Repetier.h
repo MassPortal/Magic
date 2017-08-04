@@ -285,11 +285,6 @@ inline void memcopy4(void *dest,void *source) {
 #define UI_SERVO_CONTROL FEATURE_SERVO
 #endif
 
-#if (defined(EXT0_JAM_PIN) && EXT0_JAM_PIN > -1) || (defined(EXT1_JAM_PIN) && EXT1_JAM_PIN > -1) || (defined(EXT2_JAM_PIN) && EXT2_JAM_PIN > -1) || (defined(EXT3_JAM_PIN) && EXT3_JAM_PIN > -1) || (defined(EXT4_JAM_PIN) && EXT4_JAM_PIN > -1) || (defined(EXT5_JAM_PIN) && EXT5_JAM_PIN > -1)
-#define EXTRUDER_JAM_CONTROL 1
-#else
-#define EXTRUDER_JAM_CONTROL 0
-#endif
 #ifndef JAM_METHOD
 #define JAM_METHOD 1
 #endif

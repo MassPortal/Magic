@@ -1333,15 +1333,6 @@ void UIDisplay::parse(const char *txt,bool ram)
                     break;
                 }
             }
-#if EXTRUDER_JAM_CONTROL
-            if(tempController[eid]->isJammed())
-            {
-                if(++beepdelay > 10) beepdelay = 0;  // beep every 10 seconds
-                if(beepdelay == 1) BEEP_LONG;
-                addStringP(PSTR(" jam "));
-                break;
-            }
-#endif
 #endif
             if(c2 == 'c') fvalue = Extruder::current->tempControl.currentTemperatureC;
             else if(c2 >= '0' && c2 <= '9') fvalue=extruder[c2 - '0'].tempControl.currentTemperatureC;
@@ -2468,23 +2459,8 @@ int UIDisplay::okAction(bool allowMoves)
 			Extruder::current->retractDistance(-FILAMENTCHANGE_SHORTRETRACT);
             //Printer::currentPositionSteps[E_AXIS] = Printer::popWizardVar().l; // set e to starting position
             Printer::setBlockingReceive(false);
-#if EXTRUDER_JAM_CONTROL
-            Extruder::markAllUnjammed();
-#endif
             Printer::setJamcontrolDisabled(false);
             break;
-#if EXTRUDER_JAM_CONTROL
-        case UI_ACTION_WIZARD_JAM_REHEAT: // user saw problem and takes action
-            popMenu(false);
-            pushMenu(&ui_wiz_jamwaitheat, true);
-            Extruder::unpauseExtruders();
-            popMenu(false);
-            pushMenu(&ui_wiz_filamentchange, true);
-            break;
-        case UI_ACTION_WIZARD_JAM_WAITHEAT: // called while heating - should do nothing user must wait
-            BEEP_LONG;
-            break;
-#endif // EXTRUDER_JAM_CONTROL
 #endif
         }
         return 0;
@@ -3606,34 +3582,6 @@ break;
             Extruder::current->disableCurrentExtruderMotor();
         }
         break;
-#if EXTRUDER_JAM_CONTROL
-        case UI_ACTION_WIZARD_JAM_EOF:
-        {
-            Extruder::markAllUnjammed();
-            Printer::setJamcontrolDisabled(true);
-            Printer::setBlockingReceive(true);
-            pushMenu(&ui_wiz_jamreheat, true);
-            Printer::resetWizardStack();
-            Printer::pushWizardVar(Printer::currentPositionSteps[E_AXIS]);
-            Printer::MemoryPosition();
-            Extruder::current->retractDistance(FILAMENTCHANGE_SHORTRETRACT);
-            float newZ = FILAMENTCHANGE_Z_ADD + Printer::currentPosition[Z_AXIS];
-            Printer::currentPositionSteps[E_AXIS] = 0;
-            Printer::moveToReal(Printer::currentPosition[X_AXIS], Printer::currentPosition[Y_AXIS], newZ, 0, Printer::homingFeedrate[Z_AXIS]);
-            Printer::moveToReal(FILAMENTCHANGE_X_POS, FILAMENTCHANGE_Y_POS, newZ, 0, Printer::homingFeedrate[X_AXIS]);
-            //Extruder::current->retractDistance(FILAMENTCHANGE_LONGRETRACT);
-            Extruder::pauseExtruders();
-            Commands::waitUntilEndOfAllMoves();
-#if FILAMENTCHANGE_REHOME
-            Printer::disableXStepper();
-            Printer::disableYStepper();
-#if Z_HOME_DIR > 0 && FILAMENTCHANGE_REHOME == 2
-            Printer::disableZStepper();
-#endif
-#endif
-        }
-        break;
-#endif // EXTRUDER_JAM_CONTROL
 #endif // FEATURE_RETRACTION
         case UI_ACTION_X_UP:
         case UI_ACTION_X_DOWN:

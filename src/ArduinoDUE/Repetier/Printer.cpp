@@ -1362,59 +1362,6 @@ void Printer::reportCaseLightStatus() {
 #endif
 }
 
-void Printer::handleInterruptEvent() {
-    if(interruptEvent == 0) return;
-    int event = interruptEvent;
-    interruptEvent = 0;
-    switch(event) {
-#if EXTRUDER_JAM_CONTROL
-    case PRINTER_INTERRUPT_EVENT_JAM_DETECTED:
-        EVENT_JAM_DETECTED;
-        Com::printFLN(PSTR("important:Extruder jam detected"));
-        UI_ERROR_P(Com::translatedF(UI_TEXT_EXTRUDER_JAM_ID));
-#if JAM_ACTION == 1 // start dialog
-        Printer::setUIErrorMessage(false);
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-        uid.executeAction(UI_ACTION_WIZARD_JAM_EOF, true);
-#endif
-#elif JAM_ACTION == 2 // pause host/print
-#if SDSUPPORT
-        if(sd.sdmode == 2) {
-            sd.pausePrint(true);
-            break;
-        }
-#endif // SDSUPPORT
-        Com::printFLN(PSTR("RequestPause:Extruder Jam Detected!"));
-#endif // JAM_ACTION
-        break;
-    case PRINTER_INTERRUPT_EVENT_JAM_SIGNAL0:
-    case PRINTER_INTERRUPT_EVENT_JAM_SIGNAL1:
-    case PRINTER_INTERRUPT_EVENT_JAM_SIGNAL2:
-    case PRINTER_INTERRUPT_EVENT_JAM_SIGNAL3:
-    case PRINTER_INTERRUPT_EVENT_JAM_SIGNAL4:
-    case PRINTER_INTERRUPT_EVENT_JAM_SIGNAL5:
-        {
-            if(isJamcontrolDisabled()) break;
-            fast8_t extruderIndex = event - PRINTER_INTERRUPT_EVENT_JAM_SIGNAL0;
-            int16_t steps = abs(extruder[extruderIndex].jamStepsOnSignal);
-            EVENT_JAM_SIGNAL_CHANGED(extruderIndex,steps);
-            if(steps > JAM_SLOWDOWN_STEPS && !extruder[extruderIndex].tempControl.isSlowedDown()) {
-                extruder[extruderIndex].tempControl.setSlowedDown(true);
-                Commands::changeFeedrateMultiply(JAM_SLOWDOWN_TO);
-                UI_ERROR_P(Com::tFilamentSlipping);
-            }
-            if(isDebugJam()) {
-                Com::printF(PSTR("Jam signal steps:"),steps);
-                int32_t percent =  static_cast<int32_t>(steps) * 100 / JAM_STEPS;
-                Com::printF(PSTR(" / "),percent);
-                Com::printFLN(PSTR("% on "),(int)extruderIndex);
-            }
-        }
-        break;
-#endif // EXTRUDER_JAM_CONTROL    case PRINTER_INTERRUPT_EVENT_JAM_DETECTED:
-    }
-}
-
 #define START_EXTRUDER_CONFIG(i)     Com::printF(Com::tConfig);Com::printF(Com::tExtrDot,i+1);Com::print(':');
 void Printer::showConfiguration() {
     Com::config(PSTR("Baudrate:"),baudrate);

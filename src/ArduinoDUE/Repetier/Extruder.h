@@ -122,23 +122,6 @@ public:
     {
         return flags & TEMPERATURE_CONTROLLER_FLAG_SENSDECOUPLED;
     }
-#if EXTRUDER_JAM_CONTROL
-    inline bool isJammed()
-    {
-        return flags & TEMPERATURE_CONTROLLER_FLAG_JAM;
-    }
-    void setJammed(bool on);
-    inline bool isSlowedDown()
-    {
-        return flags & TEMPERATURE_CONTROLLER_FLAG_SLOWDOWN;
-    }
-    inline void setSlowedDown(bool on)
-    {
-        flags &= ~TEMPERATURE_CONTROLLER_FLAG_SLOWDOWN;
-        if(on) flags |= TEMPERATURE_CONTROLLER_FLAG_SLOWDOWN;
-    }
-
-#endif
     void waitForTargetTemperature();
 #if TEMP_PID
     void autotunePID(float temp,uint8_t controllerId,int maxCycles,bool storeResult);
@@ -147,37 +130,8 @@ public:
 class Extruder;
 extern Extruder extruder[];
 
-#if EXTRUDER_JAM_CONTROL
-#if JAM_METHOD == 1
-#define _TEST_EXTRUDER_JAM(x,pin) {\
-        uint8_t sig = READ(pin);extruder[x].jamStepsSinceLastSignal += extruder[x].jamLastDir;\
-        if(extruder[x].jamLastSignal != sig && abs(extruder[x].jamStepsSinceLastSignal - extruder[x].jamLastChangeAt) > JAM_MIN_STEPS) {\
-          if(sig) {extruder[x].resetJamSteps();} \
-          extruder[x].jamLastSignal = sig;extruder[x].jamLastChangeAt = extruder[x].jamStepsSinceLastSignal;\
-        } else if(abs(extruder[x].jamStepsSinceLastSignal) > JAM_ERROR_STEPS && !Printer::isDebugJamOrDisabled() && !extruder[x].tempControl.isJammed()) \
-            extruder[x].tempControl.setJammed(true);\
-    }
-#define RESET_EXTRUDER_JAM(x,dir) extruder[x].jamLastDir = dir ? 1 : -1;
-#elif JAM_METHOD == 2
-#define _TEST_EXTRUDER_JAM(x,pin) {\
-        uint8_t sig = READ(pin);\
-          if(sig){extruder[x].tempControl.setJammed(true);} else if(!Printer::isDebugJamOrDisabled() && !extruder[x].tempControl.isJammed()) {extruder[x].resetJamSteps();}}
-#define RESET_EXTRUDER_JAM(x,dir)
-#elif JAM_METHOD == 3
-#define _TEST_EXTRUDER_JAM(x,pin) {\
-        uint8_t sig = !READ(pin);\
-          if(sig){extruder[x].tempControl.setJammed(true);} else if(!Printer::isDebugJamOrDisabled() && !extruder[x].tempControl.isJammed()) {extruder[x].resetJamSteps();}}
-#define RESET_EXTRUDER_JAM(x,dir)
-#else
-#error Unknown value for JAM_METHOD
-#endif
-#define ___TEST_EXTRUDER_JAM(x,y) _TEST_EXTRUDER_JAM(x,y)
-#define __TEST_EXTRUDER_JAM(x) ___TEST_EXTRUDER_JAM(x,EXT ## x ## _JAM_PIN)
-#define TEST_EXTRUDER_JAM(x) __TEST_EXTRUDER_JAM(x)
-#else
 #define TEST_EXTRUDER_JAM(x)
 #define RESET_EXTRUDER_JAM(x,dir)
-#endif
 
 #define EXTRUDER_FLAG_RETRACTED 1
 #define EXTRUDER_FLAG_WAIT_JAM_STARTCOUNT 2 ///< Waiting for the first signal to start counting
@@ -236,29 +190,8 @@ public:
     uint8_t coolerPWM; ///< current PWM setting
     float diameter;
     uint8_t flags;
-#if EXTRUDER_JAM_CONTROL
-    int16_t jamStepsSinceLastSignal; // when was the last signal
-    uint8_t jamLastSignal; // what was the last signal
-    int8_t jamLastDir;
-    int16_t jamStepsOnSignal;
-    int16_t jamLastChangeAt;
-#endif
 
     // Methods here
-
-#if EXTRUDER_JAM_CONTROL
-    inline bool isWaitJamStartcount()
-    {
-        return flags & EXTRUDER_FLAG_WAIT_JAM_STARTCOUNT;
-    }
-    inline void setWaitJamStartcount(bool on)
-    {
-        if(on) flags |= EXTRUDER_FLAG_WAIT_JAM_STARTCOUNT;
-        else flags &= ~(EXTRUDER_FLAG_WAIT_JAM_STARTCOUNT);
-    }
-    static void markAllUnjammed();
-    void resetJamSteps();
-#endif
 #if MIXING_EXTRUDER > 0
     static void setMixingWeight(uint8_t extr,int weight);
 #endif

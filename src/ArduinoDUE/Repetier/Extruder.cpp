@@ -398,40 +398,6 @@ void Extruder::unpauseExtruders()
         extruder[i].tempControl.waitForTargetTemperature();
 }
 
-#if EXTRUDER_JAM_CONTROL
-void TemperatureController::setJammed(bool on)
-{
-    if(on)
-    {
-        flags |= TEMPERATURE_CONTROLLER_FLAG_JAM;
-        Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_DETECTED, true);
-    }
-    else flags &= ~(TEMPERATURE_CONTROLLER_FLAG_JAM);
-}
-
-void Extruder::markAllUnjammed()
-{
-    for(fast8_t i = 0; i < NUM_EXTRUDER; i++)
-    {
-        extruder[i].tempControl.setJammed(false);
-        extruder[i].tempControl.setSlowedDown(false);
-        extruder[i].resetJamSteps();
-    }
-    if(Printer::feedrateMultiply == JAM_SLOWDOWN_TO)
-        Commands::changeFeedrateMultiply(100);
-    Printer::unsetAnyTempsensorDefect(); // stop alarm
-    Com::printInfoFLN(PSTR("Marked all extruders as unjammed."));
-    Printer::setUIErrorMessage(false);
-}
-
-void Extruder::resetJamSteps()
-{
-    jamStepsOnSignal = jamStepsSinceLastSignal;
-    jamStepsSinceLastSignal = 0;
-    Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_SIGNAL0 + id, false);
-}
-#endif
-
 void Extruder::initHeatedBed()
 {
 #if HAVE_HEATED_BED
@@ -847,39 +813,21 @@ void Extruder::step()
     if(PrintLine::cur != NULL && PrintLine::cur->isAllEMotors()) {
 #if NUM_EXTRUDER > 0
         WRITE(EXT0_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT0_JAM_PIN) && EXT0_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(0)
-#endif
 #endif
 #if NUM_EXTRUDER > 1
         WRITE(EXT1_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT1_JAM_PIN) && EXT1_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(1)
-#endif
 #endif
 #if NUM_EXTRUDER > 2
         WRITE(EXT2_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT2_JAM_PIN) && EXT2_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(2)
-#endif
 #endif
 #if NUM_EXTRUDER > 3
         WRITE(EXT3_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT3_JAM_PIN) && EXT3_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(3)
-#endif
 #endif
 #if NUM_EXTRUDER > 4
         WRITE(EXT4_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT4_JAM_PIN) && EXT4_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(4)
-#endif
 #endif
 #if NUM_EXTRUDER > 5
         WRITE(EXT5_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT5_JAM_PIN) && EXT5_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(5)
-#endif
 #endif
         return;
     }
@@ -921,54 +869,36 @@ void Extruder::step()
     if(best == 0)
     {
         WRITE(EXT0_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT0_JAM_PIN) && EXT0_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(0)
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 1
     if(best == 1)
     {
         WRITE(EXT1_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT1_JAM_PIN) && EXT1_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(1)
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 2
     if(best == 2)
     {
         WRITE(EXT2_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT2_JAM_PIN) && EXT2_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(2)
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 3
     if(best == 3)
     {
         WRITE(EXT3_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT3_JAM_PIN) && EXT3_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(3)
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 4
     if(best == 4)
     {
         WRITE(EXT4_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT4_JAM_PIN) && EXT4_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(4)
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 5
     if(best == 5)
     {
         WRITE(EXT5_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT5_JAM_PIN) && EXT5_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(5)
-#endif
     }
 #endif
 }
@@ -1071,41 +1001,26 @@ void Extruder::step()
 {
 #if NUM_EXTRUDER == 1
     WRITE(EXT0_STEP_PIN, START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT0_JAM_PIN) && EXT0_JAM_PIN > -1
-    TEST_EXTRUDER_JAM(0)
-#endif
 #else
     switch(Extruder::current->id)
     {
     case 0:
 #if NUM_EXTRUDER > 0
         WRITE(EXT0_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT0_JAM_PIN) && EXT0_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(0)
-#endif
 #if FEATURE_DITTO_PRINTING
         if(Extruder::dittoMode)
         {
             WRITE(EXT1_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT1_JAM_PIN) && EXT1_JAM_PIN > -1
-            TEST_EXTRUDER_JAM(1)
-#endif
 #if NUM_EXTRUDER > 2
             if(Extruder::dittoMode > 1)
             {
                 WRITE(EXT2_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT2_JAM_PIN) && EXT2_JAM_PIN > -1
-                TEST_EXTRUDER_JAM(2)
-#endif
             }
 #endif
 #if NUM_EXTRUDER > 3
             if(Extruder::dittoMode > 2)
             {
                 WRITE(EXT3_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT3_JAM_PIN) && EXT3_JAM_PIN > -1
-                TEST_EXTRUDER_JAM(3)
-#endif
             }
 #endif
         }
@@ -1115,41 +1030,26 @@ void Extruder::step()
 #if defined(EXT1_STEP_PIN) && NUM_EXTRUDER > 1
     case 1:
         WRITE(EXT1_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT1_JAM_PIN) && EXT1_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(1)
-#endif
         break;
 #endif
 #if defined(EXT2_STEP_PIN) && NUM_EXTRUDER > 2
     case 2:
         WRITE(EXT2_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT2_JAM_PIN) && EXT2_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(2)
-#endif
         break;
 #endif
 #if defined(EXT3_STEP_PIN) && NUM_EXTRUDER > 3
     case 3:
         WRITE(EXT3_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT3_JAM_PIN) && EXT3_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(3)
-#endif
         break;
 #endif
 #if defined(EXT4_STEP_PIN) && NUM_EXTRUDER > 4
     case 4:
         WRITE(EXT4_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT4_JAM_PIN) && EXT4_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(4)
-#endif
         break;
 #endif
 #if defined(EXT5_STEP_PIN) && NUM_EXTRUDER > 5
     case 5:
         WRITE(EXT5_STEP_PIN,START_STEP_WITH_HIGH);
-#if EXTRUDER_JAM_CONTROL && defined(EXT5_JAM_PIN) && EXT5_JAM_PIN > -1
-        TEST_EXTRUDER_JAM(5)
-#endif
         break;
 #endif
     }
@@ -2195,9 +2095,6 @@ Extruder extruder[NUM_EXTRUDER] =
             ,0,0,0,EXT0_DECOUPLE_TEST_PERIOD
         }
         ,ext0_select_cmd,ext0_deselect_cmd,EXT0_EXTRUDER_COOLER_SPEED,0,0,0
-#if EXTRUDER_JAM_CONTROL
-        ,0,0,10,0,0
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 1
@@ -2222,9 +2119,6 @@ Extruder extruder[NUM_EXTRUDER] =
             ,0,0,0,EXT1_DECOUPLE_TEST_PERIOD
         }
         ,ext1_select_cmd,ext1_deselect_cmd,EXT1_EXTRUDER_COOLER_SPEED,0,0,0
-#if EXTRUDER_JAM_CONTROL
-        ,0,0,10,0,0
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 2
@@ -2249,9 +2143,6 @@ Extruder extruder[NUM_EXTRUDER] =
             ,0,0,0,EXT2_DECOUPLE_TEST_PERIOD
         }
         ,ext2_select_cmd,ext2_deselect_cmd,EXT2_EXTRUDER_COOLER_SPEED,0,0,0
-#if EXTRUDER_JAM_CONTROL
-        ,0,0,10,0,0
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 3
@@ -2276,9 +2167,6 @@ Extruder extruder[NUM_EXTRUDER] =
             ,0,0,0,EXT3_DECOUPLE_TEST_PERIOD
         }
         ,ext3_select_cmd,ext3_deselect_cmd,EXT3_EXTRUDER_COOLER_SPEED,0,0,0
-#if EXTRUDER_JAM_CONTROL
-        ,0,0,10,0,0
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 4
@@ -2303,9 +2191,6 @@ Extruder extruder[NUM_EXTRUDER] =
             ,0,0,0,EXT4_DECOUPLE_TEST_PERIOD
         }
         ,ext4_select_cmd,ext4_deselect_cmd,EXT4_EXTRUDER_COOLER_SPEED,0,0,0
-#if EXTRUDER_JAM_CONTROL
-        ,0,0,10,0,0
-#endif
     }
 #endif
 #if NUM_EXTRUDER > 5
@@ -2330,9 +2215,6 @@ Extruder extruder[NUM_EXTRUDER] =
             ,0,0,0,EXT5_DECOUPLE_TEST_PERIOD
         }
         ,ext5_select_cmd,ext5_deselect_cmd,EXT5_EXTRUDER_COOLER_SPEED,0,0,0
-#if EXTRUDER_JAM_CONTROL
-        ,0,0,10,0,0
-#endif
     }
 #endif
 };

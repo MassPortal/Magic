@@ -394,14 +394,6 @@ public:
 #endif
     static fast8_t wizardStackPos;
     static wizardVar wizardStack[WIZARD_STACK_SIZE];
-
-    static void handleInterruptEvent();
-
-    static INLINE void setInterruptEvent(uint8_t evt, bool highPriority)
-    {
-        if(highPriority || interruptEvent == 0)
-            interruptEvent = evt;
-    }
     static void reportPrinterMode();
     static INLINE void setMenuMode(uint8_t mode,bool on)
     {
