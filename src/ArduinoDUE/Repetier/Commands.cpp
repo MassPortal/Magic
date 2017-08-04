@@ -27,48 +27,37 @@ int Commands::lowestRAMValueSend = MAX_RAM;
 
 void Commands::commandLoop()
 {
-    while(true)
-    {
 #ifdef DEBUG_PRINT
-        debugWaitLoop = 1;
+    debugWaitLoop = 1;
 #endif
-        if(!Printer::isBlockingReceive())
-        {
-            GCode::readFromSerial();
-            GCode *code = GCode::peekCurrentCommand();
-            //UI_SLOW; // do longer timed user interface action
-            UI_MEDIUM; // do check encoder
-			
-			if (!code && Printer::isPaused && !PrintLine::hasLines()) {
-				Printer::moveToPausePosition();
-			}
+    if(!Printer::isBlockingReceive())
+    {
+        GCode::readFromSerial();
+        GCode *code = GCode::peekCurrentCommand();
 
-            if(code)
-            {
+		if (!code && Printer::isPaused && !PrintLine::hasLines()) {
+			Printer::moveToPausePosition();
+		}
+
+        if(code)
+        {
 #if SDSUPPORT
-                if(sd.savetosd)
-                {
-                    if(!(code->hasM() && code->M == 29))   // still writing to file
-                        sd.writeCommand(code);
-                    else
-                        sd.finishWrite();
-#if ECHO_ON_EXECUTE
-                    code->echoCommand();
-#endif
-                }
+           if(sd.savetosd)
+           {
+                if(!(code->hasM() && code->M == 29))   // still writing to file
+                    sd.writeCommand(code);
                 else
+                    sd.finishWrite();
+#if ECHO_ON_EXECUTE
+                code->echoCommand();
 #endif
-                    Commands::executeGCode(code);
-                code->popCurrentCommand();
             }
-
+            else
+#endif
+                Commands::executeGCode(code);
+            code->popCurrentCommand();
+            }
         }
-        else
-        {
-            UI_MEDIUM;
-        }
-        Printer::defaultLoopActions();
-    }
 }
 
 void Commands::checkForPeriodicalActions(bool allowNewMoves)
@@ -111,7 +100,6 @@ void Commands::waitUntilEndOfAllMoves()
     {
         GCode::readFromSerial();
         checkForPeriodicalActions(false);
-        UI_MEDIUM;
     }
 }
 
@@ -125,7 +113,6 @@ void Commands::waitUntilEndOfAllBuffers()
     {
         GCode::readFromSerial();
         code = GCode::peekCurrentCommand();
-        UI_MEDIUM; // do check encoder
         if(code)
         {
 #if SDSUPPORT
@@ -145,7 +132,6 @@ void Commands::waitUntilEndOfAllBuffers()
             code->popCurrentCommand();
         }
         Commands::checkForPeriodicalActions(false); // only called from memory
-        UI_MEDIUM;
     }
 }
 

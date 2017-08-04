@@ -3919,12 +3919,6 @@ case UI_ACTION_RESET_MATRIX:
 #endif
     return ret;
 }
-void UIDisplay::mediumAction()
-{
-#if UI_HAS_I2C_ENCODER>0
-    uiCheckSlowEncoder();
-#endif
-}
 
 // Gets calles from main tread
 void UIDisplay::slowAction(bool allowMoves)

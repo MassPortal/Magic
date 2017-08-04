@@ -148,11 +148,6 @@ Custom M Codes
 */
 
 #include "Repetier.h"
-#include <SPI.h>
-
-#if UI_DISPLAY_TYPE == DISPLAY_ARDUINO_LIB
-//#include <LiquidCrystal.h> // Uncomment this if you are using liquid crystal library
-#endif
 
 void setup()
 {
@@ -161,7 +156,11 @@ void setup()
 
 void loop()
 {
-    Commands::commandLoop();
+    while (true)
+    {
+        Commands::commandLoop();
+        Printer::defaultLoopActions();
+    }
 }
 
 

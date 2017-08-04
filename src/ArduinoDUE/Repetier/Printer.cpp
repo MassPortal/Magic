@@ -1115,7 +1115,6 @@ if (EEPROM::getBedLED()>1)
 void Printer::defaultLoopActions()
 {
     Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
-    UI_MEDIUM; // do check encoder
     millis_t curtime = HAL::timeInMilliseconds();
     if(PrintLine::hasLines() || isMenuMode(MENU_MODE_SD_PAUSED))
         previousMillisCmd = curtime;

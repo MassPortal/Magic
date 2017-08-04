@@ -143,7 +143,6 @@ void PrintLine::calculateMove(float axis_diff[], uint8_t pathOptimize)
         //critical = true;
     }
     timeInTicks = timeForMove;
-    UI_MEDIUM; // do check encoder
     // Compute the slowest allowed interval (ticks/step), so maximum feedrate is not violated
     unsigned long limitInterval = timeForMove / stepsRemaining; // until not violated by other constraints it is your target speed
     if(isXMove())
@@ -281,7 +280,6 @@ void PrintLine::calculateMove(float axis_diff[], uint8_t pathOptimize)
         }
     }
 #endif
-    UI_MEDIUM; // do check encoder
     updateTrapezoids();
     // how much steps on primary axis do we need to reach target feedrate
     //p->plateauSteps = (long) (((float)p->acceleration *0.5f / slowest_axis_plateau_time_repro + p->vMin) *1.01f/slowest_axis_plateau_time_repro);
@@ -1495,7 +1493,6 @@ void PrintLine::arc(float *position, float *target, float *offset, float radius,
         {
             GCode::readFromSerial();
             Commands::checkForPeriodicalActions(false);
-            UI_MEDIUM; // do check encoder
         }
 
         if (count < N_ARC_CORRECTION)  //25 pieces

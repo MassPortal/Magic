@@ -1996,7 +1996,6 @@ void TemperatureController::autotunePID(float temp,uint8_t controllerId,int maxC
             }
             return;
         }
-        UI_MEDIUM;
         UI_SLOW(true);
     }
 }

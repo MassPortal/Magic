@@ -569,7 +569,6 @@ class UIDisplay {
     void finishAction(unsigned int action);
     void slowAction(bool allowMoves);
     void fastAction();
-    void mediumAction();
     void pushMenu(const UIMenu *men, bool refresh);
     void popMenu(bool refresh);
     void adjustMenuPos();
@@ -697,7 +696,6 @@ void uiCheckSlowKeys(uint16_t &action) {}
 
 #define UI_INITIALIZE uid.initialize();
 #define UI_FAST if((counterPeriodical & 3) == 3) {uid.fastAction();}
-#define UI_MEDIUM uid.mediumAction();
 #define UI_SLOW(allowMoves) uid.slowAction(allowMoves);
 #define UI_STATUS(status) uid.setStatusP(PSTR(status));
 #define UI_STATUS_F(status) uid.setStatusP(status);

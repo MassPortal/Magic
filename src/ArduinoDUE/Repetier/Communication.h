@@ -438,7 +438,7 @@ static void printFLN(FSTRINGPARAM(text),uint32_t value);
 static void printFLN(FSTRINGPARAM(text),const char *msg);
 static void printFLN(FSTRINGPARAM(text),float value,uint8_t digits=2);
 static void printArrayFLN(FSTRINGPARAM(text),float *arr,uint8_t n=4,uint8_t digits=2);
-static void printArrayFLN(FSTRINGPARAM(text),long *arr,uint8_t n=4);
+static void printArrayFLN(FSTRINGPARAM(text),int32_t *arr,uint8_t n=4);
 static void print(long value);
 static inline void print(uint32_t value) {printNumber(value);}
 static inline void print(int value) {print((int32_t)value);}
