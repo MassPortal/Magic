@@ -24,6 +24,8 @@
 
 #include <math.h>
 #include <stdint.h>
+#include "coroutine.h"
+
 #define REPETIER_VERSION "0.92.8"
 
 // ##########################################################################################

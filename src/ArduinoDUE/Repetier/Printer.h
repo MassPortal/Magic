@@ -981,7 +981,7 @@ public:
     static void kill(uint8_t only_steppers);
     static void updateAdvanceFlags();
     static void setup();
-    static void defaultLoopActions();
+    static task_t defaultLoopActions();
     static uint8_t setDestinationStepsFromGCode(GCode *com);
     static uint8_t moveTo(float x,float y,float z,float e,float f);
     static uint8_t moveToReal(float x,float y,float z,float e,float f,bool pathOptimize = true);

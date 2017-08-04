@@ -1112,14 +1112,15 @@ if (EEPROM::getBedLED()>1)
 #endif // EEPROM_MODE
 }
 
-void Printer::defaultLoopActions()
+task_t Printer::defaultLoopActions()
 {
+    CR_BEGIN;
+
     Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
     millis_t curtime = HAL::timeInMilliseconds();
-    if(PrintLine::hasLines() || isMenuMode(MENU_MODE_SD_PAUSED))
+    if(PrintLine::hasLines() || isMenuMode(MENU_MODE_SD_PAUSED)) {
         previousMillisCmd = curtime;
-    else
-    {
+    } else {
         curtime -= previousMillisCmd;
         if(maxInactiveTime != 0 && curtime >  maxInactiveTime )
             Printer::kill(false);
@@ -1128,10 +1129,10 @@ void Printer::defaultLoopActions()
         if(stepperInactiveTime != 0 && curtime >  stepperInactiveTime )
             Printer::kill(true);
     }
-#if SDCARDDETECT>-1 && SDSUPPORT
-    //sd.automount();
-#endif
+
     DEBUG_MEMORY;
+
+    CR_RETURN;
 }
 
 void Printer::MemoryPosition()
