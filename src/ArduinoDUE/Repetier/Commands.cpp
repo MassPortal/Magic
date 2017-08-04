@@ -2821,9 +2821,7 @@ void Commands::processMCode(GCode *com)
         Com::printInfoFLN(PSTR("Triggering watchdog. If activated, the printer will reset."));
         Printer::kill(false);
         HAL::delayMilliseconds(200); // write output, make sure heaters are off for safety
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-        InterruptProtectedBlock noInts;			// don't disable interrupts on mega2560 and mega1280 because of bootloader bug
-#endif
+        InterruptProtectedBlock noInts;
         while(1) {} // Endless loop
     }
 #else

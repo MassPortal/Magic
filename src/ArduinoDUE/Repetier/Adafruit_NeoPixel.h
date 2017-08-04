@@ -37,9 +37,7 @@
 // Trinket flash space is tight, v1 NeoPixels aren't handled by default.
 // Remove the ifndef/endif to add support -- but code will be bigger.
 // Conversely, can comment out the #defines to save space on other MCUs.
-#ifndef __AVR_ATtiny85__
 #define NEO_KHZ400  0x00 // 400 KHz datastream
-#endif
 
 class Adafruit_NeoPixel {
 
@@ -85,13 +83,6 @@ class Adafruit_NeoPixel {
     type;          // Pixel flags (400 vs 800 KHz, RGB vs GRB color)
   uint32_t
     endTime;       // Latch timing reference
-#ifdef __AVR__
-  const volatile uint8_t
-    *port;         // Output PORT register
-  uint8_t
-    pinMask;       // Output PORT bitmask
-#endif
-
 };
 
 extern Adafruit_NeoPixel strip;

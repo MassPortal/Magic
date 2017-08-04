@@ -168,29 +168,14 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* comment the following line to generate more compact but interrupt unsafe code */
 #define U8G_INTERRUPT_SAFE 1
 
-
 #include <stddef.h>
-
-#ifdef __18CXX
-typedef unsigned char uint8_t;
-typedef signed char int8_t;
-typedef unsigned short uint16_t;
-typedef signed short int16_t;
-#else
 #include <stdint.h>
-#endif
-
-#if defined(__AVR__)
-#include <avr/pgmspace.h>
-#endif
 
 /*
   use the com interface directly on any systems which are not AVR or ARDUINO
 */
-#if defined(__AVR__) || defined(ARDUINO)
-#define U8G_WITH_PINLIST
-#endif
 
+#define U8G_WITH_PINLIST
 
 #ifdef __cplusplus
 extern "C" {
@@ -203,13 +188,6 @@ extern "C" {
 #  define U8G_PURE  __attribute__ ((pure))
 #  define U8G_NOCOMMON __attribute__ ((nocommon))
 #  define U8G_SECTION(name) __attribute__ ((section (name)))
-#  if defined(__MSPGCC__)
-/* mspgcc does not have .progmem sections. Use -fdata-sections. */
-#    define U8G_FONT_SECTION(name)
-#  endif
-#  if defined(__AVR__)
-#    define U8G_FONT_SECTION(name) U8G_SECTION(".progmem." name)
-#  endif
 #else
 #  define U8G_NOINLINE
 #  define U8G_PURE
@@ -224,17 +202,6 @@ extern "C" {
 
 /*===============================================================*/
 /* flash memory access */
-
-#if defined(__AVR__)
-/* U8G_PROGMEM is used by the XBM example */
-#define U8G_PROGMEM U8G_SECTION(".progmem.data")
-typedef uint8_t PROGMEM u8g_pgm_uint8_t;
-typedef uint8_t u8g_fntpgm_uint8_t;
-#define u8g_pgm_read(adr) pgm_read_byte_near(adr)
-#define U8G_PSTR(s) ((u8g_pgm_uint8_t *)PSTR(s))
-
-#else
-
 #define U8G_PROGMEM
 #define PROGMEM
 typedef uint8_t u8g_pgm_uint8_t;
@@ -242,23 +209,13 @@ typedef uint8_t u8g_fntpgm_uint8_t;
 #define u8g_pgm_read(adr) (*(const u8g_pgm_uint8_t *)(adr))
 #define U8G_PSTR(s) ((u8g_pgm_uint8_t *)(s))
 
-#endif
-
 /*===============================================================*/
 /* interrupt safe code */
 #if defined(U8G_INTERRUPT_SAFE)
-#  if defined(__AVR__)
-extern uint8_t global_SREG_backup;	/* u8g_state.c */
-#    define U8G_ATOMIC_START()		do { global_SREG_backup = SREG; cli(); } while(0)
-#    define U8G_ATOMIC_END()			SREG = global_SREG_backup
-#    define U8G_ATOMIC_OR(ptr, val) 	do { uint8_t tmpSREG = SREG; cli(); (*(ptr) |= (val)); SREG = tmpSREG; } while(0)
-#    define U8G_ATOMIC_AND(ptr, val) 	do { uint8_t tmpSREG = SREG; cli(); (*(ptr) &= (val)); SREG = tmpSREG; } while(0)
-#  else
 #    define U8G_ATOMIC_OR(ptr, val) (*(ptr) |= (val))
 #    define U8G_ATOMIC_AND(ptr, val) (*(ptr) &= (val))
 #    define U8G_ATOMIC_START()
 #    define U8G_ATOMIC_END()
-#  endif /* __AVR__ */
 #else
 #  define U8G_ATOMIC_OR(ptr, val) (*(ptr) |= (val))
 #  define U8G_ATOMIC_AND(ptr, val) (*(ptr) &= (val))
@@ -287,15 +244,6 @@ typedef int16_t u8g_int_t;
 typedef uint8_t u8g_uint_t;
 typedef int8_t u8g_int_t;
 #endif
-
-#ifdef OBSOLETE
-struct _u8g_box_t
-{
-  u8g_uint_t x0, y0, x1, y1;
-};
-typedef struct _u8g_box_t u8g_box_t;
-#endif /* OBSOLETE */
-
 
 /*===============================================================*/
 /* device structure */
@@ -744,36 +692,11 @@ defined(__18CXX) || defined(__PIC32MX)
 
 */
 /* ==== HW SPI, Arduino ====*/
-#if defined(ARDUINO)
-#if defined(__AVR__)
-
-#if defined(__AVR_ATtiny85__)
-#define U8G_COM_HW_SPI u8g_com_arduino_ATtiny85_std_hw_spi_fn
-#define U8G_COM_ST7920_HW_SPI u8g_com_null_fn
-#else
 
 #define U8G_COM_HW_SPI u8g_com_arduino_hw_spi_fn
-#if defined(__AVR_ATmega32U4__)
-#define U8G_COM_HW_USART_SPI u8g_com_arduino_hw_usart_spi_fn
-#endif /* __AVR_ATmega32U4__ */
-#define U8G_COM_ST7920_HW_SPI u8g_com_arduino_st7920_hw_spi_fn
-#endif /* __AVR_ATtiny85__ */
+#define U8G_COM_ST7920_HW_SPI u8g_com_null_fn
 
-#elif defined(__18CXX) || defined(__PIC32MX)
-#define U8G_COM_HW_SPI u8g_com_null_fn
-#define U8G_COM_ST7920_HW_SPI u8g_com_null_fn
-#elif defined(__arm__)   /* Arduino Due */
-#define U8G_COM_HW_SPI u8g_com_arduino_hw_spi_fn
-#define U8G_COM_ST7920_HW_SPI u8g_com_null_fn
-#endif
-#endif
 /* ==== HW SPI, not Arduino ====*/
-#ifndef U8G_COM_HW_SPI
-#if defined(__AVR__)
-#define U8G_COM_HW_SPI u8g_com_atmega_hw_spi_fn
-#define U8G_COM_ST7920_HW_SPI u8g_com_atmega_st7920_hw_spi_fn
-#endif
-#endif
 #ifndef U8G_COM_HW_SPI
 #define U8G_COM_HW_SPI u8g_com_null_fn
 #define U8G_COM_ST7920_HW_SPI u8g_com_null_fn
@@ -785,69 +708,28 @@ defined(__18CXX) || defined(__PIC32MX)
 
 
 /* ==== SW SPI, Arduino ====*/
-#if defined(ARDUINO)
-#if defined(__AVR__)
-#define U8G_COM_SW_SPI u8g_com_arduino_sw_spi_fn
-#define U8G_COM_ST7920_SW_SPI u8g_com_arduino_st7920_spi_fn
-#elif defined(__18CXX) || defined(__PIC32MX)
-#define U8G_COM_SW_SPI u8g_com_arduino_sw_spi_fn
-#define U8G_COM_ST7920_SW_SPI u8g_com_arduino_st7920_spi_fn
-#elif defined(__arm__)   /* Arduino Due */
 //#define U8G_COM_SW_SPI u8g_com_arduino_std_sw_spi_fn
 #define U8G_COM_SW_SPI u8g_com_arduino_sw_spi_fn
 #define U8G_COM_ST7920_SW_SPI u8g_com_arduino_st7920_spi_fn
-#endif
-#endif
 
-#ifndef U8G_COM_SW_SPI
-/* ==== SW SPI, not Arduino ====*/
-#if defined(__AVR__)
-#define U8G_COM_SW_SPI u8g_com_atmega_sw_spi_fn
-#define U8G_COM_ST7920_SW_SPI u8g_com_atmega_st7920_sw_spi_fn
-#endif
-#endif
 #ifndef U8G_COM_SW_SPI
 #define U8G_COM_SW_SPI u8g_com_null_fn
 #define U8G_COM_ST7920_SW_SPI u8g_com_null_fn
 #endif
 
 /* ==== Parallel iinterface, Arduino ====*/
-#if defined(ARDUINO)
-#if defined(__AVR__)
-#define U8G_COM_PARALLEL u8g_com_arduino_parallel_fn
-#define U8G_COM_FAST_PARALLEL u8g_com_arduino_fast_parallel_fn
-#define U8G_COM_T6963  u8g_com_arduino_t6963_fn
-#else /* Arduino Due, Chipkit PIC32 */
+
 #define U8G_COM_PARALLEL u8g_com_arduino_parallel_fn
 #define U8G_COM_FAST_PARALLEL u8g_com_arduino_parallel_fn
 #define U8G_COM_T6963  u8g_com_null_fn
-#endif
-#endif
-#ifndef U8G_COM_PARALLEL
-#if defined(__AVR__)
-#define U8G_COM_PARALLEL u8g_com_atmega_parallel_fn
-#define U8G_COM_FAST_PARALLEL u8g_com_atmega_parallel_fn
-#define U8G_COM_T6963  u8g_com_null_fn
-#endif
-#endif
+
 #ifndef U8G_COM_PARALLEL
 #define U8G_COM_PARALLEL u8g_com_null_fn
 #define U8G_COM_FAST_PARALLEL u8g_com_null_fn
 #define U8G_COM_T6963  u8g_com_null_fn
 #endif
 
-#if defined(ARDUINO)
-#if defined(__AVR__)
-#define U8G_COM_SSD_I2C u8g_com_arduino_ssd_i2c_fn
-#endif
-#endif
 
-#ifndef U8G_COM_SSD_I2C
-#if defined(__AVR__)
-/* AVR variant can use the arduino version at the moment */
-#define U8G_COM_SSD_I2C u8g_com_arduino_ssd_i2c_fn
-#endif
-#endif
 #ifndef U8G_COM_SSD_I2C
 #define U8G_COM_SSD_I2C u8g_com_null_fn
 #endif
@@ -3465,133 +3347,6 @@ int8_t u8g_GetGlyphDeltaX(u8g_t *u8g, uint8_t requested_encoding)
 
 /*========================================================================*/
 /* glyph drawing procedures */
-
-#ifdef OBSOLETE
-/*
-  Draw a glyph
-  x,y: left baseline position of the glyph
-*/
-int8_t u8g_DrawGlyphDir(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t dir, uint8_t encoding)
-{
-  u8g_glyph_t g;
-  uint8_t w, h, i, j;
-  const u8g_pgm_uint8_t *data;
-  uint8_t bytes_per_line;
-  u8g_uint_t ix, iy;
-
-  g = u8g_GetGlyph(u8g, encoding);
-  if ( g == NULL  )
-    return 0;
-  w = u8g->glyph_width;
-  h = u8g->glyph_height;
-
-  bytes_per_line = w;
-  bytes_per_line += 7;
-  bytes_per_line /= 8;
-
-  data = u8g_font_GetGlyphDataStart(u8g->font, g);
-
-  switch(dir)
-  {
-    case 0:
-      x += u8g->glyph_x;
-      y -= u8g->glyph_y;
-      y--;
-      //u8g_DrawFrame(u8g, x, y-h+1, w, h);
-      if ( u8g_IsBBXIntersection(u8g, x, y-h+1, w, h) == 0 )
-        return u8g->glyph_dx;
-
-      iy = y;
-      iy -= h;
-      iy++;
-
-      for( j = 0; j < h; j++ )
-      {
-        ix = x;
-        for( i = 0; i < bytes_per_line; i++ )
-        {
-          u8g_Draw8Pixel(u8g, ix, iy, dir, u8g_pgm_read(data));
-          data++;
-          ix+=8;
-        }
-        iy++;
-      }
-      break;
-    case 1:
-      x += u8g->glyph_y;
-      x++;
-      y += u8g->glyph_x;
-      //printf("enc %d, dir %d, x %d, y %d, w %d, h %d\n", encoding, dir, x, y, w, h);
-      //u8g_DrawFrame(u8g, x, y, h, w);
-      if ( u8g_IsBBXIntersection(u8g, x, y, h, w) == 0 )
-        return u8g->glyph_dx;
-
-      ix = x;
-      ix += h;
-      ix--;
-      for( j = 0; j < h; j++ )
-      {
-        iy = y;
-        for( i = 0; i < bytes_per_line; i++ )
-        {
-          u8g_Draw8Pixel(u8g, ix, iy, dir, u8g_pgm_read(data));
-          data++;
-          iy+=8;
-        }
-        ix--;
-      }
-      break;
-    case 2:
-      x -= u8g->glyph_x;
-      y += u8g->glyph_y;
-      y++;
-      if ( u8g_IsBBXIntersection(u8g, x-w-1, y, w, h) == 0 )
-        return u8g->glyph_dx;
-
-      iy = y;
-      iy += h;
-      iy--;
-      for( j = 0; j < h; j++ )
-      {
-        ix = x;
-        for( i = 0; i < bytes_per_line; i++ )
-        {
-          u8g_Draw8Pixel(u8g, ix, iy, dir, u8g_pgm_read(data));
-          data++;
-          ix-=8;
-        }
-        iy--;
-      }
-      break;
-    case 3:
-      x -= u8g->glyph_y;
-      x--;
-      y -= u8g->glyph_x;
-
-      if ( u8g_IsBBXIntersection(u8g, x-h-1, y-w-1, h, w) == 0 )
-        return u8g->glyph_dx;
-
-      ix = x;
-      ix -= h;
-      ix++;
-
-      for( j = 0; j < h; j++ )
-      {
-        iy = y;
-        for( i = 0; i < bytes_per_line; i++ )
-        {
-          u8g_Draw8Pixel(u8g, ix, iy, dir, u8g_pgm_read(data));
-          data++;
-          iy-=8;
-        }
-        ix++;
-      }
-      break;
-  }
-  return u8g->glyph_dx;
-}
-#endif
-
 int8_t u8g_draw_glyph(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t encoding)
 {
   const u8g_pgm_uint8_t *data;
@@ -3800,22 +3555,6 @@ int8_t u8g_DrawGlyph270(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t encoding
   x += u8g->font_calc_vref(u8g);
   return u8g_draw_glyph270(u8g, x, y, encoding);
 }
-
-
-
-#ifdef OBSOLETE
-/*
-  Draw a glyph
-  x,y: lower left corner of the font bounding box
-*/
-int8_t u8g_DrawGlyphFontBBX(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t dir, uint8_t encoding)
-{
-  /* TODO: apply "dir" */
-  x -= u8g_GetFontBBXOffX(u8g);
-  y += u8g_GetFontBBXOffY(u8g);
-  return u8g_DrawGlyphDir(u8g, x, y, dir, encoding);
-}
-#endif
 
 /*========================================================================*/
 /* string drawing procedures */
@@ -4929,137 +4668,11 @@ uint8_t u8g_com_arduino_std_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   A special SPI interface for ST7920 controller
 
 */
-
-#if defined(__AVR__)
-
-static void u8g_atmega_st7920_sw_spi_shift_out(u8g_t *u8g, uint8_t val) U8G_NOINLINE;
-static void u8g_atmega_st7920_sw_spi_shift_out(u8g_t *u8g, uint8_t val)
-{
-  uint8_t i = 8;
-  do
-  {
-    u8g_SetPILevel(u8g, U8G_PI_MOSI, val & 128 );
-    val <<= 1;
-    u8g_SetPILevel(u8g, U8G_PI_SCK, 1 );
-    u8g_MicroDelay();		/* 15 Aug 2012: added for high speed uC */
-    u8g_SetPILevel(u8g, U8G_PI_SCK, 0 );
-    u8g_MicroDelay();		/* 15 Aug 2012: added for high speed uC */
-    i--;
-  } while( i != 0 );
-}
-
-static void u8g_com_atmega_st7920_write_byte(u8g_t *u8g, uint8_t rs, uint8_t val) U8G_NOINLINE;
-static void u8g_com_atmega_st7920_write_byte(u8g_t *u8g, uint8_t rs, uint8_t val)
-{
-  uint8_t i;
-
-  if ( rs == 0 )
-  {
-    /* command */
-    u8g_atmega_st7920_sw_spi_shift_out(u8g, 0x0f8);
-  }
-  else if ( rs == 1 )
-  {
-    /* data */
-    u8g_atmega_st7920_sw_spi_shift_out(u8g, 0x0fa);
-  }
-
-  u8g_atmega_st7920_sw_spi_shift_out(u8g, val & 0x0f0);
-  u8g_atmega_st7920_sw_spi_shift_out(u8g, val << 4);
-
-  for( i = 0; i < 4; i++ )
-    u8g_10MicroDelay();
-}
-
-
-uint8_t u8g_com_atmega_st7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-{
-  switch(msg)
-  {
-    case U8G_COM_MSG_INIT:
-      u8g_SetPIOutput(u8g, U8G_PI_SCK);
-      u8g_SetPIOutput(u8g, U8G_PI_MOSI);
-      /* u8g_SetPIOutput(u8g, U8G_PI_A0); */
-      u8g_SetPIOutput(u8g, U8G_PI_CS);
-      u8g_SetPIOutput(u8g, U8G_PI_RESET);
-
-      u8g_SetPILevel(u8g, U8G_PI_SCK, 0 );
-      u8g_SetPILevel(u8g, U8G_PI_MOSI, 0 );
-      u8g_SetPILevel(u8g, U8G_PI_CS, 0 );
-      /* u8g_SetPILevel(u8g, U8G_PI_A0, 0); */
-
-      u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
-      break;
-
-    case U8G_COM_MSG_STOP:
-      break;
-
-    case U8G_COM_MSG_RESET:
-      u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
-      break;
-
-    case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
-      u8g->pin_list[U8G_PI_A0_STATE] = arg_val;
-      break;
-
-    case U8G_COM_MSG_CHIP_SELECT:
-      if ( arg_val == 0 )
-      {
-        /* disable, note: the st7920 has an active high chip select */
-        u8g_SetPILevel(u8g, U8G_PI_CS, 0);
-      }
-      else
-      {
-        /* u8g_SetPILevel(u8g, U8G_PI_SCK, 0 ); */
-        /* enable */
-        u8g_SetPILevel(u8g, U8G_PI_CS, 1); /* CS = 1 (high active) */
-      }
-      break;
-
-
-    case U8G_COM_MSG_WRITE_BYTE:
-      u8g_com_atmega_st7920_write_byte(u8g, u8g->pin_list[U8G_PI_A0_STATE], arg_val);
-      u8g->pin_list[U8G_PI_A0_STATE] = 2;
-      break;
-
-    case U8G_COM_MSG_WRITE_SEQ:
-      {
-        register uint8_t *ptr = (uint8_t*)arg_ptr;
-        while( arg_val > 0 )
-        {
-          u8g_com_atmega_st7920_write_byte(u8g, u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
-	  u8g->pin_list[U8G_PI_A0_STATE] = 2;
-          arg_val--;
-        }
-      }
-      break;
-
-      case U8G_COM_MSG_WRITE_SEQ_P:
-      {
-        register uint8_t *ptr = (uint8_t*)arg_ptr;
-        while( arg_val > 0 )
-        {
-          u8g_com_atmega_st7920_write_byte(u8g, u8g->pin_list[U8G_PI_A0_STATE], u8g_pgm_read(ptr));
-	  u8g->pin_list[U8G_PI_A0_STATE] = 2;
-          ptr++;
-          arg_val--;
-        }
-      }
-      break;
-  }
-  return 1;
-}
-
-#else
-
-
 uint8_t u8g_com_atmega_st7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
 {
   return 1;
 }
 
-
-#endif
 
 // ================ u8g_butmap.c ===============
 
@@ -5666,24 +5279,6 @@ void u8g_Draw4TPixel(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t dir, uint8_
   u8g_Draw4TPixelLL(u8g, u8g->dev, x, y, dir, pixel);
 }
 
-
-/* u8g_IsBBXIntersection() has been moved to u8g_clip.c */
-#ifdef OBSOLETE_CODE
-uint8_t u8g_IsBBXIntersection(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, u8g_uint_t w, u8g_uint_t h)
-{
-  /* new code */
-  u8g_dev_arg_bbx_t arg;
-  arg.x = x;
-  arg.y = y;
-  arg.w = w;
-  arg.h = h;
-  return u8g_is_box_bbx_intersection(&(u8g->current_page), &arg);
-
-  /* old code */
-  //return u8g_IsBBXIntersectionLL(u8g, u8g->dev, x, y, w, h);
-}
-#endif
-
 /*
   idx: index for the palette entry (0..255)
   r: value for red (0..255)
@@ -6029,119 +5624,8 @@ uint8_t u8g_WriteEscSeqP(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_seq)
 
 /*==== Part 1: Derive suitable delay procedure ====*/
 
-#if defined(ARDUINO)
-
-#  if defined(__AVR__)
-#    define USE_AVR_DELAY
-#  elif defined(__PIC32MX)
-#    define USE_PIC32_DELAY
-#  elif defined(__arm__)		/* Arduino Due */
 #    define USE_ARDUINO_DELAY
-#  else
-#    define USE_ARDUINO_DELAY
-#  endif
-#elif defined(__AVR__)
-#  define USE_AVR_DELAY
-#elif defined(__18CXX)
-#  define USE_PIC18_DELAY
-#elif defined(__arm__)
-/* do not define anything, all procedures are expected to be defined outside u8glib */
 
-/*
-void u8g_Delay(uint16_t val);
-void u8g_MicroDelay(void);
-void u8g_10MicroDelay(void);
-*/
-
-#else
-#  define USE_DUMMY_DELAY
-#endif
-
-
-
-/*==== Part 2: Definition of the delay procedures ====*/
-
-/*== AVR Delay ==*/
-
-#if defined(USE_AVR_DELAY)
-#include <avr/interrupt.h>
-#include <avr/io.h>
-#include <util/delay.h>
-
-/*
-  Delay by the provided number of milliseconds.
-  Thus, a 16 bit value will allow a delay of 0..65 seconds
-  Makes use of the _delay_loop_2
-
-  _delay_loop_2 will do a delay of n * 4 prozessor cycles.
-  with f = F_CPU cycles per second,
-  n = f / (1000 * 4 )
-  with f = 16000000 the result is 4000
-  with f = 1000000 the result is 250
-
-  the millisec loop, gcc requires the following overhead:
-  - movev 1
-  - subwi 2x2
-  - bne i 2
-  ==> 7 cycles
-  ==> must be devided by 4, rounded up 7/4 = 2
-*/
-void u8g_Delay(uint16_t val)
-{
-  /* old version did a call to the arduino lib: delay(val); */
-  while( val != 0 )
-  {
-    _delay_loop_2( (F_CPU / 4000 ) -2);
-    val--;
-  }
-}
-
-/* delay by one micro second */
-void u8g_MicroDelay(void)
-{
-#if (F_CPU / 4000000 ) > 0
-  _delay_loop_2( (F_CPU / 4000000 ) );
-#endif
-}
-
-/* delay by 10 micro seconds */
-void u8g_10MicroDelay(void)
-{
-#if (F_CPU / 400000 ) > 0
-  _delay_loop_2( (F_CPU / 400000 ) );
-#endif
-}
-
-#endif
-
-
-/*== Delay for PIC18 (not tested) ==*/
-
-#if defined(USE_PIC18_DELAY)
-#include <delays.h>
-#define GetSystemClock()		(64000000ul)      // Hz
-#define GetInstructionClock()	(GetSystemClock()/4)
-
-void u8g_Delay(uint16_t val)
-{/*
-	unsigned int _iTemp = (val);
-	while(_iTemp--)
-		Delay1KTCYx((GetInstructionClock()+999999)/1000000);
-		*/
-}
-void u8g_MicroDelay(void)
-{
-  /* not implemented */
-}
-void u8g_10MicroDelay(void)
-{
-  /* not implemented */
-}
-#endif
-
-
-/*== Arduino Delay ==*/
-#if defined(USE_ARDUINO_DELAY)
 void u8g_Delay(uint16_t val)
 {
 #if defined(__arm__)
@@ -6158,66 +5642,6 @@ void u8g_10MicroDelay(void)
 {
 	delayMicroseconds(10);
 }
-#endif
-
-#if defined(USE_PIC32_DELAY)
-/*
-  Assume chipkit here with F_CPU correctly defined
-  The problem was, that u8g_Delay() is called within the constructor.
-  It seems that the chipkit is not fully setup at this time, so a
-  call to delay() will not work. So here is my own implementation.
-
-*/
-#define CPU_COUNTS_PER_SECOND (F_CPU/2UL)
-#define TICKS_PER_MILLISECOND  (CPU_COUNTS_PER_SECOND/1000UL)
-#include "plib.h"
-void u8g_Delay(uint16_t val)
-{
-	uint32_t d;
-	uint32_t s;
-	d = val;
-	d *= TICKS_PER_MILLISECOND;
-	s = ReadCoreTimer();
-	while ( (uint32_t)(ReadCoreTimer() - s) < d )
-		;
-}
-
-void u8g_MicroDelay(void)
-{
-	uint32_t d;
-	uint32_t s;
-	d = TICKS_PER_MILLISECOND/1000;
-	s = ReadCoreTimer();
-	while ( (uint32_t)(ReadCoreTimer() - s) < d )
-		;
-}
-
-void u8g_10MicroDelay(void)
-{
-	uint32_t d;
-	uint32_t s;
-	d = TICKS_PER_MILLISECOND/100;
-	s = ReadCoreTimer();
-	while ( (uint32_t)(ReadCoreTimer() - s) < d )
-		;
-}
-
-#endif
-
-/*== Any other systems: Dummy Delay ==*/
-#if defined(USE_DUMMY_DELAY)
-void u8g_Delay(uint16_t val)
-{
-	/* do not know how to delay... */
-}
-void u8g_MicroDelay(void)
-{
-}
-void u8g_10MicroDelay(void)
-{
-}
-#endif
-
 
 // =============== u8g_state.c ================
 
@@ -6283,53 +5707,8 @@ void u8g_SetHardwareBackup(u8g_t *u8g, u8g_state_cb backup_cb)
   backup_cb(U8G_STATE_MSG_BACKUP_U8G);
 }
 
-
-/*===============================================================*/
-/* register variable for restoring interrupt state */
-
-#if defined(__AVR__)
-uint8_t global_SREG_backup;
-#endif
-
-
-
 /*===============================================================*/
 /* AVR */
-
-#if defined(__AVR__)
-#define U8G_ATMEGA_HW_SPI
-
-/* remove the definition for attiny */
-#if __AVR_ARCH__ == 2
-#undef U8G_ATMEGA_HW_SPI
-#endif
-#if __AVR_ARCH__ == 25
-#undef U8G_ATMEGA_HW_SPI
-#endif
-#endif
-
-#if defined(U8G_ATMEGA_HW_SPI)
-#include <avr/interrupt.h>
-static uint8_t u8g_state_avr_spi_memory[2];
-
-void u8g_backup_spi(uint8_t msg)
-{
-  if ( U8G_STATE_MSG_IS_BACKUP(msg) )
-  {
-    u8g_state_avr_spi_memory[U8G_STATE_MSG_GET_IDX(msg)] = SPCR;
-  }
-  else
-  {
-    uint8_t tmp = SREG;
-    cli();
-    SPCR = 0;
-    SPCR = u8g_state_avr_spi_memory[U8G_STATE_MSG_GET_IDX(msg)];
-    SREG = tmp;
-  }
-}
-
-#elif defined(ARDUINO) && defined(__arm__)		// Arduino Due, maybe we should better check for __SAM3X8E__
-
 #include "sam.h"
 
 struct sam_backup_struct
@@ -6361,7 +5740,6 @@ void u8g_backup_spi(uint8_t msg)
   }
 }
 
-#else
 
 void u8g_backup_spi(uint8_t msg)
 {
@@ -6420,10 +5798,6 @@ void u8g_backup_spi(uint8_t msg)
 #include <assert.h>
 #endif
 
-/* NEW_CODE disabled, because the performance increase was too slow and not worth compared */
-/* to the increase of code size */
-/* #define NEW_CODE */
-
 #ifdef __unix__
 void *u8g_buf_lower_limit;
 void *u8g_buf_upper_limit;
@@ -6436,111 +5810,6 @@ void u8g_pb8h1_Set8PixelStd(u8g_pb_t *b, u8g_dev_arg_pixel_t *arg_pixel) U8G_NOI
 uint8_t u8g_dev_pb8h1_base_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg);
 
 
-#ifdef NEW_CODE
-struct u8g_pb_h1_struct
-{
-  u8g_uint_t x;
-  u8g_uint_t y;
-  uint8_t *ptr;
-  uint8_t mask;
-  uint8_t line_byte_len;
-  uint8_t cnt;
-};
-
-static uint8_t u8g_pb8h1_bitmask[8] = { 0x080, 0x040, 0x020, 0x010, 0x008, 0x004, 0x002, 0x001 };
-
-static void u8g_pb8h1_state_right(struct u8g_pb_h1_struct *s)  U8G_NOINLINE;
-static void u8g_pb8h1_state_right(struct u8g_pb_h1_struct *s)
-{
-  register u8g_uint_t x;
-  x = s->x;
-  x++;
-  s->x = x;
-  x &= 7;
-  s->mask = u8g_pb8h1_bitmask[x];
-  if ( x == 0 )
-    s->ptr++;
-}
-
-static void u8g_pb8h1_state_left(struct u8g_pb_h1_struct *s)
-{
-  register u8g_uint_t x;
-  x = s->x;
-  x--;
-  s->x = x;
-  x &= 7;
-  s->mask = u8g_pb8h1_bitmask[x];
-  if ( x == 7 )
-    s->ptr--;
-}
-
-static void u8g_pb8h1_state_down(struct u8g_pb_h1_struct *s)
-{
-  s->y++;
-  s->ptr += s->line_byte_len;
-}
-
-static void u8g_pb8h1_state_up(struct u8g_pb_h1_struct *s)
-{
-  s->y--;
-  s->ptr -= s->line_byte_len;
-}
-
-static void u8g_pb8h1_state_init(struct u8g_pb_h1_struct *s, u8g_pb_t *b, u8g_uint_t x, u8g_uint_t y) U8G_NOINLINE;
-static void u8g_pb8h1_state_init(struct u8g_pb_h1_struct *s, u8g_pb_t *b, u8g_uint_t x, u8g_uint_t y)
-{
-  u8g_uint_t tmp;
-
-  uint8_t *ptr = b->buf;
-
-  s->x = x;
-  s->y = y;
-
-  y -= b->p.page_y0;
-
-  tmp = b->width;
-  tmp >>= 3;
-  s->line_byte_len = tmp;
-
-  /* assume negative y values, can be down to -7, subtract this from the pointer and add correction of 8 to y */
-  ptr -= tmp*8;
-  y+=8;
-  /* it is important that the result of tmp*y can be 16 bit value also for 8 bit mode */
-  ptr += tmp*y;
-
-  s->mask = u8g_pb8h1_bitmask[x & 7];
-
-  /* assume negative x values (to -7), subtract 8 pixel from the pointer and add 8 to x */
-  ptr--;
-  x += 8;
-  x >>= 3;
-  ptr += x;
-  s->ptr = ptr;
-}
-
-static void u8g_pb8h1_state_set_pixel(struct u8g_pb_h1_struct *s, uint8_t color_index) U8G_NOINLINE;
-static void u8g_pb8h1_state_set_pixel(struct u8g_pb_h1_struct *s, uint8_t color_index)
-{
-
-#ifdef __unix__
-  assert( s->ptr >= u8g_buf_lower_limit );
-  assert( s->ptr < u8g_buf_upper_limit );
-#endif
-
-  if ( color_index )
-  {
-    *s->ptr |= s->mask;
-  }
-  else
-  {
-    uint8_t mask = s->mask;
-    mask ^=0xff;
-    *s->ptr &= mask;
-  }
-}
-#endif
-
-
 void u8g_pb8h1_Init(u8g_pb_t *b, void *buf, u8g_uint_t width)
 {
   b->buf = buf;
@@ -6551,18 +5820,6 @@ void u8g_pb8h1_Init(u8g_pb_t *b, void *buf, u8g_uint_t width)
 /* limitation: total buffer must not exceed 256 bytes */
 void u8g_pb8h1_set_pixel(u8g_pb_t *b, u8g_uint_t x, u8g_uint_t y, uint8_t color_index)
 {
-#ifdef NEW_CODE
-  struct u8g_pb_h1_struct s;
-  u8g_pb8h1_state_init(&s, b, x, y);
-  u8g_pb8h1_state_set_pixel(&s, color_index);
-
-//  u8g_pb8h1_state_up(&s);
-//  if ( s.y > b->p.page_y1 )
-//    return;
-//  if ( s.x > b->width )
-//    return;
-//  u8g_pb8h1_state_set_pixel(&s, color_index);
-#else
   register uint8_t mask;
   u8g_uint_t tmp;
   uint8_t *ptr = (uint8_t*)b->buf;
@@ -6586,7 +5843,6 @@ void u8g_pb8h1_set_pixel(u8g_pb_t *b, u8g_uint_t x, u8g_uint_t y, uint8_t color_
     mask ^=0xff;
     *ptr &= mask;
   }
-#endif
 }
 
 
@@ -6645,79 +5901,14 @@ void u8g_pb8h1_Set8PixelOpt2(u8g_pb_t *b, u8g_dev_arg_pixel_t *arg_pixel)
   } while( pixel != 0  );
 }
 
-#ifdef NEW_CODE
-static void u8g_pb8h1_Set8PixelState(u8g_pb_t *b, u8g_dev_arg_pixel_t *arg_pixel)
-{
-  register uint8_t pixel = arg_pixel->pixel;
-  struct u8g_pb_h1_struct s;
-  uint8_t cnt;
-  u8g_pb8h1_state_init(&s, b, arg_pixel->x, arg_pixel->y);
-  cnt = 8;
-  switch( arg_pixel->dir )
-  {
-    case 0:
-      do
-      {
-	if ( s.x < b->width )
-	  if ( pixel & 128 )
-	    u8g_pb8h1_state_set_pixel(&s, arg_pixel->color);
-	u8g_pb8h1_state_right(&s);
-	pixel <<= 1;
-	cnt--;
-      } while( cnt > 0 && pixel != 0  );
-      break;
-    case 1:
-      do
-      {
-	if ( s.y >= b->p.page_y0 )
-	  if ( s.y <= b->p.page_y1 )
-	    if ( pixel & 128 )
-	      u8g_pb8h1_state_set_pixel(&s, arg_pixel->color);
-	u8g_pb8h1_state_down(&s);
-	pixel <<= 1;
-	cnt--;
-      } while( cnt > 0 && pixel != 0  );
-      break;
-    case 2:
-      do
-      {
-	if ( s.x < b->width )
-	  if ( pixel & 128 )
-	    u8g_pb8h1_state_set_pixel(&s, arg_pixel->color);
-	u8g_pb8h1_state_left(&s);
-	pixel <<= 1;
-	cnt--;
-      } while( cnt > 0 && pixel != 0 );
-      break;
-    case 3:
-      do
-      {
-	if ( s.y >= b->p.page_y0 )
-	  if ( s.y <= b->p.page_y1 )
-	    if ( pixel & 128 )
-	      u8g_pb8h1_state_set_pixel(&s, arg_pixel->color);
-	u8g_pb8h1_state_up(&s);
-	pixel <<= 1;
-	cnt--;
-      } while( cnt > 0 && pixel != 0  );
-      break;
-  }
-}
-#endif
-
 uint8_t u8g_dev_pb8h1_base_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg)
 {
   u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
   switch(msg)
   {
     case U8G_DEV_MSG_SET_8PIXEL:
-#ifdef NEW_CODE
-      if ( u8g_pb_Is8PixelVisible(pb, (u8g_dev_arg_pixel_t *)arg) )
-        u8g_pb8h1_Set8PixelState(pb, (u8g_dev_arg_pixel_t *)arg);
-#else
       if ( u8g_pb_Is8PixelVisible(pb, (u8g_dev_arg_pixel_t *)arg) )
         u8g_pb8h1_Set8PixelOpt2(pb, (u8g_dev_arg_pixel_t *)arg);
-#endif
       break;
     case U8G_DEV_MSG_SET_PIXEL:
       u8g_pb8h1_SetPixel(pb, (u8g_dev_arg_pixel_t *)arg);
@@ -6803,144 +5994,6 @@ uint8_t u8g_dev_pb8h1_base_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg
 
 */
 
-
-#if defined(ARDUINO)
-
-#if defined(__AVR__)
-
-uint8_t u8g_bitData, u8g_bitNotData;
-uint8_t u8g_bitClock, u8g_bitNotClock;
-volatile uint8_t *u8g_outData;
-volatile uint8_t *u8g_outClock;
-
-static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin)
-{
-#ifdef UI_SPI_MOSI
-  SET_OUTPUT(UI_SPI_MOSI);
-  SET_OUTPUT(UI_SPI_SCK);
-  WRITE(UI_SPI_MOSI, LOW);
-  WRITE(UI_SPI_SCK,  HIGH);
-#endif
-/*
-  u8g_outData = portOutputRegister(digitalPinToPort(dataPin));
-  u8g_outClock = portOutputRegister(digitalPinToPort(clockPin));
-  u8g_bitData = digitalPinToBitMask(dataPin);
-  u8g_bitClock = digitalPinToBitMask(clockPin);
-
-  u8g_bitNotClock = u8g_bitClock;
-  u8g_bitNotClock ^= 0x0ff;
-
-  u8g_bitNotData = u8g_bitData;
-  u8g_bitNotData ^= 0x0ff;
-*/
-}
-
-static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val) U8G_NOINLINE;
-static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
-{
-/*
-  uint8_t cnt = 8;
-  uint8_t bitData = u8g_bitData;
-  uint8_t bitNotData = u8g_bitNotData;
-  uint8_t bitClock = u8g_bitClock;
-  uint8_t bitNotClock = u8g_bitNotClock;
-  volatile uint8_t *outData = u8g_outData;
-  volatile uint8_t *outClock = u8g_outClock;
-
-
-  U8G_ATOMIC_START();
-  bitData |= *outData;
-  bitNotData &= *outData;
-  do
-  {
-    if ( val & 128 )
-      *outData = bitData;
-    else
-      *outData = bitNotData;
-    val <<= 1;
-    *outClock &= bitNotClock;
-    cnt--;
-    // removed micro delays, because AVRs are too slow and the delay is not required
-    //u8g_MicroDelay();
-    *outClock |= bitClock;
-    //u8g_MicroDelay();
-  } while( cnt != 0 );
-
-*/
-  U8G_ATOMIC_START();
-  #ifdef UI_SPI_MOSI
-
-  for(uint8_t cnt=0; cnt<8; cnt++ )
-  {
-    WRITE(UI_SPI_SCK, LOW);
-    WRITE(UI_SPI_MOSI, val&0x80);
-    val<<=1;
-    asm volatile("nop\n\t"
-"nop\n\t"
-"nop\n\t"
-"nop\n\t"
-::);
-    //u8g_MicroDelay();
-    WRITE(UI_SPI_SCK, HIGH);
-asm volatile("nop\n\t"
-"nop\n\t"
-"nop\n\t"
-"nop\n\t"
-::);
-    //u8g_MicroDelay();
-  }
-  #endif
-  U8G_ATOMIC_END();
-}
-
-#elif defined(__18CXX) || defined(__PIC32MX)
-
-uint16_t dog_bitData, dog_bitNotData;
-uint16_t dog_bitClock, dog_bitNotClock;
-volatile uint32_t *dog_outData;
-volatile uint32_t *dog_outClock;
-volatile uint32_t dog_pic32_spi_tmp;
-
-static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin)
-{
-  dog_outData = portOutputRegister(digitalPinToPort(dataPin));
-  dog_outClock = portOutputRegister(digitalPinToPort(clockPin));
-  dog_bitData = digitalPinToBitMask(dataPin);
-  dog_bitClock = digitalPinToBitMask(clockPin);
-
-  dog_bitNotClock = dog_bitClock;
-  dog_bitNotClock ^= 0x0ffff;
-
-  dog_bitNotData = dog_bitData;
-  dog_bitNotData ^= 0x0ffff;
-}
-
-static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
-{
-  uint8_t cnt = 8;
-  U8G_ATOMIC_START();
-  do
-  {
-    if ( val & 128 )
-	*dog_outData |= dog_bitData;
-    else
-	*dog_outData &= dog_bitNotData;
-    val <<= 1;
-    //u8g_MicroDelay();
-    //*dog_outClock |= dog_bitClock;
-    *dog_outClock &= dog_bitNotClock;
-    cnt--;
-    u8g_MicroDelay();
-    //*dog_outClock &= dog_bitNotClock;
-    *dog_outClock |= dog_bitClock;
-    u8g_MicroDelay();
-
-  } while( cnt != 0 );
-  U8G_ATOMIC_END();
-}
-
-#else
-
 /* default interface, Arduino DUE (__arm__) */
 
 uint8_t u8g_data_pin;
@@ -6983,7 +6036,7 @@ static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
   } while( cnt != 0 );
 }
 
-#endif
+
 
 
 static void u8g_com_arduino_st7920_write_byte_seq(uint8_t rs, uint8_t *ptr, uint8_t len)
@@ -7905,186 +6958,6 @@ static void u8g_i2c_set_error(uint8_t code, uint8_t pos)
   u8g_i2c_err_pos = pos;
 }
 
-
-
-#if defined(__AVR__)
-#define U8G_ATMEGA_HW_TWI
-
-/* remove the definition for attiny */
-#if __AVR_ARCH__ == 2
-#undef U8G_ATMEGA_HW_TWI
-#endif
-#if __AVR_ARCH__ == 25
-#undef U8G_ATMEGA_HW_TWI
-#endif
-#endif
-
-#if defined(U8G_ATMEGA_HW_TWI)
-
-#include <avr/io.h>
-#include <util/twi.h>
-
-
-
-void u8g_i2c_init(uint8_t options)
-{
-  /*
-  TWBR: bit rate register
-  TWSR: status register (contains preselector bits)
-
-  prescalar
-    0		1
-    1		4
-    2		16
-    3		64
-
-  f = F_CPU/(16+2*TWBR*prescalar)
-
-  F_CPU = 16MHz
-    TWBR = 152;
-    TWSR = 0;
-	--> 50KHz
-
-    TWBR = 72;
-    TWSR = 0;
-	--> 100KHz
-
-    TWBR = 12;
-    TWSR = 0;
-	--> 400KHz
-
-    F_CPU/(2*100000)-8  --> calculate TWBR value for 100KHz
-*/
-  u8g_i2c_opt = options;
-  TWSR = 0;
-  if ( options & U8G_I2C_OPT_FAST )
-  {
-    TWBR = F_CPU/(2*400000)-8;
-  }
-  else
-  {
-    TWBR = F_CPU/(2*100000)-8;
-  }
-  u8g_i2c_clear_error();
-}
-
-uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos)
-{
-  volatile uint16_t cnt = 2000;	/* timout value should be > 280 for 50KHz Bus and 16 Mhz CPU, however the start condition might need longer */
-  while( !(TWCR & mask) )
-  {
-      if ( cnt == 0 )
-      {
-	if ( u8g_i2c_opt & U8G_I2C_OPT_NO_ACK )
-	{
-	  return 1;	/* all ok */
-	}
-	else
-	{
-	  u8g_i2c_set_error(U8G_I2C_ERR_TIMEOUT, pos);
-	  return 0; /* error */
-	}
-      }
-      cnt--;
-    }
-  return 1;	/* all ok */
-}
-
-/* sla includes all 8 bits (with r/w bit), assums master transmit */
-uint8_t u8g_i2c_start(uint8_t sla)
-{
-  register uint8_t status;
-
-  /* send start */
-  TWCR = _BV(TWINT) |  _BV(TWSTA)  |  _BV(TWEN);
-
-  /* wait */
-  if ( u8g_i2c_wait(_BV(TWINT), 1) == 0 )
-    return 0;
-
-  status = TW_STATUS;
-
-  /* check status after start */
-  if ( status != TW_START && status != TW_REP_START )
-  {
-    u8g_i2c_set_error(U8G_I2C_ERR_BUS, 1);
-    return 0;
-  }
-
-  /* set slave address */
-  TWDR = sla;
-
-  /* enable sla transfer */
-  TWCR = _BV(TWINT)  |  _BV(TWEN);
-
-  /* wait */
-  if ( u8g_i2c_wait(_BV(TWINT), 2) == 0 )
-    return 0;
-
-  if ( u8g_i2c_opt & U8G_I2C_OPT_NO_ACK )
-  {
-    /* do not check for ACK */
-  }
-  else
-  {
-    status = TW_STATUS;
-    /* check status after sla */
-    if ( status != TW_MT_SLA_ACK )
-    {
-      u8g_i2c_set_error(U8G_I2C_ERR_BUS, 2);
-      return 0;
-    }
-  }
-
-   return 1;
-}
-
-uint8_t u8g_i2c_send_byte(uint8_t data)
-{
-  register uint8_t status;
-  TWDR = data;
-  TWCR = _BV(TWINT)  |  _BV(TWEN);
-  if ( u8g_i2c_wait(_BV(TWINT), 3) == 0 )
-    return 0;
-
-  if ( u8g_i2c_opt & U8G_I2C_OPT_NO_ACK )
-  {
-    /* do not check for ACK */
-  }
-  else
-  {
-    status = TW_STATUS;
-    if ( status != TW_MT_DATA_ACK )
-    {
-      u8g_i2c_set_error(U8G_I2C_ERR_BUS, 3);
-      return 0;
-    }
-  }
-
-  return 1;
-}
-
-void u8g_i2c_stop(void)
-{
-  /* write stop */
-  TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWSTO);
-
-  /* no error is checked for the stop condition */
-  u8g_i2c_wait(_BV(TWSTO), 4);
-
-}
-
-/*
-void twi_send(uint8_t adr, uint8_t data1, uint8_t data2)
-{
-  u8g_i2c_start(adr<<1);
-  u8g_i2c_send_byte(data1);
-  u8g_i2c_send_byte(data2);
-  u8g_i2c_stop();
-}
-*/
-
-#elif defined(ARDUINO) && defined(__SAM3X8E__)
 /* Arduino Due */
 #include "Arduino.h"
 #include "sam.h"
@@ -8387,89 +7260,7 @@ void u8g_i2c_stop(void)
 }
 
 
-#elif defined(U8G_RASPBERRY_PI)
 
-#include <wiringPi.h>
-#include <wiringPiI2C.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-
-#define I2C_SLA         0x3c
-
-static int fd=-1;
-static uint8_t i2cMode = 0;
-
-void u8g_i2c_init(uint8_t options) {
-   u8g_i2c_clear_error();
-   u8g_i2c_opt = options;
-
-   if (wiringPiSetup() == -1) {
-      printf("wiringPi-Error\n");
-      exit(1);
-   }
-
-   fd = wiringPiI2CSetup(I2C_SLA);
-   if (fd < 0) {
-      printf ("Unable to open I2C device 0: %s\n", strerror (errno)) ;
-      exit (1) ;
-   }
-   //u8g_SetPIOutput(u8g, U8G_PI_RESET);
-   //u8g_SetPIOutput(u8g, U8G_PI_A0);
-}
-uint8_t u8g_i2c_start(uint8_t sla) {
-   u8g_i2c_send_mode(0);
-
-   return 1;
-}
-
-void u8g_i2c_stop(void) {
-}
-
-uint8_t u8g_i2c_send_mode(uint8_t mode) {
-   i2cMode = mode;
-}
-
-uint8_t u8g_i2c_send_byte(uint8_t data) {
-   wiringPiI2CWriteReg8(fd, i2cMode, data);
-
-   return 1;
-}
-
-uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos)
-{
-  return 1;
-}
-
-#else
-
-/* empty interface */
-
-void u8g_i2c_init(uint8_t options)
-{
-  u8g_i2c_clear_error();
-}
-
-uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos)
-{
-  return 1;
-}
-
-uint8_t u8g_i2c_start(uint8_t sla)
-{
-  return 1;
-}
-uint8_t u8g_i2c_send_byte(uint8_t data)
-{
-  return 1;
-}
-
-void u8g_i2c_stop(void)
-{
-}
-
-
-#endif
 // ==============   u8g_pb8v1.c ===============
 
 /*
@@ -8895,117 +7686,7 @@ uint8_t u8g_dev_pb16v1_base_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *ar
 
 */
 
-#if defined(ARDUINO)
-
 /*=========================================================*/
-/* Arduino, AVR */
-
-#if defined(__AVR__)
-
-//uint8_t u8g_bitData, u8g_bitNotData;
-//uint8_t u8g_bitClock, u8g_bitNotClock;
-//volatile uint8_t *u8g_outData;
-//volatile uint8_t *u8g_outClock;
-
-/*static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin)
-{
-  u8g_outData = portOutputRegister(digitalPinToPort(dataPin));
-  u8g_outClock = portOutputRegister(digitalPinToPort(clockPin));
-  u8g_bitData = digitalPinToBitMask(dataPin);
-  u8g_bitClock = digitalPinToBitMask(clockPin);
-
-  u8g_bitNotClock = u8g_bitClock;
-  u8g_bitNotClock ^= 0x0ff;
-
-  u8g_bitNotData = u8g_bitData;
-  u8g_bitNotData ^= 0x0ff;
-}
-
-static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val) U8G_NOINLINE;
-static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
-{
-  uint8_t cnt = 8;
-  uint8_t bitData = u8g_bitData;
-  uint8_t bitNotData = u8g_bitNotData;
-  uint8_t bitClock = u8g_bitClock;
-  uint8_t bitNotClock = u8g_bitNotClock;
-  volatile uint8_t *outData = u8g_outData;
-  volatile uint8_t *outClock = u8g_outClock;
-  U8G_ATOMIC_START();
-  do
-  {
-    if ( val & 128 )
-      *outData |= bitData;
-    else
-      *outData &= bitNotData;
-
-    *outClock |= bitClock;
-    val <<= 1;
-    cnt--;
-    *outClock &= bitNotClock;
-  } while( cnt != 0 );
-  U8G_ATOMIC_END();
-}*/
-
-/*=========================================================*/
-/* Arduino, Chipkit */
-#elif defined(__18CXX) || defined(__PIC32MX)
-
-uint16_t dog_bitData, dog_bitNotData;
-uint16_t dog_bitClock, dog_bitNotClock;
-volatile uint32_t *dog_outData;
-volatile uint32_t *dog_outClock;
-volatile uint32_t dog_pic32_spi_tmp;
-
-static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin)
-{
-  dog_outData = portOutputRegister(digitalPinToPort(dataPin));
-  dog_outClock = portOutputRegister(digitalPinToPort(clockPin));
-  dog_bitData = digitalPinToBitMask(dataPin);
-  dog_bitClock = digitalPinToBitMask(clockPin);
-
-  dog_bitNotClock = dog_bitClock;
-  dog_bitNotClock ^= 0x0ffff;
-
-  dog_bitNotData = dog_bitData;
-  dog_bitNotData ^= 0x0ffff;
-}
-
-static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
-{
-  uint8_t cnt = 8;
-  U8G_ATOMIC_START();
-  do
-  {
-    if ( val & 128 )
-	*dog_outData |= dog_bitData;
-    else
-	*dog_outData &= dog_bitNotData;
-    val <<= 1;
-    /*
-	There must be some delay here. However
-	fetching the adress dog_outClock is enough delay, so
-	do not place dog_outClock in a local variable. This will
-	break the procedure
-    */
-    *dog_outClock |= dog_bitClock;
-    cnt--;
-    *dog_outClock &= dog_bitNotClock;
-    /*
-	little additional delay after clk pulse, done by 3x32bit reads
-	from I/O. Optimized for PIC32 with 80 MHz.
-    */
-    dog_pic32_spi_tmp = *dog_outClock;
-    dog_pic32_spi_tmp = *dog_outClock;
-    dog_pic32_spi_tmp = *dog_outClock;
-  } while( cnt != 0 );
-  U8G_ATOMIC_END();
-}
-
-/*=========================================================*/
-/* Arduino Due */
-#elif defined(__SAM3X8E__)
-
 /* Due */
 
 void u8g_digital_write_sam_high(uint8_t pin)
@@ -9046,19 +7727,6 @@ static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
   } while( i != 0 );
 }
 */
-
-#else
-/* empty interface */
-
-static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin)
-{
-}
-
-static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
-{
-}
-
-#endif
 
 
 uint8_t u8g_com_arduino_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
@@ -9133,14 +7801,6 @@ uint8_t u8g_com_arduino_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
   return 1;
 }
 
-#else /* ARDUINO */
-
-uint8_t u8g_com_arduino_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-{
-  return 1;
-}
-
-#endif /* ARDUINO */
 
 // ================ u8g_dev_ks0108_128x64.c ===================
 
@@ -9994,162 +8654,6 @@ typedef struct {
 
 */
 
-#if defined(ARDUINO)
-
-#if defined(__AVR__)
-#define U8G_ARDUINO_ATMEGA_HW_SPI
-/* remove the definition for attiny */
-#if __AVR_ARCH__ == 2
-#undef U8G_ARDUINO_ATMEGA_HW_SPI
-#endif
-#if __AVR_ARCH__ == 25
-#undef U8G_ARDUINO_ATMEGA_HW_SPI
-#endif
-#endif
-
-#if defined(U8G_ARDUINO_ATMEGA_HW_SPI)
-
-//#include <avr/interrupt.h>
-//#include <avr/io.h>
-
-#if ARDUINO < 100
-
-/* fixed pins */
-#if defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__) // Sanguino.cc board
-#define PIN_SCK         7
-#define PIN_MISO        6
-#define PIN_MOSI        5
-#define PIN_CS          4
-#else                                   // Arduino Board
-#define PIN_SCK 13
-#define PIN_MISO  12
-#define PIN_MOSI 11
-#define PIN_CS 10
-#endif // (__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)
-
-#else
-
-/* use Arduino pin definitions */
-#define PIN_SCK SCK
-#define PIN_MISO  MISO_PIN
-#define PIN_MOSI MOSI_PIN
-#define PIN_CS SS
-
-#endif
-
-
-
-//static uint8_t u8g_spi_out(uint8_t data) U8G_NOINLINE;
-static uint8_t u8g_spi_out(uint8_t data)
-{
-  /* unsigned char x = 100; */
-  /* send data */
-  SPDR = data;
-  /* wait for transmission */
-  while (!(SPSR & (1<<SPIF)))
-    ;
-  /* clear the SPIF flag by reading SPDR */
-  return  SPDR;
-}
-
-
-uint8_t u8g_com_arduino_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-{
-  switch(msg)
-  {
-    case U8G_COM_MSG_STOP:
-      break;
-
-    case U8G_COM_MSG_INIT:
-      u8g_com_arduino_assign_pin_output_high(u8g);
-      pinMode(PIN_SCK, OUTPUT);
-      digitalWrite(PIN_SCK, LOW);
-      pinMode(PIN_MOSI, OUTPUT);
-      digitalWrite(PIN_MOSI, LOW);
-      /* pinMode(PIN_MISO, INPUT); */
-
-      pinMode(PIN_CS, OUTPUT);			/* system chip select for the atmega board */
-      digitalWrite(PIN_CS, HIGH);
-
-
-
-      /*
-        SPR1 SPR0
-            0	0		fclk/4
-            0	1		fclk/16
-            1	0		fclk/64
-            1	1		fclk/128
-      */
-      SPCR = 0;
-      SPCR =  (1<<SPE) | (1<<MSTR)|(0<<SPR1)|(0<<SPR0)|(0<<CPOL)|(0<<CPHA);
-#ifdef U8G_HW_SPI_2X
-      SPSR = (1 << SPI2X);  /* double speed, issue 89 */
-#else
-      if ( arg_val  <= U8G_SPI_CLK_CYCLE_50NS )
-      {
-	SPSR = (1 << SPI2X);  /* double speed, issue 89 */
-      }
-#endif
-
-
-      break;
-
-    case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
-      u8g_com_arduino_digital_write(u8g, U8G_PI_A0, arg_val);
-      break;
-
-    case U8G_COM_MSG_CHIP_SELECT:
-      if ( arg_val == 0 )
-      {
-        /* disable */
-        u8g_com_arduino_digital_write(u8g, U8G_PI_CS, HIGH);
-      }
-      else
-      {
-        /* enable */
-        u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, LOW);
-        u8g_com_arduino_digital_write(u8g, U8G_PI_CS, LOW);
-      }
-      break;
-
-    case U8G_COM_MSG_RESET:
-      if ( u8g->pin_list[U8G_PI_RESET] != U8G_PIN_NONE )
-        u8g_com_arduino_digital_write(u8g, U8G_PI_RESET, arg_val);
-      break;
-
-    case U8G_COM_MSG_WRITE_BYTE:
-      u8g_spi_out(arg_val);
-      break;
-
-    case U8G_COM_MSG_WRITE_SEQ:
-      {
-        register uint8_t *ptr = (uint8_t*)arg_ptr;
-        while( arg_val > 0 )
-        {
-          u8g_spi_out(*ptr++);
-          arg_val--;
-        }
-      }
-      break;
-    case U8G_COM_MSG_WRITE_SEQ_P:
-      {
-        register uint8_t *ptr = (uint8_t*)arg_ptr;
-        while( arg_val > 0 )
-        {
-          u8g_spi_out(u8g_pgm_read(ptr));
-          ptr++;
-          arg_val--;
-        }
-      }
-      break;
-  }
-  return 1;
-}
-
-/* #elif defined(__18CXX) || defined(__PIC32MX) */
-
-#elif defined(__SAM3X8E__)		// Arduino Due, maybe we should better check for __SAM3X8E__
-
 /* use Arduino pin definitions */
 #define PIN_SCK SCK
 #define PIN_MISO  MISO
@@ -10285,21 +8789,6 @@ uint8_t u8g_com_arduino_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
   }
   return 1;
 }
-
-
-
-#else /* U8G_ARDUINO_ATMEGA_HW_SPI */
-
-#endif /* U8G_ARDUINO_ATMEGA_HW_SPI */
-
-#else /* ARDUINO */
-
-uint8_t u8g_com_arduino_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-{
-  return 1;
-}
-
-#endif /* ARDUINO */
 
 /*
 

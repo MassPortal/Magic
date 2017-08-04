@@ -775,11 +775,7 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
  * define SOFTWARE_SPI to use bit-bang SPI
  */
 //------------------------------------------------------------------------------
-#if LEONARDO_SOFT_SPI && defined(__AVR_ATmega32U4__) && !defined(CORE_TEENSY)
-#define SOFTWARE_SPI
-#elif MEGA_SOFT_SPI&&(defined(__AVR_ATmega1280__)||defined(__AVR_ATmega2560__))
-#define SOFTWARE_SPI
-#elif USE_SOFTWARE_SPI
+#if USE_SOFTWARE_SPI
 #define SOFTWARE_SPI
 #endif  // LEONARDO_SOFT_SPI
 //------------------------------------------------------------------------------
