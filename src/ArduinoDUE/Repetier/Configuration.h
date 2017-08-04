@@ -461,27 +461,6 @@ Retractions speeds are taken from RETRACTION_SPEED and RETRACTION_UNDO_SPEED
 */
 #define FILAMENTCHANGE_SHORTRETRACT 30
 #define FILAMENTCHANGE_LONGRETRACT 500
-
-/* Define how we detect jam/out of filament
-   1 = Distance between signal changes increase
-   2 = signal gets high
-   3 = signal gets low
-   
-   2 and 3 are not jam detections, but only out of filament detection by a switch
-   that changes the signal! 
-*/
-#define JAM_METHOD 1
-// Steps normally needed for a full signal cycle.
-#define JAM_STEPS 220
-// Steps for reducing speed. Must be higher then JAM_STEPS
-#define JAM_SLOWDOWN_STEPS 380
-// New speed multiplier which gets set when slowdown is reached.
-#define JAM_SLOWDOWN_TO 70
-// Last fallback. If we slip this much, we want to pause.
-#define JAM_ERROR_STEPS 500
-/** To prevent signal bouncing, only consider changes if we are this much steps
- away from last signal change. */ 
-#define JAM_MIN_STEPS 10
 /*
 Determine what should be done if a jam is detected
 0 : Nothing, just mark extruder as jammed.
@@ -1529,46 +1508,7 @@ goes on as soon as moves occur. Mainly to prevent overheating of stepper drivers
 #define FAN_THERMO_THERMISTOR_PIN -1
 #define FAN_THERMO_THERMISTOR_TYPE 1
 
-
-/** Adds support for ESP8266 Duet web interface, PanelDue and probably some other things. 
- * This essentially adds command M36/M408 and extends M20.
- * Since it requires some memory do not enable it unless you have such a display!
- *  */
-#define FEATURE_JSON 0
-
-/** For displays and keys there are too many permutations to handle them all in once.
-For the most common available combinations you can set the controller type here, so
-you don't need to configure uicong.h at all. Controller settings > 1 disable usage
-of uiconfig.h
-
-0 or NO_CONTROLLER = no display
-1 or UICONFIG_CONTROLLER = Manual definition of display and keys parameter in uiconfig.h
-
-The following settings override uiconfig.h!
-2 or CONTROLLER_SMARTRAMPS = Smartcontroller from reprapdiscount on a RAMPS or RUMBA board
-3 or CONTROLLER_ADAFRUIT = Adafruit RGB controller
-4 or CONTROLLER_FOLTYN = Foltyn 3DMaster with display attached
-5 or CONTROLLER_VIKI = ViKi LCD - Check pin configuration in ui.h for feature controller 5!!! sd card disabled by default!
-6 or CONTROLLER_MEGATRONIC = ReprapWorld Keypad / LCD, predefined pins for Megatronics v2.0 and RAMPS 1.4. Please check if you have used the defined pin layout in ui.h.
-7 or CONTROLLER_RADDS = RADDS Extension Port
-8 or CONTROLLER_PIBOT20X4 = PiBot Display/Controller extension with 20x4 character display
-9 or CONTROLLER_PIBOT16X2 = PiBot Display/Controller extension with 16x2 character display
-10 or CONTROLLER_GADGETS3D_SHIELD = Gadgets3D shield on RAMPS 1.4, see http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
-11 or CONTROLLER_REPRAPDISCOUNT_GLCD = RepRapDiscount Full Graphic Smart Controller
-12 or CONTROLLER_FELIX = FELIXPrinters Controller
-13 or CONTROLLER_RAMBO = SeeMeCNC Display on Rambo (ORION)
-14 or CONTROLLER_OPENHARDWARE_LCD2004 = OpenHardware.co.za LCD2004 V2014
-15 or CONTROLLER_SANGUINOLOLU_PANELOLU2 = Sanguinololu + Panelolu2
-16 or CONTROLLER_GAMEDUINO2 (in development)
-17 or CONTROLLER_MIREGLI 17
-18 or CONTROLLER_GATE_3NOVATICA Gate Controller from 3Novatica
-19 or CONTROLLER_SPARKLCD Sparkcube LCD on RADDS
-20 or CONTROLLER_BAM_DICE_DUE  DAM&DICE Due LCD Display
-21 or CONTROLLER_VIKI2 Panucatt Viki2 graphic lcd 
-405 or CONTROLLER_FELIX_DUE Felix LCD für due based board
-*/
 #define FEATURE_CONTROLLER CONTROLLER_LCD_MP_PHARAOH_DUE
-
 
 /**
 Select the languages to use. On first startup user can select
