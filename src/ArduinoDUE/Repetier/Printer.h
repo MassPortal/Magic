@@ -46,9 +46,7 @@ union floatLong
 {
     float f;
     uint32_t l;
-#ifdef SUPPORT_64_BIT_MATH
     uint64_t L;
-#endif
 };
 
 union wizardVar {

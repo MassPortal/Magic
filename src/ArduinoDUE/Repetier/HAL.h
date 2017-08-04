@@ -44,7 +44,6 @@
 #define F_CPU       21000000u   // should be factor of F_CPU_TRUE
 #define F_CPU_TRUE  84000000u   // actual CPU clock frequency
 #define EEPROM_BYTES 4096u      // bytes of eeprom we simulate
-#define SUPPORT_64_BIT_MATH     // Gives better results with high resultion deltas
 
 // another hack to keep AVR code happy (i.e. SdFat.cpp)
 #define SPR0    0

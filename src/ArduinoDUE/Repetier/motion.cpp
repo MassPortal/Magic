@@ -762,7 +762,6 @@ uint8_t transformCartesianStepsToDeltaSteps(int32_t cartesianPosSteps[], int32_t
     //SHOWA("motion.c transformCart... cartesian ",cartesianPosSteps, 3);
     if(Printer::isLargeMachine())
     {
-#ifdef SUPPORT_64_BIT_MATH
         // 64 bit is better for precision, so we use that if available.
         // A TOWER height
         uint64_t temp = RMath::absLong(Printer::deltaAPosYSteps - cartesianPosSteps[Y_AXIS]);
@@ -816,39 +815,6 @@ uint8_t transformCartesianStepsToDeltaSteps(int32_t cartesianPosSteps[], int32_t
         deltaPosSteps[C_TOWER] = HAL::integer64Sqrt(opt - temp) + zSteps;
         if (deltaPosSteps[C_TOWER] < Printer::deltaFloorSafetyMarginSteps && !Printer::isZProbingActive())
             RETURN_0("C hit floor");
-#else
-        float temp = Printer::deltaAPosYSteps - cartesianPosSteps[Y_AXIS];
-        float opt = Printer::deltaDiagonalStepsSquaredA.f - temp * temp;
-        float temp2 = Printer::deltaAPosXSteps - cartesianPosSteps[X_AXIS];
-        if ((temp = opt - temp2 * temp2) >= 0)
-            deltaPosSteps[A_TOWER] = floor(0.5 + sqrt(temp)
-                                           + zSteps);
-        else
-            return 0;
-        if (deltaPosSteps[A_TOWER] < Printer::deltaFloorSafetyMarginSteps && !Printer::isZProbingActive()) return 0;
-
-        temp = Printer::deltaBPosYSteps - cartesianPosSteps[Y_AXIS];
-        opt = Printer::deltaDiagonalStepsSquaredB.f - temp * temp;
-        temp2 = Printer::deltaBPosXSteps - cartesianPosSteps[X_AXIS];
-        if ((temp = opt - temp2 * temp2) >= 0)
-            deltaPosSteps[B_TOWER] = floor(0.5 + sqrt(temp)
-                                           + zSteps);
-        else
-            return 0;
-        if (deltaPosSteps[B_TOWER] < Printer::deltaFloorSafetyMarginSteps && !Printer::isZProbingActive()) return 0;
-
-        temp = Printer::deltaCPosYSteps - cartesianPosSteps[Y_AXIS];
-        opt = Printer::deltaDiagonalStepsSquaredC.f - temp * temp;
-        temp2 = Printer::deltaCPosXSteps - cartesianPosSteps[X_AXIS];
-        if ((temp = opt - temp2*temp2) >= 0)
-            deltaPosSteps[C_TOWER] = floor(0.5 + sqrt(temp)
-                                           + zSteps);
-        else
-            return 0;
-        if (deltaPosSteps[C_TOWER] < Printer::deltaFloorSafetyMarginSteps && !Printer::isZProbingActive()) return 0;
-
-        return 1;
-#endif
     }
     else
     {

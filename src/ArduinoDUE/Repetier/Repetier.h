@@ -540,7 +540,6 @@ public:
     {
         return a*a;
     }
-#ifdef SUPPORT_64_BIT_MATH
     static inline int64_t sqr(int64_t a)
     {
         return a*a;
@@ -549,8 +548,6 @@ public:
     {
         return a*a;
     }
-#endif
-
     static inline float sqr(float a)
     {
         return a*a;
