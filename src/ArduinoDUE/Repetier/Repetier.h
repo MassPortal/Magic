@@ -277,11 +277,6 @@ inline void memcopy4(void *dest,void *source) {
 #define SHARED_COOLER_BOARD_EXT 0
 #endif
 
-#if defined(UI_SERVO_CONTROL) && UI_SERVO_CONTROL > FEATURE_SERVO
-#undef UI_SERVO_CONTROL
-#define UI_SERVO_CONTROL FEATURE_SERVO
-#endif
-
 #if NUM_EXTRUDER > 0 && EXT0_TEMPSENSOR_TYPE < 101
 #define EXT0_ANALOG_INPUTS 1
 #define EXT0_SENSOR_INDEX 0
