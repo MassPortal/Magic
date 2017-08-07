@@ -70,7 +70,7 @@ void Extruder::manageTemperatures()
     bool hot = false;
 #endif
 	bool newDefectFound = false;
-    millis_t time = HAL::timeInMilliseconds(); // compare time for decouple tests
+    millis_t time = millis(); // compare time for decouple tests
 #if NUM_TEMPERATURE_LOOPS > 0
     for(uint8_t controller = 0; controller < NUM_TEMPERATURE_LOOPS; controller++)
     {
@@ -360,13 +360,13 @@ void TemperatureController::waitForTargetTemperature()
 {
     if(targetTemperatureC < 30) return;
     if(Printer::debugDryrun()) return;
-    millis_t time = HAL::timeInMilliseconds();
+    millis_t time = millis();
     while(true)
     {
-        if( (HAL::timeInMilliseconds() - time) > 1000 )   //Print Temp Reading every 1 second while heating up.
+        if( (millis() - time) > 1000 )   //Print Temp Reading every 1 second while heating up.
         {
             Commands::printTemperatures();
-            time = HAL::timeInMilliseconds();
+            time = millis();
         }
         Commands::checkForPeriodicalActions(true);
         if(fabs(targetTemperatureC - currentTemperatureC) <= 1)
@@ -497,7 +497,7 @@ void Extruder::initExtruder()
             HAL::pinMode(act->enablePin, OUTPUT);
             HAL::digitalWrite(act->enablePin,!act->enableOn);
         }
-        act->tempControl.lastTemperatureUpdate = HAL::timeInMilliseconds();
+        act->tempControl.lastTemperatureUpdate = millis();
 #if defined(SUPPORT_MAX6675) || defined(SUPPORT_MAX31855)
         if(act->tempControl.sensorType == 101 || act->tempControl.sensorType == 102)
         {
@@ -690,7 +690,7 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
         UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HEATING_EXTRUDER_ID));
         EVENT_WAITING_HEATER(actExtruder->id);
         bool dirRising = actExtruder->tempControl.targetTemperature > actExtruder->tempControl.currentTemperature;
-        millis_t printedTime = HAL::timeInMilliseconds();
+        millis_t printedTime = millis();
         millis_t waituntil = 0;
 #if RETRACT_DURING_HEATUP
         uint8_t retracted = 0;
@@ -698,7 +698,7 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
         millis_t currentTime;
         do
         {
-            previousMillisCmd = currentTime = HAL::timeInMilliseconds();
+            previousMillisCmd = currentTime = millis();
             if( (currentTime - printedTime) > 1000 )   //Print Temp Reading every 1 second while heating up.
             {
                 Commands::printTemperatures();
@@ -744,7 +744,7 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
 #endif
     if(alloffs && !alloff)   // heaters are turned on, start measuring printing time
     {
-        Printer::msecondsPrinting = HAL::timeInMilliseconds();
+        Printer::msecondsPrinting = millis();
         Printer::filamentPrinted = 0;  // new print, new counter
         Printer::flag2 &= ~PRINTER_FLAG2_RESET_FILAMENT_USAGE;
     }
@@ -1763,7 +1763,7 @@ void TemperatureController::autotunePID(float temp,uint8_t controllerId,int maxC
     int cycles = 0;
     bool heating = true;
 
-    uint32_t temp_millis = HAL::timeInMilliseconds();
+    uint32_t temp_millis = millis();
     uint32_t t1 = temp_millis;
     uint32_t t2 = temp_millis;
     int32_t t_high = 0;
@@ -1796,7 +1796,7 @@ void TemperatureController::autotunePID(float temp,uint8_t controllerId,int maxC
 
         updateCurrentTemperature();
         currentTemp = currentTemperatureC;
-        unsigned long time = HAL::timeInMilliseconds();
+        unsigned long time = millis();
         maxTemp = RMath::max(maxTemp,currentTemp);
         minTemp = RMath::min(minTemp,currentTemp);
         if(heating == true && currentTemp > temp)   // switch heating -> off
@@ -1945,7 +1945,7 @@ int16_t read_max6675(uint8_t ss_pin)
 {
     static millis_t last_max6675_read = 0;
     static int16_t max6675_temp = 0;
-    if (HAL::timeInMilliseconds() - last_max6675_read > 230)
+    if (millis() - last_max6675_read > 230)
     {
         HAL::spiInit(2);
         HAL::digitalWrite(ss_pin, 0);  // enable TT_MAX6675
@@ -1954,7 +1954,7 @@ int16_t read_max6675(uint8_t ss_pin)
         max6675_temp <<= 8;
         max6675_temp |= HAL::spiReceive(0);
         HAL::digitalWrite(ss_pin, 1);  // disable TT_MAX6675
-        last_max6675_read = HAL::timeInMilliseconds();
+        last_max6675_read = millis();
     }
     return max6675_temp & 4 ? 2000 : max6675_temp >> 3; // thermocouple open?
 }

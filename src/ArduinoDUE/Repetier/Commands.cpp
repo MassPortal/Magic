@@ -294,7 +294,7 @@ void Commands::reportPrinterUsage()
     for(uint8_t i = 0; i < NUM_EXTRUDER; i++)
         if(tempController[i]->targetTemperatureC > 15) alloff = false;
 #endif
-    int32_t seconds = (alloff ? 0 : (HAL::timeInMilliseconds() - Printer::msecondsPrinting) / 1000) + HAL::eprGetInt32(EPR_PRINTING_TIME);
+    int32_t seconds = (alloff ? 0 : (millis() - Printer::msecondsPrinting) / 1000) + HAL::eprGetInt32(EPR_PRINTING_TIME);
     int32_t tmp = seconds / 86400;
     seconds -= tmp * 86400;
     Com::printF(Com::tPrintingTime,tmp);
@@ -1018,8 +1018,8 @@ void Commands::processGCode(GCode *com)
 		codenum = 0;
 		if (com->hasP()) codenum = com->P; // milliseconds to wait
 		if (com->hasS()) codenum = com->S * 1000; // seconds to wait
-		codenum += HAL::timeInMilliseconds();  // keep track of when we started waiting
-		while ((uint32_t)(codenum - HAL::timeInMilliseconds()) < 2000000000)
+		codenum += millis();  // keep track of when we started waiting
+		while ((uint32_t)(codenum - millis()) < 2000000000)
 		{
 			GCode::readFromSerial();
 			Commands::checkForPeriodicalActions(true);
@@ -2201,7 +2201,7 @@ void Commands::processGCode(GCode *com)
             com->printCommand();
         }
     }
-    previousMillisCmd = HAL::timeInMilliseconds();
+    previousMillisCmd = millis();
 }
 /**
   \brief Execute the G command stored in com.
@@ -2343,7 +2343,7 @@ void Commands::processMCode(GCode *com)
     case 80: // M80 - ATX Power On
 #if PS_ON_PIN>-1
         Commands::waitUntilEndOfAllMoves();
-        previousMillisCmd = HAL::timeInMilliseconds();
+        previousMillisCmd = millis();
         SET_OUTPUT(PS_ON_PIN); //GND
         Printer::setPowerOn(true);
         WRITE(PS_ON_PIN, (POWER_INVERTING ? HIGH : LOW));
@@ -2402,11 +2402,11 @@ void Commands::processMCode(GCode *com)
             Printer::disableYStepper();
         if(com->hasZ())
             Printer::disableZStepper();
-        wait += HAL::timeInMilliseconds();
+        wait += millis();
 #ifdef DEBUG_PRINT
         debugWaitLoop = 2;
 #endif
-        while(wait-HAL::timeInMilliseconds() < 100000)
+        while(wait-millis() < 100000)
         {
             Printer::defaultLoopActions();
         }
@@ -2422,7 +2422,7 @@ void Commands::processMCode(GCode *com)
     case 104: // M104 temperature
 #if NUM_EXTRUDER > 0
 		if (reportTempsensorError()) break;
-        previousMillisCmd = HAL::timeInMilliseconds();
+        previousMillisCmd = millis();
         if(Printer::debugDryrun()) break;
 #ifdef EXACT_TEMPERATURE_TIMING
         Commands::waitUntilEndOfAllMoves();
@@ -2444,7 +2444,7 @@ void Commands::processMCode(GCode *com)
         break;
     case 140: // M140 set bed temp
         if(reportTempsensorError()) break;
-        previousMillisCmd = HAL::timeInMilliseconds();
+        previousMillisCmd = millis();
         if(Printer::debugDryrun()) break;
         if (com->hasS()) Extruder::setHeatedBedTemperature(com->S,com->hasF() && com->F > 0);
 #if BED_LEDS
@@ -2461,7 +2461,7 @@ void Commands::processMCode(GCode *com)
 #if NUM_EXTRUDER > 0
     {
         if(reportTempsensorError()) break;
-        previousMillisCmd = HAL::timeInMilliseconds();
+        previousMillisCmd = millis();
         if(Printer::debugDryrun()) break;
         Commands::waitUntilEndOfAllMoves();
         Extruder *actExtruder = Extruder::current;
@@ -2473,7 +2473,7 @@ void Commands::processMCode(GCode *com)
 #endif
                 EVENT_WAITING_HEATER(actExtruder->id);
         bool dirRising = actExtruder->tempControl.targetTemperature > actExtruder->tempControl.currentTemperature;
-        millis_t printedTime = HAL::timeInMilliseconds();
+        millis_t printedTime = millis();
         millis_t waituntil = 0;
 #if RETRACT_DURING_HEATUP
         uint8_t retracted = 0;
@@ -2481,7 +2481,7 @@ void Commands::processMCode(GCode *com)
         millis_t currentTime;
         do
         {
-            previousMillisCmd = currentTime = HAL::timeInMilliseconds();
+            previousMillisCmd = currentTime = millis();
             if( (currentTime - printedTime) > 1000 )   //Print Temp Reading every 1 second while heating up.
             {
                 printTemperatures();
@@ -2519,7 +2519,7 @@ void Commands::processMCode(GCode *com)
             UI_CLEAR_STATUS;*/
     }
 #endif
-    previousMillisCmd = HAL::timeInMilliseconds();
+    previousMillisCmd = millis();
     break;
     case 190: // M190 - Wait bed for heater to reach target.
 		{
@@ -2534,13 +2534,13 @@ void Commands::processMCode(GCode *com)
 #endif
         EVENT_WAITING_HEATER(-1);
 	    uint32_t codenum; //throw away variable
-        codenum = HAL::timeInMilliseconds();
+        codenum = millis();
         while(heatedBedController.currentTemperatureC + 0.5 < heatedBedController.targetTemperatureC && heatedBedController.targetTemperatureC > 25.0)
         {
-            if( (HAL::timeInMilliseconds()-codenum) > 1000 )   //Print Temp Reading every 1 second while heating up.
+            if( (millis()-codenum) > 1000 )   //Print Temp Reading every 1 second while heating up.
             {
                 printTemperatures();
-                codenum = previousMillisCmd = HAL::timeInMilliseconds();
+                codenum = previousMillisCmd = millis();
             }
             Commands::checkForPeriodicalActions(true);
         }
@@ -2548,7 +2548,7 @@ void Commands::processMCode(GCode *com)
         EVENT_HEATING_FINISHED(-1);
 #endif
         UI_CLEAR_STATUS;
-        previousMillisCmd = HAL::timeInMilliseconds();
+        previousMillisCmd = millis();
 		}
         break;
 #if NUM_TEMPERATURE_LOOPS > 0
@@ -3259,7 +3259,7 @@ void Commands::executeGCode(GCode *com)
         {
             if(com->hasG() || (com->hasM() && com->M != 111))
             {
-                previousMillisCmd = HAL::timeInMilliseconds();
+                previousMillisCmd = millis();
                 return;
             }
         }

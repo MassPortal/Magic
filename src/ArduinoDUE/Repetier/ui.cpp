@@ -395,7 +395,7 @@ void initializeLCD()
     HAL::delayMilliseconds(4); // clear is slow operation
     lcdCommand(LCD_INCREASE | LCD_DISPLAYSHIFTOFF);	//-	Entrymode (Display Shift: off, Increment Address Counter)
     lcdCommand(LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKINGOFF);	//-	Display on
-    uid.lastSwitch = uid.lastRefresh = HAL::timeInMilliseconds();
+    uid.lastSwitch = uid.lastRefresh = millis();
     uid.createChar(1,character_back);
     uid.createChar(2,character_degree);
     uid.createChar(3,character_selected);
@@ -511,7 +511,7 @@ void repairLCD()
     lcdCommand(LCD_4BIT | LCD_2LINE | LCD_5X7);
     lcdCommand(LCD_INCREASE | LCD_DISPLAYSHIFTOFF);	//-	Entrymode (Display Shift: off, Increment Address Counter)
     lcdCommand(LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKINGOFF);	//-	Display on
-    uid.lastSwitch = uid.lastRefresh = HAL::timeInMilliseconds();
+    uid.lastSwitch = uid.lastRefresh = millis();
     uid.createChar(1, character_back);
     uid.createChar(2, character_degree);
     uid.createChar(3, character_selected);
@@ -571,7 +571,7 @@ void initializeLCD()
     HAL::delayMilliseconds(3); // clear is slow operation
     lcdCommand(LCD_INCREASE | LCD_DISPLAYSHIFTOFF);	//-	Entrymode (Display Shift: off, Increment Address Counter)
     lcdCommand(LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKINGOFF);	//-	Display on
-    uid.lastSwitch = uid.lastRefresh = HAL::timeInMilliseconds();
+    uid.lastSwitch = uid.lastRefresh = millis();
     uid.createChar(1, character_back);
     uid.createChar(2, character_degree);
     uid.createChar(3, character_selected);
@@ -685,7 +685,7 @@ void UIDisplay::printRow(uint8_t r,char *txt,char *txt2,uint8_t changeAtCol)
 void initializeLCD()
 {
     lcd.begin(UI_COLS,UI_ROWS);
-    uid.lastSwitch = uid.lastRefresh = HAL::timeInMilliseconds();
+    uid.lastSwitch = uid.lastRefresh = millis();
     uid.createChar(1,character_back);
     uid.createChar(2,character_degree);
     uid.createChar(3,character_selected);
@@ -822,7 +822,7 @@ u8g_InitSPI(&u8g,&u8g_dev_st7565_nhd_c12864_sw_spi,UI_DISPLAY_D4_PIN,UI_DISPLAY_
 
     u8g_SetFont(&u8g, UI_FONT_DEFAULT);
     u8g_SetColorIndex(&u8g, 1);
-    uid.lastSwitch = uid.lastRefresh = HAL::timeInMilliseconds();
+    uid.lastSwitch = uid.lastRefresh = millis();
 }
 // ------------------ End u8GLIB library as LCD driver
 #endif // UI_DISPLAY_TYPE == DISPLAY_U8G
@@ -1561,7 +1561,7 @@ void UIDisplay::parse(const char *txt,bool ram)
                 for(uint8_t i = 0; i < NUM_EXTRUDER; i++)
                     if(tempController[i]->targetTemperatureC > 15) alloff = false;
 #endif
-                long seconds = (alloff ? 0 : (HAL::timeInMilliseconds() - Printer::msecondsPrinting) / 1000) + HAL::eprGetInt32(EPR_PRINTING_TIME);
+                long seconds = (alloff ? 0 : (millis() - Printer::msecondsPrinting) / 1000) + HAL::eprGetInt32(EPR_PRINTING_TIME);
                 long tmp = seconds / 86400;
                 seconds -= tmp * 86400;
                 addInt(tmp, 5);
@@ -1903,7 +1903,7 @@ void UIDisplay::refreshPage()
 #if UI_AUTORETURN_TO_MENU_AFTER!=0
     // Reset timeout on menu back when user active on menu
     if (uid.encoderLast != encoderStartScreen)
-        ui_autoreturn_time = HAL::timeInMilliseconds() + UI_AUTORETURN_TO_MENU_AFTER;
+        ui_autoreturn_time = millis() + UI_AUTORETURN_TO_MENU_AFTER;
 #endif
     encoderStartScreen = uid.encoderLast;
 
@@ -2568,7 +2568,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         Printer::setUIErrorMessage(false);
         return true;
     }
-    millis_t actTime = HAL::timeInMilliseconds();
+    millis_t actTime = millis();
     millis_t dtReal;
     millis_t dt = dtReal = actTime - lastNextPrev;
     lastNextPrev = actTime;
@@ -2590,7 +2590,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
 #if UI_HAS_KEYS == 1
     if(menuLevel == 0)
     {
-        lastSwitch = HAL::timeInMilliseconds();
+        lastSwitch = millis();
         if((UI_INVERT_MENU_DIRECTION && next < 0) || (!UI_INVERT_MENU_DIRECTION && next > 0))
         {
            //menuPos[0]++;
@@ -2762,7 +2762,7 @@ ZPOS2:
     case UI_ACTION_Z_BABYSTEPS:
 #if FEATURE_BABYSTEPPING
     {
-        previousMillisCmd = HAL::timeInMilliseconds();
+        previousMillisCmd = millis();
 #if UI_DYNAMIC_ENCODER_SPEED
         increment /= dynSp; // we need fixed speeds or we get in trouble here!
 #endif
@@ -3021,7 +3021,7 @@ ZPOS2:
 #endif
     }
 #if UI_AUTORETURN_TO_MENU_AFTER!=0
-    ui_autoreturn_time = HAL::timeInMilliseconds() + UI_AUTORETURN_TO_MENU_AFTER;
+    ui_autoreturn_time = millis() + UI_AUTORETURN_TO_MENU_AFTER;
 #endif
 #endif
     return true;
@@ -3862,7 +3862,7 @@ case UI_ACTION_RESET_MATRIX:
         }
     refreshPage();
 #if UI_AUTORETURN_TO_MENU_AFTER!=0
-    ui_autoreturn_time = HAL::timeInMilliseconds() + UI_AUTORETURN_TO_MENU_AFTER;
+    ui_autoreturn_time = millis() + UI_AUTORETURN_TO_MENU_AFTER;
 #endif
 #endif
     return ret;
@@ -3871,7 +3871,7 @@ case UI_ACTION_RESET_MATRIX:
 // Gets calles from main tread
 void UIDisplay::slowAction(bool allowMoves)
 {
-    millis_t time = HAL::timeInMilliseconds();
+    millis_t time = millis();
     uint8_t refresh = 0;
 #if UI_HAS_KEYS == 1
     // delayed action open?
@@ -3989,7 +3989,7 @@ void UIDisplay::slowAction(bool allowMoves)
     }
 #endif
     if(uid.isWizardActive())
-        previousMillisCmd = HAL::timeInMilliseconds(); // prevent stepper/heater disable from timeout during active wizard
+        previousMillisCmd = millis(); // prevent stepper/heater disable from timeout during active wizard
     if(menuLevel == 0 && time > 4000) // Top menu refresh/switch
     {
         if(time - lastSwitch > UI_PAGES_DURATION)
@@ -4050,7 +4050,7 @@ void UIDisplay::fastAction()
 //        ui_check_Ukeys(nextAction);
         if(lastButtonAction != nextAction)
         {
-            lastButtonStart = HAL::timeInMilliseconds();
+            lastButtonStart = millis();
             lastButtonAction = nextAction;
             flags |= UI_FLAG_FAST_KEY_ACTION;
         }

@@ -1112,7 +1112,7 @@ task_t Printer::defaultLoopActions()
     CR_BEGIN;
 
     Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
-    millis_t curtime = HAL::timeInMilliseconds();
+    millis_t curtime = millis();
     if(PrintLine::hasLines() || isMenuMode(MENU_MODE_SD_PAUSED)) {
         previousMillisCmd = curtime;
     } else {

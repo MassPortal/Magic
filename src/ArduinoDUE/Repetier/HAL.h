@@ -556,10 +556,6 @@ class HAL
     {
       //__disable_irq();
     }
-    static inline unsigned long timeInMilliseconds()
-    {
-      return millis();
-    }
     static inline char readFlashByte(PGM_P ptr)
     {
       return pgm_read_byte(ptr);

@@ -339,7 +339,7 @@ void GCode::readFromSerial()
     if(bufferLength >= GCODE_BUFFER_SIZE) return; // all buffers full
     if(waitUntilAllCommandsAreParsed && bufferLength) return;
     waitUntilAllCommandsAreParsed = false;
-    millis_t time = HAL::timeInMilliseconds();
+    millis_t time = millis();
     if(!Serial.available())
     {
         if((waitingForResend >= 0 || commandsReceivingWritePosition > 0) && time - timeOfLastDataPacket > 200)
@@ -364,7 +364,7 @@ void GCode::readFromSerial()
 	
     while(Serial.available() && commandsReceivingWritePosition < MAX_CMD_SIZE)    // consume data until no data or buffer full
     {
-        timeOfLastDataPacket = time; //HAL::timeInMilliseconds();
+        timeOfLastDataPacket = time; //millis();
         commandReceiving[commandsReceivingWritePosition++] = Serial.read();
         // first lets detect, if we got an old type ascii command
         if(commandsReceivingWritePosition == 1)
@@ -439,7 +439,7 @@ void GCode::readFromSerial()
         return;
     while( sd.filesize > sd.sdpos && commandsReceivingWritePosition < MAX_CMD_SIZE)    // consume data until no data or buffer full
     {
-        timeOfLastDataPacket = HAL::timeInMilliseconds();
+        timeOfLastDataPacket = millis();
         int n = sd.file.read();
         if(n == -1)
         {
