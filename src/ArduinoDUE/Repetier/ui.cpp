@@ -36,20 +36,6 @@ uint8_t FAN_SLOW = 25; //slow value for FAN2
 #include <inttypes.h>
 #include <ctype.h>
 
-#if FEATURE_SERVO > 0 && UI_SERVO_CONTROL > 0
-#if   UI_SERVO_CONTROL == 1 && defined(SERVO0_NEUTRAL_POS)
-uint16_t servoPosition = SERVO0_NEUTRAL_POS;
-#elif UI_SERVO_CONTROL == 2 && defined(SERVO1_NEUTRAL_POS)
-uint16_t servoPosition = SERVO1_NEUTRAL_POS;
-#elif UI_SERVO_CONTROL == 3 && defined(SERVO2_NEUTRAL_POS)
-uint16_t servoPosition = SERVO2_NEUTRAL_POS;
-#elif UI_SERVO_CONTROL == 4 && defined(SERVO3_NEUTRAL_POS)
-uint16_t servoPosition = SERVO3_NEUTRAL_POS;
-#else
-uint16_t servoPosition = 1500;
-#endif
-#endif
-
 static TemperatureController *currHeaterForSetup;    // pointer to extruder or heatbed temperature controller
 
 #if UI_AUTORETURN_TO_MENU_AFTER != 0
@@ -1385,13 +1371,6 @@ void UIDisplay::parse(const char *txt)
 				addFloat(Printer::zBedOffset, 3, 2);
 				break;
 			}
-#if FEATURE_SERVO > 0 && UI_SERVO_CONTROL > 0
-            if(c2 == 'S')
-            {
-                addInt(servoPosition, 4);
-                break;
-            }
-#endif
 #if FEATURE_BABYSTEPPING
             if(c2 == 'Y')
             {
@@ -2850,10 +2829,6 @@ ZPOS2:
 #endif
     break;
     case UI_ACTION_SERVOPOS:
-#if FEATURE_SERVO > 0  && UI_SERVO_CONTROL > 0
-        INCREMENT_MIN_MAX(servoPosition, 5, 500, 2500);
-        HAL::servoMicroseconds(UI_SERVO_CONTROL - 1, servoPosition, 500);
-#endif
         break;
 #if TEMP_PID
     case UI_ACTION_PID_PGAIN:

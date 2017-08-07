@@ -78,7 +78,6 @@ gets used, or you will get probelms with checksums etc.
 /* You can write some gcode to be executed on startup. Use this e.g. to set some 
 pins. Separate multiple gcodes with \n
 */
-//#define STARTUP_GCODE ""
 
 // ##########################################################################################
 // ##                               Calibration                                            ##
@@ -387,11 +386,6 @@ L is the linear factor and seems to be working better then the quadratic depende
 #define EXT2_ADVANCE_K 0.0f
 #define EXT1_ADVANCE_L 0.0f
 #define EXT2_ADVANCE_L 0.0f
-/* Motor steps to remove backlash for advance alorithm. These are the steps
-needed to move the motor cog in reverse direction until it hits the driving
-cog. Direct drive extruder need 0. */
-#define EXT1_ADVANCE_BACKLASH_STEPS 0
-#define EXT2_ADVANCE_BACKLASH_STEPS 0
 
 #define EXT1_WAIT_RETRACT_TEMP 	150
 #define EXT2_WAIT_RETRACT_TEMP 	150
@@ -1222,30 +1216,6 @@ to print an object two times at the speed of one. Works only with dual extruder 
 */
 #define FEATURE_DITTO_PRINTING 0
 
-/* Servos
-
-If you need to control servos, enable this feature. You can control up to 4 servos.
-Control the servos with
-M340 P<servoId> S<pulseInUS>
-servoID = 0..3
-Servos are controlled by a pulse width normally between 500 and 2500 with 1500ms in center position. 0 turns servo off.
-
-WARNING: Servos can draw a considerable amount of current. Make sure your system can handle this or you may risk your hardware!
-*/
-
-#define FEATURE_SERVO 0
-// Servo pins on a RAMPS board are 11,6,5,4
-#define SERVO0_PIN 11
-#define SERVO1_PIN 6
-#define SERVO2_PIN 5
-#define SERVO3_PIN 4
-/* for set servo(s) at designed neutral position at power-up. Values < 500 mean no start position */
-#define SERVO0_NEUTRAL_POS  -1
-#define SERVO1_NEUTRAL_POS  -1
-#define SERVO2_NEUTRAL_POS  -1
-#define SERVO3_NEUTRAL_POS  -1
-/** Set to servo number +1 to control that servo in ui menu. 0 disables ui control. */
-#define UI_SERVO_CONTROL 0
 /** Some fans won't start for low values, but would run if started with higher power at the beginning.
 This defines the full power duration before returning to set value. Time is in milliseconds */
 #define FAN_KICKSTART_TIME  200
@@ -1648,4 +1618,3 @@ If you have leveling with bed coating or fixed z min you can use this menu to ad
 #define MOTOR_DRIVER_1(var) StepperDriver<E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, false, false> var(100.0f,5.0f)
 
 #endif /* CONFIGURATION_H */
-

@@ -2446,20 +2446,6 @@ void Commands::processMCode(GCode *com)
         }
         break;
 #endif // DISTORTION_CORRECTION
-#if FEATURE_SERVO
-    case 340: // M340
-        if(com->hasP() && com->P<4 && com->P>=0)
-        {
-            int s = 0;
-            if(com->hasS())
-                s = com->S;
-            uint16_t r = 0;
-            if(com->hasR())    // auto off time in ms
-                r = com->R;
-            HAL::servoMicroseconds(com->P,s,r);
-        }
-        break;
-#endif // FEATURE_SERVO
     case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
     {
         OUT_P_LN("Set Microstepping");
