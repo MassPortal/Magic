@@ -52,8 +52,6 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 #define MIXING_EXTRUDER 0
 #define MIXING_SEMI 1
 
-#define SHARED_EXTRUDER_HEATER true
-
 #include "pins.h"
 
 // Override pin definions from pins.h
@@ -90,21 +88,11 @@ pins. Separate multiple gcodes with \n
     // ***************************************************
     // *** These parameter are only for Delta printers ***
     // ***************************************************
-
-/** \brief Delta drive type: 0 - belts and pulleys, 1 - filament drive */
-#define DELTA_DRIVE_TYPE 0
-
-#if DELTA_DRIVE_TYPE == 0
 /** \brief Pitch in mm of drive belt. GT2 = 2mm */
 #define BELT_PITCH 2
 /** \brief Number of teeth on X, Y and Z tower pulleys */
 #define PULLEY_TEETH 16
 #define PULLEY_CIRCUMFERENCE (BELT_PITCH * PULLEY_TEETH)
-#elif DELTA_DRIVE_TYPE == 1
-/** \brief Filament pulley diameter in milimeters */
-#define PULLEY_DIAMETER 10
-#define PULLEY_CIRCUMFERENCE (PULLEY_DIAMETER * 3.1415927)
-#endif
 
 /** \brief Steps per rotation of stepper motor */
 #define STEPS_PER_ROTATION 400
