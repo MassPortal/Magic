@@ -142,9 +142,9 @@ class PlaneBuilder {
 		plane.a = ((sum_xy*sum_y-sum_x*sum_yy)*sum_z+(sum_x*sum_y-n*sum_xy)*sum_yz+sum_xz*(n*sum_yy-sum_y*sum_y))   /det;
 		plane.b = ((sum_x*sum_xy-sum_xx*sum_y)*sum_z+(n*sum_xx-sum_x*sum_x)*sum_yz+sum_xz*(sum_x*sum_y-n*sum_xy))   /det;
 		plane.c = ((sum_xx*sum_yy-sum_xy*sum_xy)*sum_z+(sum_x*sum_xy-sum_xx*sum_y)*sum_yz+sum_xz*(sum_xy*sum_y-sum_x*sum_yy))/det;
-		Com::printF(PSTR("plane: a = "),plane.a,4);
-		Com::printF(PSTR(" b = "),plane.b,4);
-		Com::printFLN(PSTR(" c = "),plane.c,4);
+		Com::printF("plane: a = ",plane.a,4);
+		Com::printF(" b = ",plane.b,4);
+		Com::printFLN(" c = ",plane.c,4);
 	}
 };
 
@@ -291,21 +291,21 @@ void runBedLeveling(GCode *com) {
 		}
 #endif		
 		if(!measureAutolevelPlane(plane)) {
-			Com::printErrorFLN(PSTR("Probing had returned errors - autoleveling canceled."));
+			Com::printErrorFLN("Probing had returned errors - autoleveling canceled.");
 			return;
 		}
 		correctAutolevel(com,plane);
 		
 		// Leveling is finished now update own positions and store leveling data if needed
 		float currentZ = plane.z((float)Printer::currentPositionSteps[X_AXIS] * Printer::invAxisStepsPerMM[X_AXIS],(float)Printer::currentPositionSteps[Y_AXIS] * Printer::invAxisStepsPerMM[Y_AXIS]);
-		Com::printF(PSTR("CurrentZ:"),currentZ);Com::printFLN(PSTR(" atZ:"),Printer::currentPosition[Z_AXIS]);
+		Com::printF("CurrentZ:",currentZ);Com::printFLN(" atZ:",Printer::currentPosition[Z_AXIS]);
 		// With max z endstop we adjust zlength so after next homing we have also a calibrated printer
 		Printer::zMin = 0;
 		#if MAX_HARDWARE_ENDSTOP_Z
 		float xRot,yRot,zRot;
 		#if BED_CORRECTION_METHOD != 1
 		Printer::transformFromPrinter(Printer::currentPosition[X_AXIS],Printer::currentPosition[Y_AXIS],Printer::currentPosition[Z_AXIS],xRot,yRot,zRot);
-		Com::printFLN(PSTR("Z after rotation:"),zRot);
+		Com::printFLN("Z after rotation:",zRot);
 		#else
 		zRot = Printer::currentPosition[Z_AXIS];
 		#endif
@@ -331,7 +331,7 @@ void runBedLeveling(GCode *com) {
 		EEPROM::storeDataIntoEEPROM();
 	}
 	Printer::updateCurrentPosition(true);
-	Commands::printCurrentPosition(PSTR("G32 "));
+	Commands::printCurrentPosition("G32 ");
 	#if DISTORTION_CORRECTION
 	if(distEnabled)
 		Printer::distortion.enable(false); // if level has changed, distortion is also invalid
@@ -484,7 +484,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 	#if DISTORTION_CORRECTION
 	if(Printer::distortion.isEnabled()) {
 		Com::printF(Com::tSpaceYColon, realYPosition());
-		Com::printFLN(PSTR(" zCorr:"), zCorr);
+		Com::printFLN(" zCorr:", zCorr);
 	} else {
 		Com::printFLN(Com::tSpaceYColon, realYPosition());		
 	}

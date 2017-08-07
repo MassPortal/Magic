@@ -76,8 +76,8 @@ void commandG203(GCode &code)
         id = code.P;
     if(id < 0) id = 0;
     if(id >= NUM_MOTOR_DRIVERS) id = 0;
-    Com::printF(PSTR("Motor"),id);
-    Com::printFLN(PSTR("Pos:"),motorDrivers[id]->getPosition());
+    Com::printF("Motor",id);
+    Com::printFLN("Pos:",motorDrivers[id]->getPosition());
 }
 //G204 P<motorId> S<0/1>     - Enable/disable motor
 void commandG204(GCode &code)

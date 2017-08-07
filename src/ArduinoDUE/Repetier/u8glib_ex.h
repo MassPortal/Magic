@@ -202,7 +202,6 @@ extern "C" {
 typedef uint8_t u8g_pgm_uint8_t;
 typedef uint8_t u8g_fntpgm_uint8_t;
 #define u8g_pgm_read(adr) (*(const u8g_pgm_uint8_t *)(adr))
-#define U8G_PSTR(s) ((u8g_pgm_uint8_t *)(s))
 
 /*===============================================================*/
 /* interrupt safe code */

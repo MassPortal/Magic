@@ -346,7 +346,7 @@ extern const int8_t encoder_table[16] PROGMEM ;
 #define UI_KEYS_INIT_MATRIX(r1,r2,r3,r4,c1,c2,c3,c4) if(c1>=0){SET_INPUT(c1);WRITE(c1,HIGH);}if(c2>=0){SET_INPUT(c2);WRITE(c2,HIGH);}if(c3>=0){SET_INPUT(c3);WRITE(c3,HIGH);}\
     if(c4>=0) {SET_INPUT(c4);WRITE(c4,HIGH);}if(r1>=0)SET_OUTPUT(r1);if(r2>=0)SET_OUTPUT(r2);if(r3>=0)SET_OUTPUT(r3);if(r4>=0)SET_OUTPUT(r4);\
     if(r1>=0)WRITE(r1,LOW);if(r2>=0)WRITE(r2,LOW);if(r3>=0)WRITE(r3,LOW);if(r4>=0)WRITE(r4,LOW);
-//      out.print_int_P(PSTR("r4=>c1:"),READ(c1));out.print_int_P(PSTR(" c2:"),READ(c2));out.print_int_P(PSTR(" c3:"),READ(c3));out.println_int_P(PSTR(" c4:"),READ(c4));
+//      out.print_int_P("r4=>c1:",READ(c1));out.print_int_P(" c2:",READ(c2));out.print_int_P(" c3:",READ(c3));out.println_int_P(" c4:",READ(c4));
 #define UI_KEYS_MATRIX(r1,r2,r3,r4,c1,c2,c3,c4) {uint8_t r = (c1>=0?READ(c1):0) && (c2>=0?READ(c2):0) && (c3>=0?READ(c3):0) && (c4>=0?READ(c4):0);\
     if(!r) {\
       r = 255;\
@@ -548,7 +548,7 @@ class UIDisplay {
     inline void addLong(long value) {addLong(value, -11);};
     void addFloat(float number, char fixdigits,uint8_t digits);
     inline void addFloat(float number) {addFloat(number, -9,2);};
-    void addStringP(PGM_P text);
+    void addStringP(const char* text);
     void addStringOnOff(uint8_t);
     void addChar(const char c);
     void addGCode(GCode *code);
@@ -562,7 +562,7 @@ class UIDisplay {
     void initialize(); // Initialize display and keys
     void waitForKey();
     void printRow(uint8_t r,const char *txt,const char *txt2, uint8_t changeAtCol); // Print row on display
-    void printRowP(uint8_t r,PGM_P txt);
+    void printRowP(uint8_t r,const char* txt);
     void parse(const char *txt,bool ram); /// Parse output and write to printCols;
     void refreshPage();
     int executeAction(unsigned int action, bool allowMoves);
@@ -572,7 +572,7 @@ class UIDisplay {
     void pushMenu(const UIMenu *men, bool refresh);
     void popMenu(bool refresh);
     void adjustMenuPos();
-    void setStatusP(PGM_P txt, bool error = false);
+    void setStatusP(const char* txt, bool error = false);
     void setStatus(const char *txt, bool error = false);
     inline void setOutputMaskBits(unsigned int bits) {outputMask |= bits;}
     inline void unsetOutputMaskBits(unsigned int bits) {outputMask &= ~bits;}
@@ -695,18 +695,18 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_INITIALIZE uid.initialize();
 #define UI_FAST if((counterPeriodical & 3) == 3) {uid.fastAction();}
 #define UI_SLOW(allowMoves) uid.slowAction(allowMoves);
-#define UI_STATUS(status) uid.setStatusP(PSTR(status));
+#define UI_STATUS(status) uid.setStatusP(status);
 #define UI_STATUS_F(status) uid.setStatusP(status);
-#define UI_STATUS_UPD(status) {uid.setStatusP(PSTR(status));uid.refreshPage();}
+#define UI_STATUS_UPD(status) {uid.setStatusP(status);uid.refreshPage();}
 #define UI_STATUS_UPD_F(status) {uid.setStatusP(status);uid.refreshPage();}
 #define UI_STATUS_RAM(status) uid.setStatus(status);
 #define UI_STATUS_UPD_RAM(status) {uid.setStatus(status);uid.refreshPage();}
-#define UI_ERROR(status) uid.setStatusP(PSTR(status),true);
+#define UI_ERROR(status) uid.setStatusP(status,true);
 #define UI_ERROR_P(status) uid.setStatusP(status,true);
-#define UI_ERROR_UPD(status) {uid.setStatusP(PSTR(status),true);uid.refreshPage();}
+#define UI_ERROR_UPD(status) {uid.setStatusP(status,true);uid.refreshPage();}
 #define UI_ERROR_RAM(status) uid.setStatus(status,true);
 #define UI_ERROR_UPD_RAM(status) {uid.setStatus(status,true);uid.refreshPage();}
-//#define UI_ERROR(msg) {uid.errorMsg=(void*)PSTR(msg);pushMenu((void*)&ui_menu_error,true);}
+//#define UI_ERROR(msg) {uid.errorMsg=(void*)msg;pushMenu((void*)&ui_menu_error,true);}
 #define UI_CLEAR_STATUS {uid.statusMsg[0]=0;}
 #else
 #define UI_INITIALIZE {}

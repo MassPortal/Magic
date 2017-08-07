@@ -63,10 +63,10 @@ bool UIMenuEntry::showEntry() const
 {
     bool ret = true;
     uint8_t f, f2;
-    f = HAL::readFlashByte((PGM_P)&filter);
+    f = HAL::readFlashByte((const char*)&filter);
     if(f != 0)
         ret = (f & Printer::menuMode) != 0;
-    if(ret && (f2 = HAL::readFlashByte((PGM_P)&nofilter)) != 0)
+    if(ret && (f2 = HAL::readFlashByte((const char*)&nofilter)) != 0)
         ret = (f2 & Printer::menuMode) == 0;
     return ret;
 }
@@ -860,21 +860,21 @@ void UIDisplay::initialize()
         u8g_DrawBitmapP(&u8g, 128 - LOGO_WIDTH, 0, ((LOGO_WIDTH + 7) / 8), LOGO_HEIGHT, logo);
         for(uint8_t y = 0; y < UI_ROWS; y++) displayCache[y][0] = 0;
 #ifdef CUSTOM_LOGO
-        printRowP(4, PSTR("Repetier"));
-        printRowP(5, PSTR("Ver " REPETIER_VERSION));
+        printRowP(4, "Repetier");
+        printRowP(5, "Ver " REPETIER_VERSION);
 #else
-        printRowP(0, PSTR("Repetier"));
-        printRowP(1, PSTR("Ver " REPETIER_VERSION));
-        printRowP(3, PSTR("Machine:"));
-        printRowP(4, PSTR(UI_PRINTER_NAME));
-        printRowP(5, PSTR(UI_PRINTER_COMPANY));
+        printRowP(0, "Repetier");
+        printRowP(1, "Ver " REPETIER_VERSION);
+        printRowP(3, "Machine:");
+        printRowP(4, UI_PRINTER_NAME);
+        printRowP(5, UI_PRINTER_COMPANY);
 #endif
     }
     while( u8g_NextPage(&u8g) );  //end picture loop
 #else // not DISPLAY_U8G
     for(uint8_t y=0; y<UI_ROWS; y++) displayCache[y][0] = 0;
-    printRowP(0, PSTR(UI_PRINTER_NAME));
-    printRowP(1, PSTR("HW: " HARDWARE_VERSION));
+    printRowP(0, UI_PRINTER_NAME);
+    printRowP(1, "HW: " HARDWARE_VERSION);
 #if UI_ROWS>2
 	//TODO: Rewrite cleaner
 	String stringOne = "";
@@ -882,19 +882,19 @@ void UIDisplay::initialize()
 	char charBuf[11]; //11=max length of long. eg. -1234567890 
 	stringOne.toCharArray(charBuf, 11);
 	printRow(2, "ID:", charBuf,4);
-    printRowP(UI_ROWS-1, PSTR(UI_PRINTER_COMPANY));
+    printRowP(UI_ROWS-1, UI_PRINTER_COMPANY);
 #endif
 #endif
 #else
-    slideIn(0, PSTR(UI_PRINTER_NAME));
+    slideIn(0, UI_PRINTER_NAME);
     strcpy(displayCache[0], uid.printCols);
-    slideIn(1, PSTR("HW: " HARDWARE_VERSION));
+    slideIn(1, "HW: " HARDWARE_VERSION);
     strcpy(displayCache[1], uid.printCols);
 #if UI_ROWS>2
 	//TODO: Display printer ID
 	//slideIn(2, Printer::PrinterId);
 	strcpy(displayCache[2], uid.printCols);
-    slideIn(UI_ROWS-1, PSTR(UI_PRINTER_COMPANY));
+    slideIn(UI_ROWS-1, UI_PRINTER_COMPANY);
     strcpy(displayCache[UI_ROWS-1], uid.printCols);
 #endif
 #endif
@@ -924,7 +924,7 @@ void  UIDisplay::waitForKey()
     }
 }
 
-void UIDisplay::printRowP(uint8_t r,PGM_P txt)
+void UIDisplay::printRowP(uint8_t r,const char* txt)
 {
     if(r >= UI_ROWS) return;
     col = 0;
@@ -1044,7 +1044,7 @@ void UIDisplay::addFloat(float number, char fixdigits, uint8_t digits)
     }
 }
 
-void UIDisplay::addStringP(PGM_P text)
+void UIDisplay::addStringP(const char* text)
 {
     while(col < MAX_COLS)
     {
@@ -1239,12 +1239,12 @@ void UIDisplay::parse(const char *txt,bool ram)
             {
                 if(tempController[eid]->isSensorDefect())
                 {
-                    addStringP(PSTR(" def "));
+                    addStringP(" def ");
                     break;
                 }
                 else if(tempController[eid]->isSensorDecoupled())
                 {
-                    addStringP(PSTR(" dec "));
+                    addStringP(" dec ");
                     break;
                 }
             }
@@ -1638,7 +1638,7 @@ void UIDisplay::showLanguageSelectionWizard() {
     pushMenu(&ui_menu_languages_wiz,true);
 #endif
 }
-void UIDisplay::setStatusP(PGM_P txt,bool error)
+void UIDisplay::setStatusP(const char* txt,bool error)
 {
     if(!error && Printer::isUIErrorMessage()) return;
     uint8_t i=0;
@@ -2409,7 +2409,7 @@ void UIDisplay::adjustMenuPos()
     if(menuLevel == 0) return;
     UIMenu *men = (UIMenu*)menu[menuLevel];
     UIMenuEntry **entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
-    uint8_t mtype = HAL::readFlashByte((PGM_P)&(men->menuType)) & 127;
+    uint8_t mtype = HAL::readFlashByte((const char*)&(men->menuType)) & 127;
     uint16_t numEntries = pgm_read_word(&(men->numEntries));
     if(mtype != 2) return;
     UIMenuEntry *entry;
@@ -2462,11 +2462,11 @@ void UIDisplay::adjustMenuPos()
 bool UIDisplay::isWizardActive()
 {
     UIMenu *men = (UIMenu*)menu[menuLevel];
-    return (HAL::readFlashByte((PGM_P)&(men->menuType)) & 127) == 5;
+    return (HAL::readFlashByte((const char*)&(men->menuType)) & 127) == 5;
 }
 bool UIDisplay::isSticky() {
     UIMenu *men = (UIMenu*)menu[menuLevel];
-    uint8_t mt = HAL::readFlashByte((PGM_P)&(men->menuType));
+    uint8_t mt = HAL::readFlashByte((const char*)&(men->menuType));
     return ((mt & 128) == 128) || mt == 5;
 }
 
@@ -2516,12 +2516,12 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
     }
     UIMenu *men = (UIMenu*)menu[menuLevel];
     uint8_t nr = pgm_read_word_near(&(men->numEntries));
-    uint8_t mtype = HAL::readFlashByte((PGM_P)&(men->menuType)) & 127;
+    uint8_t mtype = HAL::readFlashByte((const char*)&(men->menuType)) & 127;
     UIMenuEntry **entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
     UIMenuEntry *ent =(UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel]]));
     UIMenuEntry *testEnt;
     // 0 = Info, 1 = Headline, 2 = submenu ref, 3 = direct action command
-    //uint8_t entType = HAL::readFlashByte((PGM_P)&(ent->entryType));
+    //uint8_t entType = HAL::readFlashByte((const char*)&(ent->entryType));
     unsigned int action = pgm_read_word(&(ent->action));
     if(mtype == UI_MENU_TYPE_SUBMENU && activeAction == 0)   // browse through menu items
     {
@@ -2594,7 +2594,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
 #else
         PrintLine::moveRelativeDistanceInStepsReal(increment,0,0,0,Printer::homingFeedrate[X_AXIS],false,false);
 #endif
-        Commands::printCurrentPosition(PSTR("UI_ACTION_XPOSITION "));
+        Commands::printCurrentPosition("UI_ACTION_XPOSITION ");
         break;
     case UI_ACTION_YPOSITION:
         if(!allowMoves) return false;
@@ -2610,7 +2610,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
 #else
         PrintLine::moveRelativeDistanceInStepsReal(0,increment,0,0,Printer::homingFeedrate[Y_AXIS],false,false);
 #endif
-        Commands::printCurrentPosition(PSTR("UI_ACTION_YPOSITION "));
+        Commands::printCurrentPosition("UI_ACTION_YPOSITION ");
         break;
     case UI_ACTION_ZPOSITION_NOTEST:
         if(!allowMoves) return false;
@@ -2632,17 +2632,17 @@ ZPOS1:
         PrintLine::moveRelativeDistanceInStepsReal(0, 0, ((long)increment * Printer::axisStepsPerMM[Z_AXIS]) / 100, 0, Printer::homingFeedrate[Z_AXIS],false,false);
 #endif
         Printer::setNoDestinationCheck(false);
-        Commands::printCurrentPosition(PSTR("UI_ACTION_ZPOSITION "));
+        Commands::printCurrentPosition("UI_ACTION_ZPOSITION ");
         break;
     case UI_ACTION_XPOSITION_FAST:
         if(!allowMoves) return false;
         PrintLine::moveRelativeDistanceInStepsReal(Printer::axisStepsPerMM[X_AXIS] * increment,0,0,0,Printer::homingFeedrate[X_AXIS],true,false);
-        Commands::printCurrentPosition(PSTR("UI_ACTION_XPOSITION_FAST "));
+        Commands::printCurrentPosition("UI_ACTION_XPOSITION_FAST ");
         break;
     case UI_ACTION_YPOSITION_FAST:
         if(!allowMoves) return false;
         PrintLine::moveRelativeDistanceInStepsReal(0,Printer::axisStepsPerMM[Y_AXIS] * increment,0,0,Printer::homingFeedrate[Y_AXIS],true,false);
-        Commands::printCurrentPosition(PSTR("UI_ACTION_YPOSITION_FAST "));
+        Commands::printCurrentPosition("UI_ACTION_YPOSITION_FAST ");
         break;
     case UI_ACTION_ZPOSITION_FAST_NOTEST:
         if(!allowMoves) return false;
@@ -2653,12 +2653,12 @@ ZPOS1:
 ZPOS2:
         PrintLine::moveRelativeDistanceInStepsReal(0,0,Printer::axisStepsPerMM[Z_AXIS] * increment,0,Printer::homingFeedrate[Z_AXIS],true,false);
         Printer::setNoDestinationCheck(false);
-        Commands::printCurrentPosition(PSTR("UI_ACTION_ZPOSITION_FAST "));
+        Commands::printCurrentPosition("UI_ACTION_ZPOSITION_FAST ");
         break;
     case UI_ACTION_EPOSITION:
         if(!allowMoves) return false;
         PrintLine::moveRelativeDistanceInSteps(0,0,0,Printer::axisStepsPerMM[E_AXIS]*increment / Printer::extrusionFactor,UI_SET_EXTRUDER_FEEDRATE,true,false,false);
-        Commands::printCurrentPosition(PSTR("UI_ACTION_EPOSITION "));
+        Commands::printCurrentPosition("UI_ACTION_EPOSITION ");
         break;
 #if FEATURE_RETRACTION
     case UI_ACTION_WIZARD_FILAMENTCHANGE: // filament change is finished
@@ -3034,22 +3034,22 @@ int UIDisplay::executeAction(unsigned int action, bool allowMoves)
         case UI_ACTION_HOME_ALL:
             if(!allowMoves) return UI_ACTION_HOME_ALL;
             Printer::homeAxis(true, true, true);
-            Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL "));
+            Commands::printCurrentPosition("UI_ACTION_HOMEALL ");
             break;
         case UI_ACTION_HOME_X:
             if(!allowMoves) return UI_ACTION_HOME_X;
             Printer::homeAxis(true, false, false);
-            Commands::printCurrentPosition(PSTR("UI_ACTION_HOME_X "));
+            Commands::printCurrentPosition("UI_ACTION_HOME_X ");
             break;
         case UI_ACTION_HOME_Y:
             if(!allowMoves) return UI_ACTION_HOME_Y;
             Printer::homeAxis(false, true, false);
-            Commands::printCurrentPosition(PSTR("UI_ACTION_HOME_Y "));
+            Commands::printCurrentPosition("UI_ACTION_HOME_Y ");
             break;
         case UI_ACTION_HOME_Z:
             if(!allowMoves) return UI_ACTION_HOME_Z;
             Printer::homeAxis(false, false, true);
-            Commands::printCurrentPosition(PSTR("UI_ACTION_HOME_Z "));
+            Commands::printCurrentPosition("UI_ACTION_HOME_Z ");
             break;
         case UI_ACTION_SET_ORIGIN:
             if(!allowMoves) return UI_ACTION_SET_ORIGIN;
@@ -3361,7 +3361,7 @@ break;
 				}
 			else
 				if((Printer::getFan2Speed()==0) || (Printer::getFan2Speed()==FAN_SLOW)) {
-					Com::printFLN(PSTR("fan2="),Printer::getFan2Speed());
+					Com::printFLN("fan2=",Printer::getFan2Speed());
 					Commands::setFan2Speed(FAN_MAX);
 				}
 				else
@@ -3464,7 +3464,7 @@ break;
         {
             if(Printer::isBlockingReceive()) break;
             Printer::setJamcontrolDisabled(true);
-            Com::printFLN(PSTR("important: Filament change required!"));
+            Com::printFLN("important: Filament change required!");
             Printer::setBlockingReceive(true);
             pushMenu(&ui_wiz_filamentchange, true);
             Printer::resetWizardStack();
@@ -3545,7 +3545,7 @@ break;
             EEPROM::storeDataIntoEEPROM(false);
             Com::printFLN(Com::tEEPROMUpdated);
 #endif
-            Commands::printCurrentPosition(PSTR("UI_ACTION_SET_MEASURED_ORIGIN "));
+            Commands::printCurrentPosition("UI_ACTION_SET_MEASURED_ORIGIN ");
         }
         break;
 #endif
@@ -3606,7 +3606,7 @@ break;
             break;
 		case UI_ACTION_DOOR_FRONT:
 			Com::printF("FW:1=");
-			if (Printer::fDoorOpen) {				
+			if (Printer::fDoorOpen) {
 				Com::printFLN("1#Front door open");
 			}
 			else  {
@@ -3635,7 +3635,7 @@ break;
 					sd.continuePrint(true);
 				}
 				else {
-					Com::printFLN(PSTR("RequestResume:"));
+					Com::printFLN("RequestResume:");
 					UI_STATUS_UPD("");
 					Printer::resumePrinting();
 #ifdef PAUSE_LED
@@ -3651,7 +3651,7 @@ break;
 					}
 					else {
 						Printer::isPaused = true;
-            Com::printFLN(PSTR("RequestPause:"));
+            Com::printFLN("RequestPause:");
 						UI_STATUS_UPD("Pause requested");
 #ifdef PAUSE_LED					
 						WRITE(PAUSE_LED_PIN, 0);
@@ -3659,12 +3659,12 @@ break;
 					}
 		    }
 		    //just for the reference- this was used to pause RepetierHost
-		    //Com::printFLN(PSTR("RequestPause:"));            Com::printFLN(PSTR("RequestPause:"));
+		    //Com::printFLN("RequestPause:");            Com::printFLN("RequestPause:");
 	break;
 case UI_ACTION_CALIBRATE:
 			// Check to see if the printer has been factory-calibrated
 			if (Printer::zLength < (Commands::retDefHeight() - 200.0f) || Printer::zLength > Commands::retDefHeight()) {
-				Com::printErrorFLN(PSTR("Corrupted Z-length!"));
+				Com::printErrorFLN("Corrupted Z-length!");
 				pushMenu(&ui_menu_avoid_uninit, false);
 			}
 			else if (EEPROM::zProbeHeight() < 0.1 || EEPROM::zProbeHeight() > 4.0)
@@ -3678,14 +3678,14 @@ case UI_ACTION_CALIBRATE:
 				menuCommand(&ui_menu_probing, &ui_menu_calibrate_action,Com::tProbeActionScript);
 				newZHeight = fabs(oldZHeight - Printer::zLength);
 #if DEBUGGING
-				Com::printFLN(PSTR(" Old Zh:"),oldZHeight);
-				Com::printFLN(PSTR(" New Zh:"),Printer::zLength);
-				Com::printFLN(PSTR(" ABS Zh:"),newZHeight);
+				Com::printFLN(" Old Zh:",oldZHeight);
+				Com::printFLN(" New Zh:",Printer::zLength);
+				Com::printFLN(" ABS Zh:",newZHeight);
 #endif
 				if (newZHeight > 0.03f) {
 					menuCommand(&ui_menu_verifying, &ui_menu_calibrate_action,Com::tProbeActionScript);
 #if DEBUGGING
-				Com::printFLN(PSTR(" New Zh2:"),Printer::zLength);
+				Com::printFLN(" New Zh2:",Printer::zLength);
 #endif
 				}
 			}	   
@@ -3726,21 +3726,21 @@ case UI_ACTION_RESET_MATRIX:
 #endif
 #ifdef DEBUG_PRINT
         case UI_ACTION_WRITE_DEBUG:
-            Com::printF(PSTR("Buf. Read Idx:"),(int)GCode::bufferReadIndex);
-            Com::printF(PSTR(" Buf. Write Idx:"),(int)GCode::bufferWriteIndex);
-            Com::printF(PSTR(" Comment:"),(int)GCode::commentDetected);
-            Com::printF(PSTR(" Buf. Len:"),(int)GCode::bufferLength);
-            Com::printF(PSTR(" Wait resend:"),(int)GCode::waitingForResend);
-            Com::printFLN(PSTR(" Recv. Write Pos:"),(int)GCode::commandsReceivingWritePosition);
-            Com::printF(PSTR("Min. XY Speed:"),Printer::minimumSpeed);
-            Com::printF(PSTR(" Min. Z Speed:"),Printer::minimumZSpeed);
-            Com::printF(PSTR(" Buffer:"),PrintLine::linesCount);
-            Com::printF(PSTR(" Lines pos:"),(int)PrintLine::linesPos);
-            Com::printFLN(PSTR(" Write Pos:"),(int)PrintLine::linesWritePos);
-            Com::printFLN(PSTR("Wait loop:"),debugWaitLoop);
-            Com::printF(PSTR("sd mode:"),(int)sd.sdmode);
-            Com::printF(PSTR(" pos:"),sd.sdpos);
-            Com::printFLN(PSTR(" of "),sd.filesize);
+            Com::printF("Buf. Read Idx:",(int)GCode::bufferReadIndex);
+            Com::printF(" Buf. Write Idx:",(int)GCode::bufferWriteIndex);
+            Com::printF(" Comment:",(int)GCode::commentDetected);
+            Com::printF(" Buf. Len:",(int)GCode::bufferLength);
+            Com::printF(" Wait resend:",(int)GCode::waitingForResend);
+            Com::printFLN(" Recv. Write Pos:",(int)GCode::commandsReceivingWritePosition);
+            Com::printF("Min. XY Speed:",Printer::minimumSpeed);
+            Com::printF(" Min. Z Speed:",Printer::minimumZSpeed);
+            Com::printF(" Buffer:",PrintLine::linesCount);
+            Com::printF(" Lines pos:",(int)PrintLine::linesPos);
+            Com::printFLN(" Write Pos:",(int)PrintLine::linesWritePos);
+            Com::printFLN("Wait loop:",debugWaitLoop);
+            Com::printF("sd mode:",(int)sd.sdmode);
+            Com::printF(" pos:",sd.sdpos);
+            Com::printFLN(" of ",sd.filesize);
             break;
 #endif
         case UI_ACTION_TEMP_DEFECT:

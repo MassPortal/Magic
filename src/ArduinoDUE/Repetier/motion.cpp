@@ -99,7 +99,7 @@ void PrintLine::moveRelativeDistanceInSteps(int32_t x, int32_t y, int32_t z, int
     Printer::feedrate = feedrate;
     if (!queueDeltaMove(checkEndstop, pathOptimize, false))
     {
-        Com::printWarningFLN(PSTR("moveRelativeDistanceInSteps / queueDeltaMove returns error"));
+        Com::printWarningFLN("moveRelativeDistanceInSteps / queueDeltaMove returns error");
     }
     Printer::feedrate = savedFeedrate;
     Printer::updateCurrentPosition(false);
@@ -136,10 +136,10 @@ void PrintLine::calculateMove(float axis_diff[], uint8_t pathOptimize)
     //bool critical = Printer::isZProbingActive();
     if(linesCount < MOVE_CACHE_LOW && timeForMove < LOW_TICKS_PER_MOVE)   // Limit speed to keep cache full.
     {
-        //Com::printF(PSTR("L:"),(int)linesCount);
-		//Com::printF(PSTR(" Old "),timeForMove);
+        //Com::printF("L:",(int)linesCount);
+		//Com::printF(" Old ",timeForMove);
         timeForMove += (3 * (LOW_TICKS_PER_MOVE - timeForMove)) / (linesCount + 1); // Increase time if queue gets empty. Add more time if queue gets smaller.
-        //Com::printFLN(PSTR("Slow "),timeForMove);
+        //Com::printFLN("Slow ",timeForMove);
         //critical = true;
     }
     timeInTicks = timeForMove;
@@ -480,8 +480,8 @@ inline void PrintLine::computeMaxJunctionSpeed(PrintLine *previous, PrintLine *c
 #ifdef DEBUG_QUEUE_MOVE
     if(Printer::debugEcho())
     {
-        Com::printF(PSTR("ID:"), (int)previous);
-        Com::printFLN(PSTR(" MJ:"), previous->maxJunctionSpeed);
+        Com::printF("ID:", (int)previous);
+        Com::printFLN(" MJ:", previous->maxJunctionSpeed);
     }
 #endif // DEBUG_QUEUE_MOVE
 }
@@ -691,7 +691,7 @@ uint8_t PrintLine::insertWaitMovesIfNeeded(uint8_t pathOptimize, uint8_t waitExt
             p->setWaitTicks(300000);
             pushLine();
         }
-		//Com::printFLN(PSTR("InsertWait"));
+		//Com::printFLN("InsertWait");
         return 1;
     }
     return 0;
@@ -728,7 +728,7 @@ void PrintLine::waitForXFreeLines(uint8_t b, bool allowMoves)
 }
 
 // pick one for verbose the other silent
-#define RETURN_0(s) { Com::printErrorFLN(PSTR(s)); return 0; }
+#define RETURN_0(s) { Com::printErrorFLN(s); return 0; }
 /*#define RETURN_0(s) { Com::print(s " "); SHOWS(temp); SHOWS(opt);\
    SHOWS(cartesianPosSteps[Z_AXIS]);\
    SHOWS(towerAMinSteps); ;\
@@ -990,7 +990,7 @@ inline uint16_t PrintLine::calculateDeltaSubSegments(uint8_t softEndstop)
     float dx[Z_AXIS_ARRAY];
     for(int i = 0; i < Z_AXIS_ARRAY; i++)
         dx[i] = static_cast<float>(Printer::destinationSteps[i] - Printer::currentPositionSteps[i]) / static_cast<float>(numDeltaSegments);
-//	out.println_byte_P(PSTR("Calculate delta segments:"), p->numDeltaSegments);
+//	out.println_byte_P("Calculate delta segments:", p->numDeltaSegments);
 #ifdef DEBUG_STEPCOUNT
     totalStepsRemaining = 0;
 #endif
@@ -1047,16 +1047,16 @@ inline uint16_t PrintLine::calculateDeltaSubSegments(uint8_t softEndstop)
         {
             // Illegal position - ignore move
             Com::printWarningF(Com::tInvalidDeltaCoordinate);
-            Com::printF(PSTR(" x:"), destinationSteps[X_AXIS]);
-            Com::printF(PSTR(" y:"), destinationSteps[Y_AXIS]);
-            Com::printFLN(PSTR(" z:"), destinationSteps[Z_AXIS]);
+            Com::printF(" x:", destinationSteps[X_AXIS]);
+            Com::printF(" y:", destinationSteps[Y_AXIS]);
+            Com::printFLN(" z:", destinationSteps[Z_AXIS]);
             d->dir = 0;
             d->deltaSteps[A_TOWER] = d->deltaSteps[B_TOWER] = d->deltaSteps[C_TOWER] = 0;
             return 65535; // flag error
         }
     }
 #ifdef DEBUG_STEPCOUNT
-//		out.println_long_P(PSTR("initial StepsRemaining:"), p->totalStepsRemaining);
+//		out.println_long_P("initial StepsRemaining:", p->totalStepsRemaining);
 #endif
     return maxAxisMove;
 }
@@ -1221,10 +1221,10 @@ uint8_t PrintLine::queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, u
         {
             Printer::maxRealSegmentLength = segDist;
             Com::printFLN("StepsPerSecond:",sps);
-            Com::printFLN(PSTR("New max. segment length:"),segDist);
+            Com::printFLN("New max. segment length:",segDist);
         }
 #endif
-        //Com::printFLN(PSTR("Segments:"),segmentCount);
+        //Com::printFLN("Segments:",segmentCount);
     }
     else
     {
@@ -1310,7 +1310,7 @@ uint8_t PrintLine::queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, u
         uint16_t maxDeltaStep = p->calculateDeltaSubSegments(softEndstop);
         if (maxDeltaStep == 65535)
         {
-            Com::printWarningFLN(PSTR("in queueDeltaMove to calculateDeltaSubSegments returns error."));
+            Com::printWarningFLN("in queueDeltaMove to calculateDeltaSubSegments returns error.");
             return false;
         }
 
@@ -1814,9 +1814,9 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
 #ifdef DEBUG_STEPCOUNT
         if(cur->totalStepsRemaining || cur->numDeltaSegments)
         {
-            Com::printFLN(PSTR("Missed steps:"), cur->totalStepsRemaining);
-            Com::printFLN(PSTR("Step/seg r:"), stepsPerSegRemaining);
-            Com::printFLN(PSTR("NDS:"), (int) cur->numDeltaSegments);
+            Com::printFLN("Missed steps:", cur->totalStepsRemaining);
+            Com::printFLN("Step/seg r:", stepsPerSegRemaining);
+            Com::printFLN("NDS:", (int) cur->numDeltaSegments);
         }
 #endif
         //HAL::forbidInterrupts();

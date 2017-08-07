@@ -434,7 +434,7 @@ void EEPROM::storeDataIntoEEPROM(uint8_t corrupted)
 }
 void EEPROM::initalizeUncached()
 {
-	Com::printErrorFLN(PSTR("EEPROM reset to defaults!"));
+	Com::printErrorFLN("EEPROM reset to defaults!");
     HAL::eprSetFloat(EPR_Z_PROBE_HEIGHT,Z_PROBE_HEIGHT);
     HAL::eprSetFloat(EPR_Z_PROBE_SPEED,Z_PROBE_SPEED);
     HAL::eprSetFloat(EPR_Z_PROBE_XY_SPEED,Z_PROBE_XY_SPEED);
@@ -522,7 +522,7 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
 {
 #if EEPROM_MODE != 0
     uint8_t version = HAL::eprGetByte(EPR_VERSION); // This is the saved version. Don't copy data not set in older versions!
-    //Com::printFLN(PSTR("Detected EEPROM version:"),(int)version);
+    //Com::printFLN("Detected EEPROM version:",(int)version);
     baudrate = HAL::eprGetInt32(EPR_BAUDRATE);
     maxInactiveTime = HAL::eprGetInt32(EPR_MAX_INACTIVE_TIME);
     stepperInactiveTime = HAL::eprGetInt32(EPR_STEPPER_INACTIVE_TIME);
@@ -834,8 +834,8 @@ void EEPROM::init()
                 if(newcheck != HAL::eprGetByte(EPR_INTEGRITY_BYTE))
                     HAL::eprSetByte(EPR_INTEGRITY_BYTE,newcheck);
             }
-            Com::printFLN(PSTR("EEPROM baud rate restored from configuration."));
-            Com::printFLN(PSTR("RECOMPILE WITH USE_CONFIGURATION_BAUD_RATE == 0 to alter baud rate via EEPROM"));
+            Com::printFLN("EEPROM baud rate restored from configuration.");
+            Com::printFLN("RECOMPILE WITH USE_CONFIGURATION_BAUD_RATE == 0 to alter baud rate via EEPROM");
         }
     }
     else
@@ -897,9 +897,9 @@ void EEPROM::writeSettings()
     writeFloat(EPR_Z_LENGTH, Com::tEPRZMaxLength);
 
 #if RAMP_ACCELERATION
-    //epr_out_float(EPR_X_MAX_START_SPEED,PSTR("X-axis start speed [mm/s]"));
-    //epr_out_float(EPR_Y_MAX_START_SPEED,PSTR("Y-axis start speed [mm/s]"));
-    //epr_out_float(EPR_Z_MAX_START_SPEED,PSTR("Z-axis start speed [mm/s]"));
+    //epr_out_float(EPR_X_MAX_START_SPEED,"X-axis start speed [mm/s]");
+    //epr_out_float(EPR_Y_MAX_START_SPEED,"Y-axis start speed [mm/s]");
+    //epr_out_float(EPR_Z_MAX_START_SPEED,"Z-axis start speed [mm/s]");
     writeFloat(EPR_Z_MAX_ACCEL, Com::tEPRZAcceleration);
     writeFloat(EPR_Z_MAX_TRAVEL_ACCEL, Com::tEPRZTravelAcceleration);
 #if defined(INTERPOLATE_ACCELERATION_WITH_Z) && INTERPOLATE_ACCELERATION_WITH_Z != 0
@@ -1023,7 +1023,7 @@ void EEPROM::writeSettings()
             Com::print(HAL::eprGetInt16(pos));
             Com::print(' ');
             writeExtruderPrefix(pos);
-            Com::printFLN(PSTR("Weight "), (int)(v + 1));
+            Com::printFLN("Weight ", (int)(v + 1));
         }
 #endif
     }
@@ -1084,7 +1084,7 @@ void EEPROM::writeExtruderPrefix(uint pos)
     Com::print(' ');
 }
 
-void EEPROM::writeFloat(uint pos,PGM_P text,uint8_t digits)
+void EEPROM::writeFloat(uint pos,const char* text,uint8_t digits)
 {
     Com::printF(Com::tEPR3, static_cast<int>(pos));
     Com::print(' ');
@@ -1094,7 +1094,7 @@ void EEPROM::writeFloat(uint pos,PGM_P text,uint8_t digits)
     Com::printFLN(text);
 }
 
-void EEPROM::writeLong(uint pos,PGM_P text)
+void EEPROM::writeLong(uint pos,const char* text)
 {
     Com::printF(Com::tEPR2, static_cast<int>(pos));
     Com::print(' ');
@@ -1104,7 +1104,7 @@ void EEPROM::writeLong(uint pos,PGM_P text)
     Com::printFLN(text);
 }
 
-void EEPROM::writeInt(uint pos,PGM_P text)
+void EEPROM::writeInt(uint pos,const char* text)
 {
     Com::printF(Com::tEPR1, static_cast<int>(pos));
     Com::print(' ');
@@ -1114,7 +1114,7 @@ void EEPROM::writeInt(uint pos,PGM_P text)
     Com::printFLN(text);
 }
 
-void EEPROM::writeByte(uint pos,PGM_P text)
+void EEPROM::writeByte(uint pos,const char* text)
 {
     Com::printF(Com::tEPR0, static_cast<int>(pos));
     Com::print(' ');

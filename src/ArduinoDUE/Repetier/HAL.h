@@ -55,10 +55,7 @@
 
 // do not use program space memory with Due
 #define PROGMEM
-#define PGM_P const char *
 typedef char prog_char;
-#undef PSTR
-#define PSTR(s) s
 #undef pgm_read_byte_near
 #define pgm_read_byte_near(x) (*(int8_t*)x)
 #undef pgm_read_byte
@@ -79,7 +76,7 @@ typedef char prog_char;
 
 #define FSTRINGVALUE(var,value) const char var[] PROGMEM = value;
 #define FSTRINGVAR(var) static const char var[] PROGMEM;
-#define FSTRINGPARAM(var) PGM_P var
+#define FSTRINGPARAM(var) const char* var
 
 
 #define EXTRUDER_TIMER          TC0
@@ -256,18 +253,18 @@ extern RFDoubleSerial BTAdapter;
 #endif
 
 
-#define OUT_P_I(p,i) //Com::printF(PSTR(p),(int)(i))
-#define OUT_P_I_LN(p,i) //Com::printFLN(PSTR(p),(int)(i))
-#define OUT_P_L(p,i) //Com::printF(PSTR(p),(long)(i))
-#define OUT_P_L_LN(p,i) //Com::printFLN(PSTR(p),(long)(i))
-#define OUT_P_F(p,i) //Com::printF(PSTR(p),(float)(i))
-#define OUT_P_F_LN(p,i) //Com::printFLN(PSTR(p),(float)(i))
-#define OUT_P_FX(p,i,x) //Com::printF(PSTR(p),(float)(i),x)
-#define OUT_P_FX_LN(p,i,x) //Com::printFLN(PSTR(p),(float)(i),x)
-#define OUT_P(p) //Com::printF(PSTR(p))
-#define OUT_P_LN(p) //Com::printFLN(PSTR(p))
-#define OUT_ERROR_P(p) //Com::printErrorF(PSTR(p))
-#define OUT_ERROR_P_LN(p) {//Com::printErrorF(PSTR(p));//Com::println();}
+#define OUT_P_I(p,i) //Com::printF(p,(int)(i))
+#define OUT_P_I_LN(p,i) //Com::printFLN(p,(int)(i))
+#define OUT_P_L(p,i) //Com::printF(p,(long)(i))
+#define OUT_P_L_LN(p,i) //Com::printFLN(p,(long)(i))
+#define OUT_P_F(p,i) //Com::printF(p,(float)(i))
+#define OUT_P_F_LN(p,i) //Com::printFLN(p,(float)(i))
+#define OUT_P_FX(p,i,x) //Com::printF(p,(float)(i),x)
+#define OUT_P_FX_LN(p,i,x) //Com::printFLN(p,(float)(i),x)
+#define OUT_P(p) //Com::printF(p)
+#define OUT_P_LN(p) //Com::printFLN(p)
+#define OUT_ERROR_P(p) //Com::printErrorF(p)
+#define OUT_ERROR_P_LN(p) {//Com::printErrorF(p);//Com::println();}
 #define OUT(v) //Com::print(v)
 #define OUT_LN //Com::println()
 
@@ -521,7 +518,7 @@ class HAL
     {
       //__disable_irq();
     }
-    static inline char readFlashByte(PGM_P ptr)
+    static inline char readFlashByte(const char* ptr)
     {
       return pgm_read_byte(ptr);
     }

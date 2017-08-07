@@ -278,11 +278,11 @@ void GCode::echoCommand()
 
 void GCode::debugCommandBuffer()
 {
-    Com::printF(PSTR("CommandBuffer"));
+    Com::printF("CommandBuffer");
     for(int i = 0; i < commandsReceivingWritePosition; i++)
         Com::printF(Com::tColon,(int)commandReceiving[i]);
     Com::println();
-    Com::printFLN(PSTR("Binary:"), (int)sendAsBinary);
+    Com::printFLN("Binary:", (int)sendAsBinary);
     if(!sendAsBinary)
     {
         Com::print((char*)commandReceiving);
@@ -344,7 +344,7 @@ void GCode::readFromSerial()
     {
         if((waitingForResend >= 0 || commandsReceivingWritePosition > 0) && time - timeOfLastDataPacket > 200)
         {
-            // Com::printF(PSTR("WFR:"),waitingForResend);Com::printF(PSTR(" CRWP:"),commandsReceivingWritePosition);commandReceiving[commandsReceivingWritePosition] = 0;Com::printFLN(PSTR(" GOT:"),(char*)commandReceiving);
+            // Com::printF("WFR:",waitingForResend);Com::printF(" CRWP:",commandsReceivingWritePosition);commandReceiving[commandsReceivingWritePosition] = 0;Com::printFLN(" GOT:",(char*)commandReceiving);
             requestResend(); // Something is wrong, a started line was not continued in the last second
             timeOfLastDataPacket = time;
         }
@@ -407,7 +407,7 @@ void GCode::readFromSerial()
             if(ch == 0 || ch == '\n' || ch == '\r' || (!commentDetected && ch == ':'))  // complete line read
             {
                 commandReceiving[commandsReceivingWritePosition - 1] = 0;
-                //Com::printF(PSTR("Parse ascii:"));Com::print((char*)commandReceiving);Com::println();
+                //Com::printF("Parse ascii:");Com::print((char*)commandReceiving);Com::println();
                 commentDetected = false;
                 if(commandsReceivingWritePosition == 1)   // empty line ignore
                 {
@@ -451,7 +451,7 @@ void GCode::readFromSerial()
             n = sd.file.read();
             if(n == -1)
             {
-                Com::printErrorFLN(PSTR("SD error did not recover!"));
+                Com::printErrorFLN("SD error did not recover!");
                 sd.sdmode = 0;
                 break;
             }

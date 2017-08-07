@@ -43,7 +43,7 @@ void SDCard::automount()
     {
         if(sdactive || sdmode == 100)   // Card removed
         {
-            Com::printFLN(PSTR("SD card removed"));
+            Com::printFLN("SD card removed");
 #if UI_DISPLAY_TYPE != NO_DISPLAY
             uid.executeAction(UI_ACTION_TOP_MENU, true);
 #endif
@@ -58,7 +58,7 @@ void SDCard::automount()
             UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_SD_INSERTED_ID));
             mount();
 			if(sdmode != 100) // send message only if we have success
-	            Com::printFLN(PSTR("SD card inserted")); // Not translatable or host will not understand signal
+	            Com::printFLN("SD card inserted"); // Not translatable or host will not understand signal
 #if UI_DISPLAY_TYPE != NO_DISPLAY
             if(sdactive && !uid.isWizardActive()) { // Wizards have priority
                 Printer::setAutomount(true);
@@ -137,7 +137,7 @@ void SDCard::pausePrint(bool intern)
         Printer::lastCmdPos[X_AXIS] = Printer::currentPosition[X_AXIS];
         Printer::lastCmdPos[Y_AXIS] = Printer::currentPosition[Y_AXIS];
         Printer::lastCmdPos[Z_AXIS] = Printer::currentPosition[Z_AXIS];
-        GCode::executeFString(PSTR(PAUSE_START_COMMANDS));
+        GCode::executeFString(PAUSE_START_COMMANDS);
     }
 }
 
@@ -145,7 +145,7 @@ void SDCard::continuePrint(bool intern)
 {
     if(!sd.sdactive) return;
     if(intern) {
-        GCode::executeFString(PSTR(PAUSE_END_COMMANDS));
+        GCode::executeFString(PAUSE_END_COMMANDS);
 		//Move down first
 		//Reset position in case the motors have timed out or head moved by external forces
 		Printer::homeAxis(true, true, true);
@@ -161,11 +161,11 @@ void SDCard::stopPrint()
 {
     if(!sd.sdactive) return;
     if(sdmode)
-        Com::printFLN(PSTR("SD print stopped by user."));
+        Com::printFLN("SD print stopped by user.");
     sdmode = 0;
     Printer::setMenuMode(MENU_MODE_SD_PRINTING,false);
     Printer::setMenuMode(MENU_MODE_SD_PAUSED,false);
-	GCode::executeFString(PSTR(SD_RUN_ON_STOP));
+	GCode::executeFString(SD_RUN_ON_STOP);
 	Printer::homeAxis(true, true, true);
     if(SD_STOP_HEATER_AND_MOTORS_ON_STOP) {
         Commands::waitUntilEndOfAllMoves();
@@ -356,9 +356,9 @@ void SDCard::writeCommand(GCode *code)
     buf[p++] = sum1;
     buf[p++] = sum2;
 	// Debug
-	/*Com::printF(PSTR("Buf: "));
+	/*Com::printF("Buf: ");
 	for(int i=0;i<p;i++)
-	Com::printF(PSTR(" "),(int)buf[i]);
+	Com::printF(" ",(int)buf[i]);
 	Com::println();*/
     if(params == 128)
     {

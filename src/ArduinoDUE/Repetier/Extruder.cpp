@@ -161,7 +161,7 @@ void Extruder::manageTemperatures()
             else
             {
 	            act->flags |= TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT;
-				Com::printErrorFLN(PSTR("Heated bed exceeded max temperature!"));
+				Com::printErrorFLN("Heated bed exceeded max temperature!");
 	            if(!Printer::isAnyTempsensorDefect())
 	            {
 					newDefectFound = true;
@@ -198,9 +198,9 @@ void Extruder::manageTemperatures()
 						}
                         UI_ERROR_P(Com::tHeaterDecoupled);
                         Com::printErrorFLN(Com::tHeaterDecoupledWarning);
-                        Com::printF(PSTR("Error:Temp. raised to slow. Rise = "),act->currentTemperatureC - act->lastDecoupleTemp);
-                        Com::printF(PSTR(" after "),(int32_t)(time-act->lastDecoupleTest));
-                        Com::printFLN(PSTR(" ms"));
+                        Com::printF("Error:Temp. raised to slow. Rise = ",act->currentTemperatureC - act->lastDecoupleTemp);
+                        Com::printF(" after ",(int32_t)(time-act->lastDecoupleTest));
+                        Com::printFLN(" ms");
                     }
                 }
                 else
@@ -225,9 +225,9 @@ void Extruder::manageTemperatures()
 						}
                         UI_ERROR_P(Com::tHeaterDecoupled);
                         Com::printErrorFLN(Com::tHeaterDecoupledWarning);
-                        Com::printF(PSTR("Error:Could not hold temperature "),act->lastDecoupleTemp);
-                        Com::printF(PSTR(" measured "),act->currentTemperatureC);
-                        Com::printFLN(PSTR(" deg. C"));
+                        Com::printF("Error:Could not hold temperature ",act->lastDecoupleTemp);
+                        Com::printF(" measured ",act->currentTemperatureC);
+                        Com::printFLN(" deg. C");
                     }
                 }
                 else
@@ -324,7 +324,7 @@ void Extruder::manageTemperatures()
         extruderTempErrors--;
     if(newDefectFound)
     {
-		Com::printFLN(PSTR("Disabling all heaters due to detected sensor defect."));
+		Com::printFLN("Disabling all heaters due to detected sensor defect.");
         for(uint8_t i = 0; i < NUM_TEMPERATURE_LOOPS; i++)
         {
 			tempController[i]->targetTemperatureC = 0;
@@ -536,13 +536,13 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     activeMixingExtruder = extruderId;
     for(uint8_t i = 0; i < NUM_EXTRUDER; i++)
         Extruder::setMixingWeight(i, extruder[i].virtualWeights[extruderId]);
-	Com::printFLN(PSTR("SelectExtruder:"),static_cast<int>(extruderId));
+	Com::printFLN("SelectExtruder:",static_cast<int>(extruderId));
     extruderId = 0;
 #endif
     if(extruderId >= NUM_EXTRUDER)
         extruderId = 0;
 #if !MIXING_EXTRUDER
-	Com::printFLN(PSTR("SelectExtruder:"),static_cast<int>(extruderId));
+	Com::printFLN("SelectExtruder:",static_cast<int>(extruderId));
 #endif
 #if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
     bool executeSelect = false;
@@ -1911,10 +1911,10 @@ bool reportTempsensorError()
         else
             Com::printF(Com::tTempSensorWorking);
 		if(act->flags & TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT)
-			Com::printF(PSTR(" marked defect"));	
+			Com::printF(" marked defect");	
 		if(act->flags & TEMPERATURE_CONTROLLER_FLAG_SENSDECOUPLED)
-			Com::printF(PSTR(" marked decoupled"));
-		Com::println();			
+			Com::printF(" marked decoupled");
+		Com::println();
     }
     Com::printErrorFLN(Com::tDryModeUntilRestart);
     return true;

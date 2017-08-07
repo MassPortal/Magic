@@ -736,9 +736,9 @@ public:
     {
         flag1 = (b ? flag1 | PRINTER_FLAG1_ALLOW_COLD_EXTRUSION : flag1 & ~PRINTER_FLAG1_ALLOW_COLD_EXTRUSION);
         if(b)
-            Com::printFLN(PSTR("Cold extrusion allowed"));
+            Com::printFLN("Cold extrusion allowed");
         else
-            Com::printFLN(PSTR("Cold extrusion disallowed"));
+            Com::printFLN("Cold extrusion disallowed");
     }
 
     static INLINE uint8_t isBlockingReceive()
@@ -760,7 +760,7 @@ public:
     static INLINE void setAutoretract(uint8_t b)
     {
         flag2 = (b ? flag2 | PRINTER_FLAG2_AUTORETRACT : flag2 & ~PRINTER_FLAG2_AUTORETRACT);
-        Com::printFLN(PSTR("Autoretract:"),b);
+        Com::printFLN("Autoretract:",b);
     }
     static INLINE uint8_t isHoming()
     {
@@ -794,7 +794,7 @@ public:
     static INLINE void setDebugJam(uint8_t b)
     {
         flag2 = (b ? flag2 | PRINTER_FLAG2_DEBUG_JAM : flag2 & ~PRINTER_FLAG2_DEBUG_JAM);
-        Com::printFLN(PSTR("Jam debugging:"),b);
+        Com::printFLN("Jam debugging:",b);
     }
 
     static INLINE uint8_t isJamcontrolDisabled()
@@ -805,7 +805,7 @@ public:
     static INLINE void setJamcontrolDisabled(uint8_t b)
     {
         flag2 = (b ? flag2 | PRINTER_FLAG2_JAMCONTROL_DISABLED : flag2 & ~PRINTER_FLAG2_JAMCONTROL_DISABLED);
-        Com::printFLN(PSTR("Jam control disabled:"),b);
+        Com::printFLN("Jam control disabled:",b);
     }
 
     static INLINE void toggleAnimation()

@@ -300,7 +300,7 @@ TRANS(UI_TEXT_Y_OFFSET_EN);
 TRANS(UI_TEXT_Z_OFFSET_EN);
 
 
-PGM_P const translations_en[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_en[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_EN,
  FUI_TEXT_OFF_EN,
  FUI_TEXT_NA_EN,
@@ -841,7 +841,7 @@ TRANS(UI_TEXT_X_OFFSET_DE);
 TRANS(UI_TEXT_Y_OFFSET_DE);
 TRANS(UI_TEXT_Z_OFFSET_DE);
 
-PGM_P const translations_de[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_de[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_DE,
  FUI_TEXT_OFF_DE,
  FUI_TEXT_NA_DE,
@@ -1382,7 +1382,7 @@ TRANS(UI_TEXT_X_OFFSET_NL);
 TRANS(UI_TEXT_Y_OFFSET_NL);
 TRANS(UI_TEXT_Z_OFFSET_NL);
 
-PGM_P const translations_nl[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_nl[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_NL,
  FUI_TEXT_OFF_NL,
  FUI_TEXT_NA_NL,
@@ -1924,7 +1924,7 @@ TRANS(UI_TEXT_X_OFFSET_PT);
 TRANS(UI_TEXT_Y_OFFSET_PT);
 TRANS(UI_TEXT_Z_OFFSET_PT);
 
-PGM_P const translations_pt[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_pt[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_PT,
  FUI_TEXT_OFF_PT,
  FUI_TEXT_NA_PT,
@@ -2466,7 +2466,7 @@ TRANS(UI_TEXT_X_OFFSET_IT);
 TRANS(UI_TEXT_Y_OFFSET_IT);
 TRANS(UI_TEXT_Z_OFFSET_IT);
 
-PGM_P const translations_it[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_it[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_IT,
  FUI_TEXT_OFF_IT,
  FUI_TEXT_NA_IT,
@@ -3008,7 +3008,7 @@ TRANS(UI_TEXT_X_OFFSET_ES);
 TRANS(UI_TEXT_Y_OFFSET_ES);
 TRANS(UI_TEXT_Z_OFFSET_ES);
 
-PGM_P const translations_es[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_es[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_ES,
  FUI_TEXT_OFF_ES,
  FUI_TEXT_NA_ES,
@@ -3550,7 +3550,7 @@ TRANS(UI_TEXT_X_OFFSET_SE);
 TRANS(UI_TEXT_Y_OFFSET_SE);
 TRANS(UI_TEXT_Z_OFFSET_SE);
 
-PGM_P const translations_se[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_se[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_SE,
  FUI_TEXT_OFF_SE,
  FUI_TEXT_NA_SE,
@@ -4092,7 +4092,7 @@ TRANS(UI_TEXT_X_OFFSET_FR);
 TRANS(UI_TEXT_Y_OFFSET_FR);
 TRANS(UI_TEXT_Z_OFFSET_FR);
 
-PGM_P const translations_fr[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_fr[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_FR,
  FUI_TEXT_OFF_FR,
  FUI_TEXT_NA_FR,
@@ -4634,7 +4634,7 @@ TRANS(UI_TEXT_X_OFFSET_CZ);
 TRANS(UI_TEXT_Y_OFFSET_CZ);
 TRANS(UI_TEXT_Z_OFFSET_CZ);
 
-PGM_P const translations_cz[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_cz[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_CZ,
  FUI_TEXT_OFF_CZ,
  FUI_TEXT_NA_CZ,
@@ -5176,7 +5176,7 @@ TRANS(UI_TEXT_X_OFFSET_PL);
 TRANS(UI_TEXT_Y_OFFSET_PL);
 TRANS(UI_TEXT_Z_OFFSET_PL);
 
-PGM_P const translations_pl[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_pl[NUM_TRANSLATED_WORDS] PROGMEM = {
  FUI_TEXT_ON_PL,
  FUI_TEXT_OFF_PL,
  FUI_TEXT_NA_PL,
@@ -5718,7 +5718,7 @@ TRANS(UI_TEXT_Y_OFFSET_TR);
 TRANS(UI_TEXT_Z_OFFSET_TR);
 
 
-PGM_P const translations_TR[NUM_TRANSLATED_WORDS] PROGMEM = {
+const char* const translations_TR[NUM_TRANSLATED_WORDS] PROGMEM = {
 	FUI_TEXT_ON_TR,
 	FUI_TEXT_OFF_TR,
 	FUI_TEXT_NA_TR,
@@ -5993,7 +5993,7 @@ PGM_P const translations_TR[NUM_TRANSLATED_WORDS] PROGMEM = {
 
 // References to the possible languages
 
-PGM_P const * const translations[NUM_LANGUAGES_KNOWN] PROGMEM = {
+const char* const * const translations[NUM_LANGUAGES_KNOWN] PROGMEM = {
     LANG_EN_TABLE,
     LANG_DE_TABLE,
     LANG_NL_TABLE,
@@ -6049,7 +6049,7 @@ const uint8_t availableLanguages[] PROGMEM = {
 void Com::selectLanguage(fast8_t lang) {
     unsigned int pos = (unsigned int)&availableLanguages;
     uint8_t best = 255,cur;
-    while((cur = HAL::readFlashByte((PGM_P)pos)) != 255) {
+    while((cur = HAL::readFlashByte((const char*)pos)) != 255) {
         if(best == 255 || cur == lang)
             best = cur;
         pos++;
@@ -6058,7 +6058,7 @@ void Com::selectLanguage(fast8_t lang) {
 }
 
 const char* Com::translatedF(int textId) {
-    PGM_P *adr = (PGM_P*)pgm_read_word(&translations[selectedLanguage]);
+    const char* *adr = (const char**)pgm_read_word(&translations[selectedLanguage]);
     return (const char *)pgm_read_word(&adr[textId]);
 }
 

@@ -206,10 +206,10 @@ class EEPROM
 {
 #if EEPROM_MODE != 0
     static void writeExtruderPrefix(uint pos);
-    static void writeFloat(uint pos,PGM_P text,uint8_t digits = 3);
-    static void writeLong(uint pos,PGM_P text);
-    static void writeInt(uint pos,PGM_P text);
-    static void writeByte(uint pos,PGM_P text);
+    static void writeFloat(uint pos,const char* text,uint8_t digits = 3);
+    static void writeLong(uint pos,const char* text);
+    static void writeInt(uint pos,const char* text);
+    static void writeByte(uint pos,const char* text);
 public:
     static uint8_t computeChecksum();
     static void updateChecksum();
@@ -446,7 +446,7 @@ static inline void setVersion(uint8_t v) {
       // The radius is not saved to printer variablke now, it is all derived parameters of
       // fetching the radius, which if EEProm is off returns the Configuration constant.
       HAL::eprSetFloat(EPR_DELTA_HORIZONTAL_RADIUS, mm);
-      Com::printFLN(PSTR("Rod Radius set to: "),mm,3);
+      Com::printFLN("Rod Radius set to: ",mm,3);
       uint8_t newcheck = computeChecksum();
       if(newcheck!=HAL::eprGetByte(EPR_INTEGRITY_BYTE))
           HAL::eprSetByte(EPR_INTEGRITY_BYTE,newcheck);
@@ -458,7 +458,7 @@ static inline void setVersion(uint8_t v) {
     static inline void setTowerXFloor(float newZ) {
       Printer::xMin = newZ;
       Printer::updateDerivedParameter();
-      Com::printFLN(PSTR("X (A) tower floor set to: "),Printer::xMin,3);
+      Com::printFLN("X (A) tower floor set to: ",Printer::xMin,3);
 #if EEPROM_MODE != 0
         HAL::eprSetFloat(EPR_X_HOME_OFFSET,Printer::xMin);
         uint8_t newcheck = computeChecksum();
@@ -469,7 +469,7 @@ static inline void setVersion(uint8_t v) {
 static inline void setTowerYFloor(float newZ) {
       Printer::yMin = newZ;
       Printer::updateDerivedParameter();
-      Com::printFLN(PSTR("Y (B) tower floor set to: "), Printer::yMin, 3);
+      Com::printFLN("Y (B) tower floor set to: ", Printer::yMin, 3);
 #if EEPROM_MODE != 0
 
         HAL::eprSetFloat(EPR_Y_HOME_OFFSET,Printer::yMin);
@@ -481,7 +481,7 @@ static inline void setTowerYFloor(float newZ) {
 static inline void setTowerZFloor(float newZ) {
       Printer::zMin = newZ;
       Printer::updateDerivedParameter();
-      Com::printFLN(PSTR("Z (C) tower floor set to: "), Printer::zMin, 3);
+      Com::printFLN("Z (C) tower floor set to: ", Printer::zMin, 3);
 #if EEPROM_MODE != 0
       HAL::eprSetFloat(EPR_Z_HOME_OFFSET,Printer::zMin);
       uint8_t newcheck = computeChecksum();

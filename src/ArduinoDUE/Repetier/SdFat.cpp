@@ -205,17 +205,17 @@ void SdFat::initErrorHalt_P(FSTRINGPARAM(msg)) {
 /** Print error details after SdFat::init() fails. */
 void SdFat::initErrorPrint() {
   if (card_.errorCode()) {
-    pstrPrintln(PSTR("Can't access SD card. Do not reformat."));
+    pstrPrintln("Can't access SD card. Do not reformat.");
     if (card_.errorCode() == SD_CARD_ERROR_CMD0) {
-      pstrPrintln(PSTR("No card, wrong chip select pin, or SPI problem?"));
+      pstrPrintln("No card, wrong chip select pin, or SPI problem?");
     }
     errorPrint();
   } else if (vol_.fatType() == 0) {
-    pstrPrintln(PSTR("Invalid format, reformat SD."));
+    pstrPrintln("Invalid format, reformat SD.");
   } else if (!vwd_.isOpen()) {
-    pstrPrintln(PSTR("Can't open root directory."));
+    pstrPrintln("Can't open root directory.");
   } else {
-    pstrPrintln(PSTR("No error found."));
+    pstrPrintln("No error found.");
   }
 }
 //------------------------------------------------------------------------------
@@ -1554,7 +1554,7 @@ bool SdBaseFile::openRoot(SdVolume* vol) {
   // error if file is already open
   if (isOpen()) {
 #if defined(DEBUG_SD_ERROR)
-	Com::printErrorFLN(PSTR("Root already open"));
+	Com::printErrorFLN("Root already open");
 #endif	  
     DBG_FAIL_MACRO;
     goto fail;
@@ -1574,7 +1574,7 @@ bool SdBaseFile::openRoot(SdVolume* vol) {
   } else {
     // volume is not initialized, invalid, or FAT12 without support
 #if defined(DEBUG_SD_ERROR)
-	Com::printErrorF(PSTR("volume is not initialized, invalid, or FAT12 without support, type:"));
+	Com::printErrorF("volume is not initialized, invalid, or FAT12 without support, type:");
 	Com::print((int)vol->fatType());Com::println();
 #endif
     DBG_FAIL_MACRO;
@@ -1594,7 +1594,7 @@ bool SdBaseFile::openRoot(SdVolume* vol) {
 
  fail:
 #if defined(DEBUG_SD_ERROR)
-   Com::printErrorFLN(PSTR("SD open root dir failed"));
+   Com::printErrorFLN("SD open root dir failed");
 #endif   
   return false;
 }
@@ -3356,7 +3356,7 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
  fail:
   chipSelectHigh();
 #if defined(DEBUG_SD_ERROR)
-  Com::printErrorFLN(PSTR("SD card initalization failed"));
+  Com::printErrorFLN("SD card initalization failed");
 #endif
   return false;
 }
@@ -4176,7 +4176,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   if (part) {
     if (part > 4) {
 #if defined(DEBUG_SD_ERROR)
-	Com::printErrorFLN(PSTR("volume init: illegal part"));
+	Com::printErrorFLN("volume init: illegal part");
 #endif		
       DBG_FAIL_MACRO;
       goto fail;
@@ -4184,7 +4184,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
     pc = cacheFetch(volumeStartBlock, CACHE_FOR_READ);
     if (!pc) {
 #if defined(DEBUG_SD_ERROR)
-		Com::printErrorFLN(PSTR("volume init: cache fetch failed"));
+		Com::printErrorFLN("volume init: cache fetch failed");
 #endif
       DBG_FAIL_MACRO;
       goto fail;
@@ -4195,7 +4195,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
       p->firstSector == 0) {
       // not a valid partition
 #if defined(DEBUG_SD_ERROR)
-		Com::printErrorFLN(PSTR("volume init: invalid partition"));
+		Com::printErrorFLN("volume init: invalid partition");
 #endif
       DBG_FAIL_MACRO;
       goto fail;
@@ -4205,7 +4205,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   pc = cacheFetch(volumeStartBlock, CACHE_FOR_READ);
   if (!pc) {
 #if defined(DEBUG_SD_ERROR)
-Com::printErrorFLN(PSTR("volume init: cache fetch failed"));
+Com::printErrorFLN("volume init: cache fetch failed");
 #endif
     DBG_FAIL_MACRO;
     goto fail;
@@ -4217,11 +4217,11 @@ Com::printErrorFLN(PSTR("volume init: cache fetch failed"));
     fbs->sectorsPerCluster == 0) {
        // not valid FAT volume
 #if defined(DEBUG_SD_ERROR)
-	Com::printErrorFLN(PSTR("volume init: not a valid FAT volume"));
-	Com::printFLN(PSTR("BytesPerSector:"),fbs->bytesPerSector);
-	Com::printFLN(PSTR("fatCount:"),fbs->fatCount);
-	Com::printFLN(PSTR("reservedSectorCount:"),fbs->reservedSectorCount);
-	Com::printFLN(PSTR("sectorsPerCluster:"),fbs->sectorsPerCluster);
+	Com::printErrorFLN("volume init: not a valid FAT volume");
+	Com::printFLN("BytesPerSector:",fbs->bytesPerSector);
+	Com::printFLN("fatCount:",fbs->fatCount);
+	Com::printFLN("reservedSectorCount:",fbs->reservedSectorCount);
+	Com::printFLN("sectorsPerCluster:",fbs->sectorsPerCluster);
 #endif
       DBG_FAIL_MACRO;
       goto fail;
@@ -4266,7 +4266,7 @@ Com::printErrorFLN(PSTR("volume init: cache fetch failed"));
     fatType_ = 12;
     if (!FAT12_SUPPORT) {
 #if defined(DEBUG_SD_ERROR)
-		Com::printErrorFLN(PSTR("volume init: No FAT 12 support"));
+		Com::printErrorFLN("volume init: No FAT 12 support");
 #endif
       DBG_FAIL_MACRO;
       goto fail;
@@ -4281,7 +4281,7 @@ Com::printErrorFLN(PSTR("volume init: cache fetch failed"));
 
  fail:
 #if defined(DEBUG_SD_ERROR)
-   Com::printErrorFLN(PSTR("SD volume open failed"));
+   Com::printErrorFLN("SD volume open failed");
 #endif
   return false;
 }

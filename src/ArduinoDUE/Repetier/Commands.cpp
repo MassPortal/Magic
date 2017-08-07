@@ -146,8 +146,8 @@ void Commands::printCurrentPosition(FSTRINGPARAM(s))
     Com::printF(Com::tSpaceYColon, y * (Printer::unitIsInches ? 0.03937 : 1), 2);
     Com::printF(Com::tSpaceZColon, z * (Printer::unitIsInches ? 0.03937 : 1), 3);
     Com::printFLN(Com::tSpaceEColon, Printer::currentPositionSteps[E_AXIS] * Printer::invAxisStepsPerMM[E_AXIS] * (Printer::unitIsInches ? 0.03937 : 1), 4);
-    //Com::printF(PSTR("OffX:"),Printer::offsetX); // to debug offset handling
-    //Com::printFLN(PSTR(" OffY:"),Printer::offsetY);
+    //Com::printF("OffX:",Printer::offsetX); // to debug offset handling
+    //Com::printFLN(" OffY:",Printer::offsetY);
 }
 
 void Commands::printTemperatures(bool showRaw)
@@ -964,7 +964,7 @@ void Commands::processGCode(GCode *com)
 		if (Printer::setDestinationStepsFromGCode(com)) // For X Y Z E F
 			if (!PrintLine::queueDeltaMove(ALWAYS_CHECK_ENDSTOPS, true, true))
 			{
-				Com::printWarningFLN(PSTR("executeGCode / queueDeltaMove returns error"));
+				Com::printWarningFLN("executeGCode / queueDeltaMove returns error");
 			}
 
 #if UI_HAS_KEYS
@@ -985,7 +985,7 @@ void Commands::processGCode(GCode *com)
 			if (n < 0) n += PRINTLINE_CACHE_SIZE;
 			noInts.unprotect();
 			if (n != lc)
-				Com::printFLN(PSTR("Buffer corrupted"));
+				Com::printFLN("Buffer corrupted");
 		}
 #endif
 #if defined(SUPPORT_LASER) && SUPPORT_LASER
@@ -1096,7 +1096,7 @@ void Commands::processGCode(GCode *com)
 			Com::printFLN(Com::tZProbePrinterHeight, Printer::zLength);
 #else
 			Printer::currentPositionSteps[Z_AXIS] = sum * Printer::axisStepsPerMM[Z_AXIS];
-			Com::printFLN(PSTR("Adjusted z origin"));
+			Com::printFLN("Adjusted z origin");
 #endif
 		}
 		Printer::feedrate = oldFeedrate;
@@ -1104,7 +1104,7 @@ void Commands::processGCode(GCode *com)
 		if (com->hasS() && com->S == 2)
 			EEPROM::storeDataIntoEEPROM();
 		Printer::updateCurrentPosition(true);
-		printCurrentPosition(PSTR("G29 "));
+		printCurrentPosition("G29 ");
 		GCode::executeFString(Com::tZProbeEndScript);
 		Printer::feedrate = oldFeedrate;
 #endif // DISTORTION_CORRECTION
@@ -1119,7 +1119,7 @@ void Commands::processGCode(GCode *com)
 		Printer::runZProbe(p & 1,p & 2);
 		//Printer::setAutolevelActive(oldAutolevel);
 		Printer::updateCurrentPosition(p & 1);
-		//printCurrentPosition(PSTR("G30 "));
+		//printCurrentPosition("G30 ");
 		*/
 		/*
 		Have a P parameter which is used after init probing with G30 T.
@@ -1180,7 +1180,7 @@ void Commands::processGCode(GCode *com)
 			Printer::moveTo(EEPROM::zProbeX1() - EEPROM::zProbeXOffset(), EEPROM::zProbeY1() - EEPROM::zProbeYOffset(), EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 			transformCartesianStepsToDeltaSteps(Printer::currentPositionSteps, Printer::currentDeltaPositionSteps);
 			Printer::updateCurrentPosition(true);
-			printCurrentPosition(PSTR("M114 "));
+			printCurrentPosition("M114 ");
 			//Store the deviation offset temporarily as Z-probe height
 			HAL::eprSetFloat(EPR_Z_PROBE_HEIGHT, EEPROM::zProbeBedDistance() - deviation + EEPROM::zProbeXY1offset());
 			EEPROM::storeDataIntoEEPROM(false);
@@ -1261,7 +1261,7 @@ void Commands::processGCode(GCode *com)
 		Printer::setAutolevelActive(false);
 		// Check to see if the printer has been factory-calibrated
 		if (cmpf(EEPROM::zProbeHeight(), Z_PROBE_HEIGHT)) {
-			Com::printErrorFLN(PSTR("The Z-probe height has not been measured!"));
+			Com::printErrorFLN("The Z-probe height has not been measured!");
 			break;
 		}
 		//Suspend heating of bed during probing to avoid interference with inductive sensors
@@ -1323,9 +1323,9 @@ void Commands::processGCode(GCode *com)
 #endif
 		Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 #if DEBUGGING
-		Com::printFLN(PSTR("h1: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h1);
-		Com::printFLN(PSTR("h2: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h2);
-		Com::printFLN(PSTR("h3: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h3);
+		Com::printFLN("h1: ", Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h1);
+		Com::printFLN("h2: ", Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h2);
+		Com::printFLN("h3: ", Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h3);
 #endif
 
 		//Allows additional offset for each probe point to compensate head slanting at maximum dimensions
@@ -1339,45 +1339,45 @@ void Commands::processGCode(GCode *com)
 		float foff = EEPROM::zProbeXY1offset();
 		if (EEPROM::zProbeXY1offset() != 0.0) {
 #if DEBUGGING
-			Com::printFLN(PSTR("XY1 offset: "), EEPROM::zProbeXY1offset());
+			Com::printFLN("XY1 offset: ", EEPROM::zProbeXY1offset());
 #endif	
 			if (abs(EEPROM::zProbeXY1offset()) > 3.0) {
 				foff = EEPROM::zProbeXY1offset() - h1;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET, foff);
-				Com::printFLN(PSTR("XY1 offset after: "), EEPROM::zProbeXY1offset());
+				Com::printFLN("XY1 offset after: ", EEPROM::zProbeXY1offset());
 			}
 			h1 += foff;
 		}
 
 		if (EEPROM::zProbeXY2offset() != 0.0) {
 #if DEBUGGING
-			Com::printFLN(PSTR("XY2 offset: "), EEPROM::zProbeXY2offset());
+			Com::printFLN("XY2 offset: ", EEPROM::zProbeXY2offset());
 #endif	
 			foff = EEPROM::zProbeXY2offset();
 			if (abs(EEPROM::zProbeXY2offset()) > 3.0) {
 				foff = EEPROM::zProbeXY2offset() - h2;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET, foff);
-				Com::printFLN(PSTR("XY2 offset after: "), EEPROM::zProbeXY2offset());
+				Com::printFLN("XY2 offset after: ", EEPROM::zProbeXY2offset());
 			}
 			h2 += foff;
 		}
 		if (EEPROM::zProbeXY3offset() != 0.0) {
 #if DEBUGGING
-			Com::printFLN(PSTR("XY3 offset: "), EEPROM::zProbeXY3offset());
+			Com::printFLN("XY3 offset: ", EEPROM::zProbeXY3offset());
 #endif
 			foff = EEPROM::zProbeXY3offset();
 			if (abs(EEPROM::zProbeXY3offset()) > 3.0) {
 				foff = EEPROM::zProbeXY3offset() - h3;
 				HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET, foff);
-				Com::printFLN(PSTR("XY3 offset after: "), EEPROM::zProbeXY3offset());
+				Com::printFLN("XY3 offset after: ", EEPROM::zProbeXY3offset());
 			}
 			h3 += foff;
 		}
 
 #if DEBUGGING
-		Com::printFLN(PSTR("h1d: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h1);
-		Com::printFLN(PSTR("h2d: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h2);
-		Com::printFLN(PSTR("h3d: "), Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h3);
+		Com::printFLN("h1d: ", Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h1);
+		Com::printFLN("h2d: ", Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h2);
+		Com::printFLN("h3d: ", Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h3);
 #endif 
 		if (h3 < -1) break;
 #if defined(MOTORIZED_BED_LEVELING) && defined(NUM_MOTOR_DRIVERS) && NUM_MOTOR_DRIVERS >= 2
@@ -1407,7 +1407,7 @@ void Commands::processGCode(GCode *com)
 			(Printer::autolevelTransformation[1] * Printer::autolevelTransformation[3] - Printer::autolevelTransformation[0] * Printer::autolevelTransformation[4]);
 		Printer::zMin = 0;
 
-		Com::printFLN(PSTR("Z: "), z);
+		Com::printFLN("Z: ", z);
 #endif
 		//Parameter for compensating total height. E.g. in case of blue tape.		
 		if (com->hasI())
@@ -1417,7 +1417,7 @@ void Commands::processGCode(GCode *com)
 #if MAX_HARDWARE_ENDSTOP_Z
 
 #if DEBUGGING
-			Com::printFLN(PSTR(" Current pos. Z: "), Printer::currentPosition[Z_AXIS]);
+			Com::printFLN(" Current pos. Z: ", Printer::currentPosition[Z_AXIS]);
 #endif
 			float tempfl = Printer::currentPosition[Z_AXIS];
 			Com::printFLN("Old printer height: ", Printer::zLength);
@@ -1436,7 +1436,7 @@ void Commands::processGCode(GCode *com)
 			Printer::setAutolevelActive(true);
 			//Z-length compensation. NB! Inverted contrary to I!
 			if (EEPROM::zProbeZOffset() != 0.0) {
-				Com::printFLN(PSTR("Z probe z offset: "), EEPROM::zProbeZOffset());
+				Com::printFLN("Z probe z offset: ", EEPROM::zProbeZOffset());
 				Printer::zLength -= EEPROM::zProbeZOffset();
 				Com::printFLN("Adjusted height with coating: ", Printer::zLength);
 			}
@@ -1452,13 +1452,13 @@ void Commands::processGCode(GCode *com)
 				EEPROM::storeDataIntoEEPROM(false);
 		}
 #if DEBUGGING
-		printCurrentPosition(PSTR("G32 "));
+		printCurrentPosition("G32 ");
 #endif 
 #endif // defined(MOTORIZED_BED_LEVELING)
 		Printer::updateDerivedParameter();
 		Printer::updateCurrentPosition(true);
 #if DEBUGGING
-		printCurrentPosition(PSTR("G32 "));
+		printCurrentPosition("G32 ");
 #endif
 		if (!com->hasP()) { //If we have the P param. don't do homing
 			Printer::homeAxis(true, true, true);
@@ -1495,27 +1495,27 @@ void Commands::processGCode(GCode *com)
 		}
 		Printer::updateCurrentPosition(true);
 		Printer::updateDerivedParameter();
-		printCurrentPosition(PSTR("M114 "));
+		printCurrentPosition("M114 ");
 		if (com->hasX()) {
 			float xf = EEPROM::zProbeBedDistance() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
-			Com::printFLN(PSTR(" xf: "), xf);
-			Com::printFLN(PSTR(" xz: "), Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
+			Com::printFLN(" xf: ", xf);
+			Com::printFLN(" xz: ", Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			HAL::eprSetFloat(EPR_Z_PROBE_XY1_OFFSET, xf);
 			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 			Printer::moveTo(EEPROM::zProbeX2(), EEPROM::zProbeY2(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		}
 		if (com->hasY()) {
 			float yf = EEPROM::zProbeBedDistance() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
-			Com::printFLN(PSTR(" yf: "), yf);
-			Com::printFLN(PSTR(" yz: "), Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
+			Com::printFLN(" yf: ", yf);
+			Com::printFLN(" yz: ", Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			HAL::eprSetFloat(EPR_Z_PROBE_XY2_OFFSET, yf);
 			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 			Printer::moveTo(EEPROM::zProbeX3(), EEPROM::zProbeY3(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		}
 		if (com->hasZ()) {
 			float zf = EEPROM::zProbeBedDistance() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
-			Com::printFLN(PSTR(" zf: "), zf);
-			Com::printFLN(PSTR(" zz: "), Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
+			Com::printFLN(" zf: ", zf);
+			Com::printFLN(" zz: ", Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
 			HAL::eprSetFloat(EPR_Z_PROBE_XY3_OFFSET, zf);
 			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance() * 2, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 			Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
@@ -1523,7 +1523,7 @@ void Commands::processGCode(GCode *com)
 		}
 		Printer::updateCurrentPosition(true);
 		Printer::updateDerivedParameter();
-		printCurrentPosition(PSTR("M114 "));
+		printCurrentPosition("M114 ");
 
 		break;
 #endif
@@ -1570,7 +1570,7 @@ void Commands::processGCode(GCode *com)
 				//Move to safe distance above the bed
 				Printer::moveToReal(px0, py0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			//If in the center 
 			else if ((abs(Printer::currentPosition[X_AXIS] - px0) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py0) < 1.0)) {
@@ -1579,7 +1579,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 2nd position
 				Printer::moveToReal(px1, py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			//If in the 2nd position
 			else if ((abs(Printer::currentPosition[X_AXIS] - px1) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py1) < 1.0)) {
@@ -1588,7 +1588,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 3rd position
 				Printer::moveToReal(px2, py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - px2) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py2) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1596,7 +1596,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 4th position
 				Printer::moveToReal(px3, py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - px3) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py3) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1604,7 +1604,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 5th position
 				Printer::moveToReal(p4x4, p4y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p4x4) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y4) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1612,7 +1612,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 6th position
 				Printer::moveToReal(p4x5, p4y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p4x5) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y5) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1620,7 +1620,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 7th position
 				Printer::moveToReal(p4x6, p4y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p4x6) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p4y6) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1628,7 +1628,7 @@ void Commands::processGCode(GCode *com)
 				//Go to first position
 				Printer::moveToReal(px0, py0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else
 				Com::printWarningFLN("Not in a valid position!");
@@ -1642,7 +1642,7 @@ void Commands::processGCode(GCode *com)
 				//Move to safe distance above the bed
 				Printer::moveToReal(px0, py0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			//If in the center 
 			else if ((abs(Printer::currentPosition[X_AXIS] - px0) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py0) < 1.0)) {
@@ -1651,7 +1651,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 2nd position
 				Printer::moveToReal(px1, py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			//If in the 2nd position
 			else if ((abs(Printer::currentPosition[X_AXIS] - px1) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py1) < 1.0)) {
@@ -1660,7 +1660,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 3rd position
 				Printer::moveToReal(px2, py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - px2) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py2) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1668,7 +1668,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 4th position
 				Printer::moveToReal(px3, py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - px3) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py3) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1676,7 +1676,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 5th position
 				Printer::moveToReal(p3x4, p3y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p3x4) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y4) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1684,7 +1684,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 6th position
 				Printer::moveToReal(p3x5, p3y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p3x5) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y5) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1692,7 +1692,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 7th position
 				Printer::moveToReal(p3x6, p3y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p3x6) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p3y6) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1700,7 +1700,7 @@ void Commands::processGCode(GCode *com)
 				//Go to first position
 				Printer::moveToReal(px0, py0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else
 				Com::printWarningFLN("Not in a valid position!");
@@ -1714,7 +1714,7 @@ void Commands::processGCode(GCode *com)
 				//Move to safe distance above the bed
 				Printer::moveToReal(px0, py0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			//If in the center 
 			else if ((abs(Printer::currentPosition[X_AXIS] - px0) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py0) < 1.0)) {
@@ -1723,7 +1723,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 2nd position
 				Printer::moveToReal(px1, py1, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			//If in the 2nd position
 			else if ((abs(Printer::currentPosition[X_AXIS] - px1) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py1) < 1.0)) {
@@ -1732,7 +1732,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 3rd position
 				Printer::moveToReal(px2, py2, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - px2) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py2) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1740,7 +1740,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 4th position
 				Printer::moveToReal(px3, py3, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - px3) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - py3) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1748,7 +1748,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 5th position
 				Printer::moveToReal(p2x4, p2y4, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p2x4) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y4) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1756,7 +1756,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 6th position
 				Printer::moveToReal(p2x5, p2y5, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p2x5) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y5) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1764,7 +1764,7 @@ void Commands::processGCode(GCode *com)
 				//Go to 7th position
 				Printer::moveToReal(p2x6, p2y6, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else if ((abs(Printer::currentPosition[X_AXIS] - p2x6) < 1.0) && (abs(Printer::currentPosition[Y_AXIS] - p2y6) < 1.0)) {
 				//Move to safe distance above the bed
@@ -1772,7 +1772,7 @@ void Commands::processGCode(GCode *com)
 				//Go to first position
 				Printer::moveToReal(px0, py0, IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 			}
 			else
 				Com::printWarningFLN("Not in a valid position!");
@@ -1793,7 +1793,7 @@ void Commands::processGCode(GCode *com)
 				Printer::distortion.set(com->X, com->Y, com->Z);
 			}
 			else {
-				Com::printErrorFLN(PSTR("You need to define X, Y and Z to set a point!"));
+				Com::printErrorFLN("You need to define X, Y and Z to set a point!");
 			}
 		}
 		else { // G33
@@ -1943,12 +1943,12 @@ void Commands::processGCode(GCode *com)
     case 90: // G90
         Printer::relativeCoordinateMode = false;
         if(com->internalCommand)
-            Com::printInfoFLN(PSTR("Absolute positioning"));
+            Com::printInfoFLN("Absolute positioning");
         break;
     case 91: // G91
         Printer::relativeCoordinateMode = true;
         if(com->internalCommand)
-            Com::printInfoFLN(PSTR("Relative positioning"));
+            Com::printInfoFLN("Relative positioning");
         break;
     case 92: // G92
     {
@@ -1976,18 +1976,18 @@ void Commands::processGCode(GCode *com)
         float currentZmm = Printer::currentPosition[Z_AXIS];
         if (currentZmm/Printer::zLength > 0.1)
         {
-            Com::printErrorFLN(PSTR("Calibration code is limited to bottom 10% of Z height"));
+            Com::printErrorFLN("Calibration code is limited to bottom 10% of Z height");
             break;
         }
         if (com->hasR())
         {
             if (com->hasX() || com->hasY() || com->hasZ())
-                Com::printErrorFLN(PSTR("Cannot set radius and floor at same time."));
+                Com::printErrorFLN("Cannot set radius and floor at same time.");
             else if (com->R != 0)
             {
                 //add r to radius
                 if (abs(com->R) <= 10) EEPROM::incrementRodRadius(com->R);
-                else Com::printErrorFLN(PSTR("Calibration movement is limited to 10mm."));
+                else Com::printErrorFLN("Calibration movement is limited to 10mm.");
             }
             else
             {
@@ -2028,7 +2028,7 @@ void Commands::processGCode(GCode *com)
                     }
                 }
                 else
-                    Com::printErrorFLN(PSTR("First move to touch at x,y=0,0 to auto-set radius."));
+                    Com::printErrorFLN("First move to touch at x,y=0,0 to auto-set radius.");
             }
         }
         else
@@ -2053,7 +2053,7 @@ void Commands::processGCode(GCode *com)
                 else tooBig = true;
             }
             if (tooBig)
-                Com::printErrorFLN(PSTR("Calibration movement is limited to 10mm."));
+                Com::printErrorFLN("Calibration movement is limited to 10mm.");
         }
         // after adjusting zero, physical position is out of sync with memory position
         // this could cause jerky movement or push head into print surface.
@@ -2138,17 +2138,17 @@ void Commands::processGCode(GCode *com)
     }
     break;
     case 135: // G135
-        Com::printF(PSTR("CompDelta:"),Printer::currentDeltaPositionSteps[A_TOWER]);
+        Com::printF("CompDelta:",Printer::currentDeltaPositionSteps[A_TOWER]);
         Com::printF(Com::tComma,Printer::currentDeltaPositionSteps[B_TOWER]);
         Com::printFLN(Com::tComma,Printer::currentDeltaPositionSteps[C_TOWER]);
 #ifdef DEBUG_REAL_POSITION
-        Com::printF(PSTR("RealDelta:"),Printer::realDeltaPositionSteps[A_TOWER]);
+        Com::printF("RealDelta:",Printer::realDeltaPositionSteps[A_TOWER]);
         Com::printF(Com::tComma,Printer::realDeltaPositionSteps[B_TOWER]);
         Com::printFLN(Com::tComma,Printer::realDeltaPositionSteps[C_TOWER]);
 #endif
         Printer::updateCurrentPosition();
-        Com::printF(PSTR("PosFromSteps:"));
-        printCurrentPosition(PSTR("G134 "));
+        Com::printF("PosFromSteps:");
+        printCurrentPosition("G134 ");
         break;
 
 #if FEATURE_Z_PROBE
@@ -2212,7 +2212,7 @@ void Commands::processMCode(GCode *com)
             if(com->hasS())
                 LaserDriver::intensity = constrain(com->S,0,255);
             LaserDriver::laserOn = true;
-            Com::printFLN(PSTR("LaserOn:"),(int)LaserDriver::intensity);
+            Com::printFLN("LaserOn:",(int)LaserDriver::intensity);
         }
 #endif // defined
 #if defined(SUPPORT_CNC) && SUPPORT_CNC
@@ -2321,7 +2321,7 @@ void Commands::processMCode(GCode *com)
                         Com::printFLN(Com::tSpaceToSpace,(int)com->S);
                     }
                     else
-                        Com::printErrorFLN(PSTR("Illegal S value for M42"));
+                        Com::printErrorFLN("Illegal S value for M42");
                 }
                 else
                 {
@@ -2332,7 +2332,7 @@ void Commands::processMCode(GCode *com)
             }
             else
             {
-                Com::printErrorFLN(PSTR("Pin can not be set by M42, is in sensitive pins! "));
+                Com::printErrorFLN("Pin can not be set by M42, is in sensitive pins! ");
             }
         }
         break;
@@ -2602,7 +2602,7 @@ void Commands::processMCode(GCode *com)
         Printer::reportPrinterMode();
         break;
     case 114: // M114
-        printCurrentPosition(PSTR("M114 "));
+        printCurrentPosition("M114 ");
         break;
     case 117: // M117 message to lcd
         if(com->hasString())
@@ -2649,12 +2649,12 @@ void Commands::processMCode(GCode *com)
             changeFlowrateMultiply(Printer::extrudeMultiply);
         if(d == 0)
         {
-            Com::printFLN(PSTR("Disabled volumetric extrusion for extruder "),static_cast<int>(extruderId));
+            Com::printFLN("Disabled volumetric extrusion for extruder ",static_cast<int>(extruderId));
         }
         else
         {
-            Com::printF(PSTR("Set volumetric extrusion for extruder "),static_cast<int>(extruderId));
-            Com::printFLN(PSTR(" to "),d);
+            Com::printF("Set volumetric extrusion for extruder ",static_cast<int>(extruderId));
+            Com::printFLN(" to ",d);
         }
     }
     break;
@@ -2788,7 +2788,7 @@ void Commands::processMCode(GCode *com)
         EEPROM::storeDataIntoEEPROM(false);
         Com::printFLN(Com::tEEPROMUpdated);
 #endif
-        Commands::printCurrentPosition(PSTR("M251 "));
+        Commands::printCurrentPosition("M251 ");
         break;
 #endif
 #if FEATURE_DITTO_PRINTING
@@ -2802,14 +2802,14 @@ void Commands::processMCode(GCode *com)
     case 281: // Trigger watchdog
 #if FEATURE_WATCHDOG
     {
-        Com::printInfoFLN(PSTR("Triggering watchdog. If activated, the printer will reset."));
+        Com::printInfoFLN("Triggering watchdog. If activated, the printer will reset.");
         Printer::kill(false);
         HAL::delayMilliseconds(200); // write output, make sure heaters are off for safety
         InterruptProtectedBlock noInts;
         while(1) {} // Endless loop
     }
 #else
-    Com::printInfoFLN(PSTR("Watchdog feature was not compiled into this version!"));
+    Com::printInfoFLN("Watchdog feature was not compiled into this version!");
 #endif
     break;
     case 302: // M302 S<0 or 1> - allow cold extrusion. Without S parameter it will allow. S1 will disallow.
@@ -2980,51 +2980,51 @@ void Commands::processMCode(GCode *com)
         if(n < 0) n += PRINTLINE_CACHE_SIZE;
         noInts.unprotect();
         if(n != lc)
-            Com::printFLN(PSTR("Buffer corrupted"));
-        Com::printF(PSTR("Buf:"),lc);
-        Com::printF(PSTR(",LP:"),lp);
-        Com::printFLN(PSTR(",WP:"),wp);
+            Com::printFLN("Buffer corrupted");
+        Com::printF("Buf:",lc);
+        Com::printF(",LP:",lp);
+        Com::printFLN(",WP:",wp);
         if(PrintLine::cur == NULL)
         {
-            Com::printFLN(PSTR("No move"));
+            Com::printFLN("No move");
             if(PrintLine::linesCount > 0)
             {
                 PrintLine &cur = PrintLine::lines[PrintLine::linesPos];
-                Com::printF(PSTR("JFlags:"), (int)cur.joinFlags);
-                Com::printFLN(PSTR("Flags:"), (int)cur.flags);
+                Com::printF("JFlags:", (int)cur.joinFlags);
+                Com::printFLN("Flags:", (int)cur.flags);
                 if(cur.isWarmUp())
                 {
-                    Com::printFLN(PSTR("warmup:"), (int)cur.getWaitForXLinesFilled());
+                    Com::printFLN("warmup:", (int)cur.getWaitForXLinesFilled());
                 }
             }
         }
         else
         {
-            Com::printF(PSTR("Rem:"), PrintLine::cur->stepsRemaining);
-            Com::printFLN(PSTR("Int:"), Printer::interval);
+            Com::printF("Rem:", PrintLine::cur->stepsRemaining);
+            Com::printFLN("Int:", Printer::interval);
         }
     }
         break;
 #endif // DEBUG_QUEUE_MOVE
 #ifdef DEBUG_SEGMENT_LENGTH
     case 534: // M534
-        Com::printFLN(PSTR("Max. segment size:"), Printer::maxRealSegmentLength);
+        Com::printFLN("Max. segment size:", Printer::maxRealSegmentLength);
         if(com->hasS())
             Printer::maxRealSegmentLength = 0;
         break;
 #endif
         /*      case 535:  // M535
-                    Com::printF(PSTR("Last commanded position:"),Printer::lastCmdPos[X_AXIS]);
+                    Com::printF("Last commanded position:",Printer::lastCmdPos[X_AXIS]);
                     Com::printF(Com::tComma,Printer::lastCmdPos[Y_AXIS]);
                     Com::printFLN(Com::tComma,Printer::lastCmdPos[Z_AXIS]);
-                    Com::printF(PSTR("Current position:"),Printer::currentPosition[X_AXIS]);
+                    Com::printF("Current position:",Printer::currentPosition[X_AXIS]);
                     Com::printF(Com::tComma,Printer::currentPosition[Y_AXIS]);
                     Com::printFLN(Com::tComma,Printer::currentPosition[Z_AXIS]);
-                    Com::printF(PSTR("Position steps:"),Printer::currentPositionSteps[X_AXIS]);
+                    Com::printF("Position steps:",Printer::currentPositionSteps[X_AXIS]);
                     Com::printF(Com::tComma,Printer::currentPositionSteps[Y_AXIS]);
                     Com::printFLN(Com::tComma,Printer::currentPositionSteps[Z_AXIS]);
         #if NONLINEAR_SYSTEM
-              Com::printF(PSTR("Nonlin. position steps:"),Printer::currentDeltaPositionSteps[A_TOWER]);
+              Com::printF("Nonlin. position steps:",Printer::currentDeltaPositionSteps[A_TOWER]);
               Com::printF(Com::tComma,Printer::currentDeltaPositionSteps[B_TOWER]);
               Com::printFLN(Com::tComma,Printer::currentDeltaPositionSteps[C_TOWER]);
         #endif // NONLINEAR_SYSTEM
@@ -3072,7 +3072,7 @@ void Commands::processMCode(GCode *com)
 		if(com->S > 0 && com->S <2000)
 			uid.executeAction(com->S, true);
 		else
-			Com::printWarningFLN(PSTR("Not a valid action ID!"));
+			Com::printWarningFLN("Not a valid action ID!");
 	}
 	break;
 	
@@ -3093,7 +3093,7 @@ void Commands::processMCode(GCode *com)
 				HAL::eprSetFloat(EPR_Z_PROBE_Z_OFFSET, com->I);
 				Printer::updateCurrentPosition(true);
 				Printer::updateDerivedParameter();
-				printCurrentPosition(PSTR("M114 "));
+				printCurrentPosition("M114 ");
 				EEPROM::storeDataIntoEEPROM(false);
 			}
 			#endif
@@ -3102,10 +3102,10 @@ void Commands::processMCode(GCode *com)
 			Printer::homeAxis(true, true, true);
 			Printer::updateCurrentPosition(true);
 			Printer::updateDerivedParameter();
-			Commands::printCurrentPosition(PSTR("UI_ACTION_HOMEALL ")); 
+			Commands::printCurrentPosition("UI_ACTION_HOMEALL "); 
 			}
 		else
-			Com::printWarningFLN(PSTR("Not a valid bed coating adjustment!"));
+			Com::printWarningFLN("Not a valid bed coating adjustment!");
 	}
 	if(com->hasS())
 	{

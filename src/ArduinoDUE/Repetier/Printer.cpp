@@ -243,7 +243,7 @@ void Endstops::update() {
 }
 
 void Endstops::report() {
-    Com::printF(PSTR("endstops hit: "));
+    Com::printF("endstops hit: ");
 #if (X_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_X
         Com::printF(Com::tXMinColon);
         Com::printF(xMin() ? Com::tHSpace : Com::tLSpace);
@@ -281,7 +281,7 @@ void Endstops::report() {
 
 void Printer::setDebugLevel(uint8_t newLevel) {
 	debugLevel = newLevel;
-	Com::printFLN(PSTR("DebugLevel:"),(int)newLevel);
+	Com::printFLN("DebugLevel:",(int)newLevel);
 }
 void Printer::toggleEcho() {
 	setDebugLevel(debugLevel ^ 1);
@@ -311,7 +311,7 @@ bool Printer::isPositionAllowed(float x,float y,float z)
     if(!allowed)
     {
         Printer::updateCurrentPosition(true);
-        Commands::printCurrentPosition(PSTR("isPositionAllowed "));
+        Commands::printCurrentPosition("isPositionAllowed ");
     }
     return allowed;
 }
@@ -519,7 +519,7 @@ uint8_t Printer::moveTo(float x,float y,float z,float e,float f)
     // Disable software endstop or we get wrong distances when length < real length
     if (!PrintLine::queueDeltaMove(ALWAYS_CHECK_ENDSTOPS, true, false))
     {
-        Com::printWarningFLN(PSTR("moveTo / queueDeltaMove returns error"));
+        Com::printWarningFLN("moveTo / queueDeltaMove returns error");
         return 0;
     }
     updateCurrentPosition(false);
@@ -566,7 +566,7 @@ uint8_t Printer::moveToReal(float x, float y, float z, float e, float f,bool pat
 
     if (!PrintLine::queueDeltaMove(ALWAYS_CHECK_ENDSTOPS, pathOptimize, true))
     {
-        Com::printWarningFLN(PSTR("moveToReal / queueDeltaMove returns error"));
+        Com::printWarningFLN("moveToReal / queueDeltaMove returns error");
         SHOWM(x);
         SHOWM(y);
         SHOWM(z);
@@ -1049,7 +1049,7 @@ void Printer::setup()
     }
     currentPosition[X_AXIS] = currentPosition[Y_AXIS]= currentPosition[Z_AXIS] =  0.0;
 //setAutolevelActive(false); // fixme delete me
-    //Commands::printCurrentPosition(PSTR("Printer::setup 0 "));
+    //Commands::printCurrentPosition("Printer::setup 0 ");
 #if DISTORTION_CORRECTION
     distortion.init();
 #endif // DISTORTION_CORRECTION
@@ -1065,7 +1065,7 @@ void Printer::setup()
     homeAxis(true,true,true);
 #endif
     //setAutoretract(EEPROM_BYTE(AUTORETRACT_ENABLED));
-    Commands::printCurrentPosition(PSTR("Printer::setup "));
+    Commands::printCurrentPosition("Printer::setup ");
     Extruder::selectExtruderById(0);
 #if FEATURE_WATCHDOG
 	//Avoid watchdog bootloop by disabling this
@@ -1097,7 +1097,7 @@ if (EEPROM::getBedLED()>1)
 #endif
 #if EEPROM_MODE != 0 && UI_DISPLAY_TYPE != NO_DISPLAY
     if(EEPROM::getStoredLanguage() == 254) {
-            Com::printFLN(PSTR("Needs language selection"));
+            Com::printFLN("Needs language selection");
         uid.showLanguageSelectionWizard();
     }
 #endif // EEPROM_MODE
@@ -1166,7 +1166,7 @@ void Printer::homeXAxis()
     destinationSteps[X_AXIS] = 0;
     if (!PrintLine::queueDeltaMove(true,false,false))
     {
-        Com::printWarningFLN(PSTR("homeXAxis / queueDeltaMove returns error"));
+        Com::printWarningFLN("homeXAxis / queueDeltaMove returns error");
     }
 }
 void Printer::homeYAxis()
@@ -1174,7 +1174,7 @@ void Printer::homeYAxis()
     Printer::destinationSteps[Y_AXIS] = 0;
     if (!PrintLine::queueDeltaMove(true,false,false))
     {
-        Com::printWarningFLN(PSTR("homeYAxis / queueDeltaMove returns error"));
+        Com::printWarningFLN("homeYAxis / queueDeltaMove returns error");
     }
 }
 void Printer::homeZAxis() // Delta z homing
@@ -1203,7 +1203,7 @@ void Printer::homeZAxis() // Delta z homing
 	// Check if homing failed.  If so, request pause!
 	if (!homingSuccess) {
 		setHomed(false); // Clear the homed flag
-		Com::printFLN(PSTR("Homing failed!"));
+		Com::printFLN("Homing failed!");
 	}
 	Commands::checkForPeriodicalActions(true);
 
@@ -1255,7 +1255,7 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     if (!(X_MAX_PIN > -1 && Y_MAX_PIN > -1 && Z_MAX_PIN > -1
             && MAX_HARDWARE_ENDSTOP_X && MAX_HARDWARE_ENDSTOP_Y && MAX_HARDWARE_ENDSTOP_Z))
     {
-        Com::printErrorFLN(PSTR("Hardware setup inconsistent. Delta cannot home wihtout max endstops."));
+        Com::printErrorFLN("Hardware setup inconsistent. Delta cannot home wihtout max endstops.");
     }
     // The delta has to have home capability to zero and set position,
     // so the redundant check is only an opportunity to
@@ -1267,7 +1267,7 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     moveToReal(0,0,Printer::zLength,IGNORE_COORDINATE,homingFeedrate[Z_AXIS]); // Move to designed coordinates including translation
     updateCurrentPosition(true);
     UI_CLEAR_STATUS
-    Commands::printCurrentPosition(PSTR("homeAxis "));
+    Commands::printCurrentPosition("homeAxis ");
     setAutolevelActive(autoLevel);
 #if BED_LEDS
 		if (Printer::ledVal > 1) Light.ShowTemps();
@@ -1351,83 +1351,83 @@ void Printer::setCaseLight(bool on) {
 void Printer::reportCaseLightStatus() {
 #if CASE_LIGHTS_PIN > -1
     if(READ(CASE_LIGHTS_PIN))
-        Com::printInfoFLN(PSTR("Case lights on"));
+        Com::printInfoFLN("Case lights on");
     else
-        Com::printInfoFLN(PSTR("Case lights off"));
+        Com::printInfoFLN("Case lights off");
 #else
-    Com::printInfoFLN(PSTR("No case lights"));
+    Com::printInfoFLN("No case lights");
 #endif
 }
 
 #define START_EXTRUDER_CONFIG(i)     Com::printF(Com::tConfig);Com::printF(Com::tExtrDot,i+1);Com::print(':');
 void Printer::showConfiguration() {
-    Com::config(PSTR("Baudrate:"),baudrate);
+    Com::config("Baudrate:",baudrate);
 #ifndef EXTERNALSERIAL
-    Com::config(PSTR("InputBuffer:"),SERIAL_BUFFER_SIZE - 1);
+    Com::config("InputBuffer:",SERIAL_BUFFER_SIZE - 1);
 #endif
-    Com::config(PSTR("NumExtruder:"),NUM_EXTRUDER);
-    Com::config(PSTR("MixingExtruder:"),MIXING_EXTRUDER);
-    Com::config(PSTR("HeatedBed:"),HAVE_HEATED_BED);
-    Com::config(PSTR("SDCard:"),SDSUPPORT);
-    Com::config(PSTR("Fan:"),FAN_PIN > -1 && FEATURE_FAN_CONTROL);
+    Com::config("NumExtruder:",NUM_EXTRUDER);
+    Com::config("MixingExtruder:",MIXING_EXTRUDER);
+    Com::config("HeatedBed:",HAVE_HEATED_BED);
+    Com::config("SDCard:",SDSUPPORT);
+    Com::config("Fan:",FAN_PIN > -1 && FEATURE_FAN_CONTROL);
 #if FEATURE_FAN2_CONTROL && defined(FAN2_PIN) && FAN2_PIN > -1	
-    Com::config(PSTR("Fan2:1"));
+    Com::config("Fan2:1");
 #else
-    Com::config(PSTR("Fan2:0"));
+    Com::config("Fan2:0");
 #endif	
-    Com::config(PSTR("LCD:"), true);
-    Com::config(PSTR("SoftwarePowerSwitch:"),PS_ON_PIN > -1);
-    Com::config(PSTR("XHomeDir:"),X_HOME_DIR);
-    Com::config(PSTR("YHomeDir:"),Y_HOME_DIR);
-    Com::config(PSTR("ZHomeDir:"),Z_HOME_DIR);
-    Com::config(PSTR("SupportG10G11:"),FEATURE_RETRACTION);
-    Com::config(PSTR("SupportLocalFilamentchange:"),FEATURE_RETRACTION);
-    Com::config(PSTR("CaseLights:"),CASE_LIGHTS_PIN > -1);
-    Com::config(PSTR("ZProbe:"),FEATURE_Z_PROBE);
-    Com::config(PSTR("Autolevel:"),FEATURE_AUTOLEVEL);
-    Com::config(PSTR("EEPROM:"),EEPROM_MODE != 0);
-    Com::config(PSTR("PrintlineCache:"), PRINTLINE_CACHE_SIZE);
-    Com::config(PSTR("JerkXY:"),maxJerk);
+    Com::config("LCD:", true);
+    Com::config("SoftwarePowerSwitch:",PS_ON_PIN > -1);
+    Com::config("XHomeDir:",X_HOME_DIR);
+    Com::config("YHomeDir:",Y_HOME_DIR);
+    Com::config("ZHomeDir:",Z_HOME_DIR);
+    Com::config("SupportG10G11:",FEATURE_RETRACTION);
+    Com::config("SupportLocalFilamentchange:",FEATURE_RETRACTION);
+    Com::config("CaseLights:",CASE_LIGHTS_PIN > -1);
+    Com::config("ZProbe:",FEATURE_Z_PROBE);
+    Com::config("Autolevel:",FEATURE_AUTOLEVEL);
+    Com::config("EEPROM:",EEPROM_MODE != 0);
+    Com::config("PrintlineCache:", PRINTLINE_CACHE_SIZE);
+    Com::config("JerkXY:",maxJerk);
 #if FEATURE_RETRACTION
-    Com::config(PSTR("RetractionLength:"),EEPROM_FLOAT(RETRACTION_LENGTH));
-    Com::config(PSTR("RetractionLongLength:"),EEPROM_FLOAT(RETRACTION_LONG_LENGTH));
-    Com::config(PSTR("RetractionSpeed:"),EEPROM_FLOAT(RETRACTION_SPEED));
-    Com::config(PSTR("RetractionZLift:"),EEPROM_FLOAT(RETRACTION_Z_LIFT));
-    Com::config(PSTR("RetractionUndoExtraLength:"),EEPROM_FLOAT(RETRACTION_UNDO_EXTRA_LENGTH));
-    Com::config(PSTR("RetractionUndoExtraLongLength:"),EEPROM_FLOAT(RETRACTION_UNDO_EXTRA_LONG_LENGTH));
-    Com::config(PSTR("RetractionUndoSpeed:"),EEPROM_FLOAT(RETRACTION_UNDO_SPEED));
+    Com::config("RetractionLength:",EEPROM_FLOAT(RETRACTION_LENGTH));
+    Com::config("RetractionLongLength:",EEPROM_FLOAT(RETRACTION_LONG_LENGTH));
+    Com::config("RetractionSpeed:",EEPROM_FLOAT(RETRACTION_SPEED));
+    Com::config("RetractionZLift:",EEPROM_FLOAT(RETRACTION_Z_LIFT));
+    Com::config("RetractionUndoExtraLength:",EEPROM_FLOAT(RETRACTION_UNDO_EXTRA_LENGTH));
+    Com::config("RetractionUndoExtraLongLength:",EEPROM_FLOAT(RETRACTION_UNDO_EXTRA_LONG_LENGTH));
+    Com::config("RetractionUndoSpeed:",EEPROM_FLOAT(RETRACTION_UNDO_SPEED));
 #endif // FEATURE_RETRACTION
-    Com::config(PSTR("XMin:"),xMin);
-    Com::config(PSTR("YMin:"),yMin);
-    Com::config(PSTR("ZMin:"),zMin);
-    Com::config(PSTR("XMax:"),xMin + xLength);
-    Com::config(PSTR("YMax:"),yMin + yLength);
-    Com::config(PSTR("ZMax:"),zMin + zLength);
-    Com::config(PSTR("XSize:"), xLength);
-    Com::config(PSTR("YSize:"), yLength);
-	Com::config(PSTR("ZSize:"), zLength);
-	Com::config(PSTR("OffsetX:"), offsetX);
-	Com::config(PSTR("OffsetY:"), offsetY);
-	Com::config(PSTR("OffsetZ:"), offsetZ);
-    Com::config(PSTR("XPrintAccel:"), maxAccelerationMMPerSquareSecond[X_AXIS]);
-    Com::config(PSTR("YPrintAccel:"), maxAccelerationMMPerSquareSecond[Y_AXIS]);
-    Com::config(PSTR("ZPrintAccel:"), maxAccelerationMMPerSquareSecond[Z_AXIS]);
-    Com::config(PSTR("XTravelAccel:"), maxTravelAccelerationMMPerSquareSecond[X_AXIS]);
-    Com::config(PSTR("YTravelAccel:"), maxTravelAccelerationMMPerSquareSecond[Y_AXIS]);
-    Com::config(PSTR("ZTravelAccel:"), maxTravelAccelerationMMPerSquareSecond[Z_AXIS]);
-    Com::config(PSTR("PrinterType:Delta"));
-    Com::config(PSTR("MaxBedTemp:"), HEATED_BED_MAX_TEMP);
+    Com::config("XMin:",xMin);
+    Com::config("YMin:",yMin);
+    Com::config("ZMin:",zMin);
+    Com::config("XMax:",xMin + xLength);
+    Com::config("YMax:",yMin + yLength);
+    Com::config("ZMax:",zMin + zLength);
+    Com::config("XSize:", xLength);
+    Com::config("YSize:", yLength);
+	Com::config("ZSize:", zLength);
+	Com::config("OffsetX:", offsetX);
+	Com::config("OffsetY:", offsetY);
+	Com::config("OffsetZ:", offsetZ);
+    Com::config("XPrintAccel:", maxAccelerationMMPerSquareSecond[X_AXIS]);
+    Com::config("YPrintAccel:", maxAccelerationMMPerSquareSecond[Y_AXIS]);
+    Com::config("ZPrintAccel:", maxAccelerationMMPerSquareSecond[Z_AXIS]);
+    Com::config("XTravelAccel:", maxTravelAccelerationMMPerSquareSecond[X_AXIS]);
+    Com::config("YTravelAccel:", maxTravelAccelerationMMPerSquareSecond[Y_AXIS]);
+    Com::config("ZTravelAccel:", maxTravelAccelerationMMPerSquareSecond[Z_AXIS]);
+    Com::config("PrinterType:Delta");
+    Com::config("MaxBedTemp:", HEATED_BED_MAX_TEMP);
     for(fast8_t i = 0; i < NUM_EXTRUDER; i++) {
         START_EXTRUDER_CONFIG(i)
-        Com::printFLN(PSTR("Jerk:"),extruder[i].maxStartFeedrate);
+        Com::printFLN("Jerk:",extruder[i].maxStartFeedrate);
         START_EXTRUDER_CONFIG(i)
-        Com::printFLN(PSTR("MaxSpeed:"),extruder[i].maxFeedrate);
+        Com::printFLN("MaxSpeed:",extruder[i].maxFeedrate);
         START_EXTRUDER_CONFIG(i)
-        Com::printFLN(PSTR("Acceleration:"),extruder[i].maxAcceleration);
+        Com::printFLN("Acceleration:",extruder[i].maxAcceleration);
         START_EXTRUDER_CONFIG(i)
-        Com::printFLN(PSTR("Diameter:"),extruder[i].diameter);
+        Com::printFLN("Diameter:",extruder[i].diameter);
         START_EXTRUDER_CONFIG(i)
-        Com::printFLN(PSTR("MaxTemp:"),MAXTEMP);
+        Com::printFLN("MaxTemp:",MAXTEMP);
     }
 }
 
@@ -1451,7 +1451,7 @@ void Distortion::init() {
 #endif
 #if EEPROM_MODE != 0
     enabled = EEPROM::isZCorrectionEnabled();
-    Com::printFLN(PSTR("zDistortionCorrection:"),(int)enabled);
+    Com::printFLN("zDistortionCorrection:",(int)enabled);
 #else
     enabled = false;
 #endif
@@ -1492,7 +1492,7 @@ void Distortion::reportStatus() {
 
 void Distortion::resetCorrection(void)
 {
-    Com::printInfoFLN(PSTR("Resetting Z correction"));
+    Com::printInfoFLN("Resetting Z correction");
     for(int i = 0; i < DISTORTION_CORRECTION_POINTS * DISTORTION_CORRECTION_POINTS; i++)
         setMatrix(0, i);
 }
@@ -1555,8 +1555,8 @@ void Distortion::measure(void)
     fast8_t ix, iy;
     float z = EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() > 0 ? EEPROM::zProbeHeight() : 0);
     disable(false);
-    //Com::printFLN(PSTR("radiusCorr:"), radiusCorrectionSteps);
-    //Com::printFLN(PSTR("steps:"), step);
+    //Com::printFLN("radiusCorr:", radiusCorrectionSteps);
+    //Com::printFLN("steps:", step);
 	int32_t zCorrection = 0;
 #if Z_HOME_DIR < 0
 	zCorrection += Printer::zBedOffset * Printer::axisStepsPerMM[Z_AXIS];
@@ -1572,10 +1572,10 @@ void Distortion::measure(void)
 #endif
             float mtx = Printer::invAxisStepsPerMM[X_AXIS] * (ix * step - radiusCorrectionSteps);
             float mty = Printer::invAxisStepsPerMM[Y_AXIS] * (iy * step - radiusCorrectionSteps);
-            //Com::printF(PSTR("mx "),mtx);
-            //Com::printF(PSTR("my "),mty);
-            //Com::printF(PSTR("ix "),(int)ix);
-            //Com::printFLN(PSTR("iy "),(int)iy);
+            //Com::printF("mx ",mtx);
+            //Com::printF("my ",mty);
+            //Com::printF("ix ",(int)ix);
+            //Com::printFLN("iy ",(int)iy);
             Printer::moveToReal(mtx, mty, z, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 #if DISTORTION_EXTRAPOLATE_CORNERS
             setMatrix(floor(0.5f + Printer::axisStepsPerMM[Z_AXIS] * (z -
@@ -1606,11 +1606,11 @@ void Distortion::measure(void)
     EEPROM::storeDataIntoEEPROM();
 #endif
 // print matrix
-    Com::printInfoFLN(PSTR("Distortion correction matrix:"));
+    Com::printInfoFLN("Distortion correction matrix:");
     for (iy = DISTORTION_CORRECTION_POINTS - 1; iy >=0 ; iy--)
     {
         for(ix = 0; ix < DISTORTION_CORRECTION_POINTS; ix++)
-            Com::printF(ix ? PSTR(", ") : PSTR(""), getMatrix(matrixIndex(ix,iy)));
+            Com::printF(ix ? ", " : "", getMatrix(matrixIndex(ix,iy)));
         Com::println();
     }
 	showMatrix();
@@ -1622,7 +1622,7 @@ int32_t Distortion::correct(int32_t x, int32_t y, int32_t z) const
 {
     if (!enabled || z > zEnd || Printer::isZProbingActive()) return 0.0f;
     if(false && z == 0) {
-  Com::printF(PSTR("correcting ("), x); Com::printF(PSTR(","), y);
+  Com::printF("correcting (", x); Com::printF(",", y);
     }
     x += radiusCorrectionSteps;
     y += radiusCorrectionSteps;
@@ -1651,25 +1651,25 @@ int32_t Distortion::correct(int32_t x, int32_t y, int32_t z) const
     int32_t zx2 = m21 + ((m22 - m21) * fx) / step;
     int32_t correction_z = zx1 + ((zx2 - zx1) * fy) / step;
     if(false && z == 0) {
-      Com::printF(PSTR(") by "), correction_z);
-      Com::printF(PSTR(" ix= "), fxFloor); Com::printF(PSTR(" fx= "), fx);
-      Com::printF(PSTR(" iy= "), fyFloor); Com::printFLN(PSTR(" fy= "), fy);
+      Com::printF(") by ", correction_z);
+      Com::printF(" ix= ", fxFloor); Com::printF(" fx= ", fx);
+      Com::printF(" iy= ", fyFloor); Com::printFLN(" fy= ", fy);
     }
     if (z > zStart && z > 0)
         correction_z *= (zEnd - z) / (zEnd - zStart);
    /* if(correction_z > 20 || correction_z < -20) {
-            Com::printFLN(PSTR("Corr. error too big:"),correction_z);
-        Com::printF(PSTR("fxf"),(int)fxFloor);
-        Com::printF(PSTR(" fyf"),(int)fyFloor);
-        Com::printF(PSTR(" fx"),fx);
-        Com::printF(PSTR(" fy"),fy);
-        Com::printF(PSTR(" x"),x);
-        Com::printFLN(PSTR(" y"),y);
-        Com::printF(PSTR(" m11:"),m11);
-        Com::printF(PSTR(" m12:"),m12);
-        Com::printF(PSTR(" m21:"),m21);
-        Com::printF(PSTR(" m22:"),m22);
-        Com::printFLN(PSTR(" step:"),step);
+            Com::printFLN("Corr. error too big:",correction_z);
+        Com::printF("fxf",(int)fxFloor);
+        Com::printF(" fyf",(int)fyFloor);
+        Com::printF(" fx",fx);
+        Com::printF(" fy",fy);
+        Com::printF(" x",x);
+        Com::printFLN(" y",y);
+        Com::printF(" m11:",m11);
+        Com::printF(" m12:",m12);
+        Com::printF(" m21:",m21);
+        Com::printF(" m22:",m22);
+        Com::printFLN(" step:",step);
         correction_z = 0;
     }*/
     return correction_z;
@@ -1693,9 +1693,9 @@ void Distortion::showMatrix() {
 			float y = (-radiusCorrectionSteps + iy * step) * Printer::invAxisStepsPerMM[Z_AXIS];
 			int32_t idx = matrixIndex(ix, iy);
 			float z = getMatrix(idx) * Printer::invAxisStepsPerMM[Z_AXIS];
-			Com::printF(PSTR("Distortion correction at px:"),x,2);
-			Com::printF(PSTR(" py:"),y,2);
-			Com::printFLN(PSTR(" zCoorection:"),z,3);
+			Com::printF("Distortion correction at px:",x,2);
+			Com::printF(" py:",y,2);
+			Com::printFLN(" zCoorection:",z,3);
 		}
 	}
 }
