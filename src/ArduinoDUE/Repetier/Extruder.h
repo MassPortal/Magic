@@ -184,8 +184,8 @@ public:
     int virtualWeights[VIRTUAL_EXTRUDER]; // Virtual extruder weights
 #endif // MIXING_EXTRUDER > 0
     TemperatureController tempControl;
-    const char * PROGMEM selectCommands;
-    const char * PROGMEM deselectCommands;
+    const char * selectCommands;
+    const char * deselectCommands;
     uint8_t coolerSpeed; ///< Speed to use when enabled
     uint8_t coolerPWM; ///< current PWM setting
     float diameter;

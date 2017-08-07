@@ -41,7 +41,7 @@ extern int16_t read_max31855(uint8_t ss_pin);
 #endif
 
 #if ANALOG_INPUTS > 0
-const uint8 osAnalogInputChannels[] PROGMEM = ANALOG_INPUT_CHANNELS;
+const uint8 osAnalogInputChannels[] = ANALOG_INPUT_CHANNELS;
 volatile uint osAnalogInputValues[ANALOG_INPUTS];
 #endif
 
@@ -1283,14 +1283,14 @@ void Extruder::disableAllExtruderMotors()
 }
 #define NUMTEMPS_1 28
 // Epcos B57560G0107F000
-const short temptable_1[NUMTEMPS_1][2] PROGMEM =
+const short temptable_1[NUMTEMPS_1][2] =
 {
     {0,4000},{92,2400},{105,2320},{121,2240},{140,2160},{162,2080},{189,2000},{222,1920},{261,1840},{308,1760},
     {365,1680},{434,1600},{519,1520},{621,1440},{744,1360},{891,1280},{1067,1200},{1272,1120},
     {1771,960},{2357,800},{2943,640},{3429,480},{3760,320},{3869,240},{3912,200},{3948,160},{4077,-160},{4094,-440}
 };
 #define NUMTEMPS_2 21
-const short temptable_2[NUMTEMPS_2][2] PROGMEM =
+const short temptable_2[NUMTEMPS_2][2] =
 {
     {1*4, 848*8},{54*4, 275*8}, {107*4, 228*8}, {160*4, 202*8},{213*4, 185*8}, {266*4, 171*8}, {319*4, 160*8}, {372*4, 150*8},
     {425*4, 141*8}, {478*4, 133*8},{531*4, 125*8},{584*4, 118*8},{637*4, 110*8},{690*4, 103*8},{743*4, 95*8},{796*4, 86*8},
@@ -1298,7 +1298,7 @@ const short temptable_2[NUMTEMPS_2][2] PROGMEM =
 };
 
 #define NUMTEMPS_3 28
-const short temptable_3[NUMTEMPS_3][2] PROGMEM =
+const short temptable_3[NUMTEMPS_3][2] =
 {
     {1*4,864*8},{21*4,300*8},{25*4,290*8},{29*4,280*8},{33*4,270*8},{39*4,260*8},{46*4,250*8},{54*4,240*8},{64*4,230*8},{75*4,220*8},
     {90*4,210*8},{107*4,200*8},{128*4,190*8},{154*4,180*8},{184*4,170*8},{221*4,160*8},{265*4,150*8},{316*4,140*8},{375*4,130*8},
@@ -1306,7 +1306,7 @@ const short temptable_3[NUMTEMPS_3][2] PROGMEM =
 };
 
 #define NUMTEMPS_4 20
-const short temptable_4[NUMTEMPS_4][2] PROGMEM =
+const short temptable_4[NUMTEMPS_4][2] =
 {
     {1*4, 430*8},{54*4, 137*8},{107*4, 107*8},{160*4, 91*8},{213*4, 80*8},{266*4, 71*8},{319*4, 64*8},{372*4, 57*8},{425*4, 51*8},
     {478*4, 46*8},{531*4, 41*8},{584*4, 35*8},{637*4, 30*8},{690*4, 25*8},{743*4, 20*8},{796*4, 14*8},{849*4, 7*8},{902*4, 0*8},
@@ -1314,14 +1314,14 @@ const short temptable_4[NUMTEMPS_4][2] PROGMEM =
 };
 // ATC 104GT
 #define NUMTEMPS_8 34
-const short temptable_8[NUMTEMPS_8][2] PROGMEM =
+const short temptable_8[NUMTEMPS_8][2] =
 {
     {0,8000},{69,2400},{79,2320},{92,2240},{107,2160},{125,2080},{146,2000},{172,1920},{204,1840},{222,1760},{291,1680},{350,1600},
     {422,1520},{511,1440},{621,1360},{755,1280},{918,1200},{1114,1120},{1344,1040},{1608,960},{1902,880},{2216,800},{2539,720},
     {2851,640},{3137,560},{3385,480},{3588,400},{3746,320},{3863,240},{3945,160},{4002,80},{4038,0},{4061,-80},{4075,-160}
 };
 #define NUMTEMPS_9 67 // 100k Honeywell 135-104LAG-J01
-const short temptable_9[NUMTEMPS_9][2] PROGMEM =
+const short temptable_9[NUMTEMPS_9][2] =
 {
     {1*4, 941*8},{19*4, 362*8},{37*4, 299*8}, //top rating 300C
     {55*4, 266*8},{73*4, 245*8},{91*4, 229*8},{109*4, 216*8},{127*4, 206*8},{145*4, 197*8},{163*4, 190*8},{181*4, 183*8},{199*4, 177*8},
@@ -1333,14 +1333,14 @@ const short temptable_9[NUMTEMPS_9][2] PROGMEM =
     {955*4, 35*8},{973*4, 27*8},{991*4, 17*8},{1009*4, 1*8},{1023*4, 0}  //to allow internal 0 degrees C
 };
 #define NUMTEMPS_10 20 // 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
-const short temptable_10[NUMTEMPS_10][2] PROGMEM =
+const short temptable_10[NUMTEMPS_10][2] =
 {
     {1*4, 704*8},{54*4, 216*8},{107*4, 175*8},{160*4, 152*8},{213*4, 137*8},{266*4, 125*8},{319*4, 115*8},{372*4, 106*8},{425*4, 99*8},
     {478*4, 91*8},{531*4, 85*8},{584*4, 78*8},{637*4, 71*8},{690*4, 65*8},{743*4, 58*8},{796*4, 50*8},{849*4, 42*8},{902*4, 31*8},
     {955*4, 17*8},{1008*4, 0}
 };
 #define NUMTEMPS_11 31 // 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
-const short temptable_11[NUMTEMPS_11][2] PROGMEM =
+const short temptable_11[NUMTEMPS_11][2] =
 {
     {1*4, 936*8},{36*4, 300*8},{71*4, 246*8},{106*4, 218*8},{141*4, 199*8},{176*4, 185*8},{211*4, 173*8},{246*4, 163*8},{281*4, 155*8},
     {316*4, 147*8},{351*4, 140*8},{386*4, 134*8},{421*4, 128*8},{456*4, 122*8},{491*4, 117*8},{526*4, 112*8},{561*4, 107*8},{596*4, 102*8},
@@ -1348,28 +1348,28 @@ const short temptable_11[NUMTEMPS_11][2] PROGMEM =
     {946*4, 38*8},{981*4, 23*8},{1005*4, 5*8},{1016*4, 0}
 };
 #define NUMTEMPS_12 31 // 100k RS thermistor 198-961 (4.7k pullup)
-const short temptable_12[NUMTEMPS_12][2] PROGMEM =
+const short temptable_12[NUMTEMPS_12][2] =
 {
     {1*4, 929*8},{36*4, 299*8},{71*4, 246*8},{106*4, 217*8},{141*4, 198*8},{176*4, 184*8},{211*4, 173*8},{246*4, 163*8},{281*4, 154*8},{316*4, 147*8},
     {351*4, 140*8},{386*4, 134*8},{421*4, 128*8},{456*4, 122*8},{491*4, 117*8},{526*4, 112*8},{561*4, 107*8},{596*4, 102*8},{631*4, 97*8},{666*4, 91*8},
     {701*4, 86*8},{736*4, 81*8},{771*4, 76*8},{806*4, 70*8},{841*4, 63*8},{876*4, 56*8},{911*4, 48*8},{946*4, 38*8},{981*4, 23*8},{1005*4, 5*8},{1016*4, 0*8}
 };
 #define NUMTEMPS_13 19
-const short temptable_13[NUMTEMPS_13][2] PROGMEM =
+const short temptable_13[NUMTEMPS_13][2] =
 {
     {0,0},{908,8},{942,10*8},{982,20*8},{1015,8*30},{1048,8*40},{1080,8*50},{1113,8*60},{1146,8*70},{1178,8*80},{1211,8*90},{1276,8*110},{1318,8*120}
     ,{1670,8*230},{2455,8*500},{3445,8*900},{3666,8*1000},{3871,8*1100},{4095,8*2000}
 };
 #if NUM_TEMPS_USERTHERMISTOR0 > 0
-const short temptable_5[NUM_TEMPS_USERTHERMISTOR0][2] PROGMEM = USER_THERMISTORTABLE0 ;
+const short temptable_5[NUM_TEMPS_USERTHERMISTOR0][2] = USER_THERMISTORTABLE0 ;
 #endif
 #if NUM_TEMPS_USERTHERMISTOR1 > 0
-const short temptable_6[NUM_TEMPS_USERTHERMISTOR1][2] PROGMEM = USER_THERMISTORTABLE1 ;
+const short temptable_6[NUM_TEMPS_USERTHERMISTOR1][2] = USER_THERMISTORTABLE1 ;
 #endif
 #if NUM_TEMPS_USERTHERMISTOR2 > 0
-const short temptable_7[NUM_TEMPS_USERTHERMISTOR2][2] PROGMEM = USER_THERMISTORTABLE2 ;
+const short temptable_7[NUM_TEMPS_USERTHERMISTOR2][2] = USER_THERMISTORTABLE2 ;
 #endif
-const short * const temptables[13] PROGMEM = {(short int *)&temptable_1[0][0],(short int *)&temptable_2[0][0],(short int *)&temptable_3[0][0],(short int *)&temptable_4[0][0]
+const short * const temptables[13] = {(short int *)&temptable_1[0][0],(short int *)&temptable_2[0][0],(short int *)&temptable_3[0][0],(short int *)&temptable_4[0][0]
 #if NUM_TEMPS_USERTHERMISTOR0 > 0
         ,(short int *)&temptable_5[0][0]
 #else
@@ -1392,7 +1392,7 @@ const short * const temptables[13] PROGMEM = {(short int *)&temptable_1[0][0],(s
         ,(short int *)&temptable_12[0][0]
         ,(short int *)&temptable_13[0][0]
                                              };
-const uint8_t temptables_num[13] PROGMEM = {NUMTEMPS_1,NUMTEMPS_2,NUMTEMPS_3,NUMTEMPS_4,NUM_TEMPS_USERTHERMISTOR0,NUM_TEMPS_USERTHERMISTOR1,NUM_TEMPS_USERTHERMISTOR2,NUMTEMPS_8,
+const uint8_t temptables_num[13] = {NUMTEMPS_1,NUMTEMPS_2,NUMTEMPS_3,NUMTEMPS_4,NUM_TEMPS_USERTHERMISTOR0,NUM_TEMPS_USERTHERMISTOR1,NUM_TEMPS_USERTHERMISTOR2,NUMTEMPS_8,
                                  NUMTEMPS_9,NUMTEMPS_10,NUMTEMPS_11,NUMTEMPS_12,NUMTEMPS_13
                                            };
 
@@ -2028,28 +2028,28 @@ void Extruder::retract(bool isRetract,bool isLong)
 Extruder *Extruder::current;
 
 #if NUM_EXTRUDER>0
-const char ext0_select_cmd[] PROGMEM = EXT0_SELECT_COMMANDS;
-const char ext0_deselect_cmd[] PROGMEM = EXT0_DESELECT_COMMANDS;
+const char ext0_select_cmd[] = EXT0_SELECT_COMMANDS;
+const char ext0_deselect_cmd[] = EXT0_DESELECT_COMMANDS;
 #endif
 #if NUM_EXTRUDER>1
-const char ext1_select_cmd[] PROGMEM = EXT1_SELECT_COMMANDS;
-const char ext1_deselect_cmd[] PROGMEM = EXT1_DESELECT_COMMANDS;
+const char ext1_select_cmd[] = EXT1_SELECT_COMMANDS;
+const char ext1_deselect_cmd[] = EXT1_DESELECT_COMMANDS;
 #endif
 #if NUM_EXTRUDER>2
-const char ext2_select_cmd[] PROGMEM = EXT2_SELECT_COMMANDS;
-const char ext2_deselect_cmd[] PROGMEM = EXT2_DESELECT_COMMANDS;
+const char ext2_select_cmd[] = EXT2_SELECT_COMMANDS;
+const char ext2_deselect_cmd[] = EXT2_DESELECT_COMMANDS;
 #endif
 #if NUM_EXTRUDER>3
-const char ext3_select_cmd[] PROGMEM = EXT3_SELECT_COMMANDS;
-const char ext3_deselect_cmd[] PROGMEM = EXT3_DESELECT_COMMANDS;
+const char ext3_select_cmd[] = EXT3_SELECT_COMMANDS;
+const char ext3_deselect_cmd[] = EXT3_DESELECT_COMMANDS;
 #endif
 #if NUM_EXTRUDER>4
-const char ext4_select_cmd[] PROGMEM = EXT4_SELECT_COMMANDS;
-const char ext4_deselect_cmd[] PROGMEM = EXT4_DESELECT_COMMANDS;
+const char ext4_select_cmd[] = EXT4_SELECT_COMMANDS;
+const char ext4_deselect_cmd[] = EXT4_DESELECT_COMMANDS;
 #endif
 #if NUM_EXTRUDER>5
-const char ext5_select_cmd[] PROGMEM = EXT5_SELECT_COMMANDS;
-const char ext5_deselect_cmd[] PROGMEM = EXT5_DESELECT_COMMANDS;
+const char ext5_select_cmd[] = EXT5_SELECT_COMMANDS;
+const char ext5_deselect_cmd[] = EXT5_DESELECT_COMMANDS;
 #endif
 
 #if NUM_EXTRUDER == 0

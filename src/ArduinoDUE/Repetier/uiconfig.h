@@ -331,7 +331,7 @@ Type 3: Show menu action. These actions have a _MENU_ in their name. If they are
                            UI_ACTION_HOME_Y,   UI_ACTION_MENU_YPOSFAST,  UI_ACTION_PREHEAT_ABS,     UI_ACTION_PREVIOUS,\
                            UI_ACTION_HOME_X,   UI_ACTION_MENU_XPOSFAST,  UI_ACTION_DISABLE_STEPPER, UI_ACTION_BACK}
 #ifdef UI_MATRIX_ACTIONS
-const int matrixActions[] PROGMEM = UI_MATRIX_ACTIONS;
+const int matrixActions[] = UI_MATRIX_ACTIONS;
 #endif
 
 void uiInitKeys() {

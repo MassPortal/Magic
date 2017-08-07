@@ -24,7 +24,7 @@
 #include "uiconfig.h"
 #include "ui.h"
 
-extern const int8_t encoder_table[16] PROGMEM ;
+extern const int8_t encoder_table[16];
 char shortFilename[LONG_FILENAME_LENGTH+1] = {0};
 #if FAN2_PIN>-1 && FAN3_PIN>-1 && FEATURE_VENTILATION
 uint8_t FAN_MAX = 255;
@@ -84,7 +84,7 @@ char displayCache[UI_ROWS][MAX_COLS+1];
 // ..... 0
 // ..... 0
 // ..... 0
-const uint8_t character_back[8] PROGMEM = {4,14,21,4,28,0,0,0};
+const uint8_t character_back[8] = {4,14,21,4,28,0,0,0};
 // Degrees sign - code 2
 // ..*.. 4
 // .*.*. 10
@@ -94,7 +94,7 @@ const uint8_t character_back[8] PROGMEM = {4,14,21,4,28,0,0,0};
 // ..... 0
 // ..... 0
 // ..... 0
-const uint8_t character_degree[8] PROGMEM = {4,10,4,0,0,0,0,0};
+const uint8_t character_degree[8] = {4,10,4,0,0,0,0,0};
 // selected - code 3
 // ..... 0
 // ***** 31
@@ -105,7 +105,7 @@ const uint8_t character_degree[8] PROGMEM = {4,10,4,0,0,0,0,0};
 // ***** 31
 // ..... 0
 // ..... 0
-const uint8_t character_selected[8] PROGMEM = {0,31,31,31,31,31,0,0};
+const uint8_t character_selected[8] = {0,31,31,31,31,31,0,0};
 // unselected - code 4
 // ..... 0
 // ***** 31
@@ -116,7 +116,7 @@ const uint8_t character_selected[8] PROGMEM = {0,31,31,31,31,31,0,0};
 // ***** 31
 // ..... 0
 // ..... 0
-const uint8_t character_unselected[8] PROGMEM = {0,31,17,17,17,31,0,0};
+const uint8_t character_unselected[8] = {0,31,17,17,17,31,0,0};
 // unselected - code 5
 // ..*.. 4
 // .*.*. 10
@@ -127,7 +127,7 @@ const uint8_t character_unselected[8] PROGMEM = {0,31,17,17,17,31,0,0};
 // ***** 31
 // ***** 31
 // .***. 14
-const uint8_t character_temperature[8] PROGMEM = {4,10,10,10,14,31,31,14};
+const uint8_t character_temperature[8] = {4,10,10,10,14,31,31,14};
 // unselected - code 6
 // ..... 0
 // ***.. 28
@@ -137,7 +137,7 @@ const uint8_t character_temperature[8] PROGMEM = {4,10,10,10,14,31,31,14};
 // ***** 31
 // ..... 0
 // ..... 0
-const uint8_t character_folder[8] PROGMEM = {0,28,31,17,17,31,0,0};
+const uint8_t character_folder[8] = {0,28,31,17,17,31,0,0};
 
 // printer ready - code 7
 // *...* 17
@@ -148,9 +148,9 @@ const uint8_t character_folder[8] PROGMEM = {0,28,31,17,17,31,0,0};
 // .*.*. 10
 // *...* 17
 // *...* 17
-const byte character_ready[8] PROGMEM = {17,10,4,17,4,10,17,17};
+const byte character_ready[8] = {17,10,4,17,4,10,17,17};
 
-const long baudrates[] PROGMEM = {9600,14400,19200,28800,38400,56000,57600,76800,111112,115200,128000,230400,250000,256000,
+const long baudrates[] = {9600,14400,19200,28800,38400,56000,57600,76800,111112,115200,128000,230400,250000,256000,
                                   460800,500000,921600,1000000,1500000,0
                                  };
 
@@ -206,8 +206,8 @@ const long baudrates[] PROGMEM = {9600,14400,19200,28800,38400,56000,57600,76800
 #define lcdPutChar(value) lcdWriteByte(value,1)
 #define lcdCommand(value) lcdWriteByte(value,0)
 
-static const uint8_t LCDLineOffsets[] PROGMEM = UI_LINE_OFFSETS;
-static const char versionString[] PROGMEM = UI_VERSION_STRING;
+static const uint8_t LCDLineOffsets[] = UI_LINE_OFFSETS;
+static const char versionString[] = UI_VERSION_STRING;
 
 String getFilePart(const char* filename, boolean extension) {
 	String fn = filename;
@@ -1005,7 +1005,7 @@ void UIDisplay::addLong(long value,int8_t digits)
     }
 }
 
-const float roundingTable[] PROGMEM = {0.5, 0.05, 0.005, 0.0005};
+const float roundingTable[] = {0.5, 0.05, 0.005, 0.0005};
 
 UI_STRING(ui_selected,UI_TEXT_SEL);
 UI_STRING(ui_unselected,UI_TEXT_NOSEL);
@@ -1339,7 +1339,7 @@ void UIDisplay::parse(const char *txt,bool ram)
             }
             if(c2 == 'e')
             {
-                if(errorMsg != 0) addStringP((char PROGMEM *)errorMsg);
+                if(errorMsg != 0) addStringP((char*)errorMsg);
                 break;
             }
             if(c2 == 'B')
@@ -1663,7 +1663,7 @@ void UIDisplay::setStatus(const char *txt,bool error)
         Printer::setUIErrorMessage(true);
 }
 
-const UIMenu * const ui_pages[UI_NUM_PAGES] PROGMEM = UI_PAGES;
+const UIMenu * const ui_pages[UI_NUM_PAGES] = UI_PAGES;
 uint16_t nFilesOnCard;
 void UIDisplay::updateSDFileCount()
 {
@@ -3960,21 +3960,21 @@ void UIDisplay::fastAction()
 
 #if defined(UI_REVERSE_ENCODER) && UI_REVERSE_ENCODER == 1
 #if UI_ENCODER_SPEED==0
-const int8_t encoder_table[16] PROGMEM = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0}; // Full speed
+const int8_t encoder_table[16] = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0}; // Full speed
 #elif UI_ENCODER_SPEED==1
-const int8_t encoder_table[16] PROGMEM = {0,0,1,0,0,0,0,-1,-1,0,0,0,0,1,0,0}; // Half speed
+const int8_t encoder_table[16] = {0,0,1,0,0,0,0,-1,-1,0,0,0,0,1,0,0}; // Half speed
 #else
-const int8_t encoder_table[16] PROGMEM = {0,0,0,0,0,0,0,0,0,0,0,1,0,0,-1,0}; // Quart speed
+const int8_t encoder_table[16] = {0,0,0,0,0,0,0,0,0,0,0,1,0,0,-1,0}; // Quart speed
 #endif
 #else
 #if UI_ENCODER_SPEED==0
-const int8_t encoder_table[16] PROGMEM = {0,1,-1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0}; // Full speed
+const int8_t encoder_table[16] = {0,1,-1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0}; // Full speed
 #elif UI_ENCODER_SPEED==1
-const int8_t encoder_table[16] PROGMEM = {0,0,-1,0,0,0,0,1,1,0,0,0,0,-1,0,0}; // Half speed
+const int8_t encoder_table[16] = {0,0,-1,0,0,0,0,1,1,0,0,0,0,-1,0,0}; // Half speed
 #else
-//const int8_t encoder_table[16] PROGMEM = {0,0,0,0,0,0,0,0,1,0,0,0,0,-1,0,0}; // Quart speed
-//const int8_t encoder_table[16] PROGMEM = {0,1,0,0,-1,0,0,0,0,0,0,0,0,0,0,0}; // Quart speed
-const int8_t encoder_table[16] PROGMEM = {0,0,0,0,0,0,0,0,0,0,0,-1,0,0,1,0}; // Quart speed
+//const int8_t encoder_table[16] = {0,0,0,0,0,0,0,0,1,0,0,0,0,-1,0,0}; // Quart speed
+//const int8_t encoder_table[16] = {0,1,0,0,-1,0,0,0,0,0,0,0,0,0,0,0}; // Quart speed
+const int8_t encoder_table[16] = {0,0,0,0,0,0,0,0,0,0,0,-1,0,0,1,0}; // Quart speed
 #endif
 #endif
 

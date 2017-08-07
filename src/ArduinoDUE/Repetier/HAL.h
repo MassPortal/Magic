@@ -54,8 +54,6 @@
 #define INLINE __attribute__((always_inline))
 
 // do not use program space memory with Due
-#define PROGMEM
-typedef char prog_char;
 #undef pgm_read_byte_near
 #define pgm_read_byte_near(x) (*(int8_t*)x)
 #undef pgm_read_byte
@@ -74,8 +72,8 @@ typedef char prog_char;
 #define pgm_read_dword_near(addr) pgm_read_dword(addr)
 #define _BV(x) (1 << (x))
 
-#define FSTRINGVALUE(var,value) const char var[] PROGMEM = value;
-#define FSTRINGVAR(var) static const char var[] PROGMEM;
+#define FSTRINGVALUE(var,value) const char var[] = value;
+#define FSTRINGVAR(var) static const char var[];
 #define FSTRINGPARAM(var) const char* var
 
 

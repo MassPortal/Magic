@@ -204,8 +204,6 @@ extern "C" {
 
 /*===============================================================*/
 /* flash memory access */
-#define U8G_PROGMEM
-#define PROGMEM
 typedef uint8_t u8g_pgm_uint8_t;
 typedef uint8_t u8g_fntpgm_uint8_t;
 #define u8g_pgm_read(adr) (*(const u8g_pgm_uint8_t *)(adr))
@@ -2350,7 +2348,7 @@ const u8g_fntpgm_uint8_t u8g_font_6x12_67_75[2382] U8G_FONT_SECTION("u8g_font_6x
 
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
-static const uint8_t u8g_dev_st7920_128x64_init_seq[] PROGMEM = {
+static const uint8_t u8g_dev_st7920_128x64_init_seq[] = {
   U8G_ESC_CS(0),             /* disable chip */
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_RST(15),           /* do reset low pulse with (15*16)+2 milliseconds (=maximum delay)*/
@@ -2523,7 +2521,7 @@ u8g_dev_t u8g_dev_st7920_128x64_4x_custom = { u8g_dev_st7920_128x64_4x_fn, &u8g_
 #define PAGE_HEIGHT 8
 
 /* init sequence adafruit 128x64 OLED (NOT TESTED) */
-static const uint8_t u8g_dev_ssd1306_128x64_adafruit1_init_seq[] PROGMEM = {
+static const uint8_t u8g_dev_ssd1306_128x64_adafruit1_init_seq[] = {
   U8G_ESC_CS(0),             /* disable chip */
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_RST(1),           /* do reset low pulse with (1*16)+2 milliseconds */
@@ -2557,7 +2555,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_adafruit1_init_seq[] PROGMEM = {
 };
 
 /* init sequence adafruit 128x64 OLED (NOT TESTED) */
-static const uint8_t u8g_dev_ssd1306_128x64_adafruit2_init_seq[] PROGMEM = {
+static const uint8_t u8g_dev_ssd1306_128x64_adafruit2_init_seq[] = {
   U8G_ESC_CS(0),             /* disable chip */
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_RST(1),           /* do reset low pulse with (1*16)+2 milliseconds */
@@ -2591,7 +2589,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_adafruit2_init_seq[] PROGMEM = {
 };
 
 /* init sequence adafruit 128x64 OLED (NOT TESTED), like adafruit3, but with page addressing mode */
-static const uint8_t u8g_dev_ssd1306_128x64_adafruit3_init_seq[] PROGMEM = {
+static const uint8_t u8g_dev_ssd1306_128x64_adafruit3_init_seq[] = {
   U8G_ESC_CS(0),             /* disable chip */
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_RST(1),           /* do reset low pulse with (1*16)+2 milliseconds */
@@ -2625,7 +2623,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_adafruit3_init_seq[] PROGMEM = {
 };
 
 /* init sequence Univision datasheet (NOT TESTED) */
-static const uint8_t u8g_dev_ssd1306_128x64_univision_init_seq[] PROGMEM = {
+static const uint8_t u8g_dev_ssd1306_128x64_univision_init_seq[] = {
   U8G_ESC_CS(0),             /* disable chip */
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_RST(1),           /* do reset low pulse with (1*16)+2 milliseconds */
@@ -2661,7 +2659,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_univision_init_seq[] PROGMEM = {
 #define u8g_dev_ssd1306_128x64_init_seq u8g_dev_ssd1306_128x64_adafruit3_init_seq
 
 
-static const uint8_t u8g_dev_ssd1306_128x64_data_start[] PROGMEM = {
+static const uint8_t u8g_dev_ssd1306_128x64_data_start[] = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x010,		/* set upper 4 bit of the col adr to 0 */
@@ -2670,7 +2668,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_data_start[] PROGMEM = {
 };
 
 /* the sh1106 is compatible to the ssd1306, but is 132x64. display seems to be centered */
-static const uint8_t u8g_dev_sh1106_128x64_data_start[] PROGMEM = {
+static const uint8_t u8g_dev_sh1106_128x64_data_start[] = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x010,		/* set upper 4 bit of the col adr to 0 */
@@ -2678,7 +2676,7 @@ static const uint8_t u8g_dev_sh1106_128x64_data_start[] PROGMEM = {
   U8G_ESC_END                /* end of sequence */
 };
 
-static const uint8_t u8g_dev_ssd13xx_sleep_on[] PROGMEM = {
+static const uint8_t u8g_dev_ssd13xx_sleep_on[] = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x0ae,		/* display off */
@@ -2686,7 +2684,7 @@ static const uint8_t u8g_dev_ssd13xx_sleep_on[] PROGMEM = {
   U8G_ESC_END                /* end of sequence */
 };
 
-static const uint8_t u8g_dev_ssd13xx_sleep_off[] PROGMEM = {
+static const uint8_t u8g_dev_ssd13xx_sleep_off[] = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x0af,		/* display on */
@@ -8219,7 +8217,7 @@ uint8_t u8g_com_arduino_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
 #define HEIGHT 64
 #define PAGE_HEIGHT 8
 
-static const uint8_t u8g_dev_ks0108_128x64_init_seq[] PROGMEM = {
+static const uint8_t u8g_dev_ks0108_128x64_init_seq[] = {
   U8G_ESC_CS(0),             /* disable chip */
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_RST(1),           /* do reset low pulse with (1*16)+2 milliseconds */
@@ -8737,7 +8735,7 @@ uint8_t u8g_com_arduino_fast_parallel_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
 #define HEIGHT 64
 #define PAGE_HEIGHT 8
 
-const uint8_t u8g_dev_st7565_nhd_c12864_init_seq[] PROGMEM = {
+const uint8_t u8g_dev_st7565_nhd_c12864_init_seq[] = {
   U8G_ESC_CS(0),             /* disable chip */
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_RST(10),           /* do reset low pulse with (10*16)+2 milliseconds */
@@ -8767,7 +8765,7 @@ const uint8_t u8g_dev_st7565_nhd_c12864_init_seq[] PROGMEM = {
   U8G_ESC_END                /* end of sequence */
 };
 
-static const uint8_t u8g_dev_st7565_nhd_c12864_data_start[] PROGMEM = {
+static const uint8_t u8g_dev_st7565_nhd_c12864_data_start[] = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x010,		/* set upper 4 bit of the col adr to 0 */
@@ -8775,7 +8773,7 @@ static const uint8_t u8g_dev_st7565_nhd_c12864_data_start[] PROGMEM = {
   U8G_ESC_END                /* end of sequence */
 };
 
-static const uint8_t u8g_dev_st7565_c12864_sleep_on[] PROGMEM = {
+static const uint8_t u8g_dev_st7565_c12864_sleep_on[] = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x0ac,		/* static indicator off */
@@ -8786,7 +8784,7 @@ static const uint8_t u8g_dev_st7565_c12864_sleep_on[] PROGMEM = {
   U8G_ESC_END                /* end of sequence */
 };
 
-static const uint8_t u8g_dev_st7565_c12864_sleep_off[] PROGMEM = {
+static const uint8_t u8g_dev_st7565_c12864_sleep_off[] = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x0a4,		/* all points off */

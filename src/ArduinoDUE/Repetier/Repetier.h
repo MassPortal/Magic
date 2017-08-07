@@ -711,7 +711,7 @@ public:
     inline RVector3 operator*(float lhs,const RVector3 &rhs) {
         return rhs.scale(lhs);
     }
-extern const uint8 osAnalogInputChannels[] PROGMEM;
+extern const uint8 osAnalogInputChannels[];
 //extern uint8 osAnalogInputCounter[ANALOG_INPUTS];
 //extern uint osAnalogInputBuildup[ANALOG_INPUTS];
 //extern uint8 osAnalogInputPos; // Current sampling position
