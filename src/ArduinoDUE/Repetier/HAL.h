@@ -219,9 +219,7 @@ class InterruptProtectedBlock {
 /** defines the data direction (writing to I2C device) in i2cStart(),i2cRepStart() */
 #define I2C_WRITE   0
 
-#ifndef DUE_SOFTWARE_SPI
 extern int spiDueDividors[];
-#endif
 
 static uint32_t    tone_pin;
 
@@ -258,9 +256,6 @@ class RFDoubleSerial : public Print
 {
   public:
     RFDoubleSerial();
-    void begin(unsigned long);
-    void end();
-    virtual int available(void);
     virtual int peek(void);
     virtual int read(void);
     virtual void flush(void);
@@ -568,46 +563,6 @@ class HAL
     static inline char readFlashByte(PGM_P ptr)
     {
       return pgm_read_byte(ptr);
-    }
-    static inline void serialSetBaudrate(long baud)
-    {
-#if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
-      BTAdapter.begin(baud);
-#else
-      RFSERIAL.begin(baud);
-#endif
-    }
-    static inline bool serialByteAvailable()
-    {
-#if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
-      return BTAdapter.available();
-#else
-      return RFSERIAL.available();
-#endif
-    }
-    static inline uint8_t serialReadByte()
-    {
-#if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
-      return BTAdapter.read();
-#else
-      return RFSERIAL.read();
-#endif
-    }
-    static inline void serialWriteByte(char b)
-    {
-#if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
-      BTAdapter.write(b);
-#else
-      RFSERIAL.write(b);
-#endif
-    }
-    static inline void serialFlush()
-    {
-#if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
-      BTAdapter.flush();
-#else
-      RFSERIAL.flush();
-#endif
     }
     static void setupTimer();
     static void showStartReason();

@@ -1030,7 +1030,8 @@ void Printer::setup()
     extruderStepsNeeded = 0;
 #endif
     EEPROM::initBaudrate();
-    HAL::serialSetBaudrate(baudrate);
+    Serial.begin(115200);
+    //SerialUSB.begin(115200);
     Com::printFLN(Com::tStart);
     HAL::showStartReason();
     Extruder::initExtruder();

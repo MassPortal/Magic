@@ -30,7 +30,6 @@
 
 //extern "C" void __cxa_pure_virtual() { }
 extern "C" char *sbrk(int i);
-extern long bresenham_step();
 
 #define NUM_ADC_SAMPLES 2 + (1 << ANALOG_INPUT_SAMPLE)
 #if ANALOG_INPUTS > 0
@@ -47,9 +46,7 @@ static   uint32_t  adcEnable = 0;
 char HAL::virtualEeprom[EEPROM_BYTES];
 bool HAL::wdPinged = true;
 volatile uint8_t HAL::insideTimer1 = 0;
-#ifndef DUE_SOFTWARE_SPI
 int spiDueDividors[] = {10, 21, 42, 84, 168, 255, 255};
-#endif
 
 HAL::HAL()
 {
@@ -270,7 +267,6 @@ uint32_t HAL::integer64Sqrt(uint64_t a_nInput) {
 }
 
 
-#ifndef DUE_SOFTWARE_SPI
 void HAL::spiBegin()
 {
     PIO_Configure(
@@ -387,7 +383,6 @@ void HAL::spiSendBlock(uint8_t token, const uint8_t* buf)
   }
   spiSend(buf[511]);
 }
-#endif
 
 /*************************************************************************
  Initialization of the I2C bus interface. Need to be called only once
@@ -1170,19 +1165,6 @@ void BEEPER_TIMER_VECTOR () {
 
 #if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
 RFDoubleSerial::RFDoubleSerial() {
-}
-void RFDoubleSerial::begin(unsigned long baud) {
-  RFSERIAL.begin(baud);
-  BT_SERIAL.begin(BLUETOOTH_BAUD);
-}
-void RFDoubleSerial::end() {
-  RFSERIAL.end();
-  BT_SERIAL.end();
-}
-int RFDoubleSerial::available(void) {
-  int x = RFSERIAL.available();
-  if (x > 0) return x;
-  return BT_SERIAL.available();
 }
 int RFDoubleSerial::peek(void) {
   if(RFSERIAL.available())

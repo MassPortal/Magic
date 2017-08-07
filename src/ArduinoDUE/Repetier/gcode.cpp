@@ -152,7 +152,7 @@ uint8_t GCode::computeBinarySize(char *ptr)  // unsigned int bitfield) {
 void GCode::requestResend()
 {
 	++Printer::resends;
-    HAL::serialFlush();
+    Serial.flush();
     commandsReceivingWritePosition = 0;
     if(sendAsBinary)
         waitingForResend = 30;
@@ -340,7 +340,7 @@ void GCode::readFromSerial()
     if(waitUntilAllCommandsAreParsed && bufferLength) return;
     waitUntilAllCommandsAreParsed = false;
     millis_t time = HAL::timeInMilliseconds();
-    if(!HAL::serialByteAvailable())
+    if(!Serial.available())
     {
         if((waitingForResend >= 0 || commandsReceivingWritePosition > 0) && time - timeOfLastDataPacket > 200)
         {
@@ -362,10 +362,10 @@ void GCode::readFromSerial()
 		return;
 	}*/
 	
-    while(HAL::serialByteAvailable() && commandsReceivingWritePosition < MAX_CMD_SIZE)    // consume data until no data or buffer full
+    while(Serial.available() && commandsReceivingWritePosition < MAX_CMD_SIZE)    // consume data until no data or buffer full
     {
         timeOfLastDataPacket = time; //HAL::timeInMilliseconds();
-        commandReceiving[commandsReceivingWritePosition++] = HAL::serialReadByte();
+        commandReceiving[commandsReceivingWritePosition++] = Serial.read();
         // first lets detect, if we got an old type ascii command
         if(commandsReceivingWritePosition == 1)
         {

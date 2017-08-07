@@ -488,7 +488,7 @@ void Com::printFLN(FSTRINGPARAM(text),const char *msg) {
 void Com::printF(FSTRINGPARAM(ptr)) {
   char c;
   while ((c = HAL::readFlashByte(ptr++)) != 0)
-     HAL::serialWriteByte(c);
+     Serial.write(c);
 }
 void Com::printF(FSTRINGPARAM(text),const char *msg) {
     printF(text);
@@ -534,12 +534,12 @@ void Com::printF(FSTRINGPARAM(text),float value,uint8_t digits) {
 
 void Com::print(const char *text) {
   while(*text) {
-    HAL::serialWriteByte(*text++);
+    Serial.write(*text++);
   }
 }
 void Com::print(long value) {
     if(value<0) {
-        HAL::serialWriteByte('-');
+        Serial.write('-');
         value = -value;
     }
     printNumber(value);

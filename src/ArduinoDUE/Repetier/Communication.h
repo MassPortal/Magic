@@ -443,10 +443,10 @@ static void print(long value);
 static inline void print(uint32_t value) {printNumber(value);}
 static inline void print(int value) {print((int32_t)value);}
 static void print(const char *text);
-static inline void print(char c) {HAL::serialWriteByte(c);}
+static inline void print(char c) {Serial.write(c);}
 static void printFloat(float number, uint8_t digits);
 static inline void print(float number) {printFloat(number, 6);}
-static inline void println() {HAL::serialWriteByte('\r');HAL::serialWriteByte('\n');}
+static inline void println() {Serial.write('\r');Serial.write('\n');}
 #if UI_DISPLAY_TYPE != NO_DISPLAY
 static const char* translatedF(int textId);
 static void selectLanguage(fast8_t lang);
