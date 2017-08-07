@@ -50,26 +50,8 @@
 
 // Some structures assume no padding, need to add this attribute on ARM
 #define PACK    __attribute__ ((packed))
-
 #define INLINE __attribute__((always_inline))
 
-// do not use program space memory with Due
-#undef pgm_read_byte_near
-#define pgm_read_byte_near(x) (*(int8_t*)x)
-#undef pgm_read_byte
-#define pgm_read_byte(x) (*(int8_t*)x)
-#undef pgm_read_float
-#define pgm_read_float(addr) (*(const float *)(addr))
-#undef pgm_read_word
-//#define pgm_read_word(addr) (*(const unsigned int *)(addr))
-#define pgm_read_word(addr) (*(addr))
-#undef pgm_read_word_near
-#define pgm_read_word_near(addr) pgm_read_word(addr)
-#undef pgm_read_dword
-#define pgm_read_dword(addr) (*(addr))
-//#define pgm_read_dword(addr) (*(const unsigned long *)(addr))
-#undef pgm_read_dword_near
-#define pgm_read_dword_near(addr) pgm_read_dword(addr)
 #define _BV(x) (1 << (x))
 
 #define FSTRINGVALUE(var,value) const char var[] = value;
@@ -515,10 +497,6 @@ class HAL
     static inline void forbidInterrupts()
     {
       //__disable_irq();
-    }
-    static inline char readFlashByte(const char* ptr)
-    {
-      return pgm_read_byte(ptr);
     }
     static void setupTimer();
     static void showStartReason();

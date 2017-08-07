@@ -63,10 +63,10 @@ bool UIMenuEntry::showEntry() const
 {
     bool ret = true;
     uint8_t f, f2;
-    f = HAL::readFlashByte((const char*)&filter);
+    f = filter;
     if(f != 0)
         ret = (f & Printer::menuMode) != 0;
-    if(ret && (f2 = HAL::readFlashByte((const char*)&nofilter)) != 0)
+    if(ret && (f2 = nofilter) != 0)
         ret = (f2 & Printer::menuMode) == 0;
     return ret;
 }
@@ -521,7 +521,7 @@ void UIDisplay::printRow(uint8_t r,const char *txt,const char *txt2,uint8_t chan
 #if UI_DISPLAY_TYPE == DISPLAY_I2C
     lcdStartWrite();
 #endif
-    lcdWriteByte(128 + HAL::readFlashByte((const char *)&LCDLineOffsets[r]), 0); // Position cursor
+    lcdWriteByte(128 + *((const char *)&LCDLineOffsets[r]), 0); // Position cursor
     char c;
     while((c = *txt) != 0x00 && col < changeAtCol)
     {
@@ -569,7 +569,7 @@ void UIDisplay::createChar(uint8_t location,const uint8_t charmap[])
     uint8_t data[8];
     for (int i = 0; i < 8; i++)
     {
-        data[i] = pgm_read_byte(&(charmap[i]));
+        data[i] = charmap[i];
     }
     lcd.createChar(location, data);
 }
@@ -909,7 +909,7 @@ void UIDisplay::createChar(uint8_t location,const uint8_t charmap[])
     lcdCommand(LCD_SETCGRAMADDR | (location << 3));
     for (int i = 0; i < 8; i++)
     {
-        lcdPutChar(pgm_read_byte(&(charmap[i])));
+        lcdPutChar(charmap[i]);
     }
 }
 #endif
@@ -1020,7 +1020,7 @@ void UIDisplay::addFloat(float number, char fixdigits, uint8_t digits)
         number = -number;
         fixdigits--;
     }
-    number += pgm_read_float(&roundingTable[digits]); // for correct rounding
+    number += roundingTable[digits]; // for correct rounding
 
     // Extract the integer part of the number and print it
     unsigned long int_part = (unsigned long)number;
@@ -1048,8 +1048,8 @@ void UIDisplay::addStringP(const char* text)
 {
     while(col < MAX_COLS)
     {
-        uint8_t c = HAL::readFlashByte(text++);
-        if(c == 0) return;
+        uint8_t c = *text++;
+        if(!c) return;
         uid.printCols[col++] = c;
     }
 }
@@ -1152,7 +1152,7 @@ void UIDisplay::parse(const char *txt,bool ram)
     float fvalue = 0;
     while(col < MAX_COLS)
     {
-        char c = (ram ? *(txt++) : pgm_read_byte(txt++));
+        char c = (ram ? *(txt++) : *(txt++));
         if(c == 0) break; // finished
         if(c != '%')
         {
@@ -1160,8 +1160,8 @@ void UIDisplay::parse(const char *txt,bool ram)
             continue;
         }
         // dynamic parameter, parse meaning and replace
-        char c1 = (ram ? *(txt++) : pgm_read_byte(txt++));
-        char c2 = (ram ? *(txt++) : pgm_read_byte(txt++));
+        char c1 = (ram ? *(txt++) : *(txt++));
+        char c2 = (ram ? *(txt++) : *(txt++));
         switch(c1)
         {
         case '%':
@@ -1214,7 +1214,7 @@ void UIDisplay::parse(const char *txt,bool ram)
             if(c2 == 'I')
             {
                 //give integer display
-                //char c2 = (ram ? *(txt++) : pgm_read_byte(txt++));
+                //char c2 = (ram ? *(txt++) : *(txt++));
                 txt++; // just skip c sign
                 ivalue=0;
             }
@@ -1644,7 +1644,7 @@ void UIDisplay::setStatusP(const char* txt,bool error)
     uint8_t i=0;
     while(i<20)
     {
-        uint8_t c = pgm_read_byte(txt++);
+        uint8_t c = *(txt++);
         if(!c) break;
         statusMsg[i++] = c;
     }
@@ -1825,16 +1825,16 @@ void UIDisplay::refreshPage()
     // Copy result into cache
     if(menuLevel == 0) // Top level menu
     {
-        UIMenu *men = (UIMenu*)pgm_read_word(&(ui_pages[menuPos[0]]));
-        uint16_t nr = pgm_read_word_near(&(men->numEntries));
-        UIMenuEntry **entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
+        UIMenu *men = (UIMenu*)ui_pages[menuPos[0]];
+        uint16_t nr = men->numEntries;
+        UIMenuEntry **entries = (UIMenuEntry**)men->entries;
         for(r = 0; r < nr && r < UI_ROWS; r++)
         {
-            UIMenuEntry *ent = (UIMenuEntry *)pgm_read_word(&(entries[r]));
+            UIMenuEntry *ent = (UIMenuEntry *)entries[r];
             col = 0;
-            char *text = (char*)pgm_read_word(&(ent->text));
+            char *text = (char*)ent->text;
             if(text == NULL)
-                text = (char*)Com::translatedF(pgm_read_word(&(ent->translation)));
+                text = (char*)Com::translatedF(ent->translation);
             parse(text,false);
             strcpy(cache[r],uid.printCols);
         }
@@ -1842,20 +1842,20 @@ void UIDisplay::refreshPage()
     else
     {
         UIMenu *men = (UIMenu*)menu[menuLevel];
-        uint16_t nr = pgm_read_word_near(&(men->numEntries));
-        mtype = pgm_read_byte((void*)&(men->menuType));
+        uint16_t nr = men->numEntries;
+        mtype = men->menuType;
         uint16_t offset = menuTop[menuLevel];
-        UIMenuEntry **entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
+        UIMenuEntry **entries = (UIMenuEntry**)men->entries;
         for(r = 0; r + offset < nr && r < UI_ROWS; )
         {
-            UIMenuEntry *ent =(UIMenuEntry *)pgm_read_word(&(entries[r + offset]));
+            UIMenuEntry *ent =(UIMenuEntry *)entries[r + offset];
             if(!ent->showEntry())
             {
                 offset++;
                 continue;
             }
-            uint8_t entType = pgm_read_byte(&(ent->entryType)) & 127;
-            uint16_t entAction = pgm_read_word(&(ent->action));
+            uint8_t entType = ent->entryType & 127;
+            uint16_t entAction = ent->action;
             col = 0;
             if(entType >= 2 && entType <= 4)
             {
@@ -1866,9 +1866,9 @@ void UIDisplay::refreshPage()
                 else
                     uid.printCols[col++]=' ';
             }
-            char *text = (char*)pgm_read_word(&(ent->text));
+            char *text = (char*)ent->text;
             if(text == NULL)
-                text = (char*)Com::translatedF(pgm_read_word(&(ent->translation)));
+                text = (char*)Com::translatedF(ent->translation);
             parse(text,false);
             if(entType == 2)   // Draw submenu marker at the right side
             {
@@ -2197,7 +2197,7 @@ void UIDisplay::pushMenu(const UIMenu *men, bool refresh)
     menuTop[menuLevel] = menuPos[menuLevel] = 0;
 #if SDSUPPORT
     UIMenu *men2 = (UIMenu*)menu[menuLevel];
-    if(pgm_read_byte(&(men2->menuType)) == 1)
+    if(men2->menuType == 1)
     {
         // Menu is Open files list
         updateSDFileCount();
@@ -2217,9 +2217,9 @@ void UIDisplay::pushMenu(const UIMenu *men, bool refresh)
         // Reset menu to top
         menuTop[menuLevel] = 0;
 
-        UIMenuEntry **entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
-        UIMenuEntry *ent =(UIMenuEntry *)pgm_read_word(&(entries[0]));
-        uint16_t entAction = pgm_read_word(&(ent->action));
+        UIMenuEntry **entries = (UIMenuEntry**)men->entries;
+        UIMenuEntry *ent =(UIMenuEntry *)entries[0];
+        uint16_t entAction = ent->action;
         menuPos[menuLevel] = entAction == UI_ACTION_BACK ? 1 : 0; // if top entry is back, default to next useful item
     }
     if(refresh)
@@ -2250,8 +2250,8 @@ int UIDisplay::okAction(bool allowMoves)
         return 0;
     }
     const UIMenu *men = (const UIMenu*)menu[menuLevel];
-    //uint8_t nr = pgm_read_word_near(&(menu->numEntries));
-    uint8_t mtype = pgm_read_byte(&(men->menuType));
+    //uint8_t nr = menu->numEntries;
+    uint8_t mtype = men->menuType;
     UIMenuEntry **entries;
     UIMenuEntry *ent;
     unsigned char entType;
@@ -2286,9 +2286,9 @@ int UIDisplay::okAction(bool allowMoves)
         else
         {
             men = menu[menuLevel - 1];
-            entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
-            ent =(UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel-1]]));
-            shortAction = pgm_read_word(&(ent->action));
+            entries = (UIMenuEntry**)men->entries;
+            ent =(UIMenuEntry *)entries[menuPos[menuLevel-1]];
+            shortAction = ent->action;
         }
         sd.file.close();
         sd.fat.chdir(cwd);
@@ -2324,13 +2324,13 @@ int UIDisplay::okAction(bool allowMoves)
         return 0;
     }
 #endif
-    entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
-    ent =(UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel]]));
-    entType = pgm_read_byte(&(ent->entryType));// 0 = Info, 1 = Headline, 2 = submenu ref, 3 = direct action command, 4 = modify action
-    action = pgm_read_word(&(ent->action));
+    entries = (UIMenuEntry**)men->entries;
+    ent =(UIMenuEntry *)entries[menuPos[menuLevel]];
+    entType = ent->entryType;// 0 = Info, 1 = Headline, 2 = submenu ref, 3 = direct action command, 4 = modify action
+    action = ent->action;
     if(mtype == UI_MENU_TYPE_MODIFICATION_MENU)   // action menu
     {
-        action = pgm_read_word(&(men->id));
+        action = men->id;
         finishAction(action);
         return executeAction(UI_ACTION_BACK, true);
     }
@@ -2349,7 +2349,7 @@ int UIDisplay::okAction(bool allowMoves)
     }
     if(mtype == UI_MENU_TYPE_WIZARD)
     {
-        action = pgm_read_word(&(men->id));
+        action = men->id;
         switch(action)
         {
 #if FEATURE_RETRACTION
@@ -2382,7 +2382,7 @@ int UIDisplay::okAction(bool allowMoves)
         zBabySteps = 0;
 #endif
 #if HAVE_HEATED_BED
-        if(action == pgm_read_word(&ui_menu_conf_bed.action))  // enter Bed configuration menu
+        if(action == ui_menu_conf_bed.action)  // enter Bed configuration menu
             currHeaterForSetup = &heatedBedController;
         else
 #endif
@@ -2408,15 +2408,15 @@ void UIDisplay::adjustMenuPos()
 {
     if(menuLevel == 0) return;
     UIMenu *men = (UIMenu*)menu[menuLevel];
-    UIMenuEntry **entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
-    uint8_t mtype = HAL::readFlashByte((const char*)&(men->menuType)) & 127;
-    uint16_t numEntries = pgm_read_word(&(men->numEntries));
+    UIMenuEntry **entries = (UIMenuEntry**)men->entries;
+    uint8_t mtype = *((const char*)&(men->menuType)) & 127;
+    uint16_t numEntries = men->numEntries;
     if(mtype != 2) return;
     UIMenuEntry *entry;
     while(menuPos[menuLevel] > 0) // Go up until we reach visible position
     {
-        entry = (UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel]]));
-        if(pgm_read_byte((void*)&(entry->entryType)) == 1) // skip headlines
+        entry = (UIMenuEntry *)entries[menuPos[menuLevel]];
+        if(entry->entryType == 1) // skip headlines
             menuPos[menuLevel]--;
         else if(entry->showEntry())
             break;
@@ -2427,8 +2427,8 @@ void UIDisplay::adjustMenuPos()
     // with bad luck the only visible option was in the opposite direction
     while(menuPos[menuLevel] < numEntries - 1) // Go down until we reach visible position
     {
-        entry = (UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel]]));
-        if(pgm_read_byte((void*)&(entry->entryType)) == 1) // skip headlines
+        entry = (UIMenuEntry *)entries[menuPos[menuLevel]];
+        if(entry->entryType == 1) // skip headlines
             menuPos[menuLevel]++;
         else if(entry->showEntry())
             break;
@@ -2446,7 +2446,7 @@ void UIDisplay::adjustMenuPos()
         modified = false;
         for(uint8_t r = menuTop[menuLevel]; r < menuPos[menuLevel]; r++)
         {
-            UIMenuEntry *ent = (UIMenuEntry *)pgm_read_word(&(entries[r]));
+            UIMenuEntry *ent = (UIMenuEntry *)entries[r];
             if(!ent->showEntry())
                 skipped++;
         }
@@ -2462,11 +2462,11 @@ void UIDisplay::adjustMenuPos()
 bool UIDisplay::isWizardActive()
 {
     UIMenu *men = (UIMenu*)menu[menuLevel];
-    return (HAL::readFlashByte((const char*)&(men->menuType)) & 127) == 5;
+    return (*((const char*)&(men->menuType)) & 127) == 5;
 }
 bool UIDisplay::isSticky() {
     UIMenu *men = (UIMenu*)menu[menuLevel];
-    uint8_t mt = HAL::readFlashByte((const char*)&(men->menuType));
+    uint8_t mt = *((const char*)&(men->menuType));
     return ((mt & 128) == 128) || mt == 5;
 }
 
@@ -2515,14 +2515,14 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         return true;
     }
     UIMenu *men = (UIMenu*)menu[menuLevel];
-    uint8_t nr = pgm_read_word_near(&(men->numEntries));
-    uint8_t mtype = HAL::readFlashByte((const char*)&(men->menuType)) & 127;
-    UIMenuEntry **entries = (UIMenuEntry**)pgm_read_word(&(men->entries));
-    UIMenuEntry *ent =(UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel]]));
+    uint8_t nr = men->numEntries;
+    uint8_t mtype = *((const char*)&(men->menuType)) & 127;
+    UIMenuEntry **entries = (UIMenuEntry**)men->entries;
+    UIMenuEntry *ent =(UIMenuEntry *)entries[menuPos[menuLevel]];
     UIMenuEntry *testEnt;
     // 0 = Info, 1 = Headline, 2 = submenu ref, 3 = direct action command
-    //uint8_t entType = HAL::readFlashByte((const char*)&(ent->entryType));
-    unsigned int action = pgm_read_word(&(ent->action));
+    //uint8_t entType = *((const char*)&(ent->entryType));
+    unsigned int action = ent->action;
     if(mtype == UI_MENU_TYPE_SUBMENU && activeAction == 0)   // browse through menu items
     {
         if((UI_INVERT_MENU_DIRECTION && next < 0) || (!UI_INVERT_MENU_DIRECTION && next > 0))
@@ -2530,7 +2530,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
             while(menuPos[menuLevel] + 1 < nr)
             {
                 menuPos[menuLevel]++;
-                testEnt = (UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel]]));
+                testEnt = (UIMenuEntry *)entries[menuPos[menuLevel]];
                 if(testEnt->showEntry())
                     break;
             }
@@ -2540,7 +2540,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
             while(menuPos[menuLevel] > 0)
             {
                 menuPos[menuLevel]--;
-                testEnt = (UIMenuEntry *)pgm_read_word(&(entries[menuPos[menuLevel]]));
+                testEnt = (UIMenuEntry *)entries[menuPos[menuLevel]];
                 if(testEnt->showEntry())
                     break;
             }
@@ -2572,7 +2572,7 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
         return true;
     }
 #endif
-    if(mtype == UI_MENU_TYPE_MODIFICATION_MENU || mtype == UI_MENU_TYPE_WIZARD) action = pgm_read_word(&(men->id));
+    if(mtype == UI_MENU_TYPE_MODIFICATION_MENU || mtype == UI_MENU_TYPE_WIZARD) action = men->id;
     else action = activeAction;
     int16_t increment = next;
     switch(action)
@@ -2835,7 +2835,7 @@ ZPOS2:
         int32_t rate;
         do
         {
-            rate = pgm_read_dword(&(baudrates[(uint8_t)p]));
+            rate = baudrates[(uint8_t)p];
             if(rate == baudrate) break;
             p++;
         }
@@ -2845,7 +2845,7 @@ ZPOS2:
         if(p < 0) p = 0;
         if(p > static_cast<int16_t>(sizeof(baudrates)/4) - 2)
             p = sizeof(baudrates)/4 - 2;
-        baudrate = pgm_read_dword(&(baudrates[p]));
+        baudrate = baudrates[p];
     }
 #endif
     break;
@@ -3906,7 +3906,7 @@ void UIDisplay::slowAction(bool allowMoves)
     else if(time - lastRefresh >= 800)
     {
         //UIMenu *men = (UIMenu*)menu[menuLevel];
-        //uint8_t mtype = pgm_read_byte((void*)&(men->menuType));
+        //uint8_t mtype = men->menuType;
         //if(mtype!=1)
         refresh = 1;
     }

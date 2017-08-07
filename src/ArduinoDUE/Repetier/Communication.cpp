@@ -487,7 +487,7 @@ void Com::printFLN(FSTRINGPARAM(text),const char *msg) {
 
 void Com::printF(FSTRINGPARAM(ptr)) {
   char c;
-  while ((c = HAL::readFlashByte(ptr++)) != 0)
+  while ((c = *ptr++) != 0)
      Serial.write(c);
 }
 void Com::printF(FSTRINGPARAM(text),const char *msg) {

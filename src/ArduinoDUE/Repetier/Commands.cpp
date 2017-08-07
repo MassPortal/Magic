@@ -2302,7 +2302,7 @@ void Commands::processMCode(GCode *com)
             int pin_number = com->P;
             for(uint8_t i = 0; i < (uint8_t)sizeof(sensitive_pins); i++)
             {
-                if (pgm_read_byte(&sensitive_pins[i]) == pin_number)
+                if (sensitive_pins[i] == pin_number)
                 {
                     pin_number = -1;
                     break;

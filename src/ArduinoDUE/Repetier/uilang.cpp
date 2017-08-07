@@ -6049,7 +6049,7 @@ const uint8_t availableLanguages[] = {
 void Com::selectLanguage(fast8_t lang) {
     unsigned int pos = (unsigned int)&availableLanguages;
     uint8_t best = 255,cur;
-    while((cur = HAL::readFlashByte((const char*)pos)) != 255) {
+    while((cur = pos) != 255) {
         if(best == 255 || cur == lang)
             best = cur;
         pos++;
@@ -6058,8 +6058,8 @@ void Com::selectLanguage(fast8_t lang) {
 }
 
 const char* Com::translatedF(int textId) {
-    const char* *adr = (const char**)pgm_read_word(&translations[selectedLanguage]);
-    return (const char *)pgm_read_word(&adr[textId]);
+    const char* *adr = (const char**)translations[selectedLanguage];
+    return (const char *)adr[textId];
 }
 
 #endif

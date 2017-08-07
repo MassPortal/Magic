@@ -811,7 +811,7 @@ bool SdBaseFile::make83Name(const char* str, uint8_t* name, const char** ptr) {
       FSTRINGPARAM(p);
       p = illegalFileChars;
       uint8_t b;
-      while ((b = HAL::readFlashByte(p++))) {
+      while ((b = *p++)) {
             if (b == c) {
         DBG_FAIL_MACRO;
         goto fail;
@@ -3129,7 +3129,7 @@ static const uint16_t crctab[] = {
 static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
   uint16_t crc = 0;
   for (size_t i = 0; i < n; i++) {
-    crc = pgm_read_word(&crctab[(crc >> 8 ^ data[i]) & 0XFF]) ^ (crc << 8);
+    crc = crctab[(crc >> 8 ^ data[i]) & 0XFF] ^ (crc << 8);
   }
   return crc;
 }
@@ -4345,8 +4345,8 @@ int SdFile::write(const char* str) {
  * \param[in] str Pointer to the PROGMEM string.
  * Use getWriteError to check for errors.
  */
-void SdFile::write_P(FSTRINGPARAM(str)) {
-  for (uint8_t c; (c = HAL::readFlashByte(str)); str++) write(c);
+void SdFile::write_P(const char* str) {
+  for (uint8_t c; (c = *str); str++) write(c);
 }
 //------------------------------------------------------------------------------
 /** Write a PROGMEM string followed by CR/LF to a file.

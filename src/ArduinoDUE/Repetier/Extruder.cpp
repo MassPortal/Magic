@@ -1468,17 +1468,17 @@ void TemperatureController::updateCurrentTemperature()
     case 12:
     {
         type--;
-        uint8_t num = pgm_read_byte(&temptables_num[type]) << 1;
+        uint8_t num = temptables_num[type] << 1;
         uint8_t i = 2;
-        const int16_t *temptable = (const int16_t *)pgm_read_word(&temptables[type]); //pgm_read_word_near(&temptables[type]);
-        int16_t oldraw = pgm_read_word(&temptable[0]);
-        int16_t oldtemp = pgm_read_word(&temptable[1]);
+        const int16_t *temptable = (const int16_t *)temptables[type]; //temptables[type];
+        int16_t oldraw = temptable[0];
+        int16_t oldtemp = temptable[1];
         int16_t newraw,newtemp = 0;
         currentTemperature = (1023 << (2 - ANALOG_REDUCE_BITS)) - currentTemperature;
         while(i < num)
         {
-            newraw = pgm_read_word(&temptable[i++]);
-            newtemp = pgm_read_word(&temptable[i++]);
+            newraw = temptable[i++];
+            newtemp = temptable[i++];
             if (newraw > currentTemperature)
             {
                 //OUT_P_I("RC O:",oldtemp);OUT_P_I_LN(" OR:",oldraw);
@@ -1502,16 +1502,16 @@ void TemperatureController::updateCurrentTemperature()
             type -= 46;
         else
             type--;
-        uint8_t num = pgm_read_byte(&temptables_num[type]) << 1;
+        uint8_t num = temptables_num[type] << 1;
         uint8_t i = 2;
-        const int16_t *temptable = (const int16_t *)pgm_read_word(&temptables[type]); //pgm_read_word_near(&temptables[type]);
-        int16_t oldraw = pgm_read_word(&temptable[0]);
-        int16_t oldtemp = pgm_read_word(&temptable[1]);
+        const int16_t *temptable = (const int16_t *)temptables[type]; //temptables[type];
+        int16_t oldraw = temptable[0];
+        int16_t oldtemp = temptable[1];
         int16_t newraw,newtemp = 0;
         while(i < num)
         {
-            newraw = pgm_read_word(&temptable[i++]);
-            newtemp = pgm_read_word(&temptable[i++]);
+            newraw = temptable[i++];
+            newtemp = temptable[i++];
             if (newraw > currentTemperature)
             {
                 currentTemperatureC = TEMP_INT_TO_FLOAT(oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(newraw-oldraw));
@@ -1614,16 +1614,16 @@ void TemperatureController::setTargetTemperature(float target)
     case 12:
     {
         type--;
-        uint8_t num = pgm_read_byte(&temptables_num[type]) << 1;
+        uint8_t num = temptables_num[type] << 1;
         uint8_t i = 2;
-        const short *temptable = (const short *)pgm_read_word(&temptables[type]); //pgm_read_word(&temptables[type]);
-        short oldraw = pgm_read_word(&temptable[0]);
-        short oldtemp = pgm_read_word(&temptable[1]);
+        const short *temptable = (const short *)temptables[type]; //temptables[type];
+        short oldraw = temptable[0];
+        short oldtemp = temptable[1];
         short newraw = 0,newtemp;
         while(i<num)
         {
-            newraw = pgm_read_word(&temptable[i++]);
-            newtemp = pgm_read_word(&temptable[i++]);
+            newraw = temptable[i++];
+            newtemp = temptable[i++];
             if (newtemp < temp)
             {
                 targetTemperature = (1023 << (2 - ANALOG_REDUCE_BITS))- oldraw + (int32_t)(oldtemp - temp) * (int32_t)(oldraw - newraw) / (oldtemp - newtemp);
@@ -1645,16 +1645,16 @@ void TemperatureController::setTargetTemperature(float target)
             type -= 46;
         else
             type--;
-        uint8_t num = pgm_read_byte(&temptables_num[type]) << 1;
+        uint8_t num = temptables_num[type] << 1;
         uint8_t i = 2;
-        const short *temptable = (const short *)pgm_read_word(&temptables[type]); //pgm_read_word(&temptables[type]);
-        short oldraw = pgm_read_word(&temptable[0]);
-        short oldtemp = pgm_read_word(&temptable[1]);
+        const short *temptable = (const short *)temptables[type]; //temptables[type];
+        short oldraw = temptable[0];
+        short oldtemp = temptable[1];
         short newraw = 0,newtemp;
         while(i < num)
         {
-            newraw = pgm_read_word(&temptable[i++]);
-            newtemp = pgm_read_word(&temptable[i++]);
+            newraw = temptable[i++];
+            newtemp = temptable[i++];
             if (newtemp > temp)
             {
                 targetTemperature = oldraw + (int32_t)(oldtemp - temp) * (int32_t)(oldraw - newraw) / (oldtemp-newtemp);
