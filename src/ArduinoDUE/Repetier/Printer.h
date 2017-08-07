@@ -373,7 +373,6 @@ public:
     static int feedrateMultiply;             ///< Multiplier for feedrate in percent (factor 1 = 100)
     static unsigned int extrudeMultiply;     ///< Flow multiplier in percdent (factor 1 = 100)
     static float maxJerk;                    ///< Maximum allowed jerk in mm/s
-    static uint8_t interruptEvent;           ///< Event generated in interrupts that should/could be handled in main thread
     static float offsetX;                     ///< X-offset for different extruder positions.
     static float offsetY;                     ///< Y-offset for different extruder positions.
     static float offsetZ;                     ///< Y-offset for different extruder positions.

@@ -727,17 +727,6 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_ERROR_UPD_RAM(status) {}
 #endif  // Display
 
-// Beeper methods
-#if BEEPER_TYPE==0
-#define BEEP_SHORT {}
-#define BEEP_LONG {}
-#else
-#define BEEP_SHORT beep(BEEPER_SHORT_SEQUENCE);
-#define BEEP_LONG beep(BEEPER_LONG_SEQUENCE);
-#endif
-
-
-extern void beep(uint8_t duration,uint8_t count);
 #if (defined(USER_KEY1_PIN) && USER_KEY1_PIN > -1 && defined(USER_KEY1_ACTION)) || (defined(USER_KEY2_PIN) && USER_KEY2_PIN > -1 && defined(USER_KEY2_ACTION)) || (defined(USER_KEY3_PIN) && USER_KEY3_PIN > -1 && defined(USER_KEY3_ACTION)) || (defined(USER_KEY4_PIN) && USER_KEY4_PIN > -1 && defined(USER_KEY4_ACTION))
 #define HAS_USER_KEYS
 static void ui_check_Ukeys(uint16_t &action) {

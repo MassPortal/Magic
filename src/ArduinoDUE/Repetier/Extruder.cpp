@@ -177,13 +177,6 @@ void Extruder::manageTemperatures()
 #endif // RED_BLUE_STATUS_LEDS
         if(Printer::isAnyTempsensorDefect()) continue;
         uint8_t on = act->currentTemperatureC >= act->targetTemperatureC ? LOW : HIGH;
-        // Make a sound if alarm was set on reaching target temperature
-        if(!on && act->isAlarm())
-        {
-            beep(50 * (controller + 1), 3);
-            act->setAlarm(false);  //reset alarm
-        }
-
         // Run test if heater and sensor are decoupled
         bool decoupleTestRequired = !errorDetected && act->decoupleTestPeriod > 0 && (time - act->lastDecoupleTest) > act->decoupleTestPeriod; // time enough for temperature change?
         if(decoupleTestRequired && act->isDecoupleFullOrHold() && Printer::isPowerOn()) // Only test when powered
@@ -624,7 +617,7 @@ void Extruder::selectExtruderById(uint8_t extruderId)
 	}
 #endif
 
-void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t extr, bool beep, bool wait)
+void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t extr, bool wait)
 {
 #if NUM_EXTRUDER > 0
 #if MIXING_EXTRUDER || MIXING_SEMI
@@ -642,8 +635,6 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
     //if(temperatureInCelsius==tc->targetTemperatureC) return;
     tc->setTargetTemperature(temperatureInCelsius);
     tc->updateTempControlVars();
-    if(beep && temperatureInCelsius > MAX_ROOM_TEMPERATURE)
-        tc->setAlarm(true);
     if(temperatureInCelsius >= EXTRUDER_FAN_COOL_TEMP) extruder[extr].coolerPWM = extruder[extr].coolerSpeed;
     /*
 	Com::printF(Com::tTargetExtr,extr,0);
@@ -745,7 +736,7 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
 #endif
 }
 
-void Extruder::setHeatedBedTemperature(float temperatureInCelsius,bool beep)
+void Extruder::setHeatedBedTemperature(float temperatureInCelsius)
 {
 #if HAVE_HEATED_BED
 	
@@ -753,7 +744,6 @@ void Extruder::setHeatedBedTemperature(float temperatureInCelsius,bool beep)
     if(temperatureInCelsius<0) temperatureInCelsius = 0;
     if(heatedBedController.targetTemperatureC==temperatureInCelsius) return; // don't flood log with messages if killed
     heatedBedController.setTargetTemperature(temperatureInCelsius);
-    if(beep && temperatureInCelsius>30) heatedBedController.setAlarm(true);
     Com::printFLN(Com::tTargetBedColon,heatedBedController.targetTemperatureC,0);
     if(temperatureInCelsius > 15)
         pwm_pos[PWM_BOARD_FAN] = 255;    // turn on the mainboard cooling fan

@@ -50,14 +50,6 @@ uint16_t servoPosition = 1500;
 #endif
 #endif
 
-#if BEEPER_TYPE==2 && defined(UI_HAS_I2C_KEYS) && UI_I2C_KEY_ADDRESS!=BEEPER_ADDRESS
-#error Beeper address and i2c key address must be identical
-#else
-#if BEEPER_TYPE==2
-#define UI_I2C_KEY_ADDRESS BEEPER_ADDRESS
-#endif
-#endif
-
 static TemperatureController *currHeaterForSetup;    // pointer to extruder or heatbed temperature controller
 
 #if UI_AUTORETURN_TO_MENU_AFTER != 0
@@ -66,70 +58,6 @@ millis_t ui_autoreturn_time = 0;
 #if FEATURE_BABYSTEPPING
 int zBabySteps = 0;
 #endif
-
-void beep(uint8_t duration,uint8_t count)
-{
-#if FEATURE_BEEPER
-#if BEEPER_TYPE!=0
-#if BEEPER_TYPE==1 && defined(BEEPER_PIN) && BEEPER_PIN>=0
-    SET_OUTPUT(BEEPER_PIN);
-#endif
-#if BEEPER_TYPE==2
-    HAL::i2cStartWait(BEEPER_ADDRESS+I2C_WRITE);
-#if UI_DISPLAY_I2C_CHIPTYPE==1
-    HAL::i2cWrite( 0x14); // Start at port a
-#endif
-#endif
-    for(uint8_t i=0; i < count; i++)
-    {
-#if BEEPER_TYPE==1 && defined(BEEPER_PIN) && BEEPER_PIN>=0
-#if defined(BEEPER_TYPE_INVERTING) && BEEPER_TYPE_INVERTING
-        WRITE(BEEPER_PIN,LOW);
-#else
-        WRITE(BEEPER_PIN,HIGH);
-#endif
-#else
-#if UI_DISPLAY_I2C_CHIPTYPE==0
-#if BEEPER_ADDRESS == UI_DISPLAY_I2C_ADDRESS
-        HAL::i2cWrite(uid.outputMask & ~BEEPER_PIN);
-#else
-        HAL::i2cWrite(~BEEPER_PIN);
-#endif
-#endif
-#if UI_DISPLAY_I2C_CHIPTYPE==1
-        HAL::i2cWrite((BEEPER_PIN) | uid.outputMask);
-        HAL::i2cWrite(((BEEPER_PIN) | uid.outputMask)>>8);
-#endif
-#endif
-        HAL::delayMilliseconds(duration);
-#if BEEPER_TYPE==1 && defined(BEEPER_PIN) && BEEPER_PIN>=0
-#if defined(BEEPER_TYPE_INVERTING) && BEEPER_TYPE_INVERTING
-        WRITE(BEEPER_PIN,HIGH);
-#else
-        WRITE(BEEPER_PIN,LOW);
-#endif
-#else
-#if UI_DISPLAY_I2C_CHIPTYPE==0
-
-#if BEEPER_ADDRESS == UI_DISPLAY_I2C_ADDRESS
-        HAL::i2cWrite((BEEPER_PIN) | uid.outputMask);
-#else
-        HAL::i2cWrite(255);
-#endif
-#endif
-#if UI_DISPLAY_I2C_CHIPTYPE==1
-        HAL::i2cWrite( uid.outputMask);
-        HAL::i2cWrite(uid.outputMask>>8);
-#endif
-#endif
-        HAL::delayMilliseconds(duration);
-    }
-#if BEEPER_TYPE==2
-    HAL::i2cStop();
-#endif
-#endif
-#endif
-}
 
 bool UIMenuEntry::showEntry() const
 {
@@ -856,11 +784,6 @@ void UIDisplay::initialize()
     oldMenuLevel = -2;
 #ifdef COMPILE_I2C_DRIVER
     uid.outputMask = UI_DISPLAY_I2C_OUTPUT_START_MASK;
-#if UI_DISPLAY_I2C_CHIPTYPE==0 && BEEPER_TYPE==2 && BEEPER_PIN>=0
-#if BEEPER_ADDRESS == UI_DISPLAY_I2C_ADDRESS
-    uid.outputMask |= BEEPER_PIN;
-#endif
-#endif
     HAL::i2cInit(UI_I2C_CLOCKSPEED);
 #if UI_DISPLAY_I2C_CHIPTYPE==1
     // set direction of pins
@@ -977,12 +900,6 @@ void UIDisplay::initialize()
 #endif
 #endif // gameduino2
     HAL::delayMilliseconds(UI_START_SCREEN_DELAY);
-#endif
-#if defined(UI_DISPLAY_I2C_CHIPTYPE) && UI_DISPLAY_I2C_CHIPTYPE==0 && (BEEPER_TYPE==2 || defined(UI_HAS_I2C_KEYS))
-    // Make sure the beeper is off
-    HAL::i2cStartWait(UI_I2C_KEY_ADDRESS+I2C_WRITE);
-    HAL::i2cWrite(255); // Disable beeper, enable read for other pins.
-    HAL::i2cStop();
 #endif
 }
 #if UI_DISPLAY_TYPE == DISPLAY_4BIT || UI_DISPLAY_TYPE == DISPLAY_8BIT || UI_DISPLAY_TYPE == DISPLAY_I2C
@@ -1231,7 +1148,6 @@ void UIDisplay::addGCode(GCode *code)
 
 void UIDisplay::parse(const char *txt,bool ram)
 {
-    static uint8_t beepdelay = 0;
     int ivalue = 0;
     float fvalue = 0;
     while(col < MAX_COLS)
@@ -1321,8 +1237,6 @@ void UIDisplay::parse(const char *txt,bool ram)
 #if NUM_TEMPERATURE_LOOPS > 0
             if(Printer::isAnyTempsensorDefect())
             {
-                if(eid == 0 && ++beepdelay > 30) beepdelay = 0; // beep every 30 seconds
-                if(beepdelay == 1) BEEP_LONG;
                 if(tempController[eid]->isSensorDefect())
                 {
                     addStringP(PSTR(" def "));
@@ -2326,7 +2240,6 @@ int UIDisplay::okAction(bool allowMoves)
         Printer::setUIErrorMessage(false);
         return 0;
     }
-    BEEP_SHORT
 #if UI_HAS_KEYS == 1
     if(menuLevel == 0)   // Enter menu
     {
@@ -2386,7 +2299,6 @@ int UIDisplay::okAction(bool allowMoves)
             {
 				strcpy(shortFilename,getFilePart(filename,false).c_str());
                 sd.startPrint();
-                BEEP_LONG;
                 menuLevel = 0;
             }
             break;
@@ -2398,7 +2310,6 @@ int UIDisplay::okAction(bool allowMoves)
                 if(sd.fat.remove(filename))
                 {
                     Com::printFLN(Com::tFileDeleted);
-                    BEEP_LONG
                     if(menuPos[menuLevel] > 0)
                         menuPos[menuLevel]--;
                     updateSDFileCount();
@@ -2443,7 +2354,6 @@ int UIDisplay::okAction(bool allowMoves)
         {
 #if FEATURE_RETRACTION
         case UI_ACTION_WIZARD_FILAMENTCHANGE: // filament change is finished
-//            BEEP_SHORT;
             popMenu(true);
             //Extruder::current->retractDistance(EEPROM_FLOAT(RETRACTION_LENGTH));
 #if FILAMENTCHANGE_REHOME
@@ -2468,7 +2378,6 @@ int UIDisplay::okAction(bool allowMoves)
     if(entType == 2)   // Enter submenu
     {
         pushMenu((UIMenu*)action, false);
-//        BEEP_SHORT
 #if FEATURE_BABYSTEPPING
         zBabySteps = 0;
 #endif
@@ -3054,7 +2963,6 @@ void UIDisplay::menuAdjustHeight(const UIMenu *men,float offset)
 		setBedOffset();
 		// Display message
 		pushMenu(men, false);
-		BEEP_SHORT;
 		menuLevel = 0;
 		activeAction = 0;
 		UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_PRINTER_READY_ID));
@@ -3341,13 +3249,11 @@ break;
         case UI_ACTION_STORE_EEPROM:
             EEPROM::storeDataIntoEEPROM(false);
             pushMenu(&ui_menu_eeprom_saved, false);
-            BEEP_LONG;
             break;
         case UI_ACTION_LOAD_EEPROM:
             EEPROM::readDataFromEEPROM(true);
             Extruder::selectExtruderById(Extruder::current->id);
             pushMenu(&ui_menu_eeprom_loaded, false);
-            BEEP_LONG;
             break;
 #endif
 #if SDSUPPORT
@@ -3410,7 +3316,6 @@ break;
             pushMenu(&ui_menu_sd, false);
 			else {
 				ret = okAction(allowMoves);
-				//skipBeep = true; // Prevent double beep
 			}
             break;
 #endif
@@ -3561,7 +3466,6 @@ break;
             Printer::setJamcontrolDisabled(true);
             Com::printFLN(PSTR("important: Filament change required!"));
             Printer::setBlockingReceive(true);
-            BEEP_LONG;
             pushMenu(&ui_wiz_filamentchange, true);
             Printer::resetWizardStack();
             Printer::pushWizardVar(Printer::currentPositionSteps[E_AXIS]);
@@ -3813,7 +3717,6 @@ case UI_ACTION_RESET_MATRIX:
 			menuLevel = 0;
 			activeAction = 0;
 			pushMenu(&ui_menu_reset_action, false);
-			BEEP_SHORT;
 			UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY_EN);
 			break;
 #if FEATURE_AUTOLEVEL
@@ -3931,7 +3834,6 @@ void UIDisplay::slowAction(bool allowMoves)
         if(encodeChange) // encoder changed
         {
             nextPreviousAction(encodeChange, allowMoves);
-            BEEP_SHORT
             refresh = 1;
         }
         if(lastAction != lastButtonAction)
@@ -3947,7 +3849,6 @@ void UIDisplay::slowAction(bool allowMoves)
             else if(time - lastButtonStart > UI_KEY_BOUNCETIME)     // New key pressed
             {
                 lastAction = lastButtonAction;
-                BEEP_SHORT
                 if((newAction = executeAction(lastAction, allowMoves)) == 0)
                 {
                     nextRepeat = time + UI_KEY_FIRST_REPEAT;
@@ -3971,7 +3872,6 @@ void UIDisplay::slowAction(bool allowMoves)
                 repeatDuration -= UI_KEY_REDUCE_REPEAT;
                 if(repeatDuration < UI_KEY_MIN_REPEAT) repeatDuration = UI_KEY_MIN_REPEAT;
                 nextRepeat = time + repeatDuration;
-                BEEP_SHORT
             }
         }
         noInts.protect();
@@ -4084,7 +3984,6 @@ void UIDisplay::menuCommand(const UIMenu *doing,const UIMenu *men,FSTRINGPARAM(c
 	menuLevel = 0;
 	activeAction = 0;
 	pushMenu(men, false);
-	BEEP_SHORT;
 	UI_STATUS_UPD_RAM(UI_TEXT_PRINTER_READY_EN);
 	Commands::waitUntilEndOfAllMoves();
 }

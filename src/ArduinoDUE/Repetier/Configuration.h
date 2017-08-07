@@ -1618,16 +1618,6 @@ same setting.
 /** \brief Lowest repeat time. */
 #define UI_KEY_MIN_REPEAT 50
 
-#define FEATURE_BEEPER 0
-/**
-Beeper sound definitions for short beeps during key actions
-and longer beeps for important actions.
-Parameter is delay in microseconds and the second is the number of repetitions.
-Values must be in range 1..255
-*/
-#define BEEPER_SHORT_SEQUENCE 2,2
-#define BEEPER_LONG_SEQUENCE 8,8
-
 // ###############################################################################
 // ##                         Values for menu settings                          ##
 // ###############################################################################

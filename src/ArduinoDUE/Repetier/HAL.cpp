@@ -1153,16 +1153,6 @@ void EXTRUDER_TIMER_VECTOR ()
 }
 #endif
 
-// IRQ handler for tone generator
-void BEEPER_TIMER_VECTOR () {
-  static bool     toggle;
-
-  TC_GetStatus(BEEPER_TIMER, BEEPER_TIMER_CHANNEL);
-
-  WRITE_VAR(tone_pin, toggle);
-  toggle = !toggle;
-}
-
 #if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
 RFDoubleSerial::RFDoubleSerial() {
 }

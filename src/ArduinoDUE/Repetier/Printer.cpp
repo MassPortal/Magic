@@ -78,7 +78,6 @@ float oldFeedrate = Printer::feedrate;
 uint8_t Printer::ledVal = 0;
 bool Printer::allowBelow = true;
 
-uint8_t Printer::interruptEvent = 0;
 #if EEPROM_MODE != 0
 float Printer::zBedOffset = HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
 #else

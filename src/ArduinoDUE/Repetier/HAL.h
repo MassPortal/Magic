@@ -98,10 +98,6 @@ typedef char prog_char;
 #define SERVO_TIMER_CHANNEL     0
 #define SERVO_TIMER_IRQ         ID_TC6
 #define SERVO_COMPA_VECTOR      TC6_Handler
-#define BEEPER_TIMER            TC1
-#define BEEPER_TIMER_CHANNEL    0
-#define BEEPER_TIMER_IRQ        ID_TC3
-#define BEEPER_TIMER_VECTOR     TC3_Handler
 #define DELAY_TIMER             TC1
 #define DELAY_TIMER_CHANNEL     1
 #define DELAY_TIMER_IRQ         ID_TC4  // IRQ not really used, needed for pmc id
@@ -215,8 +211,6 @@ class InterruptProtectedBlock {
 #define I2C_WRITE   0
 
 extern int spiDueDividors[];
-
-static uint32_t    tone_pin;
 
 /** Set max. frequency to 500000 Hz */
 #define LIMIT_INTERVAL (F_CPU/500000u)
@@ -394,30 +388,6 @@ class HAL
 #endif
       }
     }
-    static inline void tone(uint8_t pin, int frequency) {
-      // set up timer counter 1 channel 0 to generate interrupts for
-      // toggling output pin.
-      SET_OUTPUT(pin);
-      tone_pin = pin;
-      pmc_set_writeprotect(false);
-      pmc_enable_periph_clk((uint32_t)BEEPER_TIMER_IRQ);
-      // set interrupt to lowest possible priority
-      NVIC_SetPriority((IRQn_Type)BEEPER_TIMER_IRQ, NVIC_EncodePriority(4, 6, 3));
-      TC_Configure(BEEPER_TIMER, BEEPER_TIMER_CHANNEL, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC |
-                   TC_CMR_TCCLKS_TIMER_CLOCK4);  // TIMER_CLOCK4 -> 128 divisor
-      uint32_t rc = VARIANT_MCK / 128 / frequency;
-      TC_SetRA(BEEPER_TIMER, BEEPER_TIMER_CHANNEL, rc / 2);                   // 50% duty cycle
-      TC_SetRC(BEEPER_TIMER, BEEPER_TIMER_CHANNEL, rc);
-      TC_Start(BEEPER_TIMER, BEEPER_TIMER_CHANNEL);
-      BEEPER_TIMER->TC_CHANNEL[BEEPER_TIMER_CHANNEL].TC_IER = TC_IER_CPCS;
-      BEEPER_TIMER->TC_CHANNEL[BEEPER_TIMER_CHANNEL].TC_IDR = ~TC_IER_CPCS;
-      NVIC_EnableIRQ((IRQn_Type)BEEPER_TIMER_IRQ);
-    }
-    static inline void noTone(uint8_t pin) {
-      TC_Stop(TC1, 0);
-      WRITE_VAR(pin, LOW);
-    }
-
     static inline void eprSetByte(unsigned int pos, uint8_t value)
     {
       eeval_t v;

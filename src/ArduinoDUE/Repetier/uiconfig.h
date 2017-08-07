@@ -67,26 +67,6 @@ works, use the ascii charset 0 as fallback. Not the nicest for everything but wo
 */
 #define UI_DISPLAY_CHARSET 1
 
-/** Select type of beeper
-0 = none
-1 = Piezo connected to pin
-2 = Piezo connected to a pin over I2C
-*/
-#ifndef BEEPER_TYPE
-#define BEEPER_TYPE 0
-#define BEEPER_TYPE_INVERTING false
-#endif
-
-#if BEEPER_TYPE==1 && !defined(BEEPER_PIN)
-#define BEEPER_PIN 37
-#endif
-#if BEEPER_TYPE==2
-#define BEEPER_ADDRESS 0x40 // I2C address of the chip with the beeper pin
-#define BEEPER_PIN _BV(7)  // Bit value for pin 8
-#define COMPILE_I2C_DRIVER  // We need the I2C driver as we are using i2c
-#endif
-
-
 /**
 What display type do you use?
 0 = No display

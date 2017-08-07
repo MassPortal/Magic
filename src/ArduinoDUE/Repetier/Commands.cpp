@@ -1173,8 +1173,7 @@ void Commands::processGCode(GCode *com)
 			deviation = Printer::runZProbe(true, true);
 			//Move to the bed center
 			Printer::moveTo(0.0, 0.0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-			BEEP_SHORT
-				UI_STATUS_UPD("Measuring...");
+			UI_STATUS_UPD("Measuring...");
 			Com::printFLN("Measuring...");
 			Printer::homeAxis(true, true, true);
 			Printer::moveTo(0, 0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
@@ -2443,7 +2442,7 @@ void Commands::processMCode(GCode *com)
         if(reportTempsensorError()) break;
         previousMillisCmd = millis();
         if(Printer::debugDryrun()) break;
-        if (com->hasS()) Extruder::setHeatedBedTemperature(com->S,com->hasF() && com->F > 0);
+        if (com->hasS()) Extruder::setHeatedBedTemperature(com->S);
 #if BED_LEDS
 		//Light.ShowTemps();
 #endif
@@ -2463,7 +2462,7 @@ void Commands::processMCode(GCode *com)
         Commands::waitUntilEndOfAllMoves();
         Extruder *actExtruder = Extruder::current;
         if(com->hasT() && com->T < NUM_EXTRUDER) actExtruder = &extruder[com->T];
-        if (com->hasS()) Extruder::setTemperatureForExtruder(com->S, actExtruder->id, /*com->hasF() && com->F > 0,*/ true, true);
+        if (com->hasS()) Extruder::setTemperatureForExtruder(com->S, actExtruder->id, /*com->hasF() && com->F > 0,*/ true);
         /*        UI_STATUS_UPD(UI_TEXT_HEATING_EXTRUDER);
 #if defined(SKIP_M109_IF_WITHIN) && SKIP_M109_IF_WITHIN > 0
         if(abs(actExtruder->tempControl.currentTemperatureC - actExtruder->tempControl.targetTemperatureC) < (SKIP_M109_IF_WITHIN)) break; // Already in range
@@ -2525,7 +2524,7 @@ void Commands::processMCode(GCode *com)
         UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HEATING_BED_ID));
         Commands::waitUntilEndOfAllMoves();
 #if HAVE_HEATED_BED
-        if (com->hasS()) Extruder::setHeatedBedTemperature(com->S,com->hasF() && com->F > 0);
+        if (com->hasS()) Extruder::setHeatedBedTemperature(com->S);
 #if defined(SKIP_M190_IF_WITHIN) && SKIP_M190_IF_WITHIN>0
         if(abs(heatedBedController.currentTemperatureC-heatedBedController.targetTemperatureC) < SKIP_M190_IF_WITHIN) break;
 #endif
@@ -2593,7 +2592,7 @@ void Commands::processMCode(GCode *com)
             Extruder::setTemperatureForExtruder(0, 0);
 #endif
 #if HAVE_HEATED_BED != 0
-            Extruder::setHeatedBedTemperature(0,false);
+            Extruder::setHeatedBedTemperature(0);
 #endif
         }
         break;
@@ -2617,12 +2616,6 @@ void Commands::processMCode(GCode *com)
         Endstops::update(); // double test to get right signal. Needed for crosstalk protection.
         Endstops::report();
         break;
-#if BEEPER_TYPE>0
-    case 120: // M120 Test beeper function
-        if(com->hasS() && com->hasP())
-            beep(com->S, com->P); // Beep test
-        break;
-#endif
 #if MIXING_EXTRUDER > 0
     case 163: // M163 S<extruderNum> P<weight>  - Set weight for this mixing extruder drive
         if(com->hasS() && com->hasP() && com->S < NUM_EXTRUDER && com->S >= 0)
@@ -2819,19 +2812,6 @@ void Commands::processMCode(GCode *com)
     Com::printInfoFLN(PSTR("Watchdog feature was not compiled into this version!"));
 #endif
     break;
-#if defined(BEEPER_PIN) && BEEPER_PIN>=0
-    case 300: // M300
-    {
-        int beepS = 1;
-        int beepP = 1000;
-        if(com->hasS()) beepS = com->S;
-        if(com->hasP()) beepP = com->P;
-        HAL::tone(BEEPER_PIN, beepS);
-        HAL::delayMilliseconds(beepP);
-        HAL::noTone(BEEPER_PIN);
-    }
-    break;
-#endif
     case 302: // M302 S<0 or 1> - allow cold extrusion. Without S parameter it will allow. S1 will disallow.
         Printer::setColdExtrusionAllowed(!com->hasS() || (com->hasS() && com->S != 0));
         break;
