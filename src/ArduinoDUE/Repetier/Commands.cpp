@@ -62,10 +62,8 @@ void Commands::commandLoop()
 
 void Commands::checkForPeriodicalActions(bool allowNewMoves)
 {
-    EVENT_PERIODICAL;
     if(!executePeriodical) return;
     executePeriodical = 0;
-    EVENT_TIMER_100MS;
     Extruder::manageTemperatures();
 #if BED_LEDS
 	Light.loop();
@@ -75,7 +73,6 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
         if(manageMonitor)
             writeMonitor();
         counter250ms = 5;
-        EVENT_TIMER_500MS;
     }
     // If called from queueDelta etc. it is an error to start a new move since it
     // would invalidate old computation resulting in unpredicted behaviour.
@@ -2195,7 +2192,7 @@ void Commands::processGCode(GCode *com)
         break;
 #endif // defined
     default:
-        if(!EVENT_UNHANDLED_G_CODE(com) && Printer::debugErrors())
+        if(Printer::debugErrors())
         {
             Com::printF(Com::tUnknownCommand);
             com->printCommand();
@@ -2532,7 +2529,6 @@ void Commands::processMCode(GCode *com)
 #if defined(SKIP_M190_IF_WITHIN) && SKIP_M190_IF_WITHIN>0
         if(abs(heatedBedController.currentTemperatureC-heatedBedController.targetTemperatureC) < SKIP_M190_IF_WITHIN) break;
 #endif
-        EVENT_WAITING_HEATER(-1);
 	    uint32_t codenum; //throw away variable
         codenum = millis();
         while(heatedBedController.currentTemperatureC + 0.5 < heatedBedController.targetTemperatureC && heatedBedController.targetTemperatureC > 25.0)
@@ -2545,7 +2541,6 @@ void Commands::processMCode(GCode *com)
             Commands::checkForPeriodicalActions(true);
         }
 #endif
-        EVENT_HEATING_FINISHED(-1);
 #endif
         UI_CLEAR_STATUS;
         previousMillisCmd = millis();
@@ -2555,9 +2550,7 @@ void Commands::processMCode(GCode *com)
     case 116: // Wait for temperatures to reach target temperature
         for(fast8_t h = 0; h < NUM_TEMPERATURE_LOOPS; h++)
         {
-            EVENT_WAITING_HEATER(h < NUM_EXTRUDER ? h : -1);
             tempController[h]->waitForTargetTemperature();
-            EVENT_HEATING_FINISHED(h < NUM_EXTRUDER ? h : -1);
         }
         break;
 #endif
@@ -3240,7 +3233,7 @@ void Commands::processMCode(GCode *com)
         }
         break;
     default:
-        if(!EVENT_UNHANDLED_M_CODE(com) && Printer::debugErrors())
+        if(Printer::debugErrors())
         {
             Com::printF(Com::tUnknownCommand);
             com->printCommand();

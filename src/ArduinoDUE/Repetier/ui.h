@@ -592,8 +592,6 @@ void startAction(int action);
     uint8_t folderLevel;
 };
 extern UIDisplay uid;
-// Returns either the file name or just the extension
-String getFilePart(const char filename, boolean extension);
 // Compares file names' extension to the given one. Returns true if they match.
 bool hasExtension(const char* filename,const char* extension);
 

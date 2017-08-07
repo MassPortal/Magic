@@ -2003,7 +2003,6 @@ class SdBaseFile {
   bool open(SdBaseFile* dirFile, const uint8_t *dname, uint8_t oflag, bool bDir);
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
   dir_t* readDirCache();
-  dir_t* readDirCacheSpecial();
   dir_t *getLongFilename(dir_t *dir, char *longFilename, int8_t cVFATNeeded, uint32_t *pwIndexPos);
   bool findSpace(dir_t *dir, int8_t cVFATNeeded, int8_t *pcVFATFound, uint32_t *pwIndexPos);
   uint8_t lsRecursive(SdBaseFile *parent, uint8_t level, char *findFilename, SdBaseFile *pParentFound, bool isJson);

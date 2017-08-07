@@ -440,14 +440,12 @@ void Printer::updateDerivedParameter()
     distortion.updateDerived();
 #endif // DISTORTION_CORRECTION
     Printer::updateAdvanceFlags();
-    EVENT_UPDATE_DERIVED;
 }
 /**
   \brief Stop heater and stepper motors. Disable power,if possible.
 */
 void Printer::kill(uint8_t only_steppers)
 {
-    EVENT_KILL(only_steppers);
     if(areAllSteppersDisabled() && only_steppers) return;
     if(Printer::isAllKilled()) return;
     setAllSteppersDiabled();
@@ -1091,7 +1089,6 @@ void Printer::setup()
     HAL::servoMicroseconds(3,SERVO3_NEUTRAL_POS, 1000);
   #endif
 #endif
-    EVENT_INITIALIZE;
 #ifdef STARTUP_GCODE
 GCode::executeFString(Com::tStartupGCode);
 #endif
@@ -1705,8 +1702,3 @@ void Distortion::showMatrix() {
 }
 
 #endif // DISTORTION_CORRECTION
-
-#if defined(CUSTOM_EVENTS)
-#include "CustomEventsImpl.h"
-#endif
-

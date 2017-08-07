@@ -857,9 +857,4 @@ extern int debugWaitLoop;
 
 #include "Drivers.h"
 
-#include "Events.h"
-#if defined(CUSTOM_EVENTS)
-#include "CustomEvents.h"
-#endif
-
 #endif /* _REPETIER_H */

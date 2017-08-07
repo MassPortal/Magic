@@ -965,7 +965,6 @@ public:
         HAL::delayMicroseconds(STEPPER_HIGH_DELAY);
 #endif
     }
-    static void constrainDestinationCoords();
     static void updateDerivedParameter();
     static void updateCurrentPosition(bool copyLastCmd = false);
     static void kill(uint8_t only_steppers);

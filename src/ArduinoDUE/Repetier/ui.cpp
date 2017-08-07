@@ -22,6 +22,7 @@
 // It does not define interfaces for other modules, so should never be included elsewhere
 #include "uimenu.h"
 #include "uiconfig.h"
+#include "ui.h"
 
 extern const int8_t encoder_table[16] PROGMEM ;
 char shortFilename[LONG_FILENAME_LENGTH+1] = {0};
@@ -1126,7 +1127,7 @@ void UIDisplay::addFloat(float number, char fixdigits, uint8_t digits)
     }
 }
 
-void UIDisplay::addStringP(FSTRINGPARAM(text))
+void UIDisplay::addStringP(PGM_P text)
 {
     while(col < MAX_COLS)
     {
@@ -2378,7 +2379,6 @@ int UIDisplay::okAction(bool allowMoves)
         }
         sd.file.close();
         sd.fat.chdir(cwd);
-        EVENT_START_UI_ACTION(shortAction);
         switch(shortAction)
         {
         case UI_ACTION_SD_PRINT:
@@ -2666,7 +2666,6 @@ bool UIDisplay::nextPreviousAction(int16_t next, bool allowMoves)
     if(mtype == UI_MENU_TYPE_MODIFICATION_MENU || mtype == UI_MENU_TYPE_WIZARD) action = pgm_read_word(&(men->id));
     else action = activeAction;
     int16_t increment = next;
-    EVENT_START_NEXTPREVIOUS(action,increment);
     switch(action)
     {
     case UI_ACTION_FANSPEED:
