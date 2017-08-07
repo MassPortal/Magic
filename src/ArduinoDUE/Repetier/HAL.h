@@ -56,8 +56,6 @@
 
 #define FSTRINGVALUE(var,value) const char var[] = value;
 #define FSTRINGVAR(var) static const char var[];
-#define FSTRINGPARAM(var) const char* var
-
 
 #define EXTRUDER_TIMER          TC0
 #define EXTRUDER_TIMER_CHANNEL  0

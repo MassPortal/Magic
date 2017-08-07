@@ -563,7 +563,7 @@ class UIDisplay {
     void waitForKey();
     void printRow(uint8_t r,const char *txt,const char *txt2, uint8_t changeAtCol); // Print row on display
     void printRowP(uint8_t r,const char* txt);
-    void parse(const char *txt,bool ram); /// Parse output and write to printCols;
+    void parse(const char *txt); /// Parse output and write to printCols;
     void refreshPage();
     int executeAction(unsigned int action, bool allowMoves);
     void finishAction(unsigned int action);
@@ -581,7 +581,7 @@ class UIDisplay {
     bool isDirname(char *name);
     bool isWizardActive();
     bool isSticky();
-void menuCommand(const UIMenu *doing, const UIMenu *men, FSTRINGPARAM(cmd));
+void menuCommand(const UIMenu *doing, const UIMenu *men, const char* cmd);
 
     void showLanguageSelectionWizard();
 #if UI_BED_COATING

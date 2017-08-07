@@ -411,33 +411,34 @@ FSTRINGVAR(tBedLED)
 #ifdef STARTUP_GCODE
 FSTRINGVAR(tStartupGCode)
 #endif
-static void config(FSTRINGPARAM(text));
-static void config(FSTRINGPARAM(text),int value);
-static void config(FSTRINGPARAM(text),const char *msg);
-static void config(FSTRINGPARAM(text),int32_t value);
-static void config(FSTRINGPARAM(text),uint32_t value);
-static void config(FSTRINGPARAM(text),float value,uint8_t digits=2);
+
+static void config(const char* text);
+static void config(const char* text,int value);
+static void config(const char* text,const char *msg);
+static void config(const char* text,int32_t value);
+static void config(const char* text,uint32_t value);
+static void config(const char* text,float value,uint8_t digits=2);
 static void printNumber(uint32_t n);
-static void printWarningF(FSTRINGPARAM(text));
-static void printInfoF(FSTRINGPARAM(text));
-static void printErrorF(FSTRINGPARAM(text));
-static void printWarningFLN(FSTRINGPARAM(text));
-static void printInfoFLN(FSTRINGPARAM(text));
-static void printErrorFLN(FSTRINGPARAM(text));
-static void printFLN(FSTRINGPARAM(text));
-static void printF(FSTRINGPARAM(text));
-static void printF(FSTRINGPARAM(text),int value);
-static void printF(FSTRINGPARAM(text),const char *msg);
-static void printF(FSTRINGPARAM(text),int32_t value);
-static void printF(FSTRINGPARAM(text),uint32_t value);
-static void printF(FSTRINGPARAM(text),float value,uint8_t digits=2);
-static void printFLN(FSTRINGPARAM(text),int value);
-static void printFLN(FSTRINGPARAM(text),int32_t value);
-static void printFLN(FSTRINGPARAM(text),uint32_t value);
-static void printFLN(FSTRINGPARAM(text),const char *msg);
-static void printFLN(FSTRINGPARAM(text),float value,uint8_t digits=2);
-static void printArrayFLN(FSTRINGPARAM(text),float *arr,uint8_t n=4,uint8_t digits=2);
-static void printArrayFLN(FSTRINGPARAM(text),int32_t *arr,uint8_t n=4);
+static void printWarningF(const char* text);
+static void printInfoF(const char* text);
+static void printErrorF(const char* text);
+static void printWarningFLN(const char* text);
+static void printInfoFLN(const char* text);
+static void printErrorFLN(const char* text);
+static void printFLN(const char* text);
+static void printF(const char* text);
+static void printF(const char* text,int value);
+static void printF(const char* text,const char *msg);
+static void printF(const char* text,int32_t value);
+static void printF(const char* text,uint32_t value);
+static void printF(const char* text,float value,uint8_t digits=2);
+static void printFLN(const char* text,int value);
+static void printFLN(const char* text,int32_t value);
+static void printFLN(const char* text,uint32_t value);
+static void printFLN(const char* text,const char *msg);
+static void printFLN(const char* text,float value,uint8_t digits=2);
+static void printArrayFLN(const char* text,float *arr,uint8_t n=4,uint8_t digits=2);
+static void printArrayFLN(const char* text,int32_t *arr,uint8_t n=4);
 static void print(long value);
 static inline void print(uint32_t value) {printNumber(value);}
 static inline void print(int value) {print((int32_t)value);}

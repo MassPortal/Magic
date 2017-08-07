@@ -764,7 +764,7 @@ UIDisplay::UIDisplay()
 {
 }
 #if UI_ANIMATION || UI_ANIMATE_BOOT
-void slideIn(uint8_t row,FSTRINGPARAM(text))
+void slideIn(uint8_t row,const char* text)
 {
     char *empty="";
     int8_t i = 0;
@@ -1146,13 +1146,13 @@ void UIDisplay::addGCode(GCode *code)
 }
 
 
-void UIDisplay::parse(const char *txt,bool ram)
+void UIDisplay::parse(const char *txt)
 {
     int ivalue = 0;
     float fvalue = 0;
     while(col < MAX_COLS)
     {
-        char c = (ram ? *(txt++) : *(txt++));
+        char c = *(txt++);
         if(c == 0) break; // finished
         if(c != '%')
         {
@@ -1160,8 +1160,8 @@ void UIDisplay::parse(const char *txt,bool ram)
             continue;
         }
         // dynamic parameter, parse meaning and replace
-        char c1 = (ram ? *(txt++) : *(txt++));
-        char c2 = (ram ? *(txt++) : *(txt++));
+        char c1 = *(txt++);
+        char c2 = *(txt++);
         switch(c1)
         {
         case '%':
@@ -1214,7 +1214,7 @@ void UIDisplay::parse(const char *txt,bool ram)
             if(c2 == 'I')
             {
                 //give integer display
-                //char c2 = (ram ? *(txt++) : *(txt++));
+                //char c2 = *(txt++);
                 txt++; // just skip c sign
                 ivalue=0;
             }
@@ -1329,7 +1329,7 @@ void UIDisplay::parse(const char *txt,bool ram)
                 }
                 else
 #endif
-                    parse(statusMsg, true);
+                    parse(statusMsg);
                 break;
             }
             if(c2 == 'c')
@@ -1835,7 +1835,7 @@ void UIDisplay::refreshPage()
             char *text = (char*)ent->text;
             if(text == NULL)
                 text = (char*)Com::translatedF(ent->translation);
-            parse(text,false);
+            parse(text);
             strcpy(cache[r],uid.printCols);
         }
     }
@@ -1869,7 +1869,7 @@ void UIDisplay::refreshPage()
             char *text = (char*)ent->text;
             if(text == NULL)
                 text = (char*)Com::translatedF(ent->translation);
-            parse(text,false);
+            parse(text);
             if(entType == 2)   // Draw submenu marker at the right side
             {
                 while(col<UI_COLS-1) uid.printCols[col++]=' ';
@@ -3978,7 +3978,7 @@ const int8_t encoder_table[16] = {0,0,0,0,0,0,0,0,0,0,0,-1,0,0,1,0}; // Quart sp
 #endif
 #endif
 
-void UIDisplay::menuCommand(const UIMenu *doing,const UIMenu *men,FSTRINGPARAM(cmd)){
+void UIDisplay::menuCommand(const UIMenu *doing,const UIMenu *men,const char* cmd){
 	pushMenu(doing, false);
 	GCode::executeFString(cmd);
 	menuLevel = 0;
