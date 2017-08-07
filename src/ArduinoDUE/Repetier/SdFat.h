@@ -642,42 +642,7 @@ union csd_t {
  * device this will disable that device during the SD init phase.
  */
 #define SET_SPI_SS_HIGH 1
-//------------------------------------------------------------------------------
-/**
- * Define MEGA_SOFT_SPI nonzero to use software SPI on Mega Arduinos.
- * Default pins used are SS 10, MOSI 11, MISO 12, and SCK 13.
- * Edit Software Spi pins to change pin numbers.
- *
- * MEGA_SOFT_SPI allows an unmodified Adafruit GPS Shield to be used
- * on Mega Arduinos.  Software SPI works well with GPS Shield V1.1
- * but many SD cards will fail with GPS Shield V1.0.
- */
-#define MEGA_SOFT_SPI 0
-//------------------------------------------------------------------------------
-/**
- * Define LEONARDO_SOFT_SPI nonzero to use software SPI on Leonardo Arduinos.
- * Derfault pins used are SS 10, MOSI 11, MISO 12, and SCK 13.
- * Edit Software Spi pins to change pin numbers.
- *
- * LEONARDO_SOFT_SPI allows an unmodified Adafruit GPS Shield to be used
- * on Leonardo Arduinos.  Software SPI works well with GPS Shield V1.1
- * but many SD cards will fail with GPS Shield V1.0.
- */
-#define LEONARDO_SOFT_SPI 0
-//------------------------------------------------------------------------------
-/**
- * Set USE_SOFTWARE_SPI nonzero to always use software SPI.
- */
-#define USE_SOFTWARE_SPI 0
-// define software SPI pins so Mega can use unmodified 168/328 shields
-/** Default Software SPI chip select pin */
-uint8_t const SOFT_SPI_CS_PIN = 10;
-/** Software SPI Master Out Slave In pin */
-uint8_t const SOFT_SPI_MOSI_PIN = 11;
-/** Software SPI Master In Slave Out pin */
-uint8_t const SOFT_SPI_MISO_PIN = 12;
-/** Software SPI Clock pin */
-uint8_t const SOFT_SPI_SCK_PIN = 13;
+
 //------------------------------------------------------------------------------
 // SPI speed is F_CPU/2^(1 + index), 0 <= index <= 6
 /** Set SCK to max rate of F_CPU/2. See Sd2Card::setSckRate(). */
@@ -771,24 +736,12 @@ uint8_t const SD_CARD_TYPE_SD1  = 1;
 uint8_t const SD_CARD_TYPE_SD2  = 2;
 /** High Capacity SD card */
 uint8_t const SD_CARD_TYPE_SDHC = 3;
-/**
- * define SOFTWARE_SPI to use bit-bang SPI
- */
-//------------------------------------------------------------------------------
-#if USE_SOFTWARE_SPI
-#define SOFTWARE_SPI
-#endif  // LEONARDO_SOFT_SPI
 //------------------------------------------------------------------------------
 // define default chip select pin
 //
-#ifndef SOFTWARE_SPI
 // hardware pin defs
 /** The default chip select pin for the SD card is SS. */
 uint8_t const  SD_CHIP_SELECT_PIN = SDSS;
-#else  // SOFTWARE_SPI
-/** SPI chip select pin */
-uint8_t const SD_CHIP_SELECT_PIN = SOFT_SPI_CS_PIN;
-#endif  // SOFTWARE_SPI
 //------------------------------------------------------------------------------
 /**
  * \class Sd2Card

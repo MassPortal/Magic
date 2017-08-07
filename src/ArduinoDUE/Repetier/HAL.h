@@ -45,12 +45,7 @@
 #define F_CPU_TRUE  84000000u   // actual CPU clock frequency
 #define EEPROM_BYTES 4096u      // bytes of eeprom we simulate
 
-// another hack to keep AVR code happy (i.e. SdFat.cpp)
-#define SPR0    0
-#define SPR1    1
-
 // force SdFat to use HAL (whether or not using SW spi)
-#undef  SOFTWARE_SPI
 #define TIMER0_PRESCALE 128u
 
 // Some structures assume no padding, need to add this attribute on ARM

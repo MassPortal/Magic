@@ -3010,13 +3010,6 @@ void (*SdBaseFile::oldDateTime_)(uint16_t& date, uint16_t& time) = 0;  // NOLINT
 #define SD_TRACE(m, b)
 // #define SD_TRACE(m, b) Serial.print(m);Serial.println(b);
 // SPI functions
-#ifndef SOFTWARE_SPI
-// functions for hardware SPI
-//------------------------------------------------------------------------------
-// make sure SPCR rate is in expected bits
-#if (SPR0 != 0 || SPR1 != 1)
-#error unexpected SPCR bits
-#endif
 //------------------------------------------------------------------------------
 /**
  * initialize SPI pins
@@ -3063,45 +3056,7 @@ static void spiSend(const uint8_t* buf , size_t n) {
 }
 
 //------------------------------------------------------------------------------
-#else  // SOFTWARE_SPI
-#include <SoftSPI.h>
-static
-SoftSPI<SOFT_SPI_MISO_PIN, SOFT_SPI_MOSI_PIN, SOFT_SPI_SCK_PIN, 0> softSpiBus;
-//------------------------------------------------------------------------------
-/**
- * initialize SPI pins
- */
-static void spiBegin() {
-  softSpiBus.begin();
-}
-//------------------------------------------------------------------------------
-/** Soft SPI receive byte */
-static uint8_t spiRec() {
-  return softSpiBus.receive();
-}
-//------------------------------------------------------------------------------
-/** Soft SPI read data */
-static uint8_t spiRec(uint8_t* buf, size_t nbyte) {
-  for (size_t i = 0; i < nbyte; i++) {
-    buf[i] = spiRec();
-  }
-  return 0;
-}
-//------------------------------------------------------------------------------
-/** Soft SPI send byte */
-static void spiSend(uint8_t data) {
-  softSpiBus.send(data);
-}
-//------------------------------------------------------------------------------
-/** Soft SPI send block */
-static void spiSendBlock(uint8_t token, const uint8_t* buf) {
-  spiSend(token);
-  for (uint16_t i = 0; i < 512; i++) {
-    spiSend(buf[i]);
-  }
-}
 
-#endif  // SOFTWARE_SPI
 //==============================================================================
 #if USE_SD_CRC
 // CRC functions
@@ -3255,9 +3210,7 @@ void Sd2Card::chipSelectHigh() {
 }
 //------------------------------------------------------------------------------
 void Sd2Card::chipSelectLow() {
-#ifndef SOFTWARE_SPI
   spiInit(spiRate_);
-#endif  // SOFTWARE_SPI
   HAL::digitalWrite(chipSelectPin_, LOW);
 }
 //------------------------------------------------------------------------------
@@ -3340,11 +3293,9 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   HAL::digitalWrite(chipSelectPin_, HIGH);
   spiBegin();
 
-#ifndef SOFTWARE_SPI
   // set SCK rate for initialization commands
   spiRate_ = SPI_SD_INIT_RATE;
   spiInit(spiRate_);
-#endif  // SOFTWARE_SPI
 
   // must supply min of 74 clock cycles with CS high.
   for (uint8_t i = 0; i < 20; i++) spiSend(0XFF);
@@ -3400,11 +3351,7 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
 #endif  // USE_SD_CRC
   chipSelectHigh();
 
-#ifndef SOFTWARE_SPI
   return setSckRate(sckRateID);
-#else  // SOFTWARE_SPI
-  return true;
-#endif  // SOFTWARE_SPI
 
  fail:
   chipSelectHigh();
