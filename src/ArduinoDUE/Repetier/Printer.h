@@ -1020,6 +1020,7 @@ public:
     static void MemoryPosition();
     static void GoToMemoryPosition(bool x,bool y,bool z,bool e,float feed);
     static void zBabystep();
+    static void babyStep(float Zmm);
 
     static INLINE void resetWizardStack()
     {
