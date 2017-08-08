@@ -1257,6 +1257,43 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
 #endif
 }
 
+void Printer::babyStep(float Zmm)
+{
+    bool dir, xDir, yDir, zDir;
+    uint32_t steps;
+    /* Check for zeros and NaNs */
+    if (!Zmm || Zmm != Zmm) return;
+    /* Disable motor timer */
+    TC_Stop(TIMER1_TIMER, TIMER1_TIMER_CHANNEL);
+    /* Save xyz direction settings */
+    xDir = Printer::getXDirection();
+    yDir = Printer::getYDirection();
+    zDir = Printer::getZDirection();
+    /* Configure babystep direction */
+    dir = (Zmm > 0) ? true : false;
+    Printer::setXDirection(dir);
+    Printer::setYDirection(dir);
+    Printer::setZDirection(dir);
+    /* Calculate steps neccessary */
+    steps = floor(Zmm*ZAXIS_STEPS_PER_MM + 0.5);
+    /* Execute steps */
+    while (steps) {
+        startXStep();
+        startYStep();
+        startZStep();
+        HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 2);
+        Printer::endXYZSteps();
+        HAL::delayMicroseconds(10);
+        steps--;
+    }
+    /* Set old xyz settings */
+    Printer::setXDirection(xDir);
+    Printer::setYDirection(yDir);
+    Printer::setZDirection(zDir);
+    /* Reenable motor timer */
+    TC_Start(TIMER1_TIMER, TIMER1_TIMER_CHANNEL);
+}
+
 void Printer::zBabystep()
 {
     bool dir = zBabystepsMissing > 0;
