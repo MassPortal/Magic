@@ -9,14 +9,10 @@ Each board definition follows the following scheme:
 STEPPER_CURRENT_CONTROL
   CURRENT_CONTROL_MANUAL  1  // mechanical poti, default if not defined
   CURRENT_CONTROL_DIGIPOT 2  // Use a digipot like RAMBO does
-  CURRENT_CONTROL_LTC2600 3  // Use LTC2600 like Foltyn 3D Master
-  CURRENT_CONTROL_ALLIGATOR 4  //Use External DAC like Alligator
 */
 
 #define CURRENT_CONTROL_MANUAL  1  // mechanical poti, default if not defined
 #define CURRENT_CONTROL_DIGIPOT 2  // Use a digipot like RAMBO does
-#define CURRENT_CONTROL_LTC2600 3  // Use LTC2600 like Foltyn 3D Master
-#define CURRENT_CONTROL_ALLIGATOR 4  //Use External DAC like Alligator
 
 #define EEPROM_NONE 0
 #define EEPROM_I2C  1
