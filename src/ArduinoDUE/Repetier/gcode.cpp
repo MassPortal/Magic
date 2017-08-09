@@ -291,7 +291,7 @@ void GCode::debugCommandBuffer()
 }
 
 /** \brief Execute commands in progmem stored string. Multiple commands are seperated by \n */
-void GCode::executeFString(const char* cmd)
+void GCode::executeFString(FSTRINGPARAM(cmd))
 {
     char buf[80];
     uint8_t buflen;

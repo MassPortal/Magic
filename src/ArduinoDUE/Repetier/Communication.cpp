@@ -420,110 +420,110 @@ FSTRINGVALUE(Com::tHeadVer,"Head ver.")
 FSTRINGVALUE(Com::tPSVer,"Power supply ver.")
 FSTRINGVALUE(Com::tBedLED,"Bed LED")
 
-void Com::config(const char* text) {
+void Com::config(FSTRINGPARAM(text)) {
     printF(tConfig);
     printFLN(text);
 }
-void Com::config(const char* text,int value) {
+void Com::config(FSTRINGPARAM(text),int value) {
     printF(tConfig);
     printFLN(text,value);
 }
-void Com::config(const char* text,const char *msg) {
+void Com::config(FSTRINGPARAM(text),const char *msg) {
     printF(tConfig);
     printF(text);
     print(msg);
     println();
 }
-void Com::config(const char* text,int32_t value){
+void Com::config(FSTRINGPARAM(text),int32_t value){
     printF(tConfig);
     printFLN(text,value);
 }
-void Com::config(const char* text,uint32_t value){
+void Com::config(FSTRINGPARAM(text),uint32_t value){
     printF(tConfig);
     printFLN(text,value);
 }
-void Com::config(const char* text,float value,uint8_t digits){
+void Com::config(FSTRINGPARAM(text),float value,uint8_t digits){
     printF(tConfig);
     printFLN(text,value,digits);
 }
-void Com::printWarningF(const char* text) {
+void Com::printWarningF(FSTRINGPARAM(text)) {
     printF(tWarning);
     printF(text);
 }
-void Com::printWarningFLN(const char* text) {
+void Com::printWarningFLN(FSTRINGPARAM(text)) {
     printF(tWarning);
     printFLN(text);
 }
-void Com::printInfoF(const char* text) {
+void Com::printInfoF(FSTRINGPARAM(text)) {
     printF(tInfo);
     printF(text);
 }
-void Com::printInfoFLN(const char* text) {
+void Com::printInfoFLN(FSTRINGPARAM(text)) {
     printF(tInfo);
     printFLN(text);
 }
 
-void Com::printErrorF(const char* text) {
+void Com::printErrorF(FSTRINGPARAM(text)) {
     printF(tError);
     printF(text);
 }
-void Com::printErrorFLN(const char* text) {
+void Com::printErrorFLN(FSTRINGPARAM(text)) {
     printF(tError);
     printFLN(text);
 }
-void Com::printFLN(const char* text) {
+void Com::printFLN(FSTRINGPARAM(text)) {
     printF(text);
     println();
 }
-void Com::printFLN(const char* text,const char *msg) {
+void Com::printFLN(FSTRINGPARAM(text),const char *msg) {
     printF(text);
     print(msg);
     println();
 }
 
-void Com::printF(const char* ptr) {
+void Com::printF(FSTRINGPARAM(ptr)) {
   char c;
   while ((c = *ptr++) != 0)
      Serial.write(c);
 }
-void Com::printF(const char* text,const char *msg) {
+void Com::printF(FSTRINGPARAM(text),const char *msg) {
     printF(text);
     print(msg);
 }
 
-void Com::printF(const char* text,int value) {
+void Com::printF(FSTRINGPARAM(text),int value) {
     printF(text);
     print(value);
 }
-void Com::printF(const char* text,int32_t value) {
+void Com::printF(FSTRINGPARAM(text),int32_t value) {
     printF(text);
     print(value);
 }
-void Com::printF(const char* text,uint32_t value) {
+void Com::printF(FSTRINGPARAM(text),uint32_t value) {
     printF(text);
     printNumber(value);
 }
-void Com::printFLN(const char* text,int value) {
+void Com::printFLN(FSTRINGPARAM(text),int value) {
     printF(text);
     print(value);
     println();
 }
-void Com::printFLN(const char* text,int32_t value) {
+void Com::printFLN(FSTRINGPARAM(text),int32_t value) {
     printF(text);
     print(value);
     println();
 }
-void Com::printFLN(const char* text,uint32_t value) {
+void Com::printFLN(FSTRINGPARAM(text),uint32_t value) {
     printF(text);
     printNumber(value);
     println();
 }
-void Com::printFLN(const char* text,float value,uint8_t digits) {
+void Com::printFLN(FSTRINGPARAM(text),float value,uint8_t digits) {
     printF(text);
     printFloat(value,digits);
     println();
 }
-void Com::printF(const char* text,float value,uint8_t digits) {
+void Com::printF(FSTRINGPARAM(text),float value,uint8_t digits) {
     printF(text);
     printFloat(value,digits);
 }
@@ -553,13 +553,13 @@ void Com::printNumber(uint32_t n) {
 
   print(str);
 }
-void Com::printArrayFLN(const char* text,float *arr,uint8_t n,uint8_t digits) {
+void Com::printArrayFLN(FSTRINGPARAM(text),float *arr,uint8_t n,uint8_t digits) {
     printF(text);
     for(uint8_t i=0; i<n; i++)
         printF(Com::tSpace,arr[i],digits);
     println();
 }
-void Com::printArrayFLN(const char* text,int32_t *arr,uint8_t n) {
+void Com::printArrayFLN(FSTRINGPARAM(text),int32_t *arr,uint8_t n) {
     printF(text);
     for(uint8_t i=0; i<n; i++)
         printF(Com::tSpace,arr[i]);

@@ -2180,10 +2180,18 @@ class SdFile : public SdBaseFile {
 #endif
   int write(const char* str);
   int write(const void* buf, size_t nbyte);
+  void write_P(FSTRINGPARAM(str));
+  void writeln_P(FSTRINGPARAM(str));
 };
+/** Store and print a string in flash memory.*/
+#define PgmPrint(x) SerialPrint_P(x)
+/** Store and print a string in flash memory followed by a CR/LF.*/
+#define PgmPrintln(x) SerialPrintln_P(x)
 
 namespace SdFatUtil {
   int FreeRam();
+  void SerialPrint_P(FSTRINGPARAM(str));
+  void SerialPrintln_P(FSTRINGPARAM(str));
 }
 
 using namespace SdFatUtil;  // NOLINT
@@ -2228,20 +2236,20 @@ class SdFat {
   bool chdir(const char* path, bool set_cwd = false);
   void chvol();
   void errorHalt();
-  void errorHalt_P(const char* msg);
+  void errorHalt_P(FSTRINGPARAM(msg));
   void errorHalt(char const *msg);
   void errorPrint();
-  void errorPrint_P(const char* msg);
+  void errorPrint_P(FSTRINGPARAM(msg));
   void errorPrint(char const *msg);
   bool exists(const char* name);
   bool begin(uint8_t chipSelectPin = SD_CHIP_SELECT_PIN,
     uint8_t sckRateID = SPI_FULL_SPEED);
   void initErrorHalt();
   void initErrorHalt(char const *msg);
-  void initErrorHalt_P(const char* msg);
+  void initErrorHalt_P(FSTRINGPARAM(msg));
   void initErrorPrint();
   void initErrorPrint(char const *msg);
-  void initErrorPrint_P(const char* msg);
+  void initErrorPrint_P(FSTRINGPARAM(msg));
   void ls(uint8_t flags = 0);
   bool mkdir(const char* path, bool pFlag = true);
   bool remove(const char* path);

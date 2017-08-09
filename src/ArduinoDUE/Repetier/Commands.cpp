@@ -131,7 +131,7 @@ void Commands::waitUntilEndOfAllBuffers()
     }
 }
 
-void Commands::printCurrentPosition(const char* s)
+void Commands::printCurrentPosition(FSTRINGPARAM(s))
 {
     float x, y, z;
     Printer::realPosition(x, y, z);

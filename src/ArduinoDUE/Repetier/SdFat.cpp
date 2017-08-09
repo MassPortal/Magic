@@ -33,7 +33,7 @@ extern int8_t RFstrnicmp(const char* s1, const char* s2, size_t n);
 //#define GLENN_DEBUG
 
 //------------------------------------------------------------------------------
-static void pstrPrintln(const char* str) {
+static void pstrPrintln(FSTRINGPARAM(str)) {
   Com::printFLN(str);
 }
 //------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ void SdFat::errorHalt(char const* msg) {
  *
  * \param[in] msg Message in program space (flash memory) to print.
  */
-void SdFat::errorHalt_P(const char* msg) {
+void SdFat::errorHalt_P(FSTRINGPARAM(msg)) {
   errorPrint_P(msg);
   while (1);
 }
@@ -160,7 +160,7 @@ void SdFat::errorPrint(char const* msg) {
  *
  * \param[in] msg Message in program space (flash memory) to print.
  */
-void SdFat::errorPrint_P(const char* msg) {
+void SdFat::errorPrint_P(FSTRINGPARAM(msg)) {
   Com::printF(Com::tError);
   Com::printFLN(msg);
   errorPrint();
@@ -197,7 +197,7 @@ void SdFat::initErrorHalt(char const *msg) {
  *
  * \param[in] msg Message in program space (flash memory) to print.
  */
-void SdFat::initErrorHalt_P(const char* msg) {
+void SdFat::initErrorHalt_P(FSTRINGPARAM(msg)) {
   pstrPrintln(msg);
   initErrorHalt();
 }
@@ -233,7 +233,7 @@ void SdFat::initErrorPrint(char const *msg) {
  *
  * \param[in] msg Message in program space (flash memory) to print.
  */
-void SdFat::initErrorPrint_P(const char* msg) {
+void SdFat::initErrorPrint_P(FSTRINGPARAM(msg)) {
   pstrPrintln(msg);
   initErrorHalt();
 }
@@ -808,7 +808,7 @@ bool SdBaseFile::make83Name(const char* str, uint8_t* name, const char** ptr) {
 #define FLASH_ILLEGAL_CHARS
 #ifdef FLASH_ILLEGAL_CHARS
       // store chars in flash
-      const char* p;
+      FSTRINGPARAM(p);
       p = illegalFileChars;
       uint8_t b;
       while ((b = *p++)) {
@@ -4340,6 +4340,23 @@ size_t SdFile::write(uint8_t b) {
 int SdFile::write(const char* str) {
   return SdBaseFile::write(str, strlen(str));
 }
+//------------------------------------------------------------------------------
+/** Write a PROGMEM string to a file.
+ * \param[in] str Pointer to the PROGMEM string.
+ * Use getWriteError to check for errors.
+ */
+void SdFile::write_P(const char* str) {
+  for (uint8_t c; (c = *str); str++) write(c);
+}
+//------------------------------------------------------------------------------
+/** Write a PROGMEM string followed by CR/LF to a file.
+ * \param[in] str Pointer to the PROGMEM string.
+ * Use getWriteError to check for errors.
+ */
+void SdFile::writeln_P(FSTRINGPARAM(str)) {
+  write_P(str);
+  write_P(Com::tNewline);
+}
 
 // ================ SdFatUtil.cpp ===================
 
@@ -4363,6 +4380,25 @@ int SdFatUtil::FreeRam() {
   return free_memory;
 }
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+/** %Print a string in flash memory to Serial.
+ *
+ * \param[in] str Pointer to string stored in flash memory.
+ */
+void SdFatUtil::SerialPrint_P(FSTRINGPARAM(str)) {
+  Com::printF(str);
+}
+//------------------------------------------------------------------------------
+/** %Print a string in flash memory to Serial followed by a CR/LF.
+ *
+ * \param[in] str Pointer to string stored in flash memory.
+ */
+void SdFatUtil::SerialPrintln_P(FSTRINGPARAM(str)) {
+  Com::printFLN(str);
+}
+
 // ==============
 
 #endif  // SDSUPPORT
+
