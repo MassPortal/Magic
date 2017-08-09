@@ -119,6 +119,39 @@ void HAL::setupTimer() {
   TIMER1_TIMER->TC_CHANNEL[TIMER1_TIMER_CHANNEL].TC_IER = TC_IER_CPCS;
   TIMER1_TIMER->TC_CHANNEL[TIMER1_TIMER_CHANNEL].TC_IDR = ~TC_IER_CPCS;
   NVIC_EnableIRQ((IRQn_Type)TIMER1_TIMER_IRQ);
+
+  // Servo control
+#if FEATURE_SERVO
+#if SERVO0_PIN > -1
+  SET_OUTPUT(SERVO0_PIN);
+  WRITE(SERVO0_PIN, LOW);
+#endif
+#if SERVO1_PIN > -1
+  SET_OUTPUT(SERVO1_PIN);
+  WRITE(SERVO1_PIN, LOW);
+#endif
+#if SERVO2_PIN > -1
+  SET_OUTPUT(SERVO2_PIN);
+  WRITE(SERVO2_PIN, LOW);
+#endif
+#if SERVO3_PIN > -1
+  SET_OUTPUT(SERVO3_PIN);
+  WRITE(SERVO3_PIN, LOW);
+#endif
+  pmc_enable_periph_clk(SERVO_TIMER_IRQ );
+  //NVIC_SetPriority((IRQn_Type)SERVO_TIMER_IRQ, NVIC_EncodePriority(4, 5, 0));
+  NVIC_SetPriority((IRQn_Type)SERVO_TIMER_IRQ,4);
+
+  TC_Configure(SERVO_TIMER, SERVO_TIMER_CHANNEL, TC_CMR_WAVSEL_UP_RC |
+               TC_CMR_WAVE | TC_CMR_TCCLKS_TIMER_CLOCK1);
+
+  TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL, (F_CPU_TRUE / SERVO_PRESCALE) / SERVO_CLOCK_FREQ);
+  TC_Start(SERVO_TIMER, SERVO_TIMER_CHANNEL);
+
+  SERVO_TIMER->TC_CHANNEL[SERVO_TIMER_CHANNEL].TC_IER = TC_IER_CPCS;
+  SERVO_TIMER->TC_CHANNEL[SERVO_TIMER_CHANNEL].TC_IDR = ~TC_IER_CPCS;
+  NVIC_EnableIRQ((IRQn_Type)SERVO_TIMER_IRQ);
+#endif
 }
 
 
@@ -561,6 +594,120 @@ unsigned char HAL::i2cReadNak(void)
   i2cCompleted();
   return data;
 }
+
+
+#if FEATURE_SERVO
+// may need further restrictions here in the future
+#if defined (__SAM3X8E__)
+unsigned int HAL::servoTimings[4] = {0, 0, 0, 0};
+static uint8_t servoIndex = 0;
+unsigned int servoAutoOff[4] = {0, 0, 0, 0};
+void HAL::servoMicroseconds(uint8_t servo, int microsec, uint16_t autoOff) {
+  if (microsec < 500) microsec = 0;
+  if (microsec > 2500) microsec = 2500;
+  servoTimings[servo] = (unsigned int)(((F_CPU_TRUE / SERVO_PRESCALE) /
+                                        1000000) * microsec);
+  servoAutoOff[servo] = (microsec) ? (autoOff / 20) : 0;
+}
+
+
+// ================== Interrupt handling ======================
+
+// Servo timer Interrupt handler
+void SERVO_COMPA_VECTOR ()
+{
+  InterruptProtectedBlock noInt;
+  static uint32_t     interval;
+
+  // apparently have to read status register
+  TC_GetStatus(SERVO_TIMER, SERVO_TIMER_CHANNEL);
+
+  switch (servoIndex) {
+    case 0:
+      if (HAL::servoTimings[0]) {
+#if SERVO0_PIN > -1
+        WRITE(SERVO0_PIN, HIGH);
+#endif
+        interval =  HAL::servoTimings[0];
+      } else
+        interval = SERVO2500US;
+      TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL, interval);
+      break;
+    case 1:
+#if SERVO0_PIN > -1
+      WRITE(SERVO0_PIN, LOW);
+#endif
+      TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL,
+               SERVO5000US - interval);
+      break;
+    case 2:
+      if (HAL::servoTimings[1]) {
+#if SERVO1_PIN > -1
+        WRITE(SERVO1_PIN, HIGH);
+#endif
+        interval =  HAL::servoTimings[1];
+      } else
+        interval = SERVO2500US;
+      TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL, interval);
+      break;
+    case 3:
+#if SERVO1_PIN > -1
+      WRITE(SERVO1_PIN, LOW);
+#endif
+      TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL,
+               SERVO5000US - interval);
+      break;
+    case 4:
+      if (HAL::servoTimings[2]) {
+#if SERVO2_PIN > -1
+        WRITE(SERVO2_PIN, HIGH);
+#endif
+        interval =  HAL::servoTimings[2];
+      } else
+        interval = SERVO2500US;
+      TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL, interval);
+      break;
+    case 5:
+#if SERVO2_PIN > -1
+      WRITE(SERVO2_PIN, LOW);
+#endif
+      TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL,
+               SERVO5000US - interval);
+      break;
+    case 6:
+      if (HAL::servoTimings[3]) {
+#if SERVO3_PIN > -1
+        WRITE(SERVO3_PIN, HIGH);
+#endif
+        interval =  HAL::servoTimings[3];
+      } else
+        interval = SERVO2500US;
+      TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL, interval);
+      break;
+    case 7:
+#if SERVO3_PIN > -1
+      WRITE(SERVO3_PIN, LOW);
+#endif
+      TC_SetRC(SERVO_TIMER, SERVO_TIMER_CHANNEL,
+               SERVO5000US - interval);
+      break;
+  }
+  if (servoIndex & 1)
+  {
+    uint8_t nr = servoIndex >> 1;
+    if (servoAutoOff[nr])
+    {
+      servoAutoOff[nr]--;
+      if (servoAutoOff[nr] == 0) HAL::servoTimings[nr] = 0;
+    }
+  }
+  servoIndex++;
+  if (servoIndex > 7) servoIndex = 0;
+}
+#else
+#error No servo support for your board, please diable FEATURE_SERVO
+#endif
+#endif
 
 TcChannel *stepperChannel = (TIMER1_TIMER->TC_CHANNEL + TIMER1_TIMER_CHANNEL);
 #ifndef STEPPERTIMER_EXIT_TICKS

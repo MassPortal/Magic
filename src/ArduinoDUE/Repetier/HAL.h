@@ -71,6 +71,10 @@
 #define TIMER1_TIMER_CHANNEL    2
 #define TIMER1_TIMER_IRQ        ID_TC8
 #define TIMER1_COMPA_VECTOR     TC8_Handler
+#define SERVO_TIMER             TC2
+#define SERVO_TIMER_CHANNEL     0
+#define SERVO_TIMER_IRQ         ID_TC6
+#define SERVO_COMPA_VECTOR      TC6_Handler
 #define DELAY_TIMER             TC1
 #define DELAY_TIMER_CHANNEL     1
 #define DELAY_TIMER_IRQ         ID_TC4  // IRQ not really used, needed for pmc id
@@ -91,6 +95,12 @@
 #define PWM_CLOCK_FREQ          3906u
 #define TIMER1_CLOCK_FREQ       244u
 #define TIMER1_PRESCALE         2u
+
+
+#define SERVO_CLOCK_FREQ        1000u
+#define SERVO_PRESCALE          2      // Using TCLOCK1 therefore 2
+#define SERVO2500US             (((F_CPU_TRUE / SERVO_PRESCALE) / 1000000) * 2500)
+#define SERVO5000US             (((F_CPU_TRUE / SERVO_PRESCALE) / 1000000) * 5000)
 
 #define AD_PRESCALE_FACTOR      84  // 500 kHz ADC clock 
 #define AD_TRACKING_CYCLES      4   // 0 - 15     + 1 adc clock cycles
@@ -540,6 +550,10 @@ class HAL
     inline static float maxExtruderTimerFrequency() {
       return (float)F_CPU_TRUE/32;
     }
+#if FEATURE_SERVO
+    static unsigned int servoTimings[4];
+    static void servoMicroseconds(uint8_t servo, int ms, uint16_t autoOff);
+#endif
 
 #if ANALOG_INPUTS > 0
     static void analogStart(void);

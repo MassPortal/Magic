@@ -420,6 +420,10 @@ FSTRINGVALUE(Com::tHeadVer,"Head ver.")
 FSTRINGVALUE(Com::tPSVer,"Power supply ver.")
 FSTRINGVALUE(Com::tBedLED,"Bed LED")
 
+#ifdef STARTUP_GCODE
+FSTRINGVALUE(Com::tStartupGCode,STARTUP_GCODE)
+#endif
+
 void Com::config(FSTRINGPARAM(text)) {
     printF(tConfig);
     printFLN(text);

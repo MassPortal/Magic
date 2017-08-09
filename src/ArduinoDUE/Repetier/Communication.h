@@ -408,6 +408,9 @@ FSTRINGVAR(tHeadVer)
 FSTRINGVAR(tPSVer)
 FSTRINGVAR(tBedLED)
 
+#ifdef STARTUP_GCODE
+FSTRINGVAR(tStartupGCode)
+#endif
 static void config(FSTRINGPARAM(text));
 static void config(FSTRINGPARAM(text),int value);
 static void config(FSTRINGPARAM(text),const char *msg);

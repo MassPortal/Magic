@@ -540,8 +540,14 @@ UI_MENU_ACTIONSELECTOR_T(ui_menu_go_zfast_notest,UI_TEXT_Z_POS_FAST_ID,ui_menu_z
 #define UI_SPEED_Z ,&ui_menu_go_zpos
 #define UI_SPEED_Z_NOTEST ,&ui_menu_go_zpos_notest
 #endif
-#define SERVOPOS_COUNT 0
-#define SERVOPOS_ENTRY
+#if FEATURE_SERVO > 0 && UI_SERVO_CONTROL > 0
+  UI_MENU_CHANGEACTION_T(ui_menu_servopos, UI_TEXT_SERVOPOS_ID, UI_ACTION_SERVOPOS)
+  #define SERVOPOS_COUNT 1
+  #define SERVOPOS_ENTRY ,&ui_menu_servopos
+#else
+  #define SERVOPOS_COUNT 0
+  #define SERVOPOS_ENTRY
+#endif
 // Offsets menu
 UI_MENU_CHANGEACTION_T(ui_menu_off_xpos,UI_TEXT_X_OFFSET_ID,UI_ACTION_XOFF)
 UI_MENU_CHANGEACTION_T(ui_menu_off_ypos,UI_TEXT_Y_OFFSET_ID,UI_ACTION_YOFF)
