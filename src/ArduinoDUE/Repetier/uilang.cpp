@@ -6049,7 +6049,7 @@ const uint8_t availableLanguages[] = {
 void Com::selectLanguage(fast8_t lang) {
     unsigned int pos = (unsigned int)&availableLanguages;
     uint8_t best = 255,cur;
-    while((cur = pos) != 255) {
+    while((cur = *(const char*)pos) != 255) {
         if(best == 255 || cur == lang)
             best = cur;
         pos++;
