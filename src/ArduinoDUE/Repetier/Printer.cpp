@@ -1292,7 +1292,7 @@ void Printer::babyStep(float Zmm)
     Printer::setYDirection(dir);
     Printer::setZDirection(dir);
     /* Calculate steps neccessary */
-    steps = floor(Zmm*ZAXIS_STEPS_PER_MM + 0.5);
+    steps = floor(abs(Zmm)*ZAXIS_STEPS_PER_MM + 0.5);
     /* Execute steps */
     while (steps) {
         startXStep();
@@ -1300,7 +1300,7 @@ void Printer::babyStep(float Zmm)
         startZStep();
         HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 2);
         Printer::endXYZSteps();
-        HAL::delayMicroseconds(10);
+        HAL::delayMicroseconds(17);
         steps--;
     }
     /* Set old xyz settings */
