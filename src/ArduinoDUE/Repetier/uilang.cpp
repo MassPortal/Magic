@@ -6046,15 +6046,17 @@ const uint8_t availableLanguages[] = {
     255
 };
 
-void Com::selectLanguage(fast8_t lang) {
-    unsigned int pos = (unsigned int)&availableLanguages;
-    uint8_t best = 255,cur;
-    while((cur = *(const char*)pos) != 255) {
-        if(best == 255 || cur == lang)
-            best = cur;
-        pos++;
+void Com::selectLanguage(fast8_t lang) 
+{
+    for (uint8_t i=0; i<sizeof(availableLanguages); i++) {
+        if (availableLanguages[i] == lang) {
+        /* Language found*/
+            Com::selectedLanguage = lang;
+            return;
+        }
     }
-    Com::selectedLanguage = best;
+    /* Language not found */
+    Com::selectedLanguage = 255;
 }
 
 const char* Com::translatedF(int textId) {
