@@ -926,7 +926,6 @@ if (fan3Kickstart) fan3Kickstart--;
 #endif // ANALOG_INPUTS > 0
   pwm_count_cooler += COOLER_PWM_STEP;
   pwm_count_heater += HEATER_PWM_STEP;
-  UI_FAST; // Short timed user interface action
 #if FEATURE_WATCHDOG
   if(HAL::wdPinged) {
      WDT->WDT_CR = 0xA5000001;

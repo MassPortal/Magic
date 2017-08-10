@@ -218,10 +218,6 @@ inline void memcopy4(void *dest,void *source) {
 #define ROD_RADIUS (PRINTER_RADIUS-END_EFFECTOR_HORIZONTAL_OFFSET-CARRIAGE_HORIZONTAL_OFFSET)
 #endif
 
-#ifndef UI_SPEEDDEPENDENT_POSITIONING
-#define UI_SPEEDDEPENDENT_POSITIONING true
-#endif
-
 #ifdef FEATURE_Z_PROBE
 #define MANUAL_CONTROL 1
 #endif
@@ -417,19 +413,10 @@ inline void memcopy4(void *dest,void *source) {
 #define LONG_FILENAME_LENGTH (13*MAX_VFAT_ENTRIES+1)
 #define SD_MAX_FOLDER_DEPTH 2
 
-#include "ui.h"
 #if BED_LEDS
 #include "Lighting.h"
 #endif
 #include "Communication.h"
-
-
-#if UI_DISPLAY_TYPE != DISPLAY_U8G
-#if (defined(USER_KEY1_PIN) && (USER_KEY1_PIN==UI_DISPLAY_D5_PIN || USER_KEY1_PIN==UI_DISPLAY_D6_PIN || USER_KEY1_PIN==UI_DISPLAY_D7_PIN)) || (defined(USER_KEY2_PIN) && (USER_KEY2_PIN==UI_DISPLAY_D5_PIN || USER_KEY2_PIN==UI_DISPLAY_D6_PIN || USER_KEY2_PIN==UI_DISPLAY_D7_PIN)) || (defined(USER_KEY3_PIN) && (USER_KEY3_PIN==UI_DISPLAY_D5_PIN || USER_KEY3_PIN==UI_DISPLAY_D6_PIN || USER_KEY3_PIN==UI_DISPLAY_D7_PIN)) || (defined(USER_KEY4_PIN) && (USER_KEY4_PIN==UI_DISPLAY_D5_PIN || USER_KEY4_PIN==UI_DISPLAY_D6_PIN || USER_KEY4_PIN==UI_DISPLAY_D7_PIN))
-#error You cannot use DISPLAY_D5_PIN, DISPLAY_D6_PIN or DISPLAY_D7_PIN for "User Keys" with character LCD display
-#endif
-#endif
-
 
 #ifndef SDCARDDETECT
 #define SDCARDDETECT       -1

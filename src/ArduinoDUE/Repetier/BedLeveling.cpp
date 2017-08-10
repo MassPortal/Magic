@@ -516,10 +516,6 @@ void Printer::waitForZProbeStart()
 	Endstops::update();
 	Endstops::update(); // double test to get right signal. Needed for crosstalk protection.
 	if(Endstops::zProbe()) return;
-	#if UI_DISPLAY_TYPE != NO_DISPLAY
-	uid.setStatusP(Com::tHitZProbe);
-	uid.refreshPage();
-	#endif
 	#ifdef DEBUG_PRINT
 	debugWaitLoop = 3;
 	#endif

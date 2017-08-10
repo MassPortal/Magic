@@ -1533,7 +1533,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
             //HAL::forbidInterrupts();
             //deltaSegmentCount -= cur->numDeltaSegments; // should always be zero
             removeCurrentLineForbidInterrupt();
-            if(linesCount == 0) UI_STATUS_F(Com::translatedF(UI_TEXT_IDLE_ID));
             return 1000;
         }
 #endif
@@ -1557,7 +1556,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
         if(Printer::isZProbingActive() && Printer::stepsRemainingAtZHit >= 0)
         {
             removeCurrentLineForbidInterrupt();
-            if(linesCount == 0) UI_STATUS_F(Com::translatedF(UI_TEXT_IDLE_ID));
             return 1000;
         }
 #endif
@@ -1815,7 +1813,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
         removeCurrentLineForbidInterrupt();
         Printer::disableAllowedStepper();
         if(linesCount == 0) {
-            UI_STATUS_F(Com::translatedF(UI_TEXT_IDLE_ID));
             if(Printer::mode == PRINTER_MODE_FFF) {
                 Printer::setFanSpeedDirectly(Printer::fanSpeed);
             }

@@ -433,8 +433,6 @@ void GCode::readFromSerial()
         if(n == -1)
         {
             Com::printFLN(Com::tSDReadError);
-            UI_ERROR("SD Read Error");
-
             // Second try in case of recoverable errors
             sd.file.seekSet(sd.sdpos);
             n = sd.file.read();
@@ -444,7 +442,6 @@ void GCode::readFromSerial()
                 sd.sdmode = 0;
                 break;
             }
-            UI_ERROR("SD error fixed");
         }
         sd.sdpos++; // = file.curPosition();
         commandReceiving[commandsReceivingWritePosition++] = (uint8_t)n;

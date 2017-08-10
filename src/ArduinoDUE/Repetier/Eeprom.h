@@ -122,7 +122,6 @@ have problems with other modules using the eeprom */
 #define EPR_RETRACTION_UNDO_SPEED             1016
 #define EPR_AUTORETRACT_ENABLED               1020
 #define EPR_Z_PROBE_Z_OFFSET			      1024
-#define EPR_SELECTED_LANGUAGE                 1028
 #define EPR_ACCELERATION_FACTOR_TOP           1032
 #define EPR_BENDING_CORRECTION_A              1036
 #define EPR_BENDING_CORRECTION_B              1040
@@ -237,13 +236,6 @@ static inline void setVersion(uint8_t v) {
 #if EEPROM_MODE != 0
         HAL::eprSetByte(EPR_VERSION,v);
         HAL::eprSetByte(EPR_INTEGRITY_BYTE,computeChecksum());
-#endif
-    }
-    static inline uint8_t getStoredLanguage() {
-#if EEPROM_MODE != 0
-        return HAL::eprGetByte(EPR_SELECTED_LANGUAGE);
-#else
-        return 0;
 #endif
     }
     static inline float zProbeSpeed() {

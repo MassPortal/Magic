@@ -196,7 +196,6 @@ void Extruder::manageTemperatures()
 							Printer::setAnyTempsensorDefect();
 							newDefectFound = true;
 						}
-                        UI_ERROR_P(Com::tHeaterDecoupled);
                         Com::printErrorFLN(Com::tHeaterDecoupledWarning);
                         Com::printF("Error:Temp. raised to slow. Rise = ",act->currentTemperatureC - act->lastDecoupleTemp);
                         Com::printF(" after ",(int32_t)(time-act->lastDecoupleTest));
@@ -223,7 +222,6 @@ void Extruder::manageTemperatures()
 							Printer::setAnyTempsensorDefect();
 							newDefectFound = true;
 						}
-                        UI_ERROR_P(Com::tHeaterDecoupled);
                         Com::printErrorFLN(Com::tHeaterDecoupledWarning);
                         Com::printF("Error:Could not hold temperature ",act->lastDecoupleTemp);
                         Com::printF(" measured ",act->currentTemperatureC);
@@ -674,7 +672,6 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
       )
     {
         Extruder *actExtruder = &extruder[extr];
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HEATING_EXTRUDER_ID));
         bool dirRising = actExtruder->tempControl.targetTemperature > actExtruder->tempControl.currentTemperature;
         millis_t printedTime = millis();
         millis_t waituntil = 0;
@@ -718,7 +715,6 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
         }
 #endif
     }
-    UI_CLEAR_STATUS;
 
     bool alloff = true;
     for(uint8_t i = 0; i < NUM_EXTRUDER; i++)
@@ -1880,7 +1876,6 @@ void TemperatureController::autotunePID(float temp,uint8_t controllerId,int maxC
             }
             return;
         }
-        UI_SLOW(true);
     }
 }
 #endif

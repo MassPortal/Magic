@@ -184,7 +184,6 @@ public:
     static uint8_t computeBinarySize(char *ptr);
 
     friend class SDCard;
-    friend class UIDisplay;
 private:
     void debugCommandBuffer();
     void checkAndPushCommand();

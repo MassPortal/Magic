@@ -160,10 +160,8 @@ typedef struct
 } DeltaSegment;
 extern uint8_t lastMoveID;
 
-class UIDisplay;
 class PrintLine   // RAM usage: 24*4+15 = 113 Byte
 {
-    friend class UIDisplay;
     static volatile bool nlFlag;
 public:
     static ufast8_t linesPos; // Position for executing line movement

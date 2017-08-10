@@ -272,7 +272,6 @@ FSTRINGVAR(tEPR0)
 FSTRINGVAR(tEPR1)
 FSTRINGVAR(tEPR2)
 FSTRINGVAR(tEPR3)
-FSTRINGVAR(tLanguage)
 FSTRINGVAR(tEPRBaudrate)
 FSTRINGVAR(tEPRFilamentPrinted)
 FSTRINGVAR(tEPRPrinterActive)
@@ -439,11 +438,6 @@ static inline void print(char c) {Serial.write(c);}
 static void printFloat(float number, uint8_t digits);
 static inline void print(float number) {printFloat(number, 6);}
 static inline void println() {Serial.write('\r');Serial.write('\n');}
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-static const char* translatedF(int textId);
-static void selectLanguage(fast8_t lang);
-static uint8_t selectedLanguage;
-#endif
 static inline void println(const char *text) { print(text); println(); }
     protected:
     private:

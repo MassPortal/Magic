@@ -44,27 +44,16 @@ void SDCard::automount()
         if(sdactive || sdmode == 100)   // Card removed
         {
             Com::printFLN("SD card removed");
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-            uid.executeAction(UI_ACTION_TOP_MENU, true);
-#endif
             unmount();
-            UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_SD_REMOVED_ID));
         }
     }
     else
     {
         if(!sdactive && sdmode != 100)
         {
-            UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_SD_INSERTED_ID));
             mount();
 			if(sdmode != 100) // send message only if we have success
 	            Com::printFLN("SD card inserted"); // Not translatable or host will not understand signal
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-            if(sdactive && !uid.isWizardActive()) { // Wizards have priority
-                Printer::setAutomount(true);
-                uid.executeAction(UI_ACTION_SD_PRINT + UI_ACTION_TOPMENU, true);
-            }
-#endif
         }
     }
 #endif
@@ -107,11 +96,6 @@ void SDCard::unmount()
     savetosd = false;
     Printer::setAutomount(false);
     Printer::setMenuMode(MENU_MODE_SD_MOUNTED + MENU_MODE_SD_PAUSED + MENU_MODE_SD_PRINTING, false);
-#if UI_DISPLAY_TYPE != NO_DISPLAY && SDSUPPORT
-    uid.cwd[0] = '/';
-    uid.cwd[1] = 0;
-    uid.folderLevel = 0;
-#endif
 }
 
 void SDCard::startPrint()
@@ -484,7 +468,6 @@ void SDCard::startWrite(char *filename)
     }
     else
     {
-        UI_STATUS_F(Com::translatedF(UI_TEXT_UPLOADING_ID));
         savetosd = true;
         Com::printFLN(Com::tWritingToFile,filename);
     }
@@ -497,7 +480,6 @@ void SDCard::finishWrite()
     file.close();
     savetosd = false;
     Com::printFLN(Com::tDoneSavingFile);
-    UI_CLEAR_STATUS;
 }
 
 void SDCard::deleteFile(char *filename)

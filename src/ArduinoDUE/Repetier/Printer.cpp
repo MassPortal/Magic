@@ -464,7 +464,6 @@ void Printer::kill(uint8_t only_steppers)
         for(uint8_t i = 0; i < NUM_TEMPERATURE_LOOPS; i++)
             Extruder::setTemperatureForExtruder(0, i);
         Extruder::setHeatedBedTemperature(0);
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_STANDBY_ID));
 #if defined(PS_ON_PIN) && PS_ON_PIN>-1
         //pinMode(PS_ON_PIN,INPUT);
         SET_OUTPUT(PS_ON_PIN); //GND
@@ -473,7 +472,6 @@ void Printer::kill(uint8_t only_steppers)
 #endif
         Printer::setAllKilled(true);
     }
-    else UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_STEPPER_DISABLED_ID));
 #if BED_LEDS
 	if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
@@ -708,9 +706,6 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 void Printer::setup()
 {
     HAL::stopWatchdog();
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-    Com::selectLanguage(0); // just make sure we have a language in case someone uses it early
-#endif
     //HAL::delayMilliseconds(500);  // add a delay at startup to give hardware time for initalization
     HAL::hwSetup();
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
@@ -970,10 +965,6 @@ void Printer::setup()
     SET_OUTPUT(CASE_LIGHTS_PIN);
     WRITE(CASE_LIGHTS_PIN, CASE_LIGHT_DEFAULT_ON);
 #endif // CASE_LIGHTS_PIN
-#if defined(UI_VOLTAGE_LEVEL) && defined(EXP_VOLTAGE_LEVEL_PIN) && EXP_VOLTAGE_LEVEL_PIN >-1
-    SET_OUTPUT(EXP_VOLTAGE_LEVEL_PIN);
-    WRITE(EXP_VOLTAGE_LEVEL_PIN,UI_VOLTAGE_LEVEL);
-#endif // UI_VOLTAGE_LEVEL
 #if defined(SUPPORT_LASER) && SUPPORT_LASER
     LaserDriver::initialize();
 #endif // defined
@@ -1041,7 +1032,6 @@ void Printer::setup()
 	Printer::setYdir(retDefAxisDir[Y_AXIS]);
 	Printer::setZdir(retDefAxisDir[Z_AXIS]);
 
-    UI_INITIALIZE;
     for(uint8_t i = 0; i < E_AXIS_ARRAY; i++)
     {
         currentPositionSteps[i] = 0;
@@ -1077,12 +1067,6 @@ void Printer::setup()
 if (EEPROM::getBedLED()>1)
 	Light.init();
 #endif
-#if EEPROM_MODE != 0 && UI_DISPLAY_TYPE != NO_DISPLAY
-    if(EEPROM::getStoredLanguage() == 254) {
-            Com::printFLN("Needs language selection");
-        uid.showLanguageSelectionWizard();
-    }
-#endif // EEPROM_MODE
 }
 
 task_t Printer::defaultLoopActions()
@@ -1243,12 +1227,10 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     // so the redundant check is only an opportunity to
     // gratuitously fail due to incorrect settings.
     // The following movements would be meaningless unless it was zeroed for example.
-    UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HOME_DELTA_ID));
     // Homing Z axis means that you must home X and Y
     homeZAxis();
     moveToReal(0,0,Printer::zLength,IGNORE_COORDINATE,homingFeedrate[Z_AXIS]); // Move to designed coordinates including translation
     updateCurrentPosition(true);
-    UI_CLEAR_STATUS
     Commands::printCurrentPosition("homeAxis ");
     setAutolevelActive(autoLevel);
 #if BED_LEDS
@@ -1312,7 +1294,6 @@ void Printer::moveToPausePosition() {
 		}
 		hasMovedToPausePosition = true;
 		Commands::waitUntilEndOfAllMoves();
-		UI_STATUS_UPD_RAM(UI_TEXT_PAUSED);
 	}
 }
 

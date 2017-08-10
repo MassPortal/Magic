@@ -78,7 +78,6 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
     // would invalidate old computation resulting in unpredicted behaviour.
     // lcd controller can start new moves, so we disallow it if called from within
     // a move command.
-    UI_SLOW(allowNewMoves);
 }
 
 /** \brief Waits until movement cache is empty.
@@ -537,14 +536,6 @@ void Commands::processGCode(GCode *com)
 			{
 				Com::printWarningFLN("executeGCode / queueDeltaMove returns error");
 			}
-
-#if UI_HAS_KEYS
-		// ui can only execute motion commands if we are not waiting inside a move for an
-		// old move to finish. For normal response times, we always leave one free after
-		// sending a line. Drawback: 1 buffer line less for limited time. Since input cache
-		// gets filled while waiting, the lost is neglectible.
-		PrintLine::waitForXFreeLines(1, true);
-#endif // UI_HAS_KEYS
 #ifdef DEBUG_QUEUE_MOVE
 		{
 
@@ -700,7 +691,6 @@ void Commands::processGCode(GCode *com)
 		Printer::setAutolevelActive(false);
 
 		if (com->hasP()) {
-			UI_STATUS_UPD("Adj. probe height");
 			Com::printFLN("Adj. probe height");
 			float probeHeight;
 			/*
@@ -738,13 +728,11 @@ void Commands::processGCode(GCode *com)
 			//Move to P1
 			Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 
-			UI_STATUS_UPD("Probing...");
 			Com::printFLN("Probing...");
 			//Run probe and get the deviation
 			deviation = Printer::runZProbe(true, true);
 			//Move to the bed center
 			Printer::moveTo(0.0, 0.0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-			UI_STATUS_UPD("Measuring...");
 			Com::printFLN("Measuring...");
 			Printer::homeAxis(true, true, true);
 			Printer::moveTo(0, 0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
@@ -755,7 +743,6 @@ void Commands::processGCode(GCode *com)
 			//Store the deviation offset temporarily as Z-probe height
 			HAL::eprSetFloat(EPR_Z_PROBE_HEIGHT, EEPROM::zProbeBedDistance() - deviation + EEPROM::zProbeXY1offset());
 			EEPROM::storeDataIntoEEPROM(false);
-			UI_STATUS_UPD("Please adjust 0:");
 			Com::printFLN("Please adjust 0:");
 		}
 
@@ -765,7 +752,6 @@ void Commands::processGCode(GCode *com)
 		and THEN "G30 P" to store the new zProbeHeight value.)
 		*/
 		if (!com->hasT()) {
-			UI_STATUS_UPD("Adjusting...");
 			Com::printFLN("Adjusting...");
 			float newLength;
 			Printer::homeAxis(true, true, true);
@@ -775,7 +761,6 @@ void Commands::processGCode(GCode *com)
 			//Move to P1
 			Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 
-			UI_STATUS_UPD("Probing...");
 			Com::printFLN("Probing...");
 			//Run probe and get the deviation
 			deviation = Printer::runZProbe(true, true);
@@ -805,13 +790,9 @@ void Commands::processGCode(GCode *com)
 			}
 
 			Printer::updateCurrentPosition(true);
-			UI_CLEAR_STATUS
-				UI_STATUS_UPD_RAM("Calibration complete");
 			Com::printFLN("Probe height calibration complete");
 		}
 		Commands::waitUntilEndOfAllMoves();
-
-
 	}
 	break;
 	case 31:  // G31 display hall sensor output
@@ -2039,7 +2020,7 @@ void Commands::processMCode(GCode *com)
         Extruder *actExtruder = Extruder::current;
         if(com->hasT() && com->T < NUM_EXTRUDER) actExtruder = &extruder[com->T];
         if (com->hasS()) Extruder::setTemperatureForExtruder(com->S, actExtruder->id, /*com->hasF() && com->F > 0,*/ true);
-        /*        UI_STATUS_UPD(UI_TEXT_HEATING_EXTRUDER);
+        /*
 #if defined(SKIP_M109_IF_WITHIN) && SKIP_M109_IF_WITHIN > 0
         if(abs(actExtruder->tempControl.currentTemperatureC - actExtruder->tempControl.targetTemperatureC) < (SKIP_M109_IF_WITHIN)) break; // Already in range
 #endif
@@ -2088,7 +2069,7 @@ void Commands::processMCode(GCode *com)
 #endif
                 EVENT_HEATING_FINISHED(actExtruder->id);
     }
-            UI_CLEAR_STATUS;*/
+*/
     }
 #endif
     previousMillisCmd = millis();
@@ -2097,7 +2078,6 @@ void Commands::processMCode(GCode *com)
 		{
 #if HAVE_HEATED_BED
         if(Printer::debugDryrun()) break;
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HEATING_BED_ID));
         Commands::waitUntilEndOfAllMoves();
 #if HAVE_HEATED_BED
         if (com->hasS()) Extruder::setHeatedBedTemperature(com->S);
@@ -2117,7 +2097,6 @@ void Commands::processMCode(GCode *com)
         }
 #endif
 #endif
-        UI_CLEAR_STATUS;
         previousMillisCmd = millis();
 		}
         break;
@@ -2181,10 +2160,6 @@ void Commands::processMCode(GCode *com)
         printCurrentPosition("M114 ");
         break;
     case 117: // M117 message to lcd
-        if(com->hasString())
-        {
-            UI_STATUS_UPD_RAM(com->text);
-        }
         break;
     case 119: // M119
         Commands::waitUntilEndOfAllMoves();
@@ -2595,11 +2570,6 @@ void Commands::processMCode(GCode *com)
               if(com->hasS())
                   Com::printFLN(Com::tInfo,(int32_t)HAL::integerSqrt(com->S));
               break;*/
-#if FEATURE_RETRACTION
-    case 600:
-        uid.executeAction(UI_ACTION_WIZARD_FILAMENTCHANGE, true);
-        break;
-#endif
 	case 880: //M880 print all settings for auto-updater
 		Com::print("UI_PRINTER_COMPANY: ");	Com::println(UI_PRINTER_COMPANY);
 		Com::print("UI_PRINTER_NAME: ");	Com::println(UI_PRINTER_NAME);
@@ -2629,14 +2599,7 @@ void Commands::processMCode(GCode *com)
 #endif
 		break;
 	case 896: //Run custom action by its ID
-	if(com->hasS() && com->S)
-	{
-		if(com->S > 0 && com->S <2000)
-			uid.executeAction(com->S, true);
-		else
-			Com::printWarningFLN("Not a valid action ID!");
-	}
-	break;
+	    break;
 	
 	case 897: //Custom bed coating command
 	if(com->hasI())
@@ -2850,7 +2813,6 @@ void Commands::emergencyStop()
 #if HAVE_HEATED_BED && HEATED_BED_HEATER_PIN > -1
     WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
 #endif
-    UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_KILLED_ID));
     HAL::delayMilliseconds(200);
     InterruptProtectedBlock noInts;
     while(1) {}

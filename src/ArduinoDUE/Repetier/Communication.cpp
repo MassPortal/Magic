@@ -22,9 +22,6 @@
 #include "Repetier.h"
 
 FSTRINGVALUE(Com::tPrinterId, "Printer ID")
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-uint8_t Com::selectedLanguage;
-#endif
 
 #ifndef MACHINE_TYPE
 #define MACHINE_TYPE "Delta"
@@ -274,7 +271,6 @@ FSTRINGVALUE(Com::tEPR1,"EPR:1 ")
 FSTRINGVALUE(Com::tEPR2,"EPR:2 ")
 FSTRINGVALUE(Com::tEPR3,"EPR:3 ")
 FSTRINGVALUE(Com::tEPRBaudrate,"Baudrate")
-FSTRINGVALUE(Com::tLanguage,"Language")
 FSTRINGVALUE(Com::tEPRFilamentPrinted,"Filament printed [m]")
 FSTRINGVALUE(Com::tEPRPrinterActive,"Printer active [s]")
 FSTRINGVALUE(Com::tEPRMaxInactiveTime,"Max. inactive time [ms,0=off]")
