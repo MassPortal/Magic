@@ -65,8 +65,6 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 //#define DEBUG_SEGMENT_LENGTH
 // Find the maximum real jerk during a print
 //#define DEBUG_REAL_JERK
-// Debug reason for not mounting a sd card
-//#define DEBUG_SD_ERROR
 // Uncomment the following line to enable debugging. You can better control debugging below the following line
 //#define DEBUG
 
@@ -382,9 +380,6 @@ inline void memcopy4(void *dest,void *source) {
 #define  ANALOG_INPUT_CHANNELS {EXT0_ANALOG_CHANNEL EXT1_ANALOG_CHANNEL EXT2_ANALOG_CHANNEL EXT3_ANALOG_CHANNEL EXT4_ANALOG_CHANNEL EXT5_ANALOG_CHANNEL BED_ANALOG_CHANNEL THERMO_ANALOG_CHANNEL CHAMBER_ANALOG_CHANNEL}
 #endif
 
-#define MENU_MODE_SD_MOUNTED 1
-#define MENU_MODE_SD_PRINTING 2
-#define MENU_MODE_SD_PAUSED 4
 #define MENU_MODE_FAN_RUNNING 8
 #define MENU_MODE_PRINTING 16
 #define MENU_MODE_FULL_PID 32
@@ -408,25 +403,11 @@ inline void memcopy4(void *dest,void *source) {
 
 #include "HAL.h"
 #include "gcode.h"
-#define MAX_VFAT_ENTRIES (2)
-/** Total size of the buffer used to store the long filenames */
-#define LONG_FILENAME_LENGTH (13*MAX_VFAT_ENTRIES+1)
-#define SD_MAX_FOLDER_DEPTH 2
 
 #if BED_LEDS
 #include "Lighting.h"
 #endif
 #include "Communication.h"
-
-#ifndef SDCARDDETECT
-#define SDCARDDETECT       -1
-#endif
-#ifndef SDSUPPORT
-#define SDSUPPORT 0
-#endif
-#if SDSUPPORT
-#include "SdFat.h"
-#endif
 
 #define uint uint16_t
 #define uint8 uint8_t
@@ -748,67 +729,6 @@ extern uint8_t fan2Kickstart;
 #endif
 #if FEATURE_VENTILATION
 extern uint8_t fan3Kickstart;
-#endif
-
-
-#if SDSUPPORT
-extern char tempLongFilename[LONG_FILENAME_LENGTH+1];
-extern char fullName[LONG_FILENAME_LENGTH*SD_MAX_FOLDER_DEPTH+SD_MAX_FOLDER_DEPTH+1];
-#define SHORT_FILENAME_LENGTH 14
-#include "SdFat.h"
-
-enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
-class SDCard
-{
-public:
-    SdFat fat;
-    //Sd2Card card; // ~14 Byte
-    //SdVolume volume;
-    //SdFile root;
-    //SdFile dir[SD_MAX_FOLDER_DEPTH+1];
-    SdFile file;
-    uint32_t filesize;
-    uint32_t sdpos;
-    //char fullName[13*SD_MAX_FOLDER_DEPTH+13]; // Fill name
-    char *shortname; // Pointer to start of filename itself
-    char *pathend; // File to char where pathname in fullname ends
-    uint8_t sdmode;  // true if we are printing from sd card, 2 = stop accepting new commands
-    bool sdactive;
-    //int16_t n;
-    bool savetosd;
-    SdBaseFile parentFound;
-
-    SDCard();
-    void initsd();
-    void writeCommand(GCode *code);
-    bool selectFile(const char *filename,bool silent=false);
-    void mount();
-    void unmount();
-    void startPrint();
-    void pausePrint(bool intern = false);
-    void continuePrint(bool intern = false);
-    void stopPrint();
-    inline void setIndex(uint32_t  newpos)
-    {
-        if(!sdactive) return;
-        sdpos = newpos;
-        file.seekSet(sdpos);
-    }
-    void printStatus();
-    void ls();
-    void startWrite(char *filename);
-    void deleteFile(char *filename);
-    void finishWrite();
-    char *createFilename(char *buffer,const dir_t &p);
-    void makeDirectory(char *filename);
-    bool showFilename(const uint8_t *name);
-    void automount();
-#ifdef GLENN_DEBUG
-    void writeToFile();
-#endif
-};
-
-extern SDCard sd;
 #endif
 
 extern volatile int waitRelax; // Delay filament relax at the end of print, could be a simple timeout

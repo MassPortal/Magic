@@ -1366,8 +1366,6 @@ Always hard to say since the other angle is 89° in this case!
 #define AXISCOMP_TANYZ 0
 #define AXISCOMP_TANXZ 0
 
-
-
 /** \brief Experimental calibration utility for delta printers
  * Change 1 to 0 to disable
 */
@@ -1376,22 +1374,6 @@ Always hard to say since the other angle is 89° in this case!
 /* Define a pin to tuen light on/off */
 #define CASE_LIGHTS_PIN -1
 #define CASE_LIGHT_DEFAULT_ON 1
-
-/** Set to false to disable SD support: */
-#ifndef SDSUPPORT  // Some boards have sd support on board. These define the values already in pins.h
-#define SDSUPPORT true
-// Uncomment to enable or change card detection pin. With card detection the card is mounted on insertion.
-#define SDCARDDETECT -1
-// Change to true if you get a inserted message on removal.
-#define SDCARDDETECTINVERTED false
-#endif
-/** Show extended directory including file length. Don't use this with Pronterface! */
-#define SD_EXTENDED_DIR 1
-/** The gcodes in this line get executed, when you stop a sd print befor it was ended.
-Separate commands by \n */
-#define SD_RUN_ON_STOP ""
-/** Disable motors and heaters when print was stopped. */
-#define SD_STOP_HEATER_AND_MOTORS_ON_STOP 0
 
 // If you want support for G2/G3 arc commands set to true, otherwise false.
 #define ARC_SUPPORT 1

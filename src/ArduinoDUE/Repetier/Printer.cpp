@@ -724,17 +724,6 @@ void Printer::setup()
     Printer::setPowerOn(true);
 #endif
 #endif
-#if SDSUPPORT
-    //power to SD reader
-#if SDPOWER > -1
-    SET_OUTPUT(SDPOWER);
-    WRITE(SDPOWER, HIGH);
-#endif
-#if defined(SDCARDDETECT) && SDCARDDETECT > -1
-    SET_INPUT(SDCARDDETECT);
-    PULLUP(SDCARDDETECT, HIGH);
-#endif
-#endif
 
     //Initialize Step Pins
     SET_OUTPUT(X_STEP_PIN);
@@ -1060,9 +1049,6 @@ void Printer::setup()
 	//Avoid watchdog bootloop by disabling this
     //HAL::startWatchdog();
 #endif // FEATURE_WATCHDOG
-#if SDSUPPORT
-    //sd.mount();
-#endif
 #if BED_LEDS
 if (EEPROM::getBedLED()>1)
 	Light.init();
@@ -1075,7 +1061,7 @@ task_t Printer::defaultLoopActions()
 
     Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
     millis_t curtime = millis();
-    if(PrintLine::hasLines() || isMenuMode(MENU_MODE_SD_PAUSED)) {
+    if(PrintLine::hasLines()) {
         previousMillisCmd = curtime;
     } else {
         curtime -= previousMillisCmd;
@@ -1334,7 +1320,6 @@ void Printer::showConfiguration() {
     Com::config("NumExtruder:",NUM_EXTRUDER);
     Com::config("MixingExtruder:",MIXING_EXTRUDER);
     Com::config("HeatedBed:",HAVE_HEATED_BED);
-    Com::config("SDCard:",SDSUPPORT);
     Com::config("Fan:",FAN_PIN > -1 && FEATURE_FAN_CONTROL);
 #if FEATURE_FAN2_CONTROL && defined(FAN2_PIN) && FAN2_PIN > -1	
     Com::config("Fan2:1");

@@ -341,30 +341,7 @@ FSTRINGVALUE(Com::tEPRDistanceRetractHeating,"distance to retract when heating [
 FSTRINGVALUE(Com::tEPRExtruderCoolerSpeed,"extruder cooler speed [0-255]")
 FSTRINGVALUE(Com::tEPRAdvanceK,"advance K [0=off]")
 FSTRINGVALUE(Com::tEPRAdvanceL,"advance L [0=off]")
-
 #endif
-#if SDSUPPORT
-//FSTRINGVALUE(Com::tSDRemoved,UI_TEXT_SD_REMOVED)
-//FSTRINGVALUE(Com::tSDInserted,UI_TEXT_SD_INSERTED)
-FSTRINGVALUE(Com::tSDInitFail,"SD init fail")
-FSTRINGVALUE(Com::tErrorWritingToFile,"error writing to file")
-FSTRINGVALUE(Com::tBeginFileList,"Begin file list")
-FSTRINGVALUE(Com::tEndFileList,"End file list")
-FSTRINGVALUE(Com::tFileOpened,"File opened:")
-FSTRINGVALUE(Com::tSpaceSizeColon," Size:")
-FSTRINGVALUE(Com::tFileSelected,"File selected")
-FSTRINGVALUE(Com::tFileOpenFailed,"file.open failed")
-FSTRINGVALUE(Com::tSDPrintingByte,"SD printing byte ")
-FSTRINGVALUE(Com::tNotSDPrinting,"Not SD printing")
-FSTRINGVALUE(Com::tOpenFailedFile,"open failed, File: ")
-FSTRINGVALUE(Com::tWritingToFile,"Writing to file: ")
-FSTRINGVALUE(Com::tDoneSavingFile,"Done saving file.")
-FSTRINGVALUE(Com::tFileDeleted,"File deleted")
-FSTRINGVALUE(Com::tDeletionFailed,"Deletion failed")
-FSTRINGVALUE(Com::tDirectoryCreated,"Directory created")
-FSTRINGVALUE(Com::tCreationFailed,"Creation failed")
-FSTRINGVALUE(Com::tSDErrorCode,"SD errorCode:")
-#endif // SDSUPPORT
 FSTRINGVALUE(Com::tHeaterDecoupled,"Heater decoupled")
 FSTRINGVALUE(Com::tHeaterDecoupledWarning,"One heater seems decoupled from thermistor - disabling all for safety!")
 #if DISTORTION_CORRECTION
