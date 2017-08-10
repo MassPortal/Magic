@@ -741,7 +741,6 @@ extern int debugWaitLoop;
 
 #define STR(s) #s
 #define XSTR(s) STR(s)
-#include "echo.h"
 #include "Commands.h"
 #include "Eeprom.h"
 

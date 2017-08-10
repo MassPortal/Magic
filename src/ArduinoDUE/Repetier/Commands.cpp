@@ -2644,7 +2644,7 @@ void Commands::processMCode(GCode *com)
     case 887: // M887 echo received message
         if(com->hasString())
         {
-            echoString(com->text);
+            Com::printFLN(Com::tEcho, com->text); // for debug purposes only
         }
         break;
     default:
