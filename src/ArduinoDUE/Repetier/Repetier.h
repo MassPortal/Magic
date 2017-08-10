@@ -196,11 +196,6 @@ inline void memcopy4(void *dest,void *source) {
 
 #define GCODE_BUFFER_SIZE 1
 
-#ifndef FEATURE_BABYSTEPPING
-#define FEATURE_BABYSTEPPING 0
-#define BABYSTEP_MULTIPLICATOR 1
-#endif
-
 #if !defined(Z_PROBE_REPETITIONS) || Z_PROBE_REPETITIONS < 1
 #define Z_PROBE_SWITCHING_DISTANCE 0.5 // Distance to safely untrigger probe
 #define Z_PROBE_REPETITIONS 1

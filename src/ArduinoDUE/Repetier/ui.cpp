@@ -41,9 +41,6 @@ static TemperatureController *currHeaterForSetup;    // pointer to extruder or h
 #if UI_AUTORETURN_TO_MENU_AFTER != 0
 millis_t ui_autoreturn_time = 0;
 #endif
-#if FEATURE_BABYSTEPPING
-int zBabySteps = 0;
-#endif
 
 bool UIMenuEntry::showEntry() const
 {
@@ -1371,14 +1368,6 @@ void UIDisplay::parse(const char *txt)
 				addFloat(Printer::zBedOffset, 3, 2);
 				break;
 			}
-#if FEATURE_BABYSTEPPING
-            if(c2 == 'Y')
-            {
-//                addInt(zBabySteps,0);
-                addFloat((float)zBabySteps * Printer::invAxisStepsPerMM[Z_AXIS], 2, 2);
-                break;
-            }
-#endif
             // Extruder output level
             if(c2 >= '0' && c2 <= '9') ivalue = pwm_pos[c2 - '0'];
 #if HAVE_HEATED_BED
@@ -2357,9 +2346,6 @@ int UIDisplay::okAction(bool allowMoves)
     if(entType == 2)   // Enter submenu
     {
         pushMenu((UIMenu*)action, false);
-#if FEATURE_BABYSTEPPING
-        zBabySteps = 0;
-#endif
 #if HAVE_HEATED_BED
         if(action == ui_menu_conf_bed.action)  // enter Bed configuration menu
             currHeaterForSetup = &heatedBedController;
@@ -2646,22 +2632,6 @@ ZPOS2:
         Extruder::current->disableCurrentExtruderMotor();
         break;
 #endif
-    case UI_ACTION_Z_BABYSTEPS:
-#if FEATURE_BABYSTEPPING
-    {
-        previousMillisCmd = millis();
-#if UI_DYNAMIC_ENCODER_SPEED
-        increment /= dynSp; // we need fixed speeds or we get in trouble here!
-#endif
-        if((abs((int)Printer::zBabystepsMissing + (increment * BABYSTEP_MULTIPLICATOR))) < 20000)
-        {
-			InterruptProtectedBlock noint;
-            Printer::zBabystepsMissing += increment * BABYSTEP_MULTIPLICATOR;
-            zBabySteps += increment * BABYSTEP_MULTIPLICATOR;
-        }
-    }
-#endif
-    break;
     case UI_ACTION_HEATED_BED_TEMP:
 #if HAVE_HEATED_BED
     {

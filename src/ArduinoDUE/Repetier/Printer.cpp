@@ -48,7 +48,6 @@ unsigned long Printer::maxTravelAccelerationStepsPerSquareSecond[E_AXIS_ARRAY];
 #endif
 long Printer::currentDeltaPositionSteps[E_TOWER_ARRAY];
 uint8_t lastMoveID = 0; // Last move ID
-int16_t Printer::zBabystepsMissing = 0;
 uint8_t Printer::relativeCoordinateMode = false;  ///< Determines absolute (false) or relative Coordinates (true).
 uint8_t Printer::relativeExtruderCoordinateMode = false;  ///< Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 
@@ -1292,40 +1291,6 @@ void Printer::babyStep(float Zmm)
     Printer::setZDirection(zDir);
     /* Reenable motor timer */
     TC_Start(TIMER1_TIMER, TIMER1_TIMER_CHANNEL);
-}
-
-void Printer::zBabystep()
-{
-    bool dir = zBabystepsMissing > 0;
-    if(dir) zBabystepsMissing--;
-    else zBabystepsMissing++;
-    Printer::enableXStepper();
-    Printer::enableYStepper();
-    Printer::enableZStepper();
-    Printer::unsetAllSteppersDisabled();
-    bool xDir = Printer::getXDirection();
-    bool yDir = Printer::getYDirection();
-    bool zDir = Printer::getZDirection();
-    Printer::setXDirection(dir);
-    Printer::setYDirection(dir);
-    Printer::setZDirection(dir);
-#if defined(DIRECTION_DELAY) && DIRECTION_DELAY > 0
-    HAL::delayMicroseconds(DIRECTION_DELAY);
-#else
-    HAL::delayMicroseconds(10);
-#endif
-    startXStep();
-    startYStep();
-    startZStep();
-    HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 2);
-    Printer::endXYZSteps();
-    HAL::delayMicroseconds(10);
-    Printer::setXDirection(xDir);
-    Printer::setYDirection(yDir);
-    Printer::setZDirection(zDir);
-#if defined(DIRECTION_DELAY) && DIRECTION_DELAY > 0
-    HAL::delayMicroseconds(DIRECTION_DELAY);
-#endif
 }
 
 void Printer::moveToPausePosition() {

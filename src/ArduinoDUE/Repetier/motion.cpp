@@ -1699,15 +1699,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
             {
                 if (cur->numDeltaSegments)
                 {
-                    if(FEATURE_BABYSTEPPING && Printer::zBabystepsMissing/* && curd
-                            && (curd->dir & XYZ_STEP) == XYZ_STEP*/)
-                    {
-                        // execute a extra babystep
-                        //Printer::insertStepperHighDelay();
-                        //Printer::endXYZSteps();
-                        //HAL::delayMicroseconds(STEPPER_HIGH_DELAY + DOUBLE_STEP_DELAY + 1);
-                        Printer::zBabystep();
-                    }
                     // Get the next delta segment
                     curd = &cur->segments[--cur->numDeltaSegments];
 

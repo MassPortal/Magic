@@ -575,13 +575,8 @@ void TIMER1_COMPA_VECTOR ()
   stepperChannel->TC_SR;
   stepperChannel->TC_RC = 1000000;
   uint32_t delay;
-  if (PrintLine::hasLines())
-  {
+  if (PrintLine::hasLines()) {
     delay = PrintLine::bresenhamStep();
-  }
-  else if (Printer::zBabystepsMissing != 0) {
-    Printer::zBabystep();
-    delay = Printer::interval;
   } else {
     if (waitRelax == 0)
     {

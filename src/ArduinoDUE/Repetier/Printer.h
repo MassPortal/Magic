@@ -353,7 +353,6 @@ public:
 	static float thermoMinTemp;
 	static float thermoMaxTemp;
 #endif
-    static int16_t zBabystepsMissing;
 	static int16_t resends;
     static float minimumSpeed;               ///< lowest allowed speed to keep integration error small
     static float minimumZSpeed;              ///< lowest allowed speed to keep integration error small
@@ -1019,7 +1018,6 @@ public:
 #endif
     static void MemoryPosition();
     static void GoToMemoryPosition(bool x,bool y,bool z,bool e,float feed);
-    static void zBabystep();
     static void babyStep(float Zmm);
 
     static INLINE void resetWizardStack()
