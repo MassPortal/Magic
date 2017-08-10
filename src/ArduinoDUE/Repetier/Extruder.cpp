@@ -355,7 +355,7 @@ void TemperatureController::waitForTargetTemperature()
             Commands::printTemperatures();
             time = millis();
         }
-        Commands::checkForPeriodicalActions(true);
+        Commands::checkForPeriodicalActions();
         if(fabs(targetTemperatureC - currentTemperatureC) <= 1)
             return;
     }
@@ -687,7 +687,7 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
                 Commands::printTemperatures();
                 printedTime = currentTime;
             }
-            Commands::checkForPeriodicalActions(true);
+            Commands::checkForPeriodicalActions();
             //gcode_read_serial();
 #if RETRACT_DURING_HEATUP
             if (actExtruder == Extruder::current && actExtruder->waitRetractUnits > 0 && !retracted && dirRising && actExtruder->tempControl.currentTemperatureC > actExtruder->waitRetractTemperature)

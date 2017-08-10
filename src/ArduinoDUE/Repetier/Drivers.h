@@ -77,7 +77,7 @@ public:
             target--;
             HAL::pingWatchdog();
             if((target & 127) == 0)
-                Commands::checkForPeriodicalActions(false);
+                Commands::checkForPeriodicalActions();
         }
     }
     void enable()

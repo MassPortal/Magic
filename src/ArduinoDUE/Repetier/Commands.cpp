@@ -44,7 +44,7 @@ void Commands::commandLoop()
     }
 }
 
-void Commands::checkForPeriodicalActions(bool allowNewMoves)
+void Commands::checkForPeriodicalActions(void)
 {
     if(!executePeriodical) return;
     executePeriodical = 0;
@@ -54,14 +54,9 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
 #endif
     if(--counter250ms == 0)
     {
-        if(manageMonitor)
-            writeMonitor();
+        if(manageMonitor) writeMonitor();
         counter250ms = 5;
     }
-    // If called from queueDelta etc. it is an error to start a new move since it
-    // would invalidate old computation resulting in unpredicted behaviour.
-    // lcd controller can start new moves, so we disallow it if called from within
-    // a move command.
 }
 
 /** \brief Waits until movement cache is empty.
@@ -78,7 +73,7 @@ void Commands::waitUntilEndOfAllMoves()
     while(PrintLine::hasLines())
     {
         GCode::readFromSerial();
-        checkForPeriodicalActions(false);
+        checkForPeriodicalActions();
     }
 }
 
@@ -97,7 +92,7 @@ void Commands::waitUntilEndOfAllBuffers()
             Commands::executeGCode(code);
             code->popCurrentCommand();
         }
-        Commands::checkForPeriodicalActions(false); // only called from memory
+        Commands::checkForPeriodicalActions(); // only called from memory
     }
 }
 
@@ -552,7 +547,7 @@ void Commands::processGCode(GCode *com)
 		while ((uint32_t)(codenum - millis()) < 2000000000)
 		{
 			GCode::readFromSerial();
-			Commands::checkForPeriodicalActions(true);
+			Commands::checkForPeriodicalActions();
 		}
 		break;
 #if FEATURE_RETRACTION && NUM_EXTRUDER > 0
@@ -2011,7 +2006,7 @@ void Commands::processMCode(GCode *com)
                 printTemperatures();
                 codenum = previousMillisCmd = millis();
             }
-            Commands::checkForPeriodicalActions(true);
+            Commands::checkForPeriodicalActions();
         }
 #endif
 #endif
@@ -2206,7 +2201,7 @@ void Commands::processMCode(GCode *com)
                     HAL::pinMode(com->S,INPUT_PULLUP);
             }
             do {
-                Commands::checkForPeriodicalActions(true);
+                Commands::checkForPeriodicalActions();
             } while(HAL::digitalRead(com->P) != comp);
         }
         break;

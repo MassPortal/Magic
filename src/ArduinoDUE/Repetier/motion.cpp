@@ -718,12 +718,12 @@ void PrintLine::logLine()
 #endif // DEBUG_QUEUE_MOVE
 }
 
-void PrintLine::waitForXFreeLines(uint8_t b, bool allowMoves)
+void PrintLine::waitForXFreeLines(uint8_t b)
 {
     while(getLinesCount() + b > PRINTLINE_CACHE_SIZE)   // wait for a free entry in movement cache
     {
         GCode::readFromSerial();
-        Commands::checkForPeriodicalActions(allowMoves);
+        Commands::checkForPeriodicalActions();
     }
 }
 
@@ -1458,7 +1458,7 @@ void PrintLine::arc(float *position, float *target, float *offset, float radius,
         if((count & 3) == 0)
         {
             GCode::readFromSerial();
-            Commands::checkForPeriodicalActions(false);
+            Commands::checkForPeriodicalActions();
         }
 
         if (count < N_ARC_CORRECTION)  //25 pieces

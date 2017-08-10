@@ -1059,7 +1059,7 @@ task_t Printer::defaultLoopActions()
 {
     CR_BEGIN;
 
-    Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
+    Commands::checkForPeriodicalActions();  //check heater every n milliseconds
     millis_t curtime = millis();
     if(PrintLine::hasLines()) {
         previousMillisCmd = curtime;
@@ -1133,7 +1133,7 @@ void Printer::homeZAxis() // Delta z homing
 {
 	bool homingSuccess = false; // By default fail homing (safety feature)
 
-	Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
+	Commands::checkForPeriodicalActions(); // Temporary disable new command read from buffer
 
 	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
 	PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
@@ -1157,7 +1157,7 @@ void Printer::homeZAxis() // Delta z homing
 		setHomed(false); // Clear the homed flag
 		Com::printFLN("Homing failed!");
 	}
-	Commands::checkForPeriodicalActions(true);
+	Commands::checkForPeriodicalActions();
 
     // Correct different endstop heights
     // These can be adjusted by two methods. You can use offsets stored by determining the center

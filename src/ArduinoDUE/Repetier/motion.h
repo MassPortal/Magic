@@ -575,7 +575,7 @@ public:
     }
     static inline void computeMaxJunctionSpeed(PrintLine *previous,PrintLine *current);
     static int32_t bresenhamStep();
-    static void waitForXFreeLines(uint8_t b=1, bool allowMoves = false);
+    static void waitForXFreeLines(uint8_t b=1);
     static inline void forwardPlanner(ufast8_t p);
     static inline void backwardPlanner(ufast8_t p,ufast8_t last);
     static void updateTrapezoids();
