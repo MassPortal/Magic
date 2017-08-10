@@ -194,8 +194,6 @@ inline void memcopy4(void *dest,void *source) {
 #define MICROSTEP16 HIGH,HIGH
 #define MICROSTEP32 HIGH,HIGH
 
-#define GCODE_BUFFER_SIZE 1
-
 #if !defined(Z_PROBE_REPETITIONS) || Z_PROBE_REPETITIONS < 1
 #define Z_PROBE_SWITCHING_DISTANCE 0.5 // Distance to safely untrigger probe
 #define Z_PROBE_REPETITIONS 1

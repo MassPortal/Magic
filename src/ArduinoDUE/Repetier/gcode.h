@@ -56,105 +56,105 @@ public:
     // True if origin did not come from serial console. That way we can send status messages to
     // a host only if he would normally not know about the mode switch.
     bool internalCommand;
-    inline bool hasM()
-    {
-        return ((params & 2)!=0);
-    }
     inline bool hasN()
     {
-        return ((params & 1)!=0);
+        return (params & (1<<0));
+    }
+    inline bool hasM()
+    {
+        return (params & (1<<1));
     }
     inline bool hasG()
     {
-        return ((params & 4)!=0);
+        return (params & (1<<2));
     }
     inline bool hasX()
     {
-        return ((params & 8)!=0);
+        return (params & (1<<3));
     }
     inline bool hasY()
     {
-        return ((params & 16)!=0);
+        return (params & (1<<4));
     }
     inline bool hasZ()
     {
-        return ((params & 32)!=0);
+        return (params & (1<<5));
     }
     inline bool hasNoXYZ()
     {
-        return ((params & 56)==0);
+        return !hasX() && !hasY() && !hasZ();
     }
     inline bool hasE()
     {
-        return ((params & 64)!=0);
+        return (params & (1<<6));
     }
     inline bool hasF()
     {
-        return ((params & 256)!=0);
+        return (params & (1<<8));
     }
     inline bool hasT()
     {
-        return ((params & 512)!=0);
+        return (params & (1<<9));
     }
     inline bool hasS()
     {
-        return ((params & 1024)!=0);
+        return (params & (1<<10));
     }
     inline bool hasP()
     {
-        return ((params & 2048)!=0);
+        return (params & (1<<11));
     }
     inline bool isV2()
     {
-        return ((params & 4096)!=0);
+        return (params & (1<<12));
     }
     inline bool hasString()
     {
-        return ((params & 32768)!=0);
+        return (params & (1<<15));
     }
     inline bool hasI()
     {
-        return ((params2 & 1)!=0);
+        return (params2 & (1<<0));
     }
     inline bool hasJ()
     {
-        return ((params2 & 2)!=0);
+        return (params2 & (1<<1));
     }
     inline bool hasR()
     {
-        return ((params2 & 4)!=0);
+        return (params2 & (1<<2));
     }
     inline bool hasD()
     {
-        return ((params2 & 8)!=0);
+        return (params2 & (1<<3));
     }
     inline bool hasC()
     {
-        return ((params2 & 16)!=0);
+        return (params2 & (1<<4));
     }
     inline bool hasH()
     {
-        return ((params2 & 32)!=0);
+        return (params2 & (1<<5));
     }
     inline bool hasA()
     {
-        return ((params2 & 64)!=0);
+        return (params2 & (1<<6));
     }
     inline bool hasB()
     {
-        return ((params2 & 128)!=0);
+        return (params2 & (1<<7));
     }
     inline bool hasK()
     {
-        return ((params2 & 256)!=0);
+        return (params2 & (1<<8));
     }
     inline bool hasL()
     {
-        return ((params2 & 512)!=0);
+        return (params2 & (1<<9));
     }
     inline bool hasO()
     {
-        return ((params2 & 1024)!=0);
+        return (params2 & (1<<10));
     }
     inline long getS(long def)
     {
@@ -165,10 +165,10 @@ public:
         return (hasP() ? P : def);
     }
     inline void setFormatError() {
-        params2 |= 32768;
+        params2 |= (1<<15);
     }
     inline bool hasFormatError() {
-        return ((params2 & 32768)!=0);
+        return (params2 & (1<<15));
     }
     void printCommand();
     bool parseBinary(uint8_t *buffer,bool fromSerial);
@@ -205,21 +205,17 @@ private:
         if(s == endPtr) l=0; // treat empty string argument "p " as "p0"
         return l;
     }
-
-    static GCode commandsBuffered[GCODE_BUFFER_SIZE]; ///< Buffer for received commands.
-    static uint8_t bufferReadIndex; ///< Read position in gcode_buffer.
-    static uint8_t bufferWriteIndex; ///< Write position in gcode_buffer.
+    static GCode commandReceived; ///< Buffer for received commands.
+    static bool commandAvailable;
     static uint8_t commandReceiving[MAX_CMD_SIZE]; ///< Current received command.
     static uint8_t commandsReceivingWritePosition; ///< Writing position in gcode_transbuffer.
     static uint8_t sendAsBinary; ///< Flags the command as binary input.
     static uint8_t wasLastCommandReceivedAsBinary; ///< Was the last successful command in binary mode?
     static uint8_t commentDetected; ///< Flags true if we are reading the comment part of a command.
     static uint8_t binaryCommandSize; ///< Expected size of the incoming binary command.
-    static bool waitUntilAllCommandsAreParsed; ///< Don't read until all commands are parsed. Needed if gcode_buffer is misused as storage for strings.
     static uint32_t lastLineNumber; ///< Last line number received.
     static uint32_t actLineNumber; ///< Line number of current command.
     static int8_t waitingForResend; ///< Waiting for line to be resend. -1 = no wait.
-    static volatile uint8_t bufferLength; ///< Number of commands stored in gcode_buffer
     static millis_t timeOfLastDataPacket; ///< Time, when we got the last data packet. Used to detect missing uint8_ts.
     static uint8_t formatErrors; ///< Number of sequential format errors
 };

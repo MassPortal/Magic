@@ -27,20 +27,17 @@
 #define FEATURE_CHECKSUM_FORCED false
 #endif
 
-GCode    GCode::commandsBuffered[GCODE_BUFFER_SIZE]; ///< Buffer for received commands.
-uint8_t  GCode::bufferReadIndex = 0; ///< Read position in gcode_buffer.
-uint8_t  GCode::bufferWriteIndex = 0; ///< Write position in gcode_buffer.
+GCode    GCode::commandReceived; ///< Buffer for received commands.
+bool     GCode::commandAvailable;
 uint8_t  GCode::commandReceiving[MAX_CMD_SIZE]; ///< Current received command.
 uint8_t  GCode::commandsReceivingWritePosition = 0; ///< Writing position in gcode_transbuffer.
 uint8_t  GCode::sendAsBinary; ///< Flags the command as binary input.
 uint8_t  GCode::wasLastCommandReceivedAsBinary = 0; ///< Was the last successful command in binary mode?
 uint8_t  GCode::commentDetected = false; ///< Flags true if we are reading the comment part of a command.
 uint8_t  GCode::binaryCommandSize; ///< Expected size of the incoming binary command.
-bool     GCode::waitUntilAllCommandsAreParsed = false; ///< Don't read until all commands are parsed. Needed if gcode_buffer is misused as storage for strings.
 uint32_t GCode::lastLineNumber = 0; ///< Last line number received.
 uint32_t GCode::actLineNumber; ///< Line number of current command.
 int8_t   GCode::waitingForResend = -1; ///< Waiting for line to be resend. -1 = no wait.
-volatile uint8_t GCode::bufferLength = 0; ///< Number of commands stored in gcode_buffer
 millis_t GCode::timeOfLastDataPacket = 0; ///< Time, when we got the last data packet. Used to detect missing uint8_ts.
 uint8_t  GCode::formatErrors = 0;
 
@@ -154,10 +151,7 @@ void GCode::requestResend()
 	++Printer::resends;
     Serial.flush();
     commandsReceivingWritePosition = 0;
-    if(sendAsBinary)
-        waitingForResend = 30;
-    else
-        waitingForResend = 14;
+    waitingForResend = (sendAsBinary) ? 30 : 14;
     Com::println();
     Com::printFLN(Com::tResend,lastLineNumber + 1);
     Com::printFLN(Com::tOk);
@@ -239,11 +233,10 @@ void GCode::checkAndPushCommand()
 
 void GCode::pushCommand()
 {
+    commandAvailable = true;
 #if !ECHO_ON_EXECUTE
     commandsBuffered[bufferWriteIndex].echoCommand();
 #endif
-    if(++bufferWriteIndex >= GCODE_BUFFER_SIZE) bufferWriteIndex = 0;
-    bufferLength++;
 }
 
 /**
@@ -252,19 +245,16 @@ void GCode::pushCommand()
 */
 GCode *GCode::peekCurrentCommand()
 {
-    if(bufferLength == 0) return NULL; // No more data
-    return &commandsBuffered[bufferReadIndex];
+    return commandAvailable ? &commandReceived : NULL;
 }
 
 /** \brief Removes the last returned command from cache. */
 void GCode::popCurrentCommand()
 {
-    if(!bufferLength) return; // Should not happen, but safety first
+    commandAvailable = false;
 #if ECHO_ON_EXECUTE
     echoCommand();
 #endif
-    if(++bufferReadIndex == GCODE_BUFFER_SIZE) bufferReadIndex = 0;
-    bufferLength--;
 }
 
 void GCode::echoCommand()
@@ -336,9 +326,8 @@ It must be called frequently to empty the incoming buffer.
 */
 void GCode::readFromSerial()
 {
-    if(bufferLength >= GCODE_BUFFER_SIZE) return; // all buffers full
-    if(waitUntilAllCommandsAreParsed && bufferLength) return;
-    waitUntilAllCommandsAreParsed = false;
+    /* Buffer full - all is bad (somehow left unexecuted)*/
+    if (commandAvailable) return;
     millis_t time = millis();
     if(!Serial.available())
     {
@@ -349,7 +338,7 @@ void GCode::readFromSerial()
             timeOfLastDataPacket = time;
         }
 #ifdef WAITING_IDENTIFIER
-        else if(bufferLength == 0 && time - timeOfLastDataPacket > 1000)   // Don't do it if buffer is not empty. It may be a slow executing command.
+        else if(!commandAvailable && time - timeOfLastDataPacket > 1000)   // Don't do it if buffer is not empty. It may be a slow executing command.
         {
             Com::printFLN(Com::tWait); // Unblock communication in case the last ok was not received correct.
             timeOfLastDataPacket = time;
@@ -392,7 +381,7 @@ void GCode::readFromSerial()
                 binaryCommandSize = computeBinarySize((char*)commandReceiving);
             if(commandsReceivingWritePosition == binaryCommandSize)
             {
-                GCode *act = &commandsBuffered[bufferWriteIndex];
+                GCode *act = &commandReceived;
                 if(act->parseBinary(commandReceiving, true))   // Success
                     act->checkAndPushCommand();
                 else
@@ -414,7 +403,7 @@ void GCode::readFromSerial()
                     commandsReceivingWritePosition = 0;
                     continue;
                 }
-                GCode *act = &commandsBuffered[bufferWriteIndex];
+                GCode *act = &commandReceived;
                 if(act->parseAscii((char *)commandReceiving, true))   // Success
                     act->checkAndPushCommand();
                 else
@@ -472,7 +461,7 @@ void GCode::readFromSerial()
                 binaryCommandSize = computeBinarySize((char*)commandReceiving);
             if(commandsReceivingWritePosition == binaryCommandSize)
             {
-                GCode *act = &commandsBuffered[bufferWriteIndex];
+                GCode *act = &commandReceived;
                 if(act->parseBinary(commandReceiving, false))   // Success, silently ignore illegal commands
                     pushCommand();
                 commandsReceivingWritePosition = 0;
@@ -497,7 +486,7 @@ void GCode::readFromSerial()
                     commandsReceivingWritePosition = 0;
                     continue;
                 }
-                GCode *act = &commandsBuffered[bufferWriteIndex];
+                GCode *act = &commandReceived;
                 if(act->parseAscii((char *)commandReceiving, false))   // Success
                     pushCommand();
                 commandsReceivingWritePosition = 0;
@@ -689,7 +678,6 @@ bool GCode::parseBinary(uint8_t *buffer,bool fromSerial)
     {
         text = (char*)p;
         text[textlen] = 0; // Terminate string overwriting checksum
-        waitUntilAllCommandsAreParsed = true; // Don't destroy string until executed
     }
     formatErrors = 0;
     return true;
@@ -759,7 +747,6 @@ bool GCode::parseAscii(char *line,bool fromSerial)
                     pos++; // find a space as file name end
                 }
                 *pos = 0; // truncate filename by erasing space with nul, also skips checksum
-                waitUntilAllCommandsAreParsed = true; // don't risk string be deleted
                 params |= 32768;
             }
             break;
