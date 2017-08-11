@@ -2264,17 +2264,13 @@ void Commands::processMCode(GCode *com)
         break;
 #endif
     case 281: // Trigger watchdog
-#if FEATURE_WATCHDOG
     {
         Com::printInfoFLN("Triggering watchdog. If activated, the printer will reset.");
         Printer::kill(false);
         HAL::delayMilliseconds(200); // write output, make sure heaters are off for safety
         InterruptProtectedBlock noInts;
-        while(1) {} // Endless loop
+        while (1);
     }
-#else
-    Com::printInfoFLN("Watchdog feature was not compiled into this version!");
-#endif
     break;
     case 302: // M302 S<0 or 1> - allow cold extrusion. Without S parameter it will allow. S1 will disallow.
         Printer::setColdExtrusionAllowed(!com->hasS() || (com->hasS() && com->S != 0));

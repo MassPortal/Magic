@@ -1045,10 +1045,6 @@ void Printer::setup()
     //setAutoretract(EEPROM_BYTE(AUTORETRACT_ENABLED));
     Commands::printCurrentPosition("Printer::setup ");
     Extruder::selectExtruderById(0);
-#if FEATURE_WATCHDOG
-	//Avoid watchdog bootloop by disabling this
-    //HAL::startWatchdog();
-#endif // FEATURE_WATCHDOG
 #if BED_LEDS
 if (EEPROM::getBedLED()>1)
 	Light.init();

@@ -258,11 +258,6 @@ class HAL
     // do any hardware-specific initialization here
     static inline void hwSetup(void)
     {
-      #if !FEATURE_WATCHDOG
-        // Disable watchdog
-        WDT_Disable(WDT);
-      #endif
-  
       HAL::i2cInit(TWI_CLOCK_FREQ);
       // make debugging startup easier
       //Serial.begin(115200);
@@ -348,9 +343,7 @@ class HAL
         del = delayMs > 100 ? 100 : delayMs;
         delay(del);
         delayMs -= del;
-#if FEATURE_WATCHDOG
         HAL::pingWatchdog();
-#endif
       }
     }
     static inline void eprSetByte(unsigned int pos, uint8_t value)
@@ -530,9 +523,7 @@ class HAL
     };
     inline static void stopWatchdog() {}
     inline static void pingWatchdog() {
-#if FEATURE_WATCHDOG
-      wdPinged = true;
-#endif
+        wdPinged = true;
     };
 
     inline static float maxExtruderTimerFrequency() {
