@@ -284,6 +284,7 @@ class HAL
     }
 
     static uint32_t integer64Sqrt(uint64_t a);
+    static uint32_t integer32Sqrt(uint32_t num);
     // return val'val
     static inline unsigned long U16SquaredToU32(unsigned int val)
     {

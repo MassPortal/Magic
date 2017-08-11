@@ -233,6 +233,25 @@ uint32_t HAL::integer64Sqrt(uint64_t a_nInput) {
   return res;
 }
 
+uint32_t HAL::integer32Sqrt(uint32_t num)
+{
+    uint32_t op = num;
+    uint32_t res = 0;
+    uint32_t one = 1u << 30;
+
+    while (one > op) one >>= 2;
+
+    while (one) {
+        if (op >= res + one) {
+            op = op - (res + one);
+            res += 2 * one;
+        }
+        res >>= 1;
+        one >>= 2;
+    }
+    return (op > res) ? res + 1 : res;
+}
+
 
 void HAL::spiBegin()
 {
