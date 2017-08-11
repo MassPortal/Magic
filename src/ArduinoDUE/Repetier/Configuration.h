@@ -70,15 +70,6 @@ gets used, or you will get probelms with checksums etc.
 #define BLUETOOTH_SERIAL   101                      // Port number (1..3) - For RADDS use 1
 #define BLUETOOTH_BAUD     115200                 // communication speed
 
-
-// Uncomment the following line if you are using arduino compatible firmware made for Arduino version earlier then 1.0
-// If it is incompatible you will get compiler errors about write functions not beeing compatible!
-//#define COMPAT_PRE1
-
-/* You can write some gcode to be executed on startup. Use this e.g. to set some 
-pins. Separate multiple gcodes with \n
-*/
-
 // ##########################################################################################
 // ##                               Calibration                                            ##
 // ##########################################################################################
@@ -879,10 +870,6 @@ on this endstop.
 */
 #define PRINTER_RADIUS 150
 
-/** 1 for more precise delta moves. 0 for faster computation.
-Needs a bit more computation time. */
-#define EXACT_DELTA_MOVES 0
-
 /* ========== END Delta calibation data ==============*/
 
 /** When true the delta will home to z max when reset/powered over cord. That way you start with well defined coordinates.
@@ -933,14 +920,6 @@ Mega. Used only for nonlinear systems like delta or tuga. */
 #define HOMING_FEEDRATE_Y 100
 #define HOMING_FEEDRATE_Z 100
 
-/** Set order of axis homing. Use HOME_ORDER_XYZ and replace XYZ with your order. 
- * If you measure Z with your extruder tip you need a hot extruder to get right measurement. In this
- * case set HOME_ORDER_ZXYTZ and also define ZHOME_HEAT_HEIGHT and ZHOME_MIN_TEMPERATURE. It will do
- * first a z home to get some reference, then raise to ZHOME_HEAT_HEIGHT do xy homing and then after
- * heating to minimum ZHOME_MIN_TEMPERATURE will z home again for correct height.   
- * */
-#define HOMING_ORDER HOME_ORDER_ZXY
-// Used for homing order HOME_ORDER_ZXYTZ
 #define ZHOME_MIN_TEMPERATURE 0
 // needs to heat all extruders (1) or only current extruder (0)
 #define ZHOME_HEAT_ALL 0 
@@ -1414,8 +1393,6 @@ goes on as soon as moves occur. Mainly to prevent overheating of stepper drivers
 // Analog pin number or channel for due boards
 #define FAN_THERMO_THERMISTOR_PIN -1
 #define FAN_THERMO_THERMISTOR_TYPE 1
-
-#define FEATURE_CONTROLLER CONTROLLER_LCD_MP_PHARAOH_DUE
 
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
