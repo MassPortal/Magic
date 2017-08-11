@@ -713,7 +713,7 @@ extern int debugWaitLoop;
 #define DELAY1MICROSECOND     HAL::delayMicroseconds(1);
 #define DELAY2MICROSECOND     HAL::delayMicroseconds(2);
 
-#define SQRT(x) integer64Sqrt(x)
+#define SQRT(x) HAL::integer64Sqrt(x)
 
 #include "Drivers.h"
 
