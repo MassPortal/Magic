@@ -20,7 +20,6 @@
 
 #define MAX_CMD_SIZE 96
 #define ARRAY_SIZE(_x)	(sizeof(_x)/sizeof(_x[0]))
-class SDCard;
 class GCode   // 52 uint8_ts per command needed
 {
     uint16_t params;
@@ -182,8 +181,6 @@ public:
     static void pushCommand();
     static void executeFString(const char* cmd);
     static uint8_t computeBinarySize(char *ptr);
-
-    friend class SDCard;
 private:
     void debugCommandBuffer();
     void checkAndPushCommand();

@@ -319,9 +319,9 @@ void GCode::executeFString(const char* cmd)
     while(c);
 }
 
-/** \brief Read from serial console or sdcard.
+/** \brief Read from serial console.
 
-This function is the main function to read the commands from serial console or from sdcard.
+This function is the main function to read the commands from serial console.
 It must be called frequently to empty the incoming buffer.
 */
 void GCode::readFromSerial()

@@ -168,17 +168,9 @@ wizardVar Printer::wizardStack[WIZARD_STACK_SIZE];
 flag8_t Endstops::lastState = 0;
 flag8_t Endstops::lastRead = 0;
 flag8_t Endstops::accumulator = 0;
-#ifdef EXTENDED_ENDSTOPS
-flag8_t Endstops::lastState2 = 0;
-flag8_t Endstops::lastRead2 = 0;
-flag8_t Endstops::accumulator2 = 0;
-#endif
 
 void Endstops::update() {
     flag8_t newRead = 0;
-#ifdef EXTENDED_ENDSTOPS
-    flag8_t newRead2 = 0;
-#endif
 #if (X_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_X
         if(READ(X_MIN_PIN) != ENDSTOP_X_MIN_INVERTING)
             newRead |= ENDSTOP_X_MIN_ID;
@@ -212,33 +204,17 @@ void Endstops::update() {
        newRead |= ENDSTOP_Z_PROBE_ID;
 #endif
     lastRead &= newRead;
-#ifdef EXTENDED_ENDSTOPS
-    lastRead2 &= newRead2;
-#endif // EXTENDED_ENDSTOPS
-    if(lastRead != lastState
-#ifdef EXTENDED_ENDSTOPS
-        || (lastState2 != lastRead2)
-#endif
-       ) { // Report endstop hit changes
+    if(lastRead != lastState) { // Report endstop hit changes
         lastState = lastRead;
         accumulator |= lastState;
-#ifdef EXTENDED_ENDSTOPS
-        lastState2 = lastRead2;
-        accumulator2 |= lastState2;
-#endif
+
 #ifdef DEBUG_ENDSTOPS
         report();
 #endif
     } else {
         lastState = lastRead;
-#ifdef EXTENDED_ENDSTOPS
-        lastState2 = lastRead2;
-#endif
     }
     lastRead = newRead;
-#ifdef EXTENDED_ENDSTOPS
-    lastRead2 = newRead2;
-#endif
 }
 
 void Endstops::report() {
@@ -381,9 +357,9 @@ void Printer::updateDerivedParameter()
     maxFeedrate[X_AXIS] = maxFeedrate[Y_AXIS] = maxFeedrate[Z_AXIS];
     maxTravelAccelerationMMPerSquareSecond[X_AXIS] = maxTravelAccelerationMMPerSquareSecond[Y_AXIS] = maxTravelAccelerationMMPerSquareSecond[Z_AXIS];
     zMaxSteps = axisStepsPerMM[Z_AXIS] * (zLength);
-    towerAMinSteps = axisStepsPerMM[A_TOWER] * xMin;
-    towerBMinSteps = axisStepsPerMM[B_TOWER] * yMin;
-    towerCMinSteps = axisStepsPerMM[C_TOWER] * zMin;
+    xMinSteps = axisStepsPerMM[A_TOWER] * xMin;
+    yMinSteps = axisStepsPerMM[B_TOWER] * yMin;
+    zMinSteps = axisStepsPerMM[C_TOWER] * zMin;
     //radius0 = EEPROM::deltaHorizontalRadius();
     float radiusA = radius0 + EEPROM::deltaRadiusCorrectionA();
     float radiusB = radius0 + EEPROM::deltaRadiusCorrectionB();

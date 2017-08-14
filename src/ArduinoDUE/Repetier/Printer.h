@@ -96,24 +96,9 @@ union wizardVar {
 #define PRINTER_FLAG3_Y_DIR					2
 #define PRINTER_FLAG3_Z_DIR					4
 
-// List of possible interrupt events (1-255 allowed)
-#define PRINTER_INTERRUPT_EVENT_JAM_DETECTED 1
-#define PRINTER_INTERRUPT_EVENT_JAM_SIGNAL0 2
-#define PRINTER_INTERRUPT_EVENT_JAM_SIGNAL1 3
-#define PRINTER_INTERRUPT_EVENT_JAM_SIGNAL2 4
-#define PRINTER_INTERRUPT_EVENT_JAM_SIGNAL3 5
-#define PRINTER_INTERRUPT_EVENT_JAM_SIGNAL4 6
-#define PRINTER_INTERRUPT_EVENT_JAM_SIGNAL5 7
 // define an integer number of steps more than large enough to get to endstop from anywhere
 #define HOME_DISTANCE_STEPS (Printer::zMaxSteps-Printer::zMinSteps+1000)
 #define HOME_DISTANCE_MM (HOME_DISTANCE_STEPS * invAxisStepsPerMM[Z_AXIS])
-// Some defines to make clearer reading, as we overload these cartesian memory locations for delta
-#define towerAMaxSteps Printer::xMaxSteps
-#define towerBMaxSteps Printer::yMaxSteps
-#define towerCMaxSteps Printer::zMaxSteps
-#define towerAMinSteps Printer::xMinSteps
-#define towerBMinSteps Printer::yMinSteps
-#define towerCMinSteps Printer::zMinSteps
 
 #if DISTORTION_CORRECTION
 class Distortion
@@ -160,24 +145,10 @@ private:
 #define ENDSTOP_Z2_MIN_ID 64
 #define ENDSTOP_Z_PROBE_ID 128
 
-// These endstops are only used with EXTENDED_ENDSTOPS
-#define ENDSTOP_X2_MIN_ID 1
-#define ENDSTOP_X2_MAX_ID 2
-#define ENDSTOP_Y2_MIN_ID 4
-#define ENDSTOP_Y2_MAX_ID 8
-#define ENDSTOP_Z2_MAX_ID 16
-#define ENDSTOP_Z3_MIN_ID 32
-#define ENDSTOP_Z3_MAX_ID 64
-
 class Endstops {
     static flag8_t lastState;
     static flag8_t lastRead;
     static flag8_t accumulator;
-#ifdef EXTENDED_ENDSTOPS
-    static flag8_t lastState2;
-    static flag8_t lastRead2;
-    static flag8_t accumulator2;
-#endif
 public:
     static void update();
     static void report();
@@ -186,15 +157,9 @@ public:
     }
     static INLINE void resetAccumulator() {
         accumulator = 0;
-#ifdef EXTENDED_ENDSTOPS
-        accumulator2 = 0;
-#endif
     }
     static INLINE void fillFromAccumulator() {
         lastState = accumulator;
-#ifdef EXTENDED_ENDSTOPS
-        lastState2 = accumulator2;
-#endif
     }
     static INLINE bool xMin() {
 #if (X_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_X
