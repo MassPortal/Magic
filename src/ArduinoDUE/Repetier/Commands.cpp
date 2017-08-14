@@ -2031,7 +2031,7 @@ void Commands::processMCode(GCode *com)
 			else
 					setFan3Speed(com->hasS() ? com->S : 255);				
 			else
-            setFanSpeed(com->hasS() ? com->S : 255);
+            setFanSpeed(com->hasS() ? com->S : 255, true);
         }
         break;
     case 107: // M107 Fan Off
@@ -2041,7 +2041,7 @@ void Commands::processMCode(GCode *com)
 		else
 				setFan3Speed(0);
 		else
-            setFanSpeed(0);
+            setFanSpeed(0, true);
         break;
 #endif
     case 111: // M111 enable/disable run time debug flags
@@ -2690,42 +2690,7 @@ void Commands::executeGCode(GCode *com)
 
 void Commands::emergencyStop()
 {
-#if defined(KILL_METHOD) && KILL_METHOD == 1
     HAL::resetHardware();
-#else
-    //HAL::forbidInterrupts(); // Don't allow interrupts to do their work
-    Printer::kill(false);
-    Extruder::manageTemperatures();
-    for(uint8_t i = 0; i < NUM_EXTRUDER + 3; i++)
-        pwm_pos[i] = 0;
-#if EXT0_HEATER_PIN > -1 && NUM_EXTRUDER > 0
-    WRITE(EXT0_HEATER_PIN,HEATER_PINS_INVERTED);
-#endif
-#if defined(EXT1_HEATER_PIN) && EXT1_HEATER_PIN > -1 && NUM_EXTRUDER > 1
-    WRITE(EXT1_HEATER_PIN, HEATER_PINS_INVERTED);
-#endif
-#if defined(EXT2_HEATER_PIN) && EXT2_HEATER_PIN > -1 && NUM_EXTRUDER > 2
-    WRITE(EXT2_HEATER_PIN, HEATER_PINS_INVERTED);
-#endif
-#if defined(EXT3_HEATER_PIN) && EXT3_HEATER_PIN > -1 && NUM_EXTRUDER > 3
-    WRITE(EXT3_HEATER_PIN, HEATER_PINS_INVERTED);
-#endif
-#if defined(EXT4_HEATER_PIN) && EXT4_HEATER_PIN > -1 && NUM_EXTRUDER > 4
-    WRITE(EXT4_HEATER_PIN, HEATER_PINS_INVERTED);
-#endif
-#if defined(EXT5_HEATER_PIN) && EXT5_HEATER_PIN > -1 && NUM_EXTRUDER > 5
-    WRITE(EXT5_HEATER_PIN, HEATER_PINS_INVERTED);
-#endif
-#if FAN_PIN > -1 && FEATURE_FAN_CONTROL
-    WRITE(FAN_PIN, 0);
-#endif
-#if HAVE_HEATED_BED && HEATED_BED_HEATER_PIN > -1
-    WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
-#endif
-    HAL::delayMilliseconds(200);
-    InterruptProtectedBlock noInts;
-    while(1) {}
-#endif
 }
 
 void Commands::checkFreeMemory()

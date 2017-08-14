@@ -1101,11 +1101,6 @@ If you use an ATX power supply you need the power pin to work non inverting. For
 boards you might need to make it inverting.
 */
 #define POWER_INVERTING 0
-/** What shall the printer do, when it receives an M112 emergency stop signal?
- 0 = Disable heaters/motors, wait forever until someone presses reset.
- 1 = restart by resetting the AVR controller. The USB connection will not reset if managed by a different chip!
-*/
-#define KILL_METHOD 1
 
 /** Appends the linenumber after every ok send, to acknowledge the received command. Uncomment for plain ok ACK if your host has problems with this */
 #define ACK_WITH_LINENUMBER 1       
