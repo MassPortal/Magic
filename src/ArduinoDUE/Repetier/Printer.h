@@ -306,7 +306,7 @@ public:
     static uint8_t unitIsInches;
     static uint8_t mode;
     static uint8_t fanSpeed; // Last fan speed set with M106/M107
-
+    static uint8_t pumpSpeed;
 	static bool isPaused;
 	static bool hasMovedToPausePosition; // if has already moved to pause position after pause request
 	static bool canMoveToPausePosition; // is it safe to move to pause position (have we homed before?)
@@ -500,6 +500,7 @@ public:
     static void setFanSpeedDirectly(uint8_t speed);
     static void setFan2SpeedDirectly(uint8_t speed);
 	static void setFan3SpeedDirectly(uint8_t speed);
+    static void setPumpSpeedDirectly(uint8_t speed);
 
 	static INLINE bool xDirection()
 	{

@@ -999,6 +999,9 @@ void PWM_TIMER_VECTOR ()
 #if FAN3_PIN > -1 && FEATURE_FAN2_CONTROL
 		if((pwm_pos_set[PWM_FAN3] = (pwm_pos[PWM_FAN3] & COOLER_PWM_MASK)) > 0) WRITE(FAN3_PIN,1);
 #endif
+#if PUMP_PIN > -1
+        if((pwm_pos_set[PWM_PUMP] = (pwm_pos[PWM_PUMP] & COOLER_PWM_MASK)) > 0) WRITE(PUMP_PIN,1);
+#endif /* PUMP_PIN */
 #if defined(FAN_THERMO_PIN) && FAN_THERMO_PIN > -1
 		if((pwm_pos_set[PWM_FAN_THERMO] = (pwm_pos[PWM_FAN_THERMO] & COOLER_PWM_MASK)) > 0) WRITE(FAN_THERMO_PIN,1);
 #endif
@@ -1124,6 +1127,11 @@ if(fan3Kickstart == 0)
 	#endif
 }
 #endif
+
+#if PUMP_PIN > -1
+	if(pwm_pos_set[PWM_PUMP] == pwm_count_cooler && pwm_pos_set[PWM_PUMP] != COOLER_PWM_MASK) WRITE(PUMP_PIN,0);
+#endif
+
 #if defined(FAN_THERMO_PIN) && FAN_THERMO_PIN > -1
 	#if PDM_FOR_COOLER
 	pulseDensityModulate(FAN_THERMO_PIN, pwm_pos[PWM_FAN_THERMO], pwm_pos_set[PWM_FAN_THERMO], false);

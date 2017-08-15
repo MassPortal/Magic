@@ -314,6 +314,17 @@ void Commands::setFanSpeed(int speed, bool immediately)
         Com::printFLN(Com::tFanspeed,speed); // send only new values to break update loops!
 #endif
 }
+
+void Commands::setPumpSpeed(uint8_t speed)
+{
+    if(Printer::pumpSpeed == speed) return;
+
+    Printer::pumpSpeed = speed;
+    Printer::setPumpSpeedDirectly(speed);
+    Serial.print("Error: pumpSpeed:");
+    Serial.println(speed);
+}
+
 #if BED_LEDS
 void Commands::setBedLed(int light)
 {
@@ -2611,6 +2622,9 @@ void Commands::processMCode(GCode *com)
 				setFan3Speed(0);
 		else
             setFanSpeed(0);
+        break;
+    case 108:// M108 set Pump speed
+        setPumpSpeed(com->hasS() ? com->S : 255);
         break;
 #endif
     case 111: // M111 enable/disable run time debug flags

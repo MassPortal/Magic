@@ -72,6 +72,7 @@ fast8_t Printer::stepsPerTimerCall = 1;
 uint8_t Printer::menuMode = 0;
 uint8_t Printer::mode = DEFAULT_PRINTER_MODE;
 uint8_t Printer::fanSpeed = 0; // Last fan speed set with M106/M107
+uint8_t Printer::pumpSpeed = 0;
 float Printer::extrudeMultiplyError = 0;
 float Printer::extrusionFactor = 1.0;
 bool Printer::isPaused = false;
@@ -408,6 +409,12 @@ void Printer::setFan3SpeedDirectly(uint8_t speed) {
 	#endif
 	pwm_pos[PWM_FAN3] = speed;
 	#endif
+}
+
+
+void Printer::setPumpSpeedDirectly(uint8_t speed) {
+    if(pwm_pos[PWM_PUMP] == speed) return;
+    pwm_pos[PWM_PUMP] = speed;
 }
 
 void Printer::reportPrinterMode() {
@@ -1020,6 +1027,10 @@ void Printer::setup()
 	SET_OUTPUT(FAN3_PIN);
 	WRITE(FAN3_PIN, LOW);
 #endif
+#if PUMP_PIN > -1
+    SET_OUTPUT(PUMP_PIN);
+    WRITE(PUMP_PIN, LOW);
+#endif 
 #if FAN_THERMO_PIN > -1
 	SET_OUTPUT(FAN_THERMO_PIN);
 	WRITE(FAN_THERMO_PIN, LOW);

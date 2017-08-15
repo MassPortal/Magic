@@ -370,7 +370,7 @@ void uiInitKeys() {
   UI_KEYS_INIT_BUTTON_LOW(33); // push button, connects gnd to pin
   UI_KEYS_INIT_BUTTON_LOW(31);
   UI_KEYS_INIT_BUTTON_LOW(29);
-  UI_KEYS_INIT_BUTTON_LOW(37);
+  UI_KEYS_INIT_BUTTON_LOW(35); // UI now broken yay!
   UI_KEYS_INIT_BUTTON_LOW(35);
   UI_KEYS_INIT_BUTTON_LOW(KILL_PIN); // ENCODER_B - pin 52
 
@@ -403,7 +403,7 @@ void uiCheckKeys(uint16_t &action) {
     UI_KEYS_BUTTON_LOW(35,UI_ACTION_PREVIOUS); //34 push button, connects gnd to pin
     UI_KEYS_BUTTON_LOW(31,UI_ACTION_NEXT); //43 push button, connects gnd to pin
     UI_KEYS_BUTTON_LOW(29,UI_ACTION_BACK); //44 push button, connects gnd to pin
-	UI_KEYS_BUTTON_LOW(37, UI_ACTION_MENU_SDCARD); //33 push button, connects gnd to pin
+	UI_KEYS_BUTTON_LOW(35, UI_ACTION_MENU_SDCARD); //33 push button, connects gnd to pin
 	UI_KEYS_BUTTON_LOW(KILL_PIN, UI_ACTION_KILL ); //33 push button, connects gnd to pin
 //  UI_KEYS_BUTTON_LOW(43,UI_ACTION_OK); // push button, connects gnd to pin
 

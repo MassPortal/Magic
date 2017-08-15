@@ -807,7 +807,8 @@ extern volatile uint osAnalogInputValues[ANALOG_INPUTS];
 #define PWM_FAN3 PWM_FAN2+1
 #define PWM_FAN_THERMO PWM_FAN3+1
 #define PWM_CHAMB PWM_FAN_THERMO+1
-#define NUM_PWM PWM_CHAMB+1
+#define PWM_PUMP PWM_CHAMB+1
+#define NUM_PWM PWM_PUMP+1
 extern uint8_t pwm_pos[NUM_PWM]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
 #if USE_ADVANCE
 #if ENABLE_QUADRATIC_ADVANCE
