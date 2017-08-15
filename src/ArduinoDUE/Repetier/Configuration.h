@@ -102,13 +102,6 @@ gets used, or you will get probelms with checksums etc.
 // ##                           Extruder configuration                                     ##
 // ##########################################################################################
 
-// You can use either PWM (pulse width modulation) or PDM (pulse density modulation) for
-// extruders or coolers. PDM will give more signal changes per second, so on average it gives
-// the cleaner signal. The only advantage of PWM is giving signals at a fixed rate and never more
-// then PWM.
-#define PDM_FOR_EXTRUDER 0
-#define PDM_FOR_COOLER 0
-
 // The firmware checks if the heater and sensor got decoupled, which is dangerous. SInce it will never reach target
 // temperature, the heater will stay on for every which can burn your printe ror house.
 // As an additional barrier to your smoke detectors (I hope you have one above your printer) we now
