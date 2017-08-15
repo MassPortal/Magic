@@ -438,7 +438,6 @@ public:
     {
         linesCount = 0;
         linesPos = linesWritePos;
-        Printer::setMenuMode(MENU_MODE_PRINTING, false);
     }
     // Only called from bresenham -> inside interrupt handle
     inline void updateAdvanceSteps(speed_t v, uint8_t max_loops, bool accelerate)
@@ -553,14 +552,11 @@ public:
         nlFlag = false;
         HAL::forbidInterrupts();
         --linesCount;
-        if(!linesCount)
-            Printer::setMenuMode(MENU_MODE_PRINTING, false);
     }
     static INLINE void pushLine()
     {
         linesWritePos++;
         if(linesWritePos >= PRINTLINE_CACHE_SIZE) linesWritePos = 0;
-        Printer::setMenuMode(MENU_MODE_PRINTING, true);
         InterruptProtectedBlock noInts;
         linesCount++;
     }

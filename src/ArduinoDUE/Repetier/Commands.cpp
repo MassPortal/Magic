@@ -77,25 +77,6 @@ void Commands::waitUntilEndOfAllMoves()
     }
 }
 
-void Commands::waitUntilEndOfAllBuffers()
-{
-    GCode *code = NULL;
-#ifdef DEBUG_PRINT
-    debugWaitLoop = 9;
-#endif
-    while(PrintLine::hasLines() || (code != NULL))
-    {
-        GCode::readFromSerial();
-        code = GCode::peekCurrentCommand();
-        if(code)
-        {
-            Commands::executeGCode(code);
-            code->popCurrentCommand();
-        }
-        Commands::checkForPeriodicalActions(); // only called from memory
-    }
-}
-
 void Commands::printCurrentPosition(const char* s)
 {
     float x, y, z;
@@ -208,7 +189,6 @@ void Commands::setFanSpeed(int speed, bool immediately)
     if(Printer::fanSpeed == speed)
         return;
     speed = constrain(speed,0,255);
-    Printer::setMenuMode(MENU_MODE_FAN_RUNNING,speed != 0);
     Printer::fanSpeed = speed;
     if(PrintLine::linesCount == 0 || immediately) {
         if(Printer::mode == PRINTER_MODE_FFF)

@@ -34,7 +34,6 @@ public:
     static void processMCode(GCode *com);
     static void executeGCode(GCode *com);
     static void waitUntilEndOfAllMoves();
-    static void waitUntilEndOfAllBuffers();
     static void printCurrentPosition(const char* s);
     static void printTemperatures(bool showRaw = false);
 	static void printTemperature();

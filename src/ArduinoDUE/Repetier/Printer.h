@@ -248,7 +248,6 @@ public:
     static long advanceExecuted;             ///< Executed advance steps
 #endif
 #endif
-    static uint8_t menuMode;
     static float axisStepsPerMM[];
     static float invAxisStepsPerMM[];
     static float maxFeedrate[];
@@ -358,18 +357,6 @@ public:
     static fast8_t wizardStackPos;
     static wizardVar wizardStack[WIZARD_STACK_SIZE];
     static void reportPrinterMode();
-    static INLINE void setMenuMode(uint8_t mode,bool on)
-    {
-        if(on)
-            menuMode |= mode;
-        else
-            menuMode &= ~mode;
-    }
-
-    static INLINE bool isMenuMode(uint8_t mode)
-    {
-        return (menuMode & mode) == mode;
-    }
 	static void setDebugLevel(uint8_t newLevel);
 	static void toggleEcho();
 	static void toggleInfo();

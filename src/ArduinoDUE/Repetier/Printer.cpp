@@ -64,7 +64,6 @@ uint8_t Printer::flag2 = 0;
 uint8_t Printer::flag3 = 0;
 uint8_t Printer::debugLevel = 6; ///< Bitfield defining debug output. 1 = echo, 2 = info, 4 = error, 8 = dry run., 16 = Only communication, 32 = No moves
 fast8_t Printer::stepsPerTimerCall = 1;
-uint8_t Printer::menuMode = 0;
 uint8_t Printer::mode = DEFAULT_PRINTER_MODE;
 uint8_t Printer::fanSpeed = 0; // Last fan speed set with M106/M107
 float Printer::extrudeMultiplyError = 0;
