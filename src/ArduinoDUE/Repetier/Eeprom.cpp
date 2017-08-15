@@ -832,6 +832,7 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
     Printer::updateDerivedParameter();
     Extruder::initHeatedBed();
 #endif
+    Printer::endType = EEPROM::getEndType();
 }
 
 void EEPROM::initBaudrate()
@@ -1119,6 +1120,7 @@ void EEPROM::writeSettings()
 	writeByte(EPR_HEAD_VER, Com::tHeadVer);
 	writeByte(EPR_PS_VER, Com::tPSVer);
 	writeByte(EPR_BED_LED, Com::tBedLED);
+    writeByte(EPR_END_TYPE, Com::tEndType);
 #else
     Com::printErrorF(Com::tNoEEPROMSupport);
 #endif

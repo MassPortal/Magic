@@ -197,6 +197,7 @@ have problems with other modules using the eeprom */
 #define EPR_HEAD_VER					3318
 #define EPR_PS_VER						3326
 #define EPR_BED_LED						3330
+#define EPR_END_TYPE                    3331
 
 #ifndef Z_PROBE_BED_DISTANCE
 #define Z_PROBE_BED_DISTANCE 5.0
@@ -704,5 +705,8 @@ static inline void setTowerZFloor(float newZ) {
 	static inline int8_t getBedLED() {
 		return HAL::eprGetByte(EPR_BED_LED);
 	}
+    static inline bool getEndType() {
+        return HAL::eprGetByte(EPR_END_TYPE);
+    }
 };
 #endif

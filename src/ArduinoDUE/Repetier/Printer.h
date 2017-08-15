@@ -278,7 +278,8 @@ class Printer
     static uint8_t debugLevel;
 public:
 	static long PrinterId;
-	static uint8_t probeType; //1-inductive, 2-toggle switch
+    static bool endType;
+    static uint8_t probeType; //1-inductive, 2-toggle switch
 	static uint16_t bedType; //0 - not set, 1 - no heatbed, >=2 has heatbed
 	static bool fDoorOpen, sDoorOpen;
 #if USE_ADVANCE

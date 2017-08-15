@@ -80,6 +80,7 @@ bool Printer::canMoveToPausePosition = false;
 float Printer::positionBeforePause[3] = {0, 0, 0};
 float oldFeedrate = Printer::feedrate;
 uint8_t Printer::ledVal = 0;
+bool Printer::endType = 0;
 bool Printer::allowBelow = true;
 
 uint8_t Printer::interruptEvent = 0;
@@ -208,7 +209,7 @@ void Endstops::update() {
             newRead |= ENDSTOP_X_MIN_ID;
 #endif
 #if (X_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_X
-        if(READ(X_MAX_PIN) != ENDSTOP_X_MAX_INVERTING)
+        if(READ(X_MAX_PIN) != Printer::endType)
             newRead |= ENDSTOP_X_MAX_ID;
 #endif
 #if (Y_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Y
@@ -216,7 +217,7 @@ void Endstops::update() {
             newRead |= ENDSTOP_Y_MIN_ID;
 #endif
 #if (Y_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Y
-        if(READ(Y_MAX_PIN) != ENDSTOP_Y_MAX_INVERTING)
+        if(READ(Y_MAX_PIN) != Printer::endType)
             newRead |= ENDSTOP_Y_MAX_ID;
 #endif
 #if (Z_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Z
@@ -224,7 +225,7 @@ void Endstops::update() {
             newRead |= ENDSTOP_Z_MIN_ID;
 #endif
 #if (Z_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Z
-        if(READ(Z_MAX_PIN) != ENDSTOP_Z_MAX_INVERTING)
+        if(READ(Z_MAX_PIN) != Printer::endType)
             newRead |= ENDSTOP_Z_MAX_ID;
 #endif
 #if (Z2_MINMAX_PIN > -1) && MINMAX_HARDWARE_ENDSTOP_Z2
