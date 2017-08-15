@@ -231,7 +231,7 @@ Overridden if EEPROM activated.*/
 // 102 is MAX31855
 #define EXT0_TEMPSENSOR_TYPE 13
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
+#define EXT0_TEMPSENSOR_PIN TEMP_0_PIN
 // Which pin enables the heater
 #define EXT0_HEATER_PIN HEATER_0_PIN
 #define EXT0_STEP_PIN E0_STEP_PIN
@@ -359,7 +359,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT1_TEMPSENSOR_TYPE 13
 #define EXT2_TEMPSENSOR_TYPE -1
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT1_TEMPSENSOR_PIN TEMP_0_PIN
+#define EXT1_TEMPSENSOR_PIN TEMP_2_PIN
 #define EXT2_TEMPSENSOR_PIN -1
 // Which pin enables the heater
 #define EXT1_HEATER_PIN HEATER_2_PIN
@@ -738,7 +738,7 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 
 #define CHAMBER_TEMPSENSOR_TYPE 97
 /** Analog pin of analog sensor to read temperature of the chamber.  */
-#define CHAMBER_SENSOR_PIN TEMP_4_PIN
+#define CHAMBER_SENSOR_PIN -1
 // ##########################################################################################
 // ##                             Laser configuration                                      ##
 // ##########################################################################################
@@ -1817,10 +1817,10 @@ If you have leveling with bed coating or fixed z min you can use this menu to ad
 #define COOLER_MAX_TEMP 70
 
 // Analog pin number or channel for due boards
-#define COOLER0_SENSOR_PIN		TEMP_2_PIN
+#define COOLER0_SENSOR_PIN		TEMP_3_PIN
 #define COOLER0_SENSOR_TYPE		13
 
-#define COOLER1_SENSOR_PIN		TEMP_3_PIN
+#define COOLER1_SENSOR_PIN		TEMP_4_PIN
 #define COOLER1_SENSOR_TYPE		13
 
 #define SUPPORT_PRESSURE_SENSOR
