@@ -1256,6 +1256,17 @@ if (EEPROM::getBedLED()>1)
 
 void Printer::defaultLoopActions()
 {
+    static bool first = true;
+    static bool switchStatus;
+
+    if (first) {
+        switchStatus = READ(FILASENS_PIN);
+    } else if (switchStatus != READ(FILASENS_PIN)){
+        switchStatus = READ(FILASENS_PIN);
+        Com::printF("Error: filament ");
+        Com::println(switchStatus ? "inserted" : "expired");
+    }
+
     Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
     UI_MEDIUM; // do check encoder
     millis_t curtime = HAL::timeInMilliseconds();
@@ -1275,6 +1286,7 @@ void Printer::defaultLoopActions()
     //sd.automount();
 #endif
     DEBUG_MEMORY;
+    first = false;
 }
 
 void Printer::MemoryPosition()

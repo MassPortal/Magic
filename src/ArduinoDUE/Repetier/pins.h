@@ -234,6 +234,9 @@ STEPPER_CURRENT_CONTROL
 // TWI_MMR_IADRSZ_1_BYTE for 1 byte, or TWI_MMR_IADRSZ_2_BYTE for 2 byte
 #define EEPROM_ADDRSZ_BYTES     TWI_MMR_IADRSZ_2_BYTE
 #define EEPROM_AVAILABLE 1
+
+#define FILASENS_PIN            33
+
 #endif
 
 /****************************************************************************/
