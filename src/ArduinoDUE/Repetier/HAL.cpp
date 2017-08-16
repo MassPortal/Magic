@@ -1170,7 +1170,7 @@ if (fan3Kickstart) fan3Kickstart--;
     adcCounter++;
     for (int i = 0; i < ANALOG_INPUTS; i++) {
       int32_t cur = ADC->ADC_CDR[osAnalogInputChannels[i]];
-	  if (!i) pressurePush(cur);
+	  if (osAnalogInputChannels[i] == THERMOCOUPLE_0_PIN) pressurePush(cur);
       osAnalogInputBuildup[i] += cur;
       adcSamplesMin[i] = RMath::min(adcSamplesMin[i], cur);
       adcSamplesMax[i] = RMath::max(adcSamplesMax[i], cur);
