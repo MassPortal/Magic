@@ -220,22 +220,6 @@ extern RFDoubleSerial BTAdapter;
 
 #endif
 
-
-#define OUT_P_I(p,i) //Com::printF(p,(int)(i))
-#define OUT_P_I_LN(p,i) //Com::printFLN(p,(int)(i))
-#define OUT_P_L(p,i) //Com::printF(p,(long)(i))
-#define OUT_P_L_LN(p,i) //Com::printFLN(p,(long)(i))
-#define OUT_P_F(p,i) //Com::printF(p,(float)(i))
-#define OUT_P_F_LN(p,i) //Com::printFLN(p,(float)(i))
-#define OUT_P_FX(p,i,x) //Com::printF(p,(float)(i),x)
-#define OUT_P_FX_LN(p,i,x) //Com::printFLN(p,(float)(i),x)
-#define OUT_P(p) //Com::printF(p)
-#define OUT_P_LN(p) //Com::printFLN(p)
-#define OUT_ERROR_P(p) //Com::printErrorF(p)
-#define OUT_ERROR_P_LN(p) {//Com::printErrorF(p);//Com::println();}
-#define OUT(v) //Com::print(v)
-#define OUT_LN //Com::println()
-
 union eeval_t {
   uint8_t     b[4];
   float       f;

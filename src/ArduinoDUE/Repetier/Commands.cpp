@@ -2312,7 +2312,6 @@ void Commands::processMCode(GCode *com)
 #endif // DISTORTION_CORRECTION
     case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
     {
-        OUT_P_LN("Set Microstepping");
 #if defined(X_MS1_PIN) && X_MS1_PIN > -1
         if(com->hasS()) for(int i = 0; i <= 4; i++) microstepMode(i, com->S);
         if(com->hasX()) microstepMode(0, (uint8_t)com->X);

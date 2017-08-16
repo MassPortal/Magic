@@ -1440,7 +1440,6 @@ void TemperatureController::updateCurrentTemperature()
         currentTemperature = 4095; // unknown method, return high value to switch heater off for safety
     }
     int currentTemperature = this->currentTemperature;
-    //OUT_P_I_LN("OC for raw ",raw_temp);
     switch(type)
     {
     case 0:
@@ -1473,8 +1472,6 @@ void TemperatureController::updateCurrentTemperature()
             newtemp = temptable[i++];
             if (newraw > currentTemperature)
             {
-                //OUT_P_I("RC O:",oldtemp);OUT_P_I_LN(" OR:",oldraw);
-                //OUT_P_I("RC N:",newtemp);OUT_P_I_LN(" NR:",newraw);
                 currentTemperatureC = TEMP_INT_TO_FLOAT(oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp - oldtemp) / (newraw - oldraw));
                 return;
             }
@@ -1565,8 +1562,6 @@ void TemperatureController::updateCurrentTemperature()
             newtemp = temptable[i++];
             if (newraw > currentTemperature)
             {
-                //OUT_P_I("RC O:",oldtemp);OUT_P_I_LN(" OR:",oldraw);
-                //OUT_P_I("RC N:",newtemp);OUT_P_I_LN(" NR:",newraw);
                 currentTemperatureC = TEMP_INT_TO_FLOAT(oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(newraw-oldraw));
                 return;
             }
@@ -1816,22 +1811,6 @@ void TemperatureController::autotunePID(float temp,uint8_t controllerId,int maxC
                         Com::printFLN(Com::tAPIDKp,Kp);
                         Com::printFLN(Com::tAPIDKi,Ki);
                         Com::printFLN(Com::tAPIDKd,Kd);
-                        /*
-                        Kp = 0.33*Ku;
-                        Ki = Kp/Tu;
-                        Kd = Kp*Tu/3;
-                        OUT_P_LN(" Some overshoot");
-                        OUT_P_F_LN(" Kp: ",Kp);
-                        OUT_P_F_LN(" Ki: ",Ki);
-                        OUT_P_F_LN(" Kd: ",Kd);
-                        Kp = 0.2*Ku;
-                        Ki = 2*Kp/Tu;
-                        Kd = Kp*Tu/3;
-                        OUT_P_LN(" No overshoot");
-                        OUT_P_F_LN(" Kp: ",Kp);
-                        OUT_P_F_LN(" Ki: ",Ki);
-                        OUT_P_F_LN(" Kd: ",Kd);
-                        */
                     }
                 }
                 pwm_pos[pwmIndex] = (bias + d);
