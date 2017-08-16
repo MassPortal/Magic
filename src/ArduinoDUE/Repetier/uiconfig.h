@@ -228,11 +228,11 @@ Define the pin
 
 // Special pins for some u8g driven display
 
-#define UI_DISPLAY_CS1 59
-#define UI_DISPLAY_CS2 59
-#define UI_DISPLAY_DI 59
-#define UI_DISPLAY_RW_PIN 59
-#define UI_DISPLAY_RESET_PIN 59
+#define UI_DISPLAY_CS1 -1
+#define UI_DISPLAY_CS2 -1
+#define UI_DISPLAY_DI -1
+#define UI_DISPLAY_RW_PIN -1
+#define UI_DISPLAY_RESET_PIN -1
 #endif
 
 
