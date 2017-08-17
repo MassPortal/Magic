@@ -33,12 +33,12 @@ extern "C" char *sbrk(int i);
 
 #define NUM_ADC_SAMPLES 2 + (1 << ANALOG_INPUT_SAMPLE)
 #if ANALOG_INPUTS > 0
-int32_t osAnalogInputBuildup[ANALOG_INPUTS];
-int32_t osAnalogSamples[ANALOG_INPUTS][ANALOG_INPUT_MEDIAN];
-int32_t osAnalogSamplesSum[ANALOG_INPUTS];
-static int32_t adcSamplesMin[ANALOG_INPUTS];
-static int32_t adcSamplesMax[ANALOG_INPUTS];
-static int adcCounter = 0, adcSamplePos = 0;
+int32_t volatile osAnalogInputBuildup[ANALOG_INPUTS];
+int32_t volatile osAnalogSamples[ANALOG_INPUTS][ANALOG_INPUT_MEDIAN];
+int32_t volatile osAnalogSamplesSum[ANALOG_INPUTS];
+static volatile int32_t adcSamplesMin[ANALOG_INPUTS];
+static volatile int32_t adcSamplesMax[ANALOG_INPUTS];
+static volatile int adcCounter = 0, adcSamplePos = 0;
 #endif
 
 static   uint32_t  adcEnable = 0;
