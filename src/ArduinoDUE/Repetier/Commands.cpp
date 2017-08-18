@@ -2003,23 +2003,16 @@ void Commands::processMCode(GCode *com)
 #endif
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
     case 106: // M106 Fan On
-        if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND))
-        {
-            if(com->hasP())
-				if(com->P == 1)
-	            setFan2Speed(com->hasS() ? com->S : 255);
-			else
-					setFan3Speed(com->hasS() ? com->S : 255);				
-			else
+        if(com->hasP())
+			if(com->P == 1) setFan2Speed(com->hasS() ? com->S : 255);
+		    else setFan3Speed(com->hasS() ? com->S : 255);
+		else
             setFanSpeed(com->hasS() ? com->S : 255, true);
-        }
         break;
     case 107: // M107 Fan Off
         if(com->hasP())
-			if(com->P == 1)
-	        setFan2Speed(0);
-		else
-				setFan3Speed(0);
+			if(com->P == 1) setFan2Speed(0);
+		    else setFan3Speed(0);
 		else
             setFanSpeed(0, true);
         break;

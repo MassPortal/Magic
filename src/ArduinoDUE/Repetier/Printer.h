@@ -68,33 +68,33 @@ union wizardVar {
     wizardVar(uint8_t _f):uc(_f) {}
 };
 
-#define PRINTER_FLAG0_STEPPER_DISABLED      1
-#define PRINTER_FLAG0_SEPERATE_EXTRUDER_INT 2
-#define PRINTER_FLAG0_TEMPSENSOR_DEFECT     4
-#define PRINTER_FLAG0_FORCE_CHECKSUM        8
-#define PRINTER_FLAG0_MANUAL_MOVE_MODE      16
-#define PRINTER_FLAG0_AUTOLEVEL_ACTIVE      32
-#define PRINTER_FLAG0_ZPROBEING             64
-#define PRINTER_FLAG0_LARGE_MACHINE         128
-#define PRINTER_FLAG1_HOMED                 1
-#define PRINTER_FLAG1_AUTOMOUNT             2
-#define PRINTER_FLAG1_ANIMATION             4
-#define PRINTER_FLAG1_ALLKILLED             8
-#define PRINTER_FLAG1_UI_ERROR_MESSAGE      16
-#define PRINTER_FLAG1_NO_DESTINATION_CHECK  32
-#define PRINTER_FLAG1_POWER_ON              64
-#define PRINTER_FLAG1_ALLOW_COLD_EXTRUSION  128
-#define PRINTER_FLAG2_BLOCK_RECEIVING       1
-#define PRINTER_FLAG2_AUTORETRACT           2
-#define PRINTER_FLAG2_RESET_FILAMENT_USAGE  4
-#define PRINTER_FLAG2_IGNORE_M106_COMMAND   8
-#define PRINTER_FLAG2_DEBUG_JAM             16
-#define PRINTER_FLAG2_JAMCONTROL_DISABLED   32
-#define PRINTER_FLAG2_HOMING                64
-#define PRINTER_FLAG2_ALL_E_MOTORS          128 // Set all e motors flag
-#define PRINTER_FLAG3_X_DIR					1
-#define PRINTER_FLAG3_Y_DIR					2
-#define PRINTER_FLAG3_Z_DIR					4
+#define PRINTER_FLAG0_STEPPER_DISABLED      (1<<0)
+#define PRINTER_FLAG0_SEPERATE_EXTRUDER_INT (1<<1)
+#define PRINTER_FLAG0_TEMPSENSOR_DEFECT     (1<<2)
+#define PRINTER_FLAG0_FORCE_CHECKSUM        (1<<3)
+#define PRINTER_FLAG0_MANUAL_MOVE_MODE      (1<<4)
+#define PRINTER_FLAG0_AUTOLEVEL_ACTIVE      (1<<5)
+#define PRINTER_FLAG0_ZPROBEING             (1<<6)
+#define PRINTER_FLAG0_LARGE_MACHINE         (1<<7)
+#define PRINTER_FLAG1_HOMED                 (1<<0)
+#define PRINTER_FLAG1_AUTOMOUNT             (1<<1)
+#define PRINTER_FLAG1_ANIMATION             (1<<2)
+#define PRINTER_FLAG1_ALLKILLED             (1<<3)
+#define PRINTER_FLAG1_UI_ERROR_MESSAGE      (1<<4)
+#define PRINTER_FLAG1_NO_DESTINATION_CHECK  (1<<5)
+#define PRINTER_FLAG1_POWER_ON              (1<<6)
+#define PRINTER_FLAG1_ALLOW_COLD_EXTRUSION  (1<<7)
+#define PRINTER_FLAG2_BLOCK_RECEIVING       (1<<0)
+#define PRINTER_FLAG2_AUTORETRACT           (1<<1)
+#define PRINTER_FLAG2_RESET_FILAMENT_USAGE  (1<<2)
+#define PRINTER_FLAG2_IGNORE_M106_COMMAND   (1<<3) //unused
+#define PRINTER_FLAG2_DEBUG_JAM             (1<<4)
+#define PRINTER_FLAG2_JAMCONTROL_DISABLED   (1<<5)
+#define PRINTER_FLAG2_HOMING                (1<<6)
+#define PRINTER_FLAG2_ALL_E_MOTORS          (1<<7) // Set all e motors flag
+#define PRINTER_FLAG3_X_DIR                 (1<<0)
+#define PRINTER_FLAG3_Y_DIR                 (1<<1)
+#define PRINTER_FLAG3_Z_DIR                 (1<<2)
 
 // define an integer number of steps more than large enough to get to endstop from anywhere
 #define HOME_DISTANCE_STEPS (Printer::zMaxSteps-Printer::zMinSteps+1000)
