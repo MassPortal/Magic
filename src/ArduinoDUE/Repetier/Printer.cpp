@@ -1120,6 +1120,10 @@ void Printer::setup()
     SET_OUTPUT(EXP_VOLTAGE_LEVEL_PIN);
     WRITE(EXP_VOLTAGE_LEVEL_PIN,UI_VOLTAGE_LEVEL);
 #endif // UI_VOLTAGE_LEVEL
+#if FILASENS_PIN >= 0
+    SET_INPUT(FILASENS_PIN);
+    PULLUP(FILASENS_PIN, HIGH);
+#endif /* FILASENS_PIN >= 0 */
 #if defined(SUPPORT_LASER) && SUPPORT_LASER
     LaserDriver::initialize();
 #endif // defined
@@ -1274,7 +1278,7 @@ void Printer::defaultLoopActions()
         switchStatus = READ(FILASENS_PIN);
     } else if (switchStatus != READ(FILASENS_PIN)){
         switchStatus = READ(FILASENS_PIN);
-        Com::printF("Error: filament ");
+        Com::printF("Filament ");
         Com::println(switchStatus ? "inserted" : "expired");
     }
 

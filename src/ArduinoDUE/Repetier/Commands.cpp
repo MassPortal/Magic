@@ -321,8 +321,7 @@ void Commands::setPumpSpeed(uint8_t speed)
 
     Printer::pumpSpeed = speed;
     Printer::setPumpSpeedDirectly(speed);
-    Serial.print("Error: pumpSpeed:");
-    Serial.println(speed);
+    Com::printFLN("Pumpspeed:",speed); // send only new values to break update loops!
 }
 
 #if BED_LEDS
@@ -2691,7 +2690,7 @@ void Commands::processMCode(GCode *com)
 #endif
         break;
 #endif // MIXING_EXTRUDER
-	case 193:
+	case 193:// M193
 		Com::printF("Fw:10=", pressureGetAvg());
 		Com::printF("\n");
 		break;
