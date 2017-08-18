@@ -334,42 +334,6 @@ uint8_t HAL::spiReceive()
   return SPI0->SPI_RDR;
 }
 
-// Read from SPI into buffer
-void HAL::spiReadBlock(uint8_t*buf, uint16_t nbyte)
-{
-  if (nbyte-- == 0) return;
-
-  for (int i = 0; i < nbyte; i++)
-  {
-    //while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-    SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN);
-    while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-    buf[i] = SPI0->SPI_RDR;
-    // delayMicroseconds(1);
-  }
-  buf[nbyte] = spiReceive();
-}
-
-// Write from buffer to SPI
-
-void HAL::spiSendBlock(uint8_t token, const uint8_t* buf)
-{
-  SPI0->SPI_TDR = (uint32_t)token | SPI_PCS(SPI_CHAN);
-  while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-  //while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-  //SPI0->SPI_RDR;
-  for (int i = 0; i < 511; i++)
-  {
-    SPI0->SPI_TDR = (uint32_t)buf[i] | SPI_PCS(SPI_CHAN);
-    while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
-    while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
-    SPI0->SPI_RDR;
-    //        delayMicroseconds(1);
-
-  }
-  spiSend(buf[511]);
-}
-
 /*************************************************************************
  Initialization of the I2C bus interface. Need to be called only once
 *************************************************************************/
