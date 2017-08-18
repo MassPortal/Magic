@@ -1765,8 +1765,7 @@ void Commands::processMCode(GCode *com)
                     if(com->S >= 0 && com->S <= 255)
                     {
                         pinMode(pin_number, OUTPUT);
-                        digitalWrite(pin_number, com->S);
-                        analogWrite(pin_number, com->S);
+                        digitalWrite(pin_number, com->S > 0xff/2 ? 1 : 0);
                         Com::printF(Com::tSetOutputSpace, pin_number);
                         Com::printFLN(Com::tSpaceToSpace,(int)com->S);
                     }
