@@ -830,6 +830,7 @@ void Printer::setup()
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
 #endif
+    Commands::setPumpSpeed(0xFF);
     // HAL::hwSetup(); // There was a HW setup few lines before, no need to repeat
 #ifdef ANALYZER
 // Channel->pin assignments
