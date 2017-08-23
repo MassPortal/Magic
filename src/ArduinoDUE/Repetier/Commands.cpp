@@ -648,13 +648,6 @@ void Commands::processGCode(GCode *com)
 		if (com->hasT()) {
 			Printer::homeAxis(true, true, true);
 			Printer::updateCurrentPosition();
-#if Z_PROBE_LATCHING_SWITCH
-			if (Printer::probeType == 2) {
-				//Move to safe distance above the bed
-				Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-				if (!enableZprobe(true)) return;
-			}
-#endif
 			//Move to safe distance above the bed
 			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 			//Move to P1
@@ -713,11 +706,7 @@ void Commands::processGCode(GCode *com)
 				EEPROM::storeDataIntoEEPROM(false);
 				Com::print(" has been stored into EEPROM.\n");
 				EEPROM::update(com);
-#if Z_PROBE_LATCHING_SWITCH
-				if (Printer::probeType == 2)
-					if (!enableZprobe(false)) return;
-				Printer::moveTo(0.0, 0.0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-#endif
+                Printer::moveTo(0.0, 0.0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 				Printer::homeAxis(true, true, true);
 			}
 
@@ -771,10 +760,6 @@ void Commands::processGCode(GCode *com)
 		Printer::homeAxis(true, true, true);
 		Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 		GCode::executeFString(Com::tZProbeStartScript);
-#if Z_PROBE_LATCHING_SWITCH
-		if (Printer::probeType == 2)
-			if (!enableZprobe(true)) return;
-#endif
 		//bool iterate = com->hasP() && com->P>0;
 		Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
 		float h1, h2, h3, oldFeedrate = Printer::feedrate;
@@ -799,12 +784,6 @@ void Commands::processGCode(GCode *com)
 			Printer::homeAxis(true, true, true);
 			break;
 		}
-#if Z_PROBE_LATCHING_SWITCH
-		if (!com->hasP()) {
-			if (Printer::probeType == 2)
-				if (!enableZprobe(false)) return;
-		}
-#endif
 		Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 #if DEBUGGING
 		Com::printFLN("h1: ", Z_MAX_LENGTH - Printer::zLength + EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() * 2) - h1);
@@ -903,13 +882,7 @@ void Commands::processGCode(GCode *com)
 #if DEBUGGING
 			Com::printFLN(" Current pos. Z: ", Printer::currentPosition[Z_AXIS]);
 #endif
-			float tempfl = Printer::currentPosition[Z_AXIS];
 			Com::printFLN("Old printer height: ", Printer::zLength);
-#if Z_PROBE_LATCHING_SWITCH
-			if (Printer::probeType == 2)
-				if (!Endstops::zProbe()) // if probe is activated
-					tempfl -= EEPROM::zProbeHeight(); // adjust height
-#endif
 			//Printer::zLength += (h3 + z) - tempfl;
 			float avgH = (h1 + h2 + h3) / 3;
 			Com::printFLN("Height compensation: ", avgH - EEPROM::zProbeBedDistance());
@@ -1288,24 +1261,9 @@ void Commands::processGCode(GCode *com)
 	}
 			 break;
 #endif
-	case 35: {
-#if Z_PROBE_LATCHING_SWITCH
-		if (Printer::probeType == 2) {
-			if (com->hasS()) {
-				if (com->S > 0) {
-					enableZprobe(true);
-				}
-				else
-				{
-					enableZprobe(false);
-				}
-			}
-		}
-		else
-			Com::printErrorFLN("ERR2: Not a latching switch probe!");
-#endif
-	}
-			 break;
+	case 35: 
+		Com::printErrorFLN("ERR2: Not a latching switch probe!");
+		break;
 			 /*
 			 Custom(-izable) probing function for measuring at 
 				or around a given point.
@@ -1342,11 +1300,6 @@ void Commands::processGCode(GCode *com)
 		Printer::allowBelow = true;
 		if (com->hasJ() && com->J < 1)
 			Printer::allowBelow = false;
-#if Z_PROBE_LATCHING_SWITCH
-		if (Printer::probeType == 2)
-			if (Endstops::zProbe())
-				enableZprobe(true);
-#endif
 		//bool iterate = com->hasP() && com->P>0;
 		/*Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;*/
 		int ST = 0;
@@ -1413,11 +1366,6 @@ void Commands::processGCode(GCode *com)
 		//Com::printFLN("Finished");
 		//Printer::setAutolevelActive(false);
 		if (com->hasR() && ((com->R > 0.1 && com->R < 2) || com->R > 2.1)) {
-#if Z_PROBE_LATCHING_SWITCH
-			if (Printer::probeType == 2)
-				if (!Endstops::zProbe())
-					if (!enableZprobe(false)) return;
-#endif
 			Printer::moveTo(0.0 + EEPROM::zProbeXOffset(), 0.0 + EEPROM::zProbeYOffset(), EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 			Printer::homeAxis(true, true, true);
 		}

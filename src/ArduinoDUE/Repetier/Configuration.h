@@ -1188,7 +1188,6 @@ to recalibrate z.
 #define Z_PROBE_Y_OFFSET -13
 #define Z_PROBE_Z_OFFSET 0
 #define Z_PROBE_BED_DISTANCE 20.0 // Higher than max bed level distance error in mm
-#define Z_PROBE_LATCHING_SWITCH true // true if latching switch mechanics is used in z-probe
 
 // Waits for a signal to start. Valid signals are probe hit and ok button.
 // This is needful if you have the probe trigger by hand.
