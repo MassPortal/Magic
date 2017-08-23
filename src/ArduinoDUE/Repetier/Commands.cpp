@@ -28,12 +28,10 @@ int Commands::lowestRAMValueSend = MAX_RAM;
 void Commands::commandLoop(void)
 {
     GCode::readFromSerial();
+    /* Gets NULL if there is nothing new */
     GCode *code = GCode::peekCurrentCommand();
-
-    if (code) {
-        Commands::executeGCode(code);
-        code->popCurrentCommand();
-    }
+    /* Checks code, executes it, pops it*/
+    Commands::executeGCode(code);
 }
 
 void Commands::checkForPeriodicalActions(void)
@@ -2608,6 +2606,7 @@ void Commands::processMCode(GCode *com)
 */
 void Commands::executeGCode(GCode *com)
 {
+    if (!com) return;
     if (INCLUDE_DEBUG_COMMUNICATION)
     {
         if(Printer::debugCommunication())
@@ -2641,7 +2640,7 @@ void Commands::executeGCode(GCode *com)
         Printer::debugReset(8);
 }
 #endif
-
+    com->popCurrentCommand();
 }
 
 void Commands::emergencyStop()
