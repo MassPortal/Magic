@@ -2458,16 +2458,10 @@ void Commands::processMCode(GCode *com)
 			Com::printF("=");
 			switch (com->S) {
 			case 1: //Front door
-				if (Printer::fDoorOpen)
-					Com::printFLN("1#Front door open");
-				else
-					Com::printFLN("0#Front door closed");
+                Com::printFLN("No front door");
 				break;
 			case 2: //Side doors
-				if (Printer::sDoorOpen)
-					Com::printFLN("1#Side door(s) open");
-				else
-					Com::printFLN("0#Side door(s) closed");
+                Com::printFLN("No side door");
 				break;
 			case 3: //Z probe switch
 				Endstops::update();

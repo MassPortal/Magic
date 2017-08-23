@@ -238,7 +238,6 @@ public:
 	static long PrinterId;
 	static uint8_t probeType; //1-inductive, 2-toggle switch
 	static uint16_t bedType; //0 - not set, 1 - no heatbed, >=2 has heatbed
-	static bool fDoorOpen, sDoorOpen;
 #if USE_ADVANCE
     static volatile int extruderStepsNeeded; ///< This many extruder steps are still needed, <0 = reverse steps needed.
     static ufast8_t maxExtruderSpeed;            ///< Timer delay for end extruder speed
