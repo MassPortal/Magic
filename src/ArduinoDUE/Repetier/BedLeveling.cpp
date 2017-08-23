@@ -516,18 +516,12 @@ void Printer::waitForZProbeStart()
 	Endstops::update();
 	Endstops::update(); // double test to get right signal. Needed for crosstalk protection.
 	if(Endstops::zProbe()) return;
-	#ifdef DEBUG_PRINT
-	debugWaitLoop = 3;
-	#endif
 	while(!Endstops::zProbe())
 	{
 		defaultLoopActions();
 		Endstops::update();
 		Endstops::update(); // double test to get right signal. Needed for crosstalk protection.
 	}
-	#ifdef DEBUG_PRINT
-	debugWaitLoop = 4;
-	#endif
 	HAL::delayMilliseconds(30);
 	while(Endstops::zProbe())
 	{

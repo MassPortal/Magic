@@ -27,9 +27,6 @@ int Commands::lowestRAMValueSend = MAX_RAM;
 
 void Commands::commandLoop()
 {
-#ifdef DEBUG_PRINT
-    debugWaitLoop = 1;
-#endif
     if(!Printer::isBlockingReceive())
     {
         GCode::readFromSerial();
@@ -67,9 +64,6 @@ void Commands::checkForPeriodicalActions(void)
 */
 void Commands::waitUntilEndOfAllMoves()
 {
-#ifdef DEBUG_PRINT
-    debugWaitLoop = 8;
-#endif
     while(PrintLine::hasLines())
     {
         GCode::readFromSerial();
@@ -1848,9 +1842,6 @@ void Commands::processMCode(GCode *com)
         if(com->hasZ())
             Printer::disableZStepper();
         wait += millis();
-#ifdef DEBUG_PRINT
-        debugWaitLoop = 2;
-#endif
         while(wait-millis() < 100000)
         {
             Printer::defaultLoopActions();

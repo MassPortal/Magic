@@ -308,10 +308,6 @@ void GCode::executeFString(const char* cmd)
         // Send command into command buffer
         if(code.parseAscii((char *)buf,false) && (code.params & 518))   // Success
         {
-#ifdef DEBUG_PRINT
-            debugWaitLoop = 7;
-#endif
-
             Commands::executeGCode(&code);
             Printer::defaultLoopActions();
         }

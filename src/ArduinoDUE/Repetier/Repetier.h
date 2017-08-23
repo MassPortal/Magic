@@ -56,7 +56,6 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 /** This enables code to make M666 drop an ok, so you get problems with communication. It is to test host robustness. */
 #define DEBUG_COM_ERRORS
 /** Adds a menu point in quick settings to write debg informations to the host in case of hangs where the ui still works. */
-//#define DEBUG_PRINT
 #define DEBUG_DELTA_OVERFLOW
 //#define DEBUG_DELTA_REALPOS
 //#define DEBUG_SPLIT
@@ -615,10 +614,6 @@ extern uint8_t fan3Kickstart;
 #endif
 
 extern volatile int waitRelax; // Delay filament relax at the end of print, could be a simple timeout
-
-#ifdef DEBUG_PRINT
-extern int debugWaitLoop;
-#endif
 
 #define NUM_AXIS 4
 
