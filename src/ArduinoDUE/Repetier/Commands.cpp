@@ -30,9 +30,7 @@ void Commands::commandLoop(void)
     GCode::readFromSerial();
     GCode *code = GCode::peekCurrentCommand();
 
-    if (!code && Printer::isPaused && !PrintLine::hasLines()) {
-        Printer::moveToPausePosition();
-    } else if (code) {
+    if (code) {
         Commands::executeGCode(code);
         code->popCurrentCommand();
     }
@@ -551,7 +549,6 @@ void Commands::processGCode(GCode *com)
 		if (homeAllAxis || !com->hasNoXYZ())
 			Printer::homeAxis(homeAllAxis || com->hasX(), homeAllAxis || com->hasY(), homeAllAxis || com->hasZ());
 		Printer::updateCurrentPosition();
-		Printer::canMoveToPausePosition = true;
 	}
 	break;
 #if FEATURE_Z_PROBE
