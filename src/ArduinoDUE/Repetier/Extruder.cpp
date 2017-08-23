@@ -335,7 +335,7 @@ void Extruder::manageTemperatures()
             Printer::kill(0);
         }
 #endif // KILL_IF_SENSOR_DEFECT
-        Printer::debugSet(8); // Go into dry mode
+        Printer::debugSet(DEB_DRYRUN); // Go into dry mode
     } // any sensor defect
 #endif // NUM_TEMPERATURE_LOOPS
 

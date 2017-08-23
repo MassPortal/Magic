@@ -67,7 +67,6 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 // Uncomment the following line to enable debugging. You can better control debugging below the following line
 //#define DEBUG
 
-#define WIZARD_STACK_SIZE 8
 #define IGNORE_COORDINATE 999999
 
 #define X_AXIS 0

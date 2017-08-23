@@ -152,8 +152,6 @@ float Printer::maxRealSegmentLength = 0;
 #ifdef DEBUG_REAL_JERK
 float Printer::maxRealJerk = 0;
 #endif
-fast8_t Printer::wizardStackPos;
-wizardVar Printer::wizardStack[WIZARD_STACK_SIZE];
 
 flag8_t Endstops::lastState = 0;
 flag8_t Endstops::lastRead = 0;
@@ -247,24 +245,6 @@ void Endstops::report() {
 void Printer::setDebugLevel(uint8_t newLevel) {
 	debugLevel = newLevel;
 	Com::printFLN("DebugLevel:",(int)newLevel);
-}
-void Printer::toggleEcho() {
-	setDebugLevel(debugLevel ^ 1);
-}
-void Printer::toggleInfo() {
-	setDebugLevel(debugLevel ^ 2);
-}	
-void Printer::toggleErrors() {
-	setDebugLevel(debugLevel ^ 4);
-}
-void Printer::toggleDryRun() {
-	setDebugLevel(debugLevel ^ 8);
-}
-void Printer::toggleCommunication() {
-	setDebugLevel(debugLevel ^ 16);	
-}
-void Printer::toggleNoMoves() {
-	setDebugLevel(debugLevel ^ 32);
 }
 
 bool Printer::isPositionAllowed(float x,float y,float z)

@@ -49,25 +49,6 @@ union floatLong
     uint64_t L;
 };
 
-union wizardVar {
-    float f;
-    int32_t l;
-    uint32_t ul;
-    int16_t i;
-    uint16_t ui;
-    int8_t c;
-    uint8_t uc;
-
-    wizardVar():i(0) {}
-    wizardVar(float _f):f(_f) {}
-    wizardVar(int32_t _f):l(_f) {}
-    wizardVar(uint32_t _f):ul(_f) {}
-    wizardVar(int16_t _f):i(_f) {}
-    wizardVar(uint16_t _f):ui(_f) {}
-    wizardVar(int8_t _f):c(_f) {}
-    wizardVar(uint8_t _f):uc(_f) {}
-};
-
 #define PRINTER_FLAG0_STEPPER_DISABLED      (1<<0)
 #define PRINTER_FLAG0_SEPERATE_EXTRUDER_INT (1<<1)
 #define PRINTER_FLAG0_TEMPSENSOR_DEFECT     (1<<2)
@@ -347,45 +328,36 @@ public:
 #ifdef DEBUG_REAL_JERK
     static float maxRealJerk;
 #endif
-    static fast8_t wizardStackPos;
-    static wizardVar wizardStack[WIZARD_STACK_SIZE];
     static void reportPrinterMode();
 	static void setDebugLevel(uint8_t newLevel);
-	static void toggleEcho();
-	static void toggleInfo();
-	static void toggleErrors();
-	static void toggleDryRun();
-	static void toggleCommunication();
-	static void toggleNoMoves();
-	static INLINE uint8_t getDebugLevel() {return debugLevel;}
     static INLINE bool debugEcho()
     {
-        return ((debugLevel & 1) != 0);
+        return (debugLevel & DEB_ECHO);
     }
 
     static INLINE bool debugInfo()
     {
-        return ((debugLevel & 2) != 0);
+        return (debugLevel & DEB_INFO);
     }
 
     static INLINE bool debugErrors()
     {
-        return ((debugLevel & 4) != 0);
+        return (debugLevel & DEB_ERROR);
     }
 
     static INLINE bool debugDryrun()
     {
-        return ((debugLevel & 8) != 0);
+        return (debugLevel & DEB_DRYRUN);
     }
 
     static INLINE bool debugCommunication()
     {
-        return ((debugLevel & 16) != 0);
+        return (debugLevel & DEB_COMMUNICATION);
     }
 
     static INLINE bool debugNoMoves()
     {
-        return ((debugLevel & 32) != 0);
+        return (debugLevel & DEB_NOMOVES);
     }
 
     static INLINE bool debugFlag(uint8_t flags)
@@ -952,19 +924,6 @@ public:
     static void MemoryPosition();
     static void GoToMemoryPosition(bool x,bool y,bool z,bool e,float feed);
     static void babyStep(float Zmm);
-
-    static INLINE void resetWizardStack()
-    {
-        wizardStackPos = 0;
-    }
-    static INLINE void pushWizardVar(wizardVar v)
-    {
-        wizardStack[wizardStackPos++] = v;
-    }
-    static INLINE wizardVar popWizardVar()
-    {
-        return wizardStack[--wizardStackPos];
-    }
     static void showConfiguration();
     static void setCaseLight(bool on);
     static void reportCaseLightStatus();
