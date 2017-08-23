@@ -691,18 +691,6 @@ public:
         else
             Com::printFLN("Cold extrusion disallowed");
     }
-
-    static INLINE uint8_t isBlockingReceive()
-    {
-        return flag2 & PRINTER_FLAG2_BLOCK_RECEIVING;
-    }
-
-    static INLINE void setBlockingReceive(uint8_t b)
-    {
-        flag2 = (b ? flag2 | PRINTER_FLAG2_BLOCK_RECEIVING : flag2 & ~PRINTER_FLAG2_BLOCK_RECEIVING);
-        Com::printFLN(b ? Com::tPauseCommunication : Com::tContinueCommunication);
-    }
-
     static INLINE uint8_t isAutoretract()
     {
         return flag2 & PRINTER_FLAG2_AUTORETRACT;

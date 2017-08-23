@@ -25,19 +25,16 @@ const int8_t sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 int Commands::lowestRAMValue = MAX_RAM;
 int Commands::lowestRAMValueSend = MAX_RAM;
 
-void Commands::commandLoop()
+void Commands::commandLoop(void)
 {
-    if(!Printer::isBlockingReceive())
-    {
-        GCode::readFromSerial();
-        GCode *code = GCode::peekCurrentCommand();
+    GCode::readFromSerial();
+    GCode *code = GCode::peekCurrentCommand();
 
-        if (!code && Printer::isPaused && !PrintLine::hasLines()) {
-            Printer::moveToPausePosition();
-        } else if (code) {
-            Commands::executeGCode(code);
-            code->popCurrentCommand();
-        }
+    if (!code && Printer::isPaused && !PrintLine::hasLines()) {
+        Printer::moveToPausePosition();
+    } else if (code) {
+        Commands::executeGCode(code);
+        code->popCurrentCommand();
     }
 }
 

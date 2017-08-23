@@ -27,7 +27,7 @@
 class Commands
 {
 public:
-    static void commandLoop();
+    static void commandLoop(void);
     static void checkForPeriodicalActions(void);
     static void processArc(GCode *com);
     static void processGCode(GCode *com);
