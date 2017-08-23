@@ -129,18 +129,11 @@ private:
 class Endstops {
     static flag8_t lastState;
     static flag8_t lastRead;
-    static flag8_t accumulator;
 public:
     static void update();
     static void report();
     static INLINE bool anyXYZMax() {
         return (lastState & (ENDSTOP_X_MAX_ID|ENDSTOP_Z_MAX_ID|ENDSTOP_Z_MAX_ID)) != 0;
-    }
-    static INLINE void resetAccumulator() {
-        accumulator = 0;
-    }
-    static INLINE void fillFromAccumulator() {
-        lastState = accumulator;
     }
     static INLINE bool xMin() {
 #if (X_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_X

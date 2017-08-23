@@ -155,7 +155,6 @@ float Printer::maxRealJerk = 0;
 
 flag8_t Endstops::lastState = 0;
 flag8_t Endstops::lastRead = 0;
-flag8_t Endstops::accumulator = 0;
 
 void Endstops::update() {
     flag8_t newRead = 0;
@@ -194,8 +193,6 @@ void Endstops::update() {
     lastRead &= newRead;
     if(lastRead != lastState) { // Report endstop hit changes
         lastState = lastRead;
-        accumulator |= lastState;
-
 #ifdef DEBUG_ENDSTOPS
         report();
 #endif
