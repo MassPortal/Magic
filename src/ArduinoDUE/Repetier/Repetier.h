@@ -86,12 +86,6 @@ usage or for seraching for memory induced errors. Switch it off for production, 
 #define TOWER_ARRAY 3
 #define E_TOWER_ARRAY 4
 
-#define ANALOG_REF_AREF 0
-#define ANALOG_REF_AVCC _BV(REFS0)
-#define ANALOG_REF_INT_1_1 _BV(REFS1)
-#define ANALOG_REF_INT_2_56 _BV(REFS0) | _BV(REFS1)
-#define ANALOG_REF ANALOG_REF_AVCC
-
 //direction flags
 #define X_DIRPOS 1
 #define Y_DIRPOS 2
@@ -613,8 +607,6 @@ extern uint8_t fan3Kickstart;
 #endif
 
 extern volatile int waitRelax; // Delay filament relax at the end of print, could be a simple timeout
-
-#define NUM_AXIS 4
 
 #define STR(s) #s
 #define XSTR(s) STR(s)

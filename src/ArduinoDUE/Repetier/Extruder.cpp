@@ -909,42 +909,36 @@ void Extruder::setDirection(uint8_t dir)
         WRITE(EXT0_DIR_PIN,!EXT0_INVERSE);
     else
         WRITE(EXT0_DIR_PIN,EXT0_INVERSE);
-    RESET_EXTRUDER_JAM(0, dir)
 #endif
 #if defined(EXT1_DIR_PIN) && NUM_EXTRUDER > 1
     if(dir)
         WRITE(EXT1_DIR_PIN,!EXT1_INVERSE);
     else
         WRITE(EXT1_DIR_PIN,EXT1_INVERSE);
-    RESET_EXTRUDER_JAM(1, dir)
 #endif
 #if defined(EXT2_DIR_PIN) && NUM_EXTRUDER > 2
     if(dir)
         WRITE(EXT2_DIR_PIN,!EXT2_INVERSE);
     else
         WRITE(EXT2_DIR_PIN,EXT2_INVERSE);
-    RESET_EXTRUDER_JAM(2, dir)
 #endif
 #if defined(EXT3_DIR_PIN) && NUM_EXTRUDER > 3
     if(dir)
         WRITE(EXT3_DIR_PIN,!EXT3_INVERSE);
     else
         WRITE(EXT3_DIR_PIN,EXT3_INVERSE);
-    RESET_EXTRUDER_JAM(3, dir)
 #endif
 #if defined(EXT4_DIR_PIN) && NUM_EXTRUDER > 4
     if(dir)
         WRITE(EXT4_DIR_PIN,!EXT4_INVERSE);
     else
         WRITE(EXT4_DIR_PIN,EXT4_INVERSE);
-    RESET_EXTRUDER_JAM(4, dir)
 #endif
 #if defined(EXT5_DIR_PIN) && NUM_EXTRUDER > 5
     if(dir)
         WRITE(EXT5_DIR_PIN,!EXT5_INVERSE);
     else
         WRITE(EXT5_DIR_PIN,EXT5_INVERSE);
-    RESET_EXTRUDER_JAM(5, dir)
 #endif
 }
 
@@ -1103,7 +1097,6 @@ void Extruder::setDirection(uint8_t dir)
         WRITE(EXT0_DIR_PIN, !EXT0_INVERSE);
     else
         WRITE(EXT0_DIR_PIN, EXT0_INVERSE);
-    RESET_EXTRUDER_JAM(0, dir)
 #else
     switch(Extruder::current->id)
     {
@@ -1113,7 +1106,6 @@ void Extruder::setDirection(uint8_t dir)
             WRITE(EXT0_DIR_PIN,!EXT0_INVERSE);
         else
             WRITE(EXT0_DIR_PIN,EXT0_INVERSE);
-        RESET_EXTRUDER_JAM(0, dir)
 #if FEATURE_DITTO_PRINTING
         if(Extruder::dittoMode)
         {
@@ -1121,7 +1113,6 @@ void Extruder::setDirection(uint8_t dir)
                 WRITE(EXT1_DIR_PIN,!EXT1_INVERSE);
             else
                 WRITE(EXT1_DIR_PIN,EXT1_INVERSE);
-            RESET_EXTRUDER_JAM(1, dir)
 #if NUM_EXTRUDER > 2
             if(Extruder::dittoMode > 1)
             {
@@ -1129,7 +1120,6 @@ void Extruder::setDirection(uint8_t dir)
                     WRITE(EXT2_DIR_PIN,!EXT2_INVERSE);
                 else
                     WRITE(EXT2_DIR_PIN,EXT2_INVERSE);
-                RESET_EXTRUDER_JAM(2, dir)
             }
 #endif
 #if NUM_EXTRUDER > 3
@@ -1139,7 +1129,6 @@ void Extruder::setDirection(uint8_t dir)
                     WRITE(EXT3_DIR_PIN,!EXT3_INVERSE);
                 else
                     WRITE(EXT3_DIR_PIN,EXT3_INVERSE);
-                RESET_EXTRUDER_JAM(3, dir)
             }
 #endif
         }
@@ -1152,7 +1141,6 @@ void Extruder::setDirection(uint8_t dir)
             WRITE(EXT1_DIR_PIN,!EXT1_INVERSE);
         else
             WRITE(EXT1_DIR_PIN,EXT1_INVERSE);
-        RESET_EXTRUDER_JAM(1, dir)
         break;
 #endif
 #if defined(EXT2_DIR_PIN) && NUM_EXTRUDER > 2
@@ -1161,7 +1149,6 @@ void Extruder::setDirection(uint8_t dir)
             WRITE(EXT2_DIR_PIN,!EXT2_INVERSE);
         else
             WRITE(EXT2_DIR_PIN,EXT2_INVERSE);
-        RESET_EXTRUDER_JAM(2, dir)
         break;
 #endif
 #if defined(EXT3_DIR_PIN) && NUM_EXTRUDER > 3
@@ -1170,7 +1157,6 @@ void Extruder::setDirection(uint8_t dir)
             WRITE(EXT3_DIR_PIN,!EXT3_INVERSE);
         else
             WRITE(EXT3_DIR_PIN,EXT3_INVERSE);
-        RESET_EXTRUDER_JAM(3, dir)
         break;
 #endif
 #if defined(EXT4_DIR_PIN) && NUM_EXTRUDER > 4
@@ -1179,7 +1165,6 @@ void Extruder::setDirection(uint8_t dir)
             WRITE(EXT4_DIR_PIN,!EXT4_INVERSE);
         else
             WRITE(EXT4_DIR_PIN,EXT4_INVERSE);
-        RESET_EXTRUDER_JAM(4, dir)
         break;
 #endif
 #if defined(EXT5_DIR_PIN) && NUM_EXTRUDER > 5
@@ -1188,7 +1173,6 @@ void Extruder::setDirection(uint8_t dir)
             WRITE(EXT5_DIR_PIN,!EXT5_INVERSE);
         else
             WRITE(EXT5_DIR_PIN,EXT5_INVERSE);
-        RESET_EXTRUDER_JAM(5, dir)
         break;
 #endif
     }

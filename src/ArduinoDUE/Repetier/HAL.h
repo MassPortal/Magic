@@ -52,8 +52,6 @@
 #define PACK    __attribute__ ((packed))
 #define INLINE __attribute__((always_inline))
 
-#define _BV(x) (1 << (x))
-
 #define FSTRINGVALUE(var,value) const char var[] = value;
 #define FSTRINGVAR(var) static const char var[];
 

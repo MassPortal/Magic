@@ -30,15 +30,6 @@
 #if STEP_DOUBLER_FREQUENCY < 10000 || STEP_DOUBLER_FREQUENCY > 20000
 #endif
 #endif
-#ifdef EXTRUDER_SPEED
-#error EXTRUDER_SPEED is not used any more. Values are now taken from extruder definition.
-#endif
-#ifdef ENDSTOPPULLUPS
-#error ENDSTOPPULLUPS is now replaced by individual pullup configuration!
-#endif
-#ifdef EXT0_PID_PGAIN
-#error The PID system has changed. Please use the new float number options!
-#endif
 // ####################################################################################
 // #          No configuration below this line - just some errorchecking              #
 // ####################################################################################

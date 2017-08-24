@@ -130,9 +130,6 @@ public:
 class Extruder;
 extern Extruder extruder[];
 
-#define TEST_EXTRUDER_JAM(x)
-#define RESET_EXTRUDER_JAM(x,dir)
-
 #define EXTRUDER_FLAG_RETRACTED 1
 #define EXTRUDER_FLAG_WAIT_JAM_STARTCOUNT 2 ///< Waiting for the first signal to start counting
 
