@@ -596,16 +596,6 @@ public:
         flag1 = (b ? flag1 | PRINTER_FLAG1_AUTOMOUNT : flag1 & ~PRINTER_FLAG1_AUTOMOUNT);
     }
 
-    static INLINE uint8_t isAnimation()
-    {
-        return flag1 & PRINTER_FLAG1_ANIMATION;
-    }
-
-    static INLINE void setAnimation(uint8_t b)
-    {
-        flag1 = (b ? flag1 | PRINTER_FLAG1_ANIMATION : flag1 & ~PRINTER_FLAG1_ANIMATION);
-    }
-
     static INLINE uint8_t isUIErrorMessage()
     {
         return flag1 & PRINTER_FLAG1_UI_ERROR_MESSAGE;
@@ -676,38 +666,6 @@ public:
     static INLINE void setAllEMotors(uint8_t b)
     {
         flag2 = (b ? flag2 | PRINTER_FLAG2_ALL_E_MOTORS : flag2 & ~PRINTER_FLAG2_ALL_E_MOTORS);
-    }
-
-    static INLINE uint8_t isDebugJam()
-    {
-        return (flag2 & PRINTER_FLAG2_DEBUG_JAM) != 0;
-    }
-
-    static INLINE uint8_t isDebugJamOrDisabled()
-    {
-        return (flag2 & (PRINTER_FLAG2_DEBUG_JAM | PRINTER_FLAG2_JAMCONTROL_DISABLED)) != 0;
-    }
-
-    static INLINE void setDebugJam(uint8_t b)
-    {
-        flag2 = (b ? flag2 | PRINTER_FLAG2_DEBUG_JAM : flag2 & ~PRINTER_FLAG2_DEBUG_JAM);
-        Com::printFLN("Jam debugging:",b);
-    }
-
-    static INLINE uint8_t isJamcontrolDisabled()
-    {
-        return (flag2 & PRINTER_FLAG2_JAMCONTROL_DISABLED) != 0;
-    }
-
-    static INLINE void setJamcontrolDisabled(uint8_t b)
-    {
-        flag2 = (b ? flag2 | PRINTER_FLAG2_JAMCONTROL_DISABLED : flag2 & ~PRINTER_FLAG2_JAMCONTROL_DISABLED);
-        Com::printFLN("Jam control disabled:",b);
-    }
-
-    static INLINE void toggleAnimation()
-    {
-        setAnimation(!isAnimation());
     }
     static INLINE float convertToMM(float x)
     {

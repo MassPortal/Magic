@@ -2442,9 +2442,7 @@ void Commands::processMCode(GCode *com)
             Extruder::unpauseExtruders();
         break;
     case 602:
-        Commands::waitUntilEndOfAllMoves();
-        if(com->hasS()) Printer::setDebugJam(com->S > 0);
-        if(com->hasP()) Printer::setJamcontrolDisabled(com->P > 0);
+        Com::printFLN("No jam control");
         break;
     case 907: // M907 Set digital trimpot/DAC motor current using axis codes.
     {
