@@ -1488,16 +1488,15 @@ void PrintLine::arc(float *position, float *target, float *offset, float radius,
   This is a modified version that implements a bresenham 'multi-step' algorithm where the dominant
   cartesian axis steps may be less than the changing dominant delta axis.
 */
-
-int lastblk =- 1;
-int32_t cur_errupd;
-//#define DEBUG_DELTA_TIMER
-// Current delta segment
-DeltaSegment *curd;
-// Current delta segment primary error increment
-int32_t curd_errupd, stepsPerSegRemaining;
 int32_t PrintLine::bresenhamStep() // Version for delta printer
 {
+    static int lastblk =- 1;
+    static int32_t cur_errupd;
+    //#define DEBUG_DELTA_TIMER
+    // Current delta segment
+    static DeltaSegment *curd;
+    // Current delta segment primary error increment
+    static int32_t curd_errupd, stepsPerSegRemaining;
     if(!PrintLine::nlFlag)
     {
         setCurrentLine();

@@ -29,9 +29,8 @@ void Commands::commandLoop(void)
 {
     GCode::readFromSerial();
     /* Gets NULL if there is nothing new */
-    GCode *code = GCode::peekCurrentCommand();
     /* Checks code, executes it, pops it*/
-    Commands::executeGCode(code);
+    Commands::executeGCode(GCode::peekCurrentCommand());
 }
 
 void Commands::checkForPeriodicalActions(void)
@@ -60,7 +59,7 @@ void Commands::waitUntilEndOfAllMoves()
     while(PrintLine::hasLines())
     {
         GCode::readFromSerial();
-        checkForPeriodicalActions();
+        Printer::defaultLoopActions();
     }
 }
 
@@ -276,44 +275,6 @@ void motorCurrentControlInit() //Initialize Digipot Motor Current
 #endif
 }
 #endif
-
-void microstepInit()
-{
-#if defined(X_MS1_PIN) && X_MS1_PIN > -1
-    const uint8_t microstep_modes[] = MICROSTEP_MODES;
-#if X_MS1_PIN > -1
-    SET_OUTPUT(X_MS1_PIN);
-#endif
-#if Y_MS1_PIN > -1
-    SET_OUTPUT(Y_MS1_PIN);
-#endif
-#if Z_MS1_PIN > -1
-    SET_OUTPUT(Z_MS1_PIN);
-#endif
-#if E0_MS1_PIN > -1
-    SET_OUTPUT(E0_MS1_PIN);
-#endif
-#if E1_MS1_PIN > -1
-    SET_OUTPUT(E1_MS1_PIN);
-#endif
-#if X_MS2_PIN > -1
-    SET_OUTPUT(X_MS2_PIN);
-#endif
-#if Y_MS2_PIN > -1
-    SET_OUTPUT(Y_MS2_PIN);
-#endif
-#if Z_MS2_PIN > -1
-    SET_OUTPUT(Z_MS2_PIN);
-#endif
-#if E0_MS2_PIN > -1
-    SET_OUTPUT(E0_MS2_PIN);
-#endif
-#if E1_MS2_PIN > -1
-    SET_OUTPUT(E1_MS2_PIN);
-#endif
-    for(int i=0; i<=4; i++) microstepMode(i,microstep_modes[i]);
-#endif
-}
 
 /**
   \brief Execute the Arc command stored in com.

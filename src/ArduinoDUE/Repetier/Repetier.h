@@ -577,7 +577,6 @@ extern millis_t maxInactiveTime;
 extern millis_t stepperInactiveTime;
 
 extern void motorCurrentControlInit();
-extern void microstepInit();
 
 #include "Printer.h"
 #include "motion.h"

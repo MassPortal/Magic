@@ -916,7 +916,6 @@ void Printer::setup()
 #if defined(NUM_MOTOR_DRIVERS) && NUM_MOTOR_DRIVERS > 0
     initializeAllMotorDrivers();
 #endif // defined
-    microstepInit();
 #if FEATURE_AUTOLEVEL
     resetTransformationMatrix(true);
 #endif // FEATURE_AUTOLEVEL
