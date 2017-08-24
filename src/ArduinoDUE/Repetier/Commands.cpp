@@ -1627,7 +1627,6 @@ void Commands::processGCode(GCode *com)
             com->printCommand();
         }
     }
-    previousMillisCmd = millis();
 }
 /**
   \brief Execute the G command stored in com.
@@ -1791,7 +1790,6 @@ void Commands::processMCode(GCode *com)
     case 104: // M104 temperature
 #if NUM_EXTRUDER > 0
 		if (reportTempsensorError()) break;
-        previousMillisCmd = millis();
         if(Printer::debugDryrun()) break;
 #ifdef EXACT_TEMPERATURE_TIMING
         Commands::waitUntilEndOfAllMoves();
@@ -1813,7 +1811,6 @@ void Commands::processMCode(GCode *com)
         break;
     case 140: // M140 set bed temp
         if(reportTempsensorError()) break;
-        previousMillisCmd = millis();
         if(Printer::debugDryrun()) break;
         if (com->hasS()) Extruder::setHeatedBedTemperature(com->S);
 #if BED_LEDS
@@ -1830,7 +1827,6 @@ void Commands::processMCode(GCode *com)
 #if NUM_EXTRUDER > 0
     {
         if(reportTempsensorError()) break;
-        previousMillisCmd = millis();
         if(Printer::debugDryrun()) break;
         Commands::waitUntilEndOfAllMoves();
         Extruder *actExtruder = Extruder::current;
@@ -1838,7 +1834,6 @@ void Commands::processMCode(GCode *com)
         if (com->hasS()) Extruder::setTemperatureForExtruder(com->S, actExtruder->id, /*com->hasF() && com->F > 0,*/ true);
     }
 #endif
-    previousMillisCmd = millis();
     break;
     case 190: // M190 - Wait bed for heater to reach target.
 		{
@@ -1857,13 +1852,12 @@ void Commands::processMCode(GCode *com)
             if( (millis()-codenum) > 1000 )   //Print Temp Reading every 1 second while heating up.
             {
                 printTemperatures();
-                codenum = previousMillisCmd = millis();
+                codenum = millis();
             }
             Commands::checkForPeriodicalActions();
         }
 #endif
 #endif
-        previousMillisCmd = millis();
 		}
         break;
 #if NUM_TEMPERATURE_LOOPS > 0
@@ -2490,17 +2484,6 @@ void Commands::processMCode(GCode *com)
 void Commands::executeGCode(GCode *com)
 {
     if (!com) return;
-    if (INCLUDE_DEBUG_COMMUNICATION)
-    {
-        if(Printer::debugCommunication())
-        {
-            if(com->hasG() || (com->hasM() && com->M != 111))
-            {
-                previousMillisCmd = millis();
-                return;
-            }
-        }
-    }
     if(com->hasG()) processGCode(com);
     else if(com->hasM()) processMCode(com);
     else if(com->hasT())      // Process T code

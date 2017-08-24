@@ -677,7 +677,7 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
         millis_t currentTime;
         do
         {
-            previousMillisCmd = currentTime = millis();
+            currentTime = millis();
             if( (currentTime - printedTime) > 1000 )   //Print Temp Reading every 1 second while heating up.
             {
                 Commands::printTemperatures();

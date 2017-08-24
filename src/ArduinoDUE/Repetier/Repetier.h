@@ -24,7 +24,6 @@
 
 #include <math.h>
 #include <stdint.h>
-#include "coroutine.h"
 
 #define REPETIER_VERSION "0.92.8"
 
@@ -38,9 +37,6 @@ enum debugFlags {DEB_ECHO = 0x1, DEB_INFO = 0x2, DEB_ERROR = 0x4,DEB_DRYRUN = 0x
 
 /** Uncomment, to see detailed data for every move. Only for debugging purposes! */
 //#define DEBUG_QUEUE_MOVE
-/** Allows M111 to set bit 5 (16) which disables all commands except M111. This can be used
-to test your data througput or search for communication problems. */
-#define INCLUDE_DEBUG_COMMUNICATION 1
 /** Allows M111 so set bit 6 (32) which disables moves, at the first tried step. In combination
 with a dry run, you can test the speed of path computations, which are still performed. */
 #define INCLUDE_DEBUG_NO_MOVE 1
@@ -577,8 +573,6 @@ extern uint8_t transformCartesianStepsToDeltaSteps(int32_t cartesianPosSteps[], 
 #error Ditto printing requires 2 - 4 extruder.
 #endif
 
-
-extern millis_t previousMillisCmd;
 extern millis_t maxInactiveTime;
 extern millis_t stepperInactiveTime;
 

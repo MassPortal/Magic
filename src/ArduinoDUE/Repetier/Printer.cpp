@@ -994,27 +994,23 @@ if (EEPROM::getBedLED()>1)
 #endif
 }
 
-task_t Printer::defaultLoopActions()
+void Printer::defaultLoopActions()
 {
-    CR_BEGIN;
+    static millis_t lastActivity;
 
     Commands::checkForPeriodicalActions();  //check heater every n milliseconds
-    millis_t curtime = millis();
     if(PrintLine::hasLines()) {
-        previousMillisCmd = curtime;
+        lastActivity = millis();
     } else {
-        curtime -= previousMillisCmd;
-        if(maxInactiveTime != 0 && curtime >  maxInactiveTime )
+         if(maxInactiveTime && millis() - lastActivity >  maxInactiveTime )
             Printer::kill(false);
         else
             Printer::setAllKilled(false); // prevent repeated kills
-        if(stepperInactiveTime != 0 && curtime >  stepperInactiveTime )
+        if(stepperInactiveTime && millis() - lastActivity >  stepperInactiveTime )
             Printer::kill(true);
     }
 
     DEBUG_MEMORY;
-
-    CR_RETURN;
 }
 
 void Printer::MemoryPosition()
