@@ -908,32 +908,6 @@ void EXTRUDER_TIMER_VECTOR ()
   }
 }
 #endif
-
-#if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
-RFDoubleSerial::RFDoubleSerial() {
-}
-int RFDoubleSerial::peek(void) {
-  if(RFSERIAL.available())
-    return RFSERIAL.peek();
-  return BT_SERIAL.peek();
-}
-int RFDoubleSerial::read(void) {
-  if(RFSERIAL.available())
-    return RFSERIAL.read();
-  return BT_SERIAL.read();
-}
-void RFDoubleSerial::flush(void) {
-  RFSERIAL.flush();
-  BT_SERIAL.flush();
-}
-size_t RFDoubleSerial::write(uint8_t c) {
-  size_t r = RFSERIAL.write(c);
-  BT_SERIAL.write(c);
-  return r;
-}
-RFDoubleSerial BTAdapter;
-#endif
-
 // Dummy function to overload weak arduino function that always disables
 // watchdog. We do not need that as we do this our self.
 void watchdogSetup(void) {

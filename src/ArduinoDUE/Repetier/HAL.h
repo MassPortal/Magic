@@ -186,38 +186,6 @@ typedef unsigned int flag8_t;
 typedef int fast8_t;
 typedef unsigned int ufast8_t;
 
-#ifndef RFSERIAL
-#define RFSERIAL Serial   // Programming port of the due
-//#define RFSERIAL SerialUSB  // Native USB Port of the due
-#endif
-
-#if defined(BLUETOOTH_SERIAL) && BLUETOOTH_SERIAL > 0
-#if BLUETOOTH_SERIAL == 1
-#define BT_SERIAL Serial1
-#elif BLUETOOTH_SERIAL == 2
-#define BT_SERIAL Serial2
-#elif BLUETOOTH_SERIAL == 3
-#define BT_SERIAL Serial3
-#elif BLUETOOTH_SERIAL == 100
-#define BT_SERIAL Serial
-#elif BLUETOOTH_SERIAL == 101
-#define BT_SERIAL SerialUSB
-#endif
-
-class RFDoubleSerial : public Print
-{
-  public:
-    RFDoubleSerial();
-    virtual int peek(void);
-    virtual int read(void);
-    virtual void flush(void);
-    virtual size_t write(uint8_t);
-    using Print::write; // pull in write(str) and write(buf, size) from Print
-};
-extern RFDoubleSerial BTAdapter;
-
-#endif
-
 union eeval_t {
   uint8_t     b[4];
   float       f;
@@ -477,13 +445,6 @@ class HAL
     static void spiSend(const uint8_t* buf , size_t n);
     // Read single byte from SPI
     static uint8_t spiReceive();
-    // Read from SPI into buffer
-    static void spiReadBlock(uint8_t*buf, uint16_t nbyte);
-
-    // Write from buffer to SPI
-
-    static void spiSendBlock(uint8_t token, const uint8_t* buf);
-
     // I2C Support
     static void i2cInit(unsigned long clockSpeedHz);
     static void i2cStartWait(unsigned char address);

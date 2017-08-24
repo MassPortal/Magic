@@ -67,7 +67,6 @@ gets used, or you will get probelms with checksums etc.
 - 100 is programming port on due
 - 101 is native port on due. Us eit to support both ports at the same time!
 */
-#define BLUETOOTH_SERIAL   101                      // Port number (1..3) - For RADDS use 1
 #define BLUETOOTH_BAUD     115200                 // communication speed
 
 // ##########################################################################################
