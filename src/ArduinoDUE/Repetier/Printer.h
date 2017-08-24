@@ -586,26 +586,6 @@ public:
         flag1 = (b ? flag1 | PRINTER_FLAG1_ALLKILLED : flag1 & ~PRINTER_FLAG1_ALLKILLED);
     }
 
-    static INLINE uint8_t isAutomount()
-    {
-        return flag1 & PRINTER_FLAG1_AUTOMOUNT;
-    }
-
-    static INLINE void setAutomount(uint8_t b)
-    {
-        flag1 = (b ? flag1 | PRINTER_FLAG1_AUTOMOUNT : flag1 & ~PRINTER_FLAG1_AUTOMOUNT);
-    }
-
-    static INLINE uint8_t isUIErrorMessage()
-    {
-        return flag1 & PRINTER_FLAG1_UI_ERROR_MESSAGE;
-    }
-
-    static INLINE void setUIErrorMessage(uint8_t b)
-    {
-        flag1 = (b ? flag1 | PRINTER_FLAG1_UI_ERROR_MESSAGE : flag1 & ~PRINTER_FLAG1_UI_ERROR_MESSAGE);
-    }
-
     static INLINE uint8_t isNoDestinationCheck()
     {
         return flag1 & PRINTER_FLAG1_NO_DESTINATION_CHECK;

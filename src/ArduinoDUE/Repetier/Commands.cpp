@@ -188,13 +188,6 @@ void Commands::setFanSpeed(int speed, bool immediately)
         Com::printFLN(Com::tFanspeed,speed); // send only new values to break update loops!
 #endif
 }
-#if BED_LEDS
-void Commands::setBedLed(int light)
-{
-	Light.LedBrightness = (float)(light/100.0);
-	Light.ShowTemps();
-}
-#endif
 
 void Commands::setFan2Speed(int speed)
 {
@@ -2558,71 +2551,6 @@ void Commands::writeLowestFreeRAM()
 bool cmpf(float a, float b)
 {
 	return (fabs(a - b) < 0.0001f);
-}
-
-// Activate or deactivate Z-Probe switch
-bool enableZprobe(bool probeState)
-{
-  if (probeState) // Probe has to be activated
-  {
-    // Probe switch activation
-    if(Endstops::zProbe()) // Check for probe switch state (invert logic)
-    {
-      Printer::moveToReal(EEPROM::getZProbeActX(), EEPROM::getZProbeActY(), EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed()); // Move to trigger post
-	  if (Printer::lastProbeActHeight > 0.1) // Restore activation height
-		  Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::lastProbeActHeight, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed()); // Move to trigger post
-	  float probeDepth = Printer::currentPosition[Z_AXIS] - (0.1 * Commands::retDefHeight() + EEPROM::zProbeBedDistance());
-
-      while (Endstops::zProbe()) // Wait until switch is triggered (invert logic)
-      {
-        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-7, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Pecking motion as we have no idea when switch is triggered until it is released
-        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]+5.5, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Rise to check
-        Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
-        Endstops::update(); // Update enstop positions
-        Endstops::update(); // and protection agains cross-talk
-		if (Printer::currentPosition[Z_AXIS] < probeDepth) {
-			Com::printErrorFLN("[003] Could not activate z-probe!");
-			return false;
-		}
-      } 
-	  Printer::lastProbeActHeight = Printer::currentPosition[Z_AXIS]+2.5 + Printer::zBedOffset; // Save activation height
-      Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-	  Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-	  Printer::homeAxis(true, true, true);
-	  Commands::waitUntilEndOfAllMoves();
-	  HAL::delayMilliseconds(300);
-	  Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-    }
-    // End of probe switch activation
-	Com::printInfoFLN("Probe switch activated");
-  }
-  else // Probe has to be deactivated
-  {
-    // Probe switch deactivation
-    if(!Endstops::zProbe())  // Check for probe switch state (invert logic)
-    {
-      Printer::moveToReal(EEPROM::getZProbeActX(), EEPROM::getZProbeActY(), EEPROM::zProbeBedDistance(), IGNORE_COORDINATE,EEPROM::zProbeXYSpeed()); // Move to trigger post
-      float returnPosition = 0;
-	  float probeDepth = Printer::currentPosition[Z_AXIS] - (0.1 * Commands::retDefHeight() + EEPROM::zProbeBedDistance());
-      while (!Endstops::zProbe()) // Wait until switch is triggered (invert logic)
-      {
-        Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-0.4, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move down with 0.5mm step
-        returnPosition += 0.4;
-        Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
-        Endstops::update(); // Update enstop positions
-        Endstops::update(); // and protection agains cross-talk
-		if (Printer::currentPosition[Z_AXIS] < probeDepth) {
-			Com::printErrorFLN("[003] Could not deactivate z-probe!");
-			return false; //break out
-		}
-      } 
-      Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-2.6, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Final switch motion to lock it in upper state (triggering does not lock it in)
-      Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]+returnPosition+2.6, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-    }
-	Com::printInfoFLN("Probe switch deactivated");
-  // End of probe switch deactivation
-  }
-  return true;
 }
 
 //Get height according to the HW version stored in EEPROM

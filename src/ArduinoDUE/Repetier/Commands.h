@@ -46,7 +46,6 @@ public:
     static void emergencyStop();
     static void checkFreeMemory();
     static void writeLowestFreeRAM();
-	static void setBedLed(int light);
 	static float retDefHeight();
 	static void fillDefAxisDir();
 private:
@@ -54,5 +53,4 @@ private:
     static int lowestRAMValueSend;
 };
 bool cmpf(float a, float b);
-bool enableZprobe(bool probeState);
 #endif // COMMANDS_H_INCLUDED
