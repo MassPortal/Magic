@@ -1683,8 +1683,8 @@ void TemperatureController::updateCurrentTemperature()
         int16_t newraw,newtemp = 0;
         while(i < num)
         {
-            newraw = pgm_read_word(&temptable[i]);
-            newtemp = pgm_read_word(&temptable[++i]);
+            newraw = pgm_read_word(&temptable[i++]);
+            newtemp = pgm_read_word(&temptable[i++]);
             if (newraw > currentTemperature)
             {
                 currentTemperatureC = (float)oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(float)(newraw-oldraw);
