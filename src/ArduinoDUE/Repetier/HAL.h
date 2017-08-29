@@ -200,7 +200,7 @@ class HAL
     // we use ram instead of eeprom, so reads are faster and safer. Writes store in real eeprom as well
     // as long as hal eeprom functions are used.
     static char virtualEeprom[EEPROM_BYTES];
-    static bool wdPinged;
+    static volatile bool wdPinged;
     
     HAL();
     virtual ~HAL();

@@ -44,7 +44,7 @@ static volatile int adcCounter = 0, adcSamplePos = 0;
 static   uint32_t  adcEnable = 0;
 
 char HAL::virtualEeprom[EEPROM_BYTES];
-bool HAL::wdPinged = true;
+volatile bool HAL::wdPinged = true;
 volatile uint8_t HAL::insideTimer1 = 0;
 int spiDueDividors[] = {10, 21, 42, 84, 168, 255, 255};
 
@@ -134,7 +134,7 @@ void HAL::analogStart(void)
   for (int i = 0; i < ANALOG_INPUTS; i++)
   {
     osAnalogInputValues[i] = 0;
-    adcSamplesMin[i] = 100000;
+    adcSamplesMin[i] = INT32_MAX;
     adcSamplesMax[i] = 0;
     adcEnable |= (0x1u << osAnalogInputChannels[i]);
     osAnalogSamplesSum[i] = 2048 * ANALOG_INPUT_MEDIAN;
@@ -818,7 +818,7 @@ if (fan3Kickstart) fan3Kickstart--;
       {
         // Strip biggest and smallest value and round correctly
         osAnalogInputBuildup[i] = osAnalogInputBuildup[i] + (1 << (ANALOG_INPUT_SAMPLE - 1)) - (adcSamplesMin[i] + adcSamplesMax[i]);
-        adcSamplesMin[i] = 100000;
+        adcSamplesMin[i] = INT32_MAX;
         adcSamplesMax[i] = 0;
         osAnalogSamplesSum[i] -= osAnalogSamples[i][adcSamplePos];
         osAnalogSamplesSum[i] += (osAnalogSamples[i][adcSamplePos] = osAnalogInputBuildup[i] >> ANALOG_INPUT_SAMPLE);
