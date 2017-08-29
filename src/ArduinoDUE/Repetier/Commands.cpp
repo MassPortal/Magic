@@ -516,12 +516,11 @@ void Commands::processGCode(GCode *com)
 		// For that reason we ensure a correct behaviour by code.
 		Printer::homeAxis(true, true, true);
 		Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-		GCode::executeFString(Com::tZProbeStartScript);
 		bool oldAutolevel = Printer::isAutolevelActive();
 		Printer::setAutolevelActive(false);
 		float sum = 0, last, oldFeedrate = Printer::feedrate;
 		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-		sum = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
+		sum = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS);
 		if (sum < -1) break;
 		Printer::moveTo(EEPROM::zProbeX2(), EEPROM::zProbeY2(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		last = Printer::runZProbe(false, false);
@@ -553,7 +552,6 @@ void Commands::processGCode(GCode *com)
 			EEPROM::storeDataIntoEEPROM();
 		Printer::updateCurrentPosition(true);
 		printCurrentPosition("G29 ");
-		GCode::executeFString(Com::tZProbeEndScript);
 		Printer::feedrate = oldFeedrate;
 #endif // DISTORTION_CORRECTION
 	}
@@ -713,12 +711,11 @@ void Commands::processGCode(GCode *com)
 		// For that reason we ensure a correct behavior by code.
 		Printer::homeAxis(true, true, true);
 		Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-		GCode::executeFString(Com::tZProbeStartScript);
 		//bool iterate = com->hasP() && com->P>0;
 		Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
 		float h1, h2, h3, oldFeedrate = Printer::feedrate;
 		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-		h1 = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
+		h1 = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS);
 		if (h1 < 0) {
 			Printer::resetTransformationMatrix(false);
 			Printer::homeAxis(true, true, true);
@@ -1314,7 +1311,7 @@ void Commands::processGCode(GCode *com)
 			Printer::moveTo(ptx + mx, IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 			for (int my = ST; (pty + my) < Max; my += incr) {
 				Printer::moveTo(IGNORE_COORDINATE, pty + my, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-				Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
+				Printer::runZProbe(true, false, Z_PROBE_REPETITIONS);
 			}
 		}
 		//Com::printFLN("Finished");

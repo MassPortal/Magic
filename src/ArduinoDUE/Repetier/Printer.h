@@ -834,9 +834,9 @@ public:
     static float runZMaxProbe();
 #endif
 #if FEATURE_Z_PROBE
-	static void startProbing(bool runScript);
+	static void startProbing(void);
 	static void finishProbing();
-    static float runZProbe(bool first,bool last,uint8_t repeat = Z_PROBE_REPETITIONS,bool runStartScript = true);
+    static float runZProbe(bool first,bool last,uint8_t repeat = Z_PROBE_REPETITIONS);
     static void waitForZProbeStart();
     static float bendingCorrectionAt(float x,float y);
 #endif

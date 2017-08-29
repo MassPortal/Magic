@@ -1199,8 +1199,6 @@ to recalibrate z.
 /** The height is the difference between activated probe position and nozzle height. */
 #define Z_PROBE_HEIGHT 0.0
 /** These scripts are run before resp. after the z-probe is done. Add here code to activate/deactivate probe if needed. */
-#define Z_PROBE_START_SCRIPT ""
-#define Z_PROBE_FINISHED_SCRIPT ""
 #define PROBE_ACTION_SCRIPT "G32 S2"
 
 /*

@@ -212,8 +212,6 @@ FSTRINGVALUE(Com::tZProbe,"Z-probe:")
 FSTRINGVALUE(Com::tZProbeAverage,"Z-probe average height:")
 FSTRINGVALUE(Com::tZProbeZReset,"Reset Z height")
 FSTRINGVALUE(Com::tZProbeState,"Z-probe state:")
-FSTRINGVALUE(Com::tZProbeStartScript,Z_PROBE_START_SCRIPT)
-FSTRINGVALUE(Com::tZProbeEndScript,Z_PROBE_FINISHED_SCRIPT)
 FSTRINGVALUE(Com::tHitZProbe,"Hit z-probe")
 FSTRINGVALUE(Com::tProbeActionScript, PROBE_ACTION_SCRIPT)
 #endif

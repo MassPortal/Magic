@@ -277,7 +277,7 @@ void runBedLeveling(GCode *com) {
 	// For that reason we ensure a correct behavior by code.
 	Printer::homeAxis(true, true, true);
 	Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-	Printer::startProbing(true);
+	Printer::startProbing();
 	//GCode::executeFString(Com::tZProbeStartScript);
 	Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
 	Plane plane;
@@ -287,7 +287,7 @@ void runBedLeveling(GCode *com) {
 			Printer::finishProbing();
 			Printer::homeAxis(true, true, true);
 			Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
-			Printer::startProbing(true);
+			Printer::startProbing();
 		}
 #endif		
 		if(!measureAutolevelPlane(plane)) {
@@ -347,10 +347,7 @@ void Printer::setAutolevelActive(bool on)
 	#if FEATURE_AUTOLEVEL
 	if(on == isAutolevelActive()) return;
 	flag0 = (on ? flag0 | PRINTER_FLAG0_AUTOLEVEL_ACTIVE : flag0 & ~PRINTER_FLAG0_AUTOLEVEL_ACTIVE);
-	if(on)
-	Com::printInfoFLN(Com::tAutolevelEnabled);
-	else
-	Com::printInfoFLN(Com::tAutolevelDisabled);
+	Com::printInfoFLN(on ? Com::tAutolevelEnabled : Com::tAutolevelDisabled);
 	updateCurrentPosition(false);
 	#endif // FEATURE_AUTOLEVEL
 }
@@ -381,10 +378,10 @@ float Printer::runZMaxProbe()
 #endif
 
 #if FEATURE_Z_PROBE
-void Printer::startProbing(bool runScript) {
+void Printer::startProbing(void)
+{
 	float oldOffX = Printer::offsetX;
 	float oldOffY = Printer::offsetY;
-	if(runScript) GCode::executeFString(Com::tZProbeStartScript);
 	float maxStartHeight = EEPROM::zProbeBedDistance() + (EEPROM::zProbeHeight() > 0 ? EEPROM::zProbeHeight() : 0) + 0.1;
 	if(currentPosition[Z_AXIS] > maxStartHeight) {
 		moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, maxStartHeight, IGNORE_COORDINATE, homingFeedrate[Z_AXIS]);
@@ -401,7 +398,6 @@ void Printer::finishProbing() {
 	float oldOffX = Printer::offsetX;
 	float oldOffY = Printer::offsetY;
 	float oldOffZ = Printer::offsetZ;
-	GCode::executeFString(Com::tZProbeEndScript);
 	if(Extruder::current)
 	{
 		Printer::offsetX = -Extruder::current->xOffset * Printer::invAxisStepsPerMM[X_AXIS];
@@ -429,10 +425,10 @@ e) Add bending correction
 
 Then we return the measured and corrected z distance.
 */
-float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript)
+float Printer::runZProbe(bool first,bool last,uint8_t repeat)
 {
 	if(first)
-	startProbing(runStartScript);
+	startProbing();
 	Commands::waitUntilEndOfAllMoves();
 	int32_t sum = 0, probeDepth;
 	int32_t shortMove = static_cast<int32_t>((float)Z_PROBE_SWITCHING_DISTANCE * axisStepsPerMM[Z_AXIS]); // distance to go up for repeated moves
