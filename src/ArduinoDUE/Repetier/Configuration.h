@@ -1340,19 +1340,6 @@ Always hard to say since the other angle is 89° in this case!
 /** If a checksum is sent, all future comamnds must also contain a checksum. Increases reliability especially for binary protocol. */
 #define FEATURE_CHECKSUM_FORCED 0
 
-/** Should support for fan control be compiled in. If you enable this make sure
-the FAN pin is not the same as for your second extruder. RAMPS e.g. has FAN_PIN in 9 which
-is also used for the heater if you have 2 extruders connected. */
-#define FEATURE_FAN_CONTROL 1
-
-/* You can have a second fan controlled by adding P1 to M106/M107 command. */ 
-#define FEATURE_FAN2_CONTROL 1
-//#define FAN2_PIN ORIG_FAN2_PIN
-
-#ifdef FEATURE_FAN2_CONTROL
-#define FEATURE_VENTILATION 1
-#endif
-
 /* By setting FAN_BOARD_PIN to a pin number you get a board cooler. That fan 
 goes on as soon as moves occur. Mainly to prevent overheating of stepper drivers. */
 //#undef FAN_BOARD_PIN

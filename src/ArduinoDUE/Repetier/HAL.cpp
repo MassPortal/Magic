@@ -711,13 +711,13 @@ void PWM_TIMER_VECTOR ()
 #if FAN_BOARD_PIN > -1 && SHARED_COOLER_BOARD_EXT == 0
         if((pwm_pos_set[PWM_BOARD_FAN] = (pwm_pos[PWM_BOARD_FAN] & COOLER_PWM_MASK)) > 0) WRITE(FAN_BOARD_PIN,1);
 #endif
-#if FAN_PIN > -1 && FEATURE_FAN_CONTROL
+#if FAN_PIN > -1
         if((pwm_pos_set[PWM_FAN1] = (pwm_pos[PWM_FAN1] & COOLER_PWM_MASK)) > 0) WRITE(FAN_PIN,1);
 #endif
-#if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
+#if FAN2_PIN > -1
 		if((pwm_pos_set[PWM_FAN2] = (pwm_pos[PWM_FAN2] & COOLER_PWM_MASK)) > 0) WRITE(FAN2_PIN,1);
 #endif
-#if FAN3_PIN > -1 && FEATURE_FAN2_CONTROL
+#if FAN3_PIN > -1
 		if((pwm_pos_set[PWM_FAN3] = (pwm_pos[PWM_FAN3] & COOLER_PWM_MASK)) > 0) WRITE(FAN3_PIN,1);
 #endif
 #if defined(FAN_THERMO_PIN) && FAN_THERMO_PIN > -1
@@ -763,23 +763,17 @@ void PWM_TIMER_VECTOR ()
 #if FAN_BOARD_PIN > -1  && SHARED_COOLER_BOARD_EXT == 0
     if(pwm_pos_set[PWM_BOARD_FAN] == pwm_count_cooler && pwm_pos_set[NUM_EXTRUDER + 1] != COOLER_PWM_MASK) WRITE(FAN_BOARD_PIN,0);
 #endif
-#if FAN_PIN > -1 && FEATURE_FAN_CONTROL
-    if(fanKickstart == 0)
-    {
-        if(pwm_pos_set[PWM_FAN1] == pwm_count_cooler && pwm_pos_set[PWM_FAN1] != COOLER_PWM_MASK) WRITE(FAN_PIN,0);
-    }
+#if FAN_PIN > -1
+    if (fanKickstart) fanKickstart--;
+    else if(pwm_pos_set[PWM_FAN1] == pwm_count_cooler && pwm_pos_set[PWM_FAN1] != COOLER_PWM_MASK) WRITE(FAN_PIN,0);
 #endif
-#if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
-if(fan2Kickstart == 0)
-{
-	if(pwm_pos_set[PWM_FAN2] == pwm_count_cooler && pwm_pos_set[PWM_FAN2] != COOLER_PWM_MASK) WRITE(FAN2_PIN,0);
-}
+#if FAN2_PIN > -1
+    if (fan2Kickstart) fan2Kickstart--;
+    else if(pwm_pos_set[PWM_FAN2] == pwm_count_cooler && pwm_pos_set[PWM_FAN2] != COOLER_PWM_MASK) WRITE(FAN2_PIN,0);
 #endif
-#if FAN3_PIN > -1 && FEATURE_FAN2_CONTROL
-if(fan3Kickstart == 0)
-{
-	if(pwm_pos_set[PWM_FAN3] == pwm_count_cooler && pwm_pos_set[PWM_FAN3] != COOLER_PWM_MASK) WRITE(FAN3_PIN,0);
-}
+#if FAN3_PIN > -1
+    if (fan3Kickstart) fan3Kickstart--;
+    else if(pwm_pos_set[PWM_FAN3] == pwm_count_cooler && pwm_pos_set[PWM_FAN3] != COOLER_PWM_MASK) WRITE(FAN3_PIN,0);
 #endif
 #if defined(FAN_THERMO_PIN) && FAN_THERMO_PIN > -1
 	if(pwm_pos_set[PWM_FAN_THERMO] == pwm_count_cooler && pwm_pos_set[PWM_FAN_THERMO] != COOLER_PWM_MASK) WRITE(FAN_THERMO_PIN,0);
@@ -787,21 +781,6 @@ if(fan3Kickstart == 0)
 #if HEATED_BED_HEATER_PIN > -1 && HAVE_HEATED_BED
   if (pwm_pos_set[NUM_EXTRUDER] == pwm_count_heater && pwm_pos_set[NUM_EXTRUDER] != HEATER_PWM_MASK) WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
 #endif
-  //noInt.unprotect();
-  counterPeriodical++; // Appxoimate a 100ms timer
-  if (counterPeriodical >= 390) //  (int)(F_CPU/40960))
-  {
-    counterPeriodical = 0;
-#if FEATURE_FAN_CONTROL
-    if (fanKickstart) fanKickstart--;
-#endif
-#if FEATURE_FAN2_CONTROL
-    if (fan2Kickstart) fan2Kickstart--;
-#endif
-#if FEATURE_VENTILATIONL
-if (fan3Kickstart) fan3Kickstart--;
-#endif
-  }
   // read analog values -- only read one per interrupt
 #if ANALOG_INPUTS > 0
   // conversion finished?

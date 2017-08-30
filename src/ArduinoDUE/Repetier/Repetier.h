@@ -576,17 +576,9 @@ extern long baudrate;
 
 #include "HAL.h"
 
-
-extern unsigned int counterPeriodical;
-#if FEATURE_FAN_CONTROL
-extern uint8_t fanKickstart;
-#endif
-#if FEATURE_FAN2_CONTROL
-extern uint8_t fan2Kickstart;
-#endif
-#if FEATURE_VENTILATION
-extern uint8_t fan3Kickstart;
-#endif
+extern uint32_t fanKickstart;
+extern uint32_t fan2Kickstart;
+extern uint32_t fan3Kickstart;
 
 extern volatile int waitRelax; // Delay filament relax at the end of print, could be a simple timeout
 

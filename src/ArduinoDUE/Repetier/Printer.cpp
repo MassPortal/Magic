@@ -259,42 +259,43 @@ bool Printer::isPositionAllowed(float x,float y,float z)
 }
 
 void Printer::setFanSpeedDirectly(uint8_t speed) {
-#if FAN_PIN>-1 && FEATURE_FAN_CONTROL
+#if FAN_PIN>-1
     if(pwm_pos[PWM_FAN1] == speed)
         return;
 #if FAN_KICKSTART_TIME
     if(fanKickstart == 0 && speed > pwm_pos[PWM_FAN1] && speed < 85)
     {
-         if(pwm_pos[PWM_FAN1]) fanKickstart = FAN_KICKSTART_TIME / 100;
-         else                          fanKickstart = FAN_KICKSTART_TIME / 25;
+         if(pwm_pos[PWM_FAN1]) fanKickstart = FAN_KICKSTART_TIME*390 / 100;
+         else                          fanKickstart = FAN_KICKSTART_TIME*390 / 25;
     }
 #endif
     pwm_pos[PWM_FAN1] = speed;
 #endif
 }
+
 void Printer::setFan2SpeedDirectly(uint8_t speed) {
-	#if FAN2_PIN>-1 && FEATURE_FAN_CONTROL
+	#if FAN2_PIN>-1
 	if(pwm_pos[PWM_FAN2] == speed)
 		return;
 	#if FAN_KICKSTART_TIME
 	if(fan2Kickstart == 0 && speed > pwm_pos[PWM_FAN2] && speed < 85)
 	{
-		if(pwm_pos[PWM_FAN2]) fan2Kickstart = FAN_KICKSTART_TIME / 100;
-		else                  fan2Kickstart = FAN_KICKSTART_TIME / 25;
+		if(pwm_pos[PWM_FAN2]) fan2Kickstart = FAN_KICKSTART_TIME*390 / 100;
+		else                  fan2Kickstart = FAN_KICKSTART_TIME*390 / 25;
 	}
 	#endif
 	pwm_pos[PWM_FAN2] = speed;
 #endif
 }
 void Printer::setFan3SpeedDirectly(uint8_t speed) {
-	#if FAN3_PIN>-1 && FEATURE_FAN_CONTROL
+	#if FAN3_PIN>-1
 	if(pwm_pos[PWM_FAN3] == speed)
 	return;
 	#if FAN_KICKSTART_TIME
 	if(fan3Kickstart == 0 && speed > pwm_pos[PWM_FAN3] && speed < 85)
 	{
-		if(pwm_pos[PWM_FAN3]) fan3Kickstart = FAN_KICKSTART_TIME / 100;
-		else                  fan3Kickstart = FAN_KICKSTART_TIME / 25;
+		if(pwm_pos[PWM_FAN3]) fan3Kickstart = FAN_KICKSTART_TIME*390 / 100;
+		else                  fan3Kickstart = FAN_KICKSTART_TIME*390 / 25;
 	}
 	#endif
 	pwm_pos[PWM_FAN3] = speed;
@@ -800,15 +801,15 @@ void Printer::setup()
     PULLUP(Z_PROBE_PIN, HIGH);
 #endif
 #endif // FEATURE_FEATURE_Z_PROBE
-#if FAN_PIN>-1 && FEATURE_FAN_CONTROL
+#if FAN_PIN>-1
     SET_OUTPUT(FAN_PIN);
     WRITE(FAN_PIN, LOW);
 #endif
-#if FAN2_PIN > -1 && FEATURE_FAN2_CONTROL
+#if FAN2_PIN > -1
 	SET_OUTPUT(FAN2_PIN);
 	WRITE(FAN2_PIN, LOW);
 #endif
-#if FAN3_PIN > -1 && FEATURE_FAN2_CONTROL
+#if FAN3_PIN > -1
 	SET_OUTPUT(FAN3_PIN);
 	WRITE(FAN3_PIN, LOW);
 #endif
@@ -1221,8 +1222,8 @@ void Printer::showConfiguration() {
     Com::config("NumExtruder:",NUM_EXTRUDER);
     Com::config("MixingExtruder:",MIXING_EXTRUDER);
     Com::config("HeatedBed:",HAVE_HEATED_BED);
-    Com::config("Fan:",FAN_PIN > -1 && FEATURE_FAN_CONTROL);
-#if FEATURE_FAN2_CONTROL && defined(FAN2_PIN) && FAN2_PIN > -1	
+    Com::config("Fan:",FAN_PIN > -1);
+#if defined(FAN2_PIN) && FAN2_PIN > -1	
     Com::config("Fan2:1");
 #else
     Com::config("Fan2:0");

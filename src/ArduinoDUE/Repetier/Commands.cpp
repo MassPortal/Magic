@@ -164,19 +164,13 @@ void Commands::changeFlowrateMultiply(int factor)
     Com::printFLN(Com::tFlowMultiply, factor);
 }
 
-#if FEATURE_FAN_CONTROL
-uint8_t fanKickstart;
-#endif
-#if FEATURE_FAN2_CONTROL
-uint8_t fan2Kickstart;
-#endif
-#if FEATURE_VENTILATION
-uint8_t fan3Kickstart;
-#endif
+uint32_t fanKickstart;
+uint32_t fan2Kickstart;
+uint32_t fan3Kickstart;
 
 void Commands::setFanSpeed(int speed, bool immediately)
 {
-#if FAN_PIN>-1 && FEATURE_FAN_CONTROL
+#if FAN_PIN>-1
     if(Printer::fanSpeed == speed)
         return;
     speed = constrain(speed,0,255);
@@ -195,7 +189,7 @@ void Commands::setFanSpeed(int speed, bool immediately)
 
 void Commands::setFan2Speed(int speed)
 {
-	#if FAN2_PIN >- 1 && FEATURE_FAN2_CONTROL
+	#if FAN2_PIN >- 1
 	speed = constrain(speed,0,255);
 	Printer::setFan2SpeedDirectly(speed);
 	Com::printFLN(Com::tFan2speed,speed); // send only new values to break update loops!
@@ -203,7 +197,7 @@ void Commands::setFan2Speed(int speed)
 }
 void Commands::setFan3Speed(int speed)
 {
-	#if FAN3_PIN >- 1 && FEATURE_VENTILATION
+	#if FAN3_PIN >- 1
 	speed = constrain(speed,0,255);
 	Printer::setFan3SpeedDirectly(speed);
 	Com::printFLN(Com::tFan3speed,speed); // send only new values to break update loops!
@@ -1831,7 +1825,7 @@ void Commands::processMCode(GCode *com)
         }
         break;
 #endif
-#if FAN_PIN>-1 && FEATURE_FAN_CONTROL
+#if FAN_PIN>-1
     case 106: // M106 Fan On
         if(com->hasP())
 			if(com->P == 1) setFan2Speed(com->hasS() ? com->S : 255);
