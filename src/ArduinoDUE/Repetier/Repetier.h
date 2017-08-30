@@ -578,7 +578,6 @@ extern long baudrate;
 
 
 extern unsigned int counterPeriodical;
-extern volatile uint8_t executePeriodical;
 #if FEATURE_FAN_CONTROL
 extern uint8_t fanKickstart;
 #endif

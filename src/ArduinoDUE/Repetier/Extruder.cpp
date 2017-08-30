@@ -22,7 +22,6 @@
 #include "Repetier.h"
 
 unsigned int counterPeriodical = 0;
-volatile uint8_t executePeriodical = 0;
 #if FEATURE_DITTO_PRINTING
 uint8_t Extruder::dittoMode = 0;
 #endif

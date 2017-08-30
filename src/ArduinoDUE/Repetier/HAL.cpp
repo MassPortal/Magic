@@ -792,7 +792,6 @@ if(fan3Kickstart == 0)
   if (counterPeriodical >= 390) //  (int)(F_CPU/40960))
   {
     counterPeriodical = 0;
-    executePeriodical = 1;
 #if FEATURE_FAN_CONTROL
     if (fanKickstart) fanKickstart--;
 #endif

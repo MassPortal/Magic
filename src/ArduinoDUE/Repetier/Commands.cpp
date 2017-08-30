@@ -35,21 +35,20 @@ void Commands::commandLoop(void)
 
 void Commands::checkForPeriodicalActions(void)
 {
-    static uint8_t counter = 5;
+    static millis_t timer100ms;
+    static millis_t timer500ms;
 
-    if(!executePeriodical) return;
-    executePeriodical = 0;
-    Extruder::manageTemperatures();
+    if (timer100ms + 100 < millis()) {
+        Extruder::manageTemperatures();
 #if BED_LEDS
-	Light.loop();
+        Light.loop();
 #endif
-
+        timer100ms = millis();
+    }
     if (monitorTemps) {
-        if (!counter) {
+        if (timer500ms + 500 < millis()) {
             Commands::printTemperatures(false);
-            counter = 5;
-        } else {
-            counter--;
+            timer500ms = millis();
         }
     }
 }
