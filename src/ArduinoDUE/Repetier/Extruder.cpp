@@ -501,6 +501,10 @@ void Extruder::initExtruder()
 #if defined(EXT0_STEP_PIN) && EXT0_STEP_PIN > -1 && NUM_EXTRUDER > 0
     SET_OUTPUT(EXT0_DIR_PIN);
     SET_OUTPUT(EXT0_STEP_PIN);
+    SET_OUTPUT(EXT1_DIR_PIN);
+    SET_OUTPUT(EXT1_STEP_PIN);
+    SET_OUTPUT(EXT2_DIR_PIN);
+    SET_OUTPUT(EXT2_STEP_PIN);
 #endif
 #if defined(EXT1_STEP_PIN) && EXT1_STEP_PIN > -1 && NUM_EXTRUDER > 1
     SET_OUTPUT(EXT1_DIR_PIN);
@@ -528,8 +532,12 @@ void Extruder::initExtruder()
         Extruder *act = &extruder[i];
         if(act->enablePin > -1)
         {
-            HAL::pinMode(act->enablePin, OUTPUT);
-            HAL::digitalWrite(act->enablePin,!act->enableOn);
+            HAL::pinMode(EXT0_ENABLE_PIN, OUTPUT);
+            HAL::digitalWrite(EXT0_ENABLE_PIN,!act->enableOn);
+            HAL::pinMode(EXT1_ENABLE_PIN, OUTPUT);
+            HAL::digitalWrite(EXT1_ENABLE_PIN,!act->enableOn);
+            HAL::pinMode(EXT2_ENABLE_PIN, OUTPUT);
+            HAL::digitalWrite(EXT2_ENABLE_PIN,!act->enableOn);
         }
         act->tempControl.lastTemperatureUpdate = HAL::timeInMilliseconds();
 #if defined(SUPPORT_MAX6675) || defined(SUPPORT_MAX31855)
@@ -1075,6 +1083,8 @@ void Extruder::step()
 {
 #if NUM_EXTRUDER == 1
     WRITE(EXT0_STEP_PIN, START_STEP_WITH_HIGH);
+    WRITE(EXT1_STEP_PIN, START_STEP_WITH_HIGH);
+    WRITE(EXT2_STEP_PIN, START_STEP_WITH_HIGH);
 #if EXTRUDER_JAM_CONTROL && defined(EXT0_JAM_PIN) && EXT0_JAM_PIN > -1
     TEST_EXTRUDER_JAM(0)
 #endif
@@ -1169,6 +1179,8 @@ void Extruder::unstep()
 {
 #if NUM_EXTRUDER == 1
     WRITE(EXT0_STEP_PIN,!START_STEP_WITH_HIGH);
+    WRITE(EXT1_STEP_PIN,!START_STEP_WITH_HIGH);
+    WRITE(EXT2_STEP_PIN,!START_STEP_WITH_HIGH);
 #else
     switch(Extruder::current->id)
     {
@@ -1227,10 +1239,15 @@ void Extruder::unstep()
 void Extruder::setDirection(uint8_t dir)
 {
 #if NUM_EXTRUDER == 1
-    if(dir)
+    if(dir) {
         WRITE(EXT0_DIR_PIN, !EXT0_INVERSE);
-    else
+        WRITE(EXT1_DIR_PIN, !EXT0_INVERSE);
+        WRITE(EXT2_DIR_PIN, !EXT0_INVERSE);
+    } else {
         WRITE(EXT0_DIR_PIN, EXT0_INVERSE);
+        WRITE(EXT1_DIR_PIN, EXT0_INVERSE);
+        WRITE(EXT2_DIR_PIN, EXT0_INVERSE);
+    }
     RESET_EXTRUDER_JAM(0, dir)
 #else
     switch(Extruder::current->id)
@@ -1328,6 +1345,8 @@ void Extruder::enable()
 #if NUM_EXTRUDER == 1
 #if EXT0_ENABLE_PIN > -1
     WRITE(EXT0_ENABLE_PIN,EXT0_ENABLE_ON );
+    WRITE(EXT1_ENABLE_PIN,EXT1_ENABLE_ON );
+    WRITE(EXT2_ENABLE_PIN,EXT2_ENABLE_ON );
 #endif
 #else
     if(Extruder::current->enablePin > -1)
@@ -1374,8 +1393,11 @@ void Extruder::disableCurrentExtruderMotor()
     WRITE(EXT5_ENABLE_PIN, !EXT5_ENABLE_ON );
 #endif
 #else // MIXING_EXTRUDER
-    if(Extruder::current->enablePin > -1)
-        HAL::digitalWrite(Extruder::current->enablePin,!Extruder::current->enableOn);
+    if(Extruder::current->enablePin > -1) {
+        HAL::digitalWrite(EXT0_ENABLE_PIN,!Extruder::current->enableOn);
+        HAL::digitalWrite(EXT1_ENABLE_PIN,!Extruder::current->enableOn);
+        HAL::digitalWrite(EXT2_ENABLE_PIN,!Extruder::current->enableOn);
+    }
 #if FEATURE_DITTO_PRINTING
     if(Extruder::dittoMode)
     {
@@ -1397,8 +1419,11 @@ void Extruder::disableAllExtruderMotors()
 {
     for(fast8_t i = 0; i < NUM_EXTRUDER; i++)
     {
-        if(extruder[i].enablePin > -1)
-            HAL::digitalWrite(extruder[i].enablePin, !extruder[i].enableOn);
+        if(extruder[i].enablePin > -1) {
+            HAL::digitalWrite(EXT0_ENABLE_PIN, !extruder[i].enableOn);
+            HAL::digitalWrite(EXT1_ENABLE_PIN, !extruder[i].enableOn);
+            HAL::digitalWrite(EXT2_ENABLE_PIN, !extruder[i].enableOn);
+        }
     }
 }
 #define NUMTEMPS_1 28
