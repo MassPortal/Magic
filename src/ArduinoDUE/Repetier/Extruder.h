@@ -130,8 +130,10 @@ public:
 class Extruder;
 extern Extruder extruder[];
 
-#define EXTRUDER_FLAG_RETRACTED 1
-#define EXTRUDER_FLAG_WAIT_JAM_STARTCOUNT 2 ///< Waiting for the first signal to start counting
+typedef struct {
+    uint8_t retracted : 1;
+    uint8_t waitJamStartCount : 1;
+} extFlag_t;
 
 /** \brief Data to drive one extruder.
 
@@ -183,7 +185,7 @@ public:
     uint8_t coolerSpeed; ///< Speed to use when enabled
     uint8_t coolerPWM; ///< current PWM setting
     float diameter;
-    uint8_t flags;
+    extFlag_t flag;
 
     // Methods here
 #if MIXING_EXTRUDER > 0
@@ -194,10 +196,6 @@ public:
     static void setDirection(uint8_t dir);
     static void enable();
 #if FEATURE_RETRACTION
-    inline bool isRetracted() {return (flags & EXTRUDER_FLAG_RETRACTED) != 0;}
-    inline void setRetracted(bool on) {
-        flags = (flags & (255 - EXTRUDER_FLAG_RETRACTED)) | (on ? EXTRUDER_FLAG_RETRACTED : 0);
-    }
     void retract(bool isRetract,bool isLong);
     void retractDistance(float dist);
 #endif
