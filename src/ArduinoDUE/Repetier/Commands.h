@@ -44,13 +44,9 @@ public:
     static void changeFlowrateMultiply(int factorInPercent);
     static void reportPrinterUsage();
     static void emergencyStop();
-    static void checkFreeMemory();
-    static void writeLowestFreeRAM();
+    static void checkFreeMemory(bool print);
 	static float retDefHeight();
 	static void fillDefAxisDir();
-private:
-    static int lowestRAMValue;
-    static int lowestRAMValueSend;
 };
 bool cmpf(float a, float b);
 #endif // COMMANDS_H_INCLUDED

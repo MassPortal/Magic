@@ -22,8 +22,6 @@
 #include "Repetier.h"
 
 const int8_t sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
-int Commands::lowestRAMValue = MAX_RAM;
-int Commands::lowestRAMValueSend = MAX_RAM;
 
 static bool monitorTemps = false;
 
@@ -2477,22 +2475,20 @@ void Commands::emergencyStop()
     HAL::resetHardware();
 }
 
-void Commands::checkFreeMemory()
+void Commands::checkFreeMemory(bool print)
 {
-    int newfree = HAL::getFreeRam();
-    if(newfree < lowestRAMValue)
-        lowestRAMValue = newfree;
-}
+    static size_t lowest = MAX_RAM;
+    size_t current;
 
-void Commands::writeLowestFreeRAM()
-{
-    if(lowestRAMValueSend > lowestRAMValue)
-    {
-        lowestRAMValueSend = lowestRAMValue;
-        Com::printFLN(Com::tFreeRAM, lowestRAMValue);
+    current = HAL::getFreeRam();
+    lowest = (lowest < current) ? lowest : current;
+
+    if (print) {
+        Com::printF("RAM: ", (uint32_t)lowest);
+        Com::printF("/ ", (uint32_t)current);
+        Com::printFLN("/ ", (uint32_t)MAX_RAM);
     }
 }
-
 // Compare floating point variables
 bool cmpf(float a, float b)
 {

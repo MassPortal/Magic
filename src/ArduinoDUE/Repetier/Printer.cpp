@@ -975,8 +975,7 @@ void Printer::setup()
 #endif // DISTORTION_CORRECTION
 
     updateDerivedParameter();
-    Commands::checkFreeMemory();
-    Commands::writeLowestFreeRAM();
+    Commands::checkFreeMemory(true);
     HAL::setupTimer();
 
     transformCartesianStepsToDeltaSteps(Printer::currentPositionSteps, Printer::currentDeltaPositionSteps);

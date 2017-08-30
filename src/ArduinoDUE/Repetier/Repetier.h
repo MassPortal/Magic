@@ -316,7 +316,7 @@ inline void memcopy4(void *dest,void *source) {
 #ifndef DEBUG_FREE_MEMORY
 #define DEBUG_MEMORY
 #else
-#define DEBUG_MEMORY Commands::checkFreeMemory();
+#define DEBUG_MEMORY Commands::checkFreeMemory(false);
 #endif
 
 /** \brief number of analog input signals. Normally 1 for each temperature sensor */
