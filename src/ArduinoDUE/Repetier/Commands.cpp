@@ -25,6 +25,8 @@ const int8_t sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 int Commands::lowestRAMValue = MAX_RAM;
 int Commands::lowestRAMValueSend = MAX_RAM;
 
+static bool monitorTemps = false;
+
 void Commands::commandLoop(void)
 {
     GCode::readFromSerial();
@@ -35,16 +37,22 @@ void Commands::commandLoop(void)
 
 void Commands::checkForPeriodicalActions(void)
 {
+    static uint8_t counter = 5;
+
     if(!executePeriodical) return;
     executePeriodical = 0;
     Extruder::manageTemperatures();
 #if BED_LEDS
 	Light.loop();
 #endif
-    if(--counter250ms == 0)
-    {
-        if(manageMonitor) writeMonitor();
-        counter250ms = 5;
+
+    if (monitorTemps) {
+        if (!counter) {
+            Commands::printTemperatures(false);
+            counter = 5;
+        } else {
+            counter--;
+        }
     }
 }
 
@@ -1937,10 +1945,7 @@ void Commands::processMCode(GCode *com)
         break;
 #endif
     case 203: // M203 Temperature monitor
-        if(com->hasS())
-            manageMonitor = com->S != 255;
-        else
-            manageMonitor = 0;
+        monitorTemps = (com->hasS() && com->S) ? true : false;
         break;
     case 204: // M204
     {

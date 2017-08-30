@@ -21,10 +21,8 @@
 
 #include "Repetier.h"
 
-uint8_t manageMonitor = 0; ///< Temp. we want to monitor with our host. 1+NUM_EXTRUDER is heated bed
 unsigned int counterPeriodical = 0;
 volatile uint8_t executePeriodical = 0;
-uint8_t counter250ms = 25;
 #if FEATURE_DITTO_PRINTING
 uint8_t Extruder::dittoMode = 0;
 #endif
@@ -1836,16 +1834,6 @@ void TemperatureController::autotunePID(float temp,uint8_t controllerId,int maxC
     }
 }
 #endif
-
-/** \brief Writes monitored temperatures.
-
-This function is called every 250ms to write the monitored temperature. If monitoring is
-disabled, the function is not called.
-*/
-void writeMonitor()
-{
-    Commands::printTemperatures(false);
-}
 
 bool reportTempsensorError()
 {

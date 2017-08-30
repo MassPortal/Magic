@@ -138,14 +138,6 @@ inline void memcopy4(void *dest,void *source) {
 #define ZHOME_Y_POS IGNORE_COORDINATE
 #endif
 
-// MS1 MS2 Stepper Driver Microstepping mode table
-#define MICROSTEP1 LOW,LOW
-#define MICROSTEP2 HIGH,LOW
-#define MICROSTEP4 LOW,HIGH
-#define MICROSTEP8 HIGH,HIGH
-#define MICROSTEP16 HIGH,HIGH
-#define MICROSTEP32 HIGH,HIGH
-
 #if !defined(Z_PROBE_REPETITIONS) || Z_PROBE_REPETITIONS < 1
 #define Z_PROBE_SWITCHING_DISTANCE 0.5 // Distance to safely untrigger probe
 #define Z_PROBE_REPETITIONS 1
@@ -587,8 +579,6 @@ extern long baudrate;
 
 extern unsigned int counterPeriodical;
 extern volatile uint8_t executePeriodical;
-extern uint8_t counter250ms;
-extern void writeMonitor();
 #if FEATURE_FAN_CONTROL
 extern uint8_t fanKickstart;
 #endif
