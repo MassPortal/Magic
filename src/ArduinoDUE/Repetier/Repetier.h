@@ -558,13 +558,6 @@ extern float maxadvspeed;
 #include "Extruder.h"
 
 extern uint8_t transformCartesianStepsToDeltaSteps(int32_t cartesianPosSteps[], int32_t deltaPosSteps[]);
-#ifndef FEATURE_DITTO_PRINTING
-#define FEATURE_DITTO_PRINTING false
-#endif
-#if FEATURE_DITTO_PRINTING && (NUM_EXTRUDER > 4 || NUM_EXTRUDER < 2)
-#error Ditto printing requires 2 - 4 extruder.
-#endif
-
 extern millis_t maxInactiveTime;
 extern millis_t stepperInactiveTime;
 

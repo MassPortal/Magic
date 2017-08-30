@@ -2049,14 +2049,6 @@ void Commands::processMCode(GCode *com)
         Commands::printCurrentPosition("M251 ");
         break;
 #endif
-#if FEATURE_DITTO_PRINTING
-    case 280: // M280
-        if(com->hasS())   // Set ditto mode S: 0 = off, 1 = 1 extra extruder, 2 = 2 extra extruder, 3 = 3 extra extruders
-        {
-            Extruder::dittoMode = com->S;
-        }
-        break;
-#endif
     case 281: // Trigger watchdog
     {
         Com::printInfoFLN("Triggering watchdog. If activated, the printer will reset.");

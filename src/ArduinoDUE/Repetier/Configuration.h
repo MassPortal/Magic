@@ -1152,11 +1152,6 @@ instead of driving both with a single stepper. The same works for the other axis
 #define Z3_DIR_PIN    E2_DIR_PIN
 #define Z3_ENABLE_PIN E2_ENABLE_PIN
 
-/* Ditto printing allows 2 extruders to do the same action. This effectively allows
-to print an object two times at the speed of one. Works only with dual extruder setup.
-*/
-#define FEATURE_DITTO_PRINTING 0
-
 /** Some fans won't start for low values, but would run if started with higher power at the beginning.
 This defines the full power duration before returning to set value. Time is in milliseconds */
 #define FAN_KICKSTART_TIME  200

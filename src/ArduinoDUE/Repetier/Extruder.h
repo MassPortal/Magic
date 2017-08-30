@@ -141,9 +141,6 @@ class Extruder   // Size: 12*1 Byte+12*4 Byte+4*2Byte = 68 Byte
 {
 public:
     static Extruder *current;
-#if FEATURE_DITTO_PRINTING
-    static uint8_t dittoMode;
-#endif
 #if MIXING_EXTRUDER > 0
     static int mixingS; ///< Sum of all weights
     static uint8_t mixingDir; ///< Direction flag

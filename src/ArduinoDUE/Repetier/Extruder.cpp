@@ -21,9 +21,6 @@
 
 #include "Repetier.h"
 
-#if FEATURE_DITTO_PRINTING
-uint8_t Extruder::dittoMode = 0;
-#endif
 #if MIXING_EXTRUDER > 0
 int Extruder::mixingS;
 uint8_t Extruder::mixingDir = 10;
@@ -626,37 +623,6 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
     tc->setTargetTemperature(temperatureInCelsius);
     tc->updateTempControlVars();
     if(temperatureInCelsius >= EXTRUDER_FAN_COOL_TEMP) extruder[extr].coolerPWM = extruder[extr].coolerSpeed;
-    /*
-	Com::printF(Com::tTargetExtr,extr,0);
-    Com::printFLN(Com::tColon,temperatureInCelsius,0);
-	*/
-#if FEATURE_DITTO_PRINTING
-    if(Extruder::dittoMode && extr == 0)
-    {
-        TemperatureController *tc2 = tempController[1];
-        tc2->setTargetTemperature(temperatureInCelsius);
-        tc2->updateTempControlVars();
-        if(temperatureInCelsius >= EXTRUDER_FAN_COOL_TEMP) extruder[1].coolerPWM = extruder[1].coolerSpeed;
-#if NUM_EXTRUDER > 2
-        if(Extruder::dittoMode > 1 && extr == 0)
-        {
-            TemperatureController *tc2 = tempController[2];
-            tc2->setTargetTemperature(temperatureInCelsius);
-            tc2->updateTempControlVars();
-            if(temperatureInCelsius >= EXTRUDER_FAN_COOL_TEMP) extruder[2].coolerPWM = extruder[2].coolerSpeed;
-        }
-#endif
-#if NUM_EXTRUDER > 3
-        if(Extruder::dittoMode > 2 && extr == 0)
-        {
-            TemperatureController *tc2 = tempController[3];
-            tc2->setTargetTemperature(temperatureInCelsius);
-            tc2->updateTempControlVars();
-            if(temperatureInCelsius >= EXTRUDER_FAN_COOL_TEMP) extruder[3].coolerPWM = extruder[3].coolerSpeed;
-        }
-#endif
-    }
-#endif // FEATURE_DITTO_PRINTING
     if(wait && temperatureInCelsius > MAX_ROOM_TEMPERATURE
 #if defined(SKIP_M109_IF_WITHIN) && SKIP_M109_IF_WITHIN > 0
             && !(abs(tc->currentTemperatureC - tc->targetTemperatureC) < (SKIP_M109_IF_WITHIN))// Already in range
@@ -973,24 +939,6 @@ void Extruder::step()
     case 0:
 #if NUM_EXTRUDER > 0
         WRITE(EXT0_STEP_PIN,START_STEP_WITH_HIGH);
-#if FEATURE_DITTO_PRINTING
-        if(Extruder::dittoMode)
-        {
-            WRITE(EXT1_STEP_PIN,START_STEP_WITH_HIGH);
-#if NUM_EXTRUDER > 2
-            if(Extruder::dittoMode > 1)
-            {
-                WRITE(EXT2_STEP_PIN,START_STEP_WITH_HIGH);
-            }
-#endif
-#if NUM_EXTRUDER > 3
-            if(Extruder::dittoMode > 2)
-            {
-                WRITE(EXT3_STEP_PIN,START_STEP_WITH_HIGH);
-            }
-#endif
-        }
-#endif
 #endif
         break;
 #if defined(EXT1_STEP_PIN) && NUM_EXTRUDER > 1
@@ -1037,24 +985,6 @@ void Extruder::unstep()
     case 0:
 #if NUM_EXTRUDER > 0
         WRITE(EXT0_STEP_PIN,!START_STEP_WITH_HIGH);
-#if FEATURE_DITTO_PRINTING
-        if(Extruder::dittoMode)
-        {
-            WRITE(EXT1_STEP_PIN,!START_STEP_WITH_HIGH);
-#if NUM_EXTRUDER > 2
-            if(Extruder::dittoMode > 1)
-            {
-                WRITE(EXT2_STEP_PIN,!START_STEP_WITH_HIGH);
-            }
-#endif
-#if NUM_EXTRUDER > 3
-            if(Extruder::dittoMode > 2)
-            {
-                WRITE(EXT3_STEP_PIN,!START_STEP_WITH_HIGH);
-            }
-#endif // NUM_EXTRUDER > 3
-        }
-#endif // FEATURE_DITTO_PRINTING
 #endif // NUM_EXTRUDER > 0
         break;
 #if defined(EXT1_STEP_PIN) && NUM_EXTRUDER > 1
@@ -1102,33 +1032,6 @@ void Extruder::setDirection(uint8_t dir)
             WRITE(EXT0_DIR_PIN,!EXT0_INVERSE);
         else
             WRITE(EXT0_DIR_PIN,EXT0_INVERSE);
-#if FEATURE_DITTO_PRINTING
-        if(Extruder::dittoMode)
-        {
-            if(dir)
-                WRITE(EXT1_DIR_PIN,!EXT1_INVERSE);
-            else
-                WRITE(EXT1_DIR_PIN,EXT1_INVERSE);
-#if NUM_EXTRUDER > 2
-            if(Extruder::dittoMode > 1)
-            {
-                if(dir)
-                    WRITE(EXT2_DIR_PIN,!EXT2_INVERSE);
-                else
-                    WRITE(EXT2_DIR_PIN,EXT2_INVERSE);
-            }
-#endif
-#if NUM_EXTRUDER > 3
-            if(Extruder::dittoMode > 2)
-            {
-                if(dir)
-                    WRITE(EXT3_DIR_PIN,!EXT3_INVERSE);
-                else
-                    WRITE(EXT3_DIR_PIN,EXT3_INVERSE);
-            }
-#endif
-        }
-#endif
         break;
 #endif
 #if defined(EXT1_DIR_PIN) && NUM_EXTRUDER > 1
@@ -1184,21 +1087,6 @@ void Extruder::enable()
 #else
     if(Extruder::current->enablePin > -1)
         digitalWrite(Extruder::current->enablePin,Extruder::current->enableOn);
-#if FEATURE_DITTO_PRINTING
-    if(Extruder::dittoMode)
-    {
-        if(extruder[1].enablePin > -1)
-            digitalWrite(extruder[1].enablePin,extruder[1].enableOn);
-#if NUM_EXTRUDER > 2
-        if(Extruder::dittoMode > 1 && extruder[2].enablePin > -1)
-            digitalWrite(extruder[2].enablePin,extruder[2].enableOn);
-#endif
-#if NUM_EXTRUDER > 3
-        if(Extruder::dittoMode > 2 && extruder[3].enablePin > -1)
-            digitalWrite(extruder[3].enablePin,extruder[3].enableOn);
-#endif
-    }
-#endif
 #endif
 }
 
@@ -1228,21 +1116,6 @@ void Extruder::disableCurrentExtruderMotor()
 #else // MIXING_EXTRUDER
     if(Extruder::current->enablePin > -1)
         HAL::digitalWrite(Extruder::current->enablePin,!Extruder::current->enableOn);
-#if FEATURE_DITTO_PRINTING
-    if(Extruder::dittoMode)
-    {
-        if(extruder[1].enablePin > -1)
-            HAL::digitalWrite(extruder[1].enablePin,!extruder[1].enableOn);
-#if NUM_EXTRUDER > 2
-        if(Extruder::dittoMode > 1 && extruder[2].enablePin > -1)
-            HAL::digitalWrite(extruder[2].enablePin,!extruder[2].enableOn);
-#endif
-#if NUM_EXTRUDER > 3
-        if(Extruder::dittoMode > 2 && extruder[3].enablePin > -1)
-            HAL::digitalWrite(extruder[3].enablePin,!extruder[3].enableOn);
-#endif
-    }
-#endif
 #endif // MIXING_EXTRUDER
 }
 void Extruder::disableAllExtruderMotors()
