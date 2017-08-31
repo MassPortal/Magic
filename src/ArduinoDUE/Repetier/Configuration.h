@@ -234,12 +234,6 @@ cog. Direct drive extruder need 0. */
 to 0 to disable.
 */
 #define EXT0_WAIT_RETRACT_UNITS 	0
-
-/** You can run any gcode command on extruder deselect/select. Seperate multiple commands with a new line \n.
-That way you can execute some mechanical components needed for extruder selection or retract filament or whatever you need.
-The codes are only executed for multiple extruder when changing the extruder. */
-#define EXT0_SELECT_COMMANDS "M117 Extruder 1"
-#define EXT0_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
 #define EXT0_EXTRUDER_COOLER_PIN HEATER_2_PIN
 /** PWM speed for the cooler fan. 0=off 255=full speed */
@@ -374,10 +368,6 @@ L is the linear factor and seems to be working better then the quadratic depende
 #define EXT2_WAIT_RETRACT_TEMP 	150
 #define EXT1_WAIT_RETRACT_UNITS	0
 #define EXT2_WAIT_RETRACT_UNITS	0
-#define EXT1_SELECT_COMMANDS "M117 Extruder 2"
-#define EXT2_SELECT_COMMANDS "M117 Extruder 3"
-#define EXT1_DESELECT_COMMANDS ""
-#define EXT2_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
 #define EXT1_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
 #define EXT2_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN

@@ -532,12 +532,6 @@ void Extruder::selectExtruderById(uint8_t extruderId)
 	Com::printFLN("SelectExtruder:",static_cast<int>(extruderId));
 #endif
 #if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
-    bool executeSelect = false;
-    if(extruderId != Extruder::current->id)
-    {
-        GCode::executeFString(Extruder::current->deselectCommands);
-        executeSelect = true;
-    }
     Commands::waitUntilEndOfAllMoves();
 #endif
     Extruder::current->extrudePosition = Printer::currentPositionSteps[E_AXIS];
@@ -580,11 +574,6 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     Printer::updateCurrentPosition();
 #if USE_ADVANCE
     HAL::resetExtruderDirection();
-#endif
-
-#if NUM_EXTRUDER > 1 && MIXING_EXTRUDER == 0
-    if(executeSelect) // Run only when changing
-        GCode::executeFString(Extruder::current->selectCommands);
 #endif
 #endif
 }
@@ -1838,31 +1827,6 @@ void Extruder::retract(bool isRetract,bool isLong)
 
 Extruder *Extruder::current;
 
-#if NUM_EXTRUDER>0
-const char ext0_select_cmd[] = EXT0_SELECT_COMMANDS;
-const char ext0_deselect_cmd[] = EXT0_DESELECT_COMMANDS;
-#endif
-#if NUM_EXTRUDER>1
-const char ext1_select_cmd[] = EXT1_SELECT_COMMANDS;
-const char ext1_deselect_cmd[] = EXT1_DESELECT_COMMANDS;
-#endif
-#if NUM_EXTRUDER>2
-const char ext2_select_cmd[] = EXT2_SELECT_COMMANDS;
-const char ext2_deselect_cmd[] = EXT2_DESELECT_COMMANDS;
-#endif
-#if NUM_EXTRUDER>3
-const char ext3_select_cmd[] = EXT3_SELECT_COMMANDS;
-const char ext3_deselect_cmd[] = EXT3_DESELECT_COMMANDS;
-#endif
-#if NUM_EXTRUDER>4
-const char ext4_select_cmd[] = EXT4_SELECT_COMMANDS;
-const char ext4_deselect_cmd[] = EXT4_DESELECT_COMMANDS;
-#endif
-#if NUM_EXTRUDER>5
-const char ext5_select_cmd[] = EXT5_SELECT_COMMANDS;
-const char ext5_deselect_cmd[] = EXT5_DESELECT_COMMANDS;
-#endif
-
 #if NUM_EXTRUDER == 0
 Extruder extruder[1];
 #else
@@ -1889,7 +1853,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
             ,0,0,0,EXT0_DECOUPLE_TEST_PERIOD
         }
-        ,ext0_select_cmd,ext0_deselect_cmd,EXT0_EXTRUDER_COOLER_SPEED,0,0,0
+        ,EXT0_EXTRUDER_COOLER_SPEED,0,0,0
     }
 #endif
 #if NUM_EXTRUDER > 1
@@ -1913,7 +1877,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
             ,0,0,0,EXT1_DECOUPLE_TEST_PERIOD
         }
-        ,ext1_select_cmd,ext1_deselect_cmd,EXT1_EXTRUDER_COOLER_SPEED,0,0,0
+        ,EXT1_EXTRUDER_COOLER_SPEED,0,0,0
     }
 #endif
 #if NUM_EXTRUDER > 2
@@ -1937,7 +1901,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
             ,0,0,0,EXT2_DECOUPLE_TEST_PERIOD
         }
-        ,ext2_select_cmd,ext2_deselect_cmd,EXT2_EXTRUDER_COOLER_SPEED,0,0,0
+        ,EXT2_EXTRUDER_COOLER_SPEED,0,0,0
     }
 #endif
 #if NUM_EXTRUDER > 3
@@ -1961,7 +1925,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
             ,0,0,0,EXT3_DECOUPLE_TEST_PERIOD
         }
-        ,ext3_select_cmd,ext3_deselect_cmd,EXT3_EXTRUDER_COOLER_SPEED,0,0,0
+        ,EXT3_EXTRUDER_COOLER_SPEED,0,0,0
     }
 #endif
 #if NUM_EXTRUDER > 4
@@ -1985,7 +1949,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
             ,0,0,0,EXT4_DECOUPLE_TEST_PERIOD
         }
-        ,ext4_select_cmd,ext4_deselect_cmd,EXT4_EXTRUDER_COOLER_SPEED,0,0,0
+        ,EXT4_EXTRUDER_COOLER_SPEED,0,0,0
     }
 #endif
 #if NUM_EXTRUDER > 5
@@ -2009,7 +1973,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
             ,0,0,0,EXT5_DECOUPLE_TEST_PERIOD
         }
-        ,ext5_select_cmd,ext5_deselect_cmd,EXT5_EXTRUDER_COOLER_SPEED,0,0,0
+        ,EXT5_EXTRUDER_COOLER_SPEED,0,0,0
     }
 #endif
 };

@@ -179,7 +179,6 @@ public:
     /** Frees the cache used by the last command fetched. */
     static void readFromSerial();
     static void pushCommand();
-    static void executeFString(const char* cmd);
     static uint8_t computeBinarySize(char *ptr);
 private:
     void debugCommandBuffer();
