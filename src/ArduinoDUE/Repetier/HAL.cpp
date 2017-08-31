@@ -675,7 +675,7 @@ void PWM_TIMER_VECTOR ()
     if ((pwm_pos_set[5] = (pwm_pos[5] & HEATER_PWM_MASK)) > 0) WRITE(EXT5_HEATER_PIN, !HEATER_PINS_INVERTED);
 #endif
 #if HEATED_BED_HEATER_PIN > -1 && HAVE_HEATED_BED
-    if ((pwm_pos_set[NUM_EXTRUDER] = pwm_pos[NUM_EXTRUDER]) > 0) WRITE(HEATED_BED_HEATER_PIN, !HEATER_PINS_INVERTED);
+    if ((pwm_pos_set[pwm_heated_bed] = pwm_pos[pwm_heated_bed]) > 0) WRITE(HEATED_BED_HEATER_PIN, !HEATER_PINS_INVERTED);
 #endif
   }
   if (pwm_count_cooler == 0)
@@ -773,7 +773,7 @@ void PWM_TIMER_VECTOR ()
     else if(pwm_pos_set[pwm_fan3] == pwm_count_cooler && pwm_pos_set[pwm_fan3] != COOLER_PWM_MASK) WRITE(FAN3_PIN,0);
 #endif
 #if HEATED_BED_HEATER_PIN > -1 && HAVE_HEATED_BED
-  if (pwm_pos_set[NUM_EXTRUDER] == pwm_count_heater && pwm_pos_set[NUM_EXTRUDER] != HEATER_PWM_MASK) WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
+  if (pwm_pos_set[pwm_heated_bed] == pwm_count_heater && pwm_pos_set[pwm_heated_bed] != HEATER_PWM_MASK) WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
 #endif
   // read analog values -- only read one per interrupt
 #if ANALOG_INPUTS > 0

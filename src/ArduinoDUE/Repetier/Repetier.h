@@ -529,7 +529,7 @@ extern const uint8 osAnalogInputChannels[];
 extern volatile uint osAnalogInputValues[ANALOG_INPUTS];
 #endif
 enum {
-    pwm_heated_bed = NUM_EXTRUDER - 1,
+    pwm_heated_bed = NUM_EXTRUDER,
     pwm_board_fan,
     pwm_fan1,
     pwm_fan2,
