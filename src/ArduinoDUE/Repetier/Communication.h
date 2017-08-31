@@ -214,7 +214,6 @@ FSTRINGVAR(tHitZProbe)
 FSTRINGVAR(tZProbeAverage)
 FSTRINGVAR(tZProbeZReset)
 FSTRINGVAR(tZProbeBedDitance)
-FSTRINGVAR(tProbeActionScript)
 FSTRINGVAR(tCalBluetapeScript)
 FSTRINGVAR(tCalPettapeScript)
 #endif

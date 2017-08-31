@@ -1183,8 +1183,6 @@ to recalibrate z.
 #define Z_PROBE_REPETITIONS 1 // Repetitions for probing at one point.
 /** The height is the difference between activated probe position and nozzle height. */
 #define Z_PROBE_HEIGHT 0.0
-/** These scripts are run before resp. after the z-probe is done. Add here code to activate/deactivate probe if needed. */
-#define PROBE_ACTION_SCRIPT "G32 S2"
 
 /*
 Define how we measure the bed rotation. 
@@ -1380,8 +1378,8 @@ goes on as soon as moves occur. Mainly to prevent overheating of stepper drivers
 
 // ####### Advanced stuff for very special function #########
 
-#define NUM_MOTOR_DRIVERS 0
+//#define NUM_MOTOR_DRIVERS 0
 // #define MOTOR_DRIVER_x StepperDriver<int stepPin, int dirPin, int enablePin,bool invertDir, bool invertEnable>(float stepsPerMM,float speed)
-#define MOTOR_DRIVER_1(var) StepperDriver<E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, false, false> var(100.0f,5.0f)
+//#define MOTOR_DRIVER_1(var) StepperDriver<E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, false, false> var(100.0f,5.0f)
 
 #endif /* CONFIGURATION_H */

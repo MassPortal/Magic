@@ -1,6 +1,8 @@
 #ifndef DRIVERS_H_INCLUDED
 #define DRIVERS_H_INCLUDED
 
+#include "Repetier.h"
+
 /**
 For some special printers you need to control extra motors. Possible reasons are
 - Extruder switches

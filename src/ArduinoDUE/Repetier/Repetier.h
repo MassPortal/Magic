@@ -582,6 +582,6 @@ extern volatile int waitRelax; // Delay filament relax at the end of print, coul
 
 #define SQRT(x) HAL::integer32Sqrt(x)
 
-#include "Drivers.h"
+//#include "Drivers.h"
 
 #endif /* _REPETIER_H */

@@ -213,7 +213,6 @@ FSTRINGVALUE(Com::tZProbeAverage,"Z-probe average height:")
 FSTRINGVALUE(Com::tZProbeZReset,"Reset Z height")
 FSTRINGVALUE(Com::tZProbeState,"Z-probe state:")
 FSTRINGVALUE(Com::tHitZProbe,"Hit z-probe")
-FSTRINGVALUE(Com::tProbeActionScript, PROBE_ACTION_SCRIPT)
 #endif
 FSTRINGVALUE(Com::tAutolevelReset,"Autolevel matrix reset")
 FSTRINGVALUE(Com::tAutolevelEnabled,"Autoleveling enabled")
