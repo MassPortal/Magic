@@ -1365,9 +1365,6 @@ void Distortion::measure(void)
     for (iy = DISTORTION_CORRECTION_POINTS - 1; iy >= 0; iy--)
         for (ix = 0; ix < DISTORTION_CORRECTION_POINTS; ix++)
         {
-#if DISTORTION_EXTRAPOLATE_CORNERS
-            if (isCorner(ix, iy)) continue;
-#endif
             float mtx = Printer::invAxisStepsPerMM[X_AXIS] * (ix * step - radiusCorrectionSteps);
             float mty = Printer::invAxisStepsPerMM[Y_AXIS] * (iy * step - radiusCorrectionSteps);
             //Com::printF("mx ",mtx);
@@ -1375,19 +1372,10 @@ void Distortion::measure(void)
             //Com::printF("ix ",(int)ix);
             //Com::printFLN("iy ",(int)iy);
             Printer::moveToReal(mtx, mty, z, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-#if DISTORTION_EXTRAPOLATE_CORNERS
-            setMatrix(floor(0.5f + Printer::axisStepsPerMM[Z_AXIS] * (z -
-                        Printer::runZProbe(ix == 1 && iy == DISTORTION_CORRECTION_POINTS - 1, ix == DISTORTION_CORRECTION_POINTS - 2 && iy == 0, Z_PROBE_REPETITIONS))) + zCorrection,
-                      matrixIndex(ix,iy));
-#else
             setMatrix(floor(0.5f + Printer::axisStepsPerMM[Z_AXIS] * (z -
                         Printer::runZProbe(ix == 0 && iy == DISTORTION_CORRECTION_POINTS - 1, ix == DISTORTION_CORRECTION_POINTS - 1 && iy == 0, Z_PROBE_REPETITIONS))) + zCorrection,
                       matrixIndex(ix,iy));
-#endif
         }
-#if  && DISTORTION_EXTRAPOLATE_CORNERS
-    extrapolateCorners();
-#endif
     // make average center
 	// Disabled since we can use grid measurement to get average plane if that is what we want.
 	// Shifting z with each measuring is a pain and can result in unexpected behavior.

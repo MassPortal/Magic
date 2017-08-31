@@ -1281,9 +1281,6 @@ best bonding with surface. */
 #define DISTORTION_START_DEGRADE 0.5
 /** z distortion correction gets down to 0 at this height. */
 #define DISTORTION_END_HEIGHT 1.5
-/** If your corners measurement points are not measureable with given radius, you can
-set this to 1. It then omits the outer measurement points allowing a larger correction area.*/
-#define DISTORTION_EXTRAPOLATE_CORNERS 0
 
 /** \brief Experimental calibration utility for delta printers
  * Change 1 to 0 to disable
