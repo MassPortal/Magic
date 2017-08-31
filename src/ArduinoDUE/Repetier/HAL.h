@@ -411,14 +411,6 @@ class HAL
 #endif
     }
 
-    static inline void allowInterrupts()
-    {
-      //__enable_irq();
-    }
-    static inline void forbidInterrupts()
-    {
-      //__disable_irq();
-    }
     static void setupTimer();
     static void showStartReason();
     static int getFreeRam();

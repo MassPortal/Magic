@@ -550,7 +550,6 @@ public:
         if(linesPos >= PRINTLINE_CACHE_SIZE) linesPos = 0;
         cur = NULL;
         nlFlag = false;
-        HAL::forbidInterrupts();
         --linesCount;
     }
     static INLINE void pushLine()

@@ -1504,7 +1504,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
         {
             if(lastblk != (int)cur)
             {
-                HAL::allowInterrupts();
                 lastblk = (int)cur;
                 Com::printFLN(Com::tBLK, (int32_t)linesCount);
             }
@@ -1512,7 +1511,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
             PrintLine::nlFlag = false;
             return 2000;
         }
-        HAL::allowInterrupts();
         lastblk = -1;
 #if INCLUDE_DEBUG_NO_MOVE
         if(Printer::debugNoMoves())   // simulate a move, but do nothing in reality
@@ -1579,7 +1577,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
         Printer::vMaxReached = cur->vStart;
         Printer::stepNumber = 0;
         Printer::timer = 0;
-        HAL::forbidInterrupts();
         //Determine direction of movement
         if (curd)
         {
@@ -1611,14 +1608,12 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
 #endif
         return Printer::interval; // Wait an other 50% from last step to make the 100% full
     } // End cur=0
-    HAL::allowInterrupts();
 
     if(curd != NULL)
     {
         curd->checkEndstops(cur,(cur->isCheckEndstops()));
     }
     int maxLoops = (Printer::stepsPerTimerCall <= cur->stepsRemaining ? Printer::stepsPerTimerCall : cur->stepsRemaining);
-    HAL::forbidInterrupts();
     for(int loop = 0; loop < maxLoops; loop++)
     {
 #if STEPPER_HIGH_DELAY + DOUBLE_STEP_DELAY
@@ -1719,7 +1714,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
         }
     } // for loop
 
-    HAL::allowInterrupts(); // Allow interrupts for other types, timer1 is still disabled
 #if RAMP_ACCELERATION
 //If acceleration is enabled on this move and we are in the acceleration segment, calculate the current interval
     if (cur->moveAccelerating())
