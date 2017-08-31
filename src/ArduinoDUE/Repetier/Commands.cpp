@@ -2129,13 +2129,8 @@ void Commands::processMCode(GCode *com)
 #endif
     }
     break;
-    case 355: // M355 S<0/1> - Turn case light on/off, no S = report status
-        if(com->hasS())
-        {
-            Printer::setCaseLight(com->S);
-        }
-        else
-            Printer::reportCaseLightStatus();
+    case 355: // M355 - non-existant case light configuration
+        Com::printInfoFLN("No case lights");
         break;
     case 360: // M360 - show configuration
         Printer::showConfiguration();

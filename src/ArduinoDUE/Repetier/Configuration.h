@@ -1298,10 +1298,6 @@ set this to 1. It then omits the outer measurement points allowing a larger corr
 */
 #define FEATURE_SOFTWARE_LEVELING 1
 
-/* Define a pin to tuen light on/off */
-#define CASE_LIGHTS_PIN -1
-#define CASE_LIGHT_DEFAULT_ON 1
-
 // If you want support for G2/G3 arc commands set to true, otherwise false.
 #define ARC_SUPPORT 1
 

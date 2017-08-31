@@ -886,10 +886,6 @@ void Printer::setup()
     SET_INPUT(EXT5_JAM_PIN);
     PULLUP(EXT5_JAM_PIN, EXT5_JAM_PULLUP);
 #endif // defined
-#if CASE_LIGHTS_PIN >= 0
-    SET_OUTPUT(CASE_LIGHTS_PIN);
-    WRITE(CASE_LIGHTS_PIN, CASE_LIGHT_DEFAULT_ON);
-#endif // CASE_LIGHTS_PIN
 #if defined(SUPPORT_LASER) && SUPPORT_LASER
     LaserDriver::initialize();
 #endif // defined
@@ -1187,24 +1183,6 @@ void Printer::babyStep(float Zmm)
     TC_Start(TIMER1_TIMER, TIMER1_TIMER_CHANNEL);
 }
 
-void Printer::setCaseLight(bool on) {
-#if CASE_LIGHTS_PIN > -1
-    WRITE(CASE_LIGHTS_PIN,on);
-    reportCaseLightStatus();
-#endif
-}
-
-void Printer::reportCaseLightStatus() {
-#if CASE_LIGHTS_PIN > -1
-    if(READ(CASE_LIGHTS_PIN))
-        Com::printInfoFLN("Case lights on");
-    else
-        Com::printInfoFLN("Case lights off");
-#else
-    Com::printInfoFLN("No case lights");
-#endif
-}
-
 #define START_EXTRUDER_CONFIG(i)     Com::printF(Com::tConfig);Com::printF(Com::tExtrDot,i+1);Com::print(':');
 void Printer::showConfiguration() {
     Com::config("Baudrate:",baudrate);
@@ -1227,7 +1205,7 @@ void Printer::showConfiguration() {
     Com::config("ZHomeDir:",Z_HOME_DIR);
     Com::config("SupportG10G11:",FEATURE_RETRACTION);
     Com::config("SupportLocalFilamentchange:",FEATURE_RETRACTION);
-    Com::config("CaseLights:",CASE_LIGHTS_PIN > -1);
+    Com::config("CaseLights:",0);
     Com::config("ZProbe:",FEATURE_Z_PROBE);
     Com::config("Autolevel:",FEATURE_AUTOLEVEL);
     Com::config("EEPROM:",EEPROM_MODE != 0);

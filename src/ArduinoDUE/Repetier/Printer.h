@@ -852,8 +852,6 @@ public:
     static void GoToMemoryPosition(bool x,bool y,bool z,bool e,float feed);
     static void babyStep(float Zmm);
     static void showConfiguration();
-    static void setCaseLight(bool on);
-    static void reportCaseLightStatus();
 	static uint8_t ledVal;
 	static INLINE uint8_t ledCount(bool extLed) {
 		switch (Printer::ledVal) {
