@@ -448,9 +448,9 @@ void EEPROM::initalizeUncached()
 #if BED_LEDS
 	HAL::eprSetFloat(EPR_BED_LED_BRIGHTNESS,LED_MAX_RELATIVE_BRIGHTNESS);
 #endif
-    HAL::eprSetFloat(EPR_AXISCOMP_TANXY,AXISCOMP_TANXY);
-    HAL::eprSetFloat(EPR_AXISCOMP_TANYZ,AXISCOMP_TANYZ);
-    HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,AXISCOMP_TANXZ);
+    HAL::eprSetFloat(EPR_AXISCOMP_TANXY,0);
+    HAL::eprSetFloat(EPR_AXISCOMP_TANYZ,0);
+    HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,0);
     HAL::eprSetFloat(EPR_Z_PROBE_BED_DISTANCE,Z_PROBE_BED_DISTANCE);
     Printer::zBedOffset = HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
     HAL::eprSetFloat(EPR_DELTA_DIAGONAL_ROD_LENGTH,DELTA_DIAGONAL_ROD);
@@ -470,9 +470,9 @@ void EEPROM::initalizeUncached()
     HAL::eprSetFloat(EPR_DELTA_DIAGONAL_CORRECTION_A,DELTA_DIAGONAL_CORRECTION_A);
     HAL::eprSetFloat(EPR_DELTA_DIAGONAL_CORRECTION_B,DELTA_DIAGONAL_CORRECTION_B);
     HAL::eprSetFloat(EPR_DELTA_DIAGONAL_CORRECTION_C,DELTA_DIAGONAL_CORRECTION_C);
-    HAL::eprSetFloat(EPR_AXISCOMP_TANXY,AXISCOMP_TANXY);
-    HAL::eprSetFloat(EPR_AXISCOMP_TANYZ,AXISCOMP_TANYZ);
-    HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,AXISCOMP_TANXZ);
+    HAL::eprSetFloat(EPR_AXISCOMP_TANXY,0);
+    HAL::eprSetFloat(EPR_AXISCOMP_TANYZ,0);
+    HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,0);
     HAL::eprSetByte(EPR_DISTORTION_CORRECTION_ENABLED,0);
 
     HAL::eprSetFloat(EPR_RETRACTION_LENGTH,RETRACTION_LENGTH);
@@ -700,9 +700,9 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
         }
         if(version < 10)
         {
-            HAL::eprSetFloat(EPR_AXISCOMP_TANXY,AXISCOMP_TANXY);
-            HAL::eprSetFloat(EPR_AXISCOMP_TANYZ,AXISCOMP_TANYZ);
-            HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,AXISCOMP_TANXZ);
+            HAL::eprSetFloat(EPR_AXISCOMP_TANXY,0);
+            HAL::eprSetFloat(EPR_AXISCOMP_TANYZ,0);
+            HAL::eprSetFloat(EPR_AXISCOMP_TANXZ,0);
         }
         if(version < 11)
         {
@@ -931,14 +931,6 @@ void EEPROM::writeSettings()
 #if FEATURE_AUTOLEVEL
     writeByte(EPR_AUTOLEVEL_ACTIVE, Com::tAutolevelActive);
 #endif
-
-#if FEATURE_AXISCOMP
-    writeFloat(EPR_AXISCOMP_TANXY, Com::tAxisCompTanXY);
-    writeFloat(EPR_AXISCOMP_TANYZ, Com::tAxisCompTanYZ);
-    writeFloat(EPR_AXISCOMP_TANXZ, Com::tAxisCompTanXZ);
-#endif
-
-
 #if HAVE_HEATED_BED
     writeByte(EPR_BED_HEAT_MANAGER, Com::tEPRBedHeatManager);
 	writeFloat(EPR_BED_LED_BRIGHTNESS, Com::tEPRBedLedBrightness);

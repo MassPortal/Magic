@@ -358,28 +358,6 @@ static inline void setVersion(uint8_t v) {
 #endif
     }
 
-    static inline float axisCompTanXY() {
-#if EEPROM_MODE != 0
-        return HAL::eprGetFloat(EPR_AXISCOMP_TANXY);
-#else
-        return AXISCOMP_TANXY;
-#endif
-    }
-    static inline float axisCompTanYZ() {
-#if EEPROM_MODE != 0
-        return HAL::eprGetFloat(EPR_AXISCOMP_TANYZ);
-#else
-        return AXISCOMP_TANYZ;
-#endif
-    }
-    static inline float axisCompTanXZ() {
-#if EEPROM_MODE != 0
-        return HAL::eprGetFloat(EPR_AXISCOMP_TANXZ);
-#else
-        return AXISCOMP_TANXZ;
-#endif
-    }
-
     static inline int16_t deltaSegmentsPerSecondMove() {
 #if EEPROM_MODE != 0
         return HAL::eprGetInt16(EPR_DELTA_SEGMENTS_PER_SECOND_MOVE);

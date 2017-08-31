@@ -256,11 +256,6 @@ FSTRINGVAR(tEPRBedLedBrightness)
 #if FEATURE_AUTOLEVEL
 FSTRINGVAR(tAutolevelActive)
 #endif
-#if FEATURE_AXISCOMP
-FSTRINGVAR(tAxisCompTanXY)
-FSTRINGVAR(tAxisCompTanYZ)
-FSTRINGVAR(tAxisCompTanXZ)
-#endif
 FSTRINGVAR(tConfigStoredEEPROM)
 FSTRINGVAR(tConfigLoadedEEPROM)
 FSTRINGVAR(tEPRConfigResetDefaults)

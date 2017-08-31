@@ -250,11 +250,6 @@ FSTRINGVALUE(Com::zZProbeBendingCorA,"Z-probe bending correction A [mm]")
 FSTRINGVALUE(Com::zZProbeBendingCorB,"Z-probe bending correction B [mm]")
 FSTRINGVALUE(Com::zZProbeBendingCorC,"Z-probe bending correction C [mm]")
 #endif
-#if FEATURE_AXISCOMP
-FSTRINGVALUE(Com::tAxisCompTanXY,"tanXY Axis Compensation")
-FSTRINGVALUE(Com::tAxisCompTanYZ,"tanYZ Axis Compensation")
-FSTRINGVALUE(Com::tAxisCompTanXZ,"tanXZ Axis Compensation")
-#endif
 
 #if FEATURE_AUTOLEVEL
 FSTRINGVALUE(Com::tAutolevelActive,"Autolevel active (1/0)")
