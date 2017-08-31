@@ -142,10 +142,6 @@ float Printer::memoryZ;
 float Printer::memoryE;
 float Printer::memoryF = -1;
 
-#if FAN_THERMO_PIN > -1
-float Printer::thermoMinTemp = FAN_THERMO_MIN_TEMP;
-float Printer::thermoMaxTemp = FAN_THERMO_MAX_TEMP;
-#endif
 #ifdef DEBUG_SEGMENT_LENGTH
 float Printer::maxRealSegmentLength = 0;
 #endif
@@ -812,10 +808,6 @@ void Printer::setup()
 #if FAN3_PIN > -1
 	SET_OUTPUT(FAN3_PIN);
 	WRITE(FAN3_PIN, LOW);
-#endif
-#if FAN_THERMO_PIN > -1
-	SET_OUTPUT(FAN_THERMO_PIN);
-	WRITE(FAN_THERMO_PIN, LOW);
 #endif
 #if FAN_BOARD_PIN>-1
     SET_OUTPUT(FAN_BOARD_PIN);

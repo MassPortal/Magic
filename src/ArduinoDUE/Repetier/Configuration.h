@@ -1312,23 +1312,6 @@ set this to 1. It then omits the outer measurement points allowing a larger corr
 /** If a checksum is sent, all future comamnds must also contain a checksum. Increases reliability especially for binary protocol. */
 #define FEATURE_CHECKSUM_FORCED 0
 
-/* By setting FAN_BOARD_PIN to a pin number you get a board cooler. That fan 
-goes on as soon as moves occur. Mainly to prevent overheating of stepper drivers. */
-//#undef FAN_BOARD_PIN
-//#define FAN_BOARD_PIN ORIG_FAN_PIN
-
-/* You can have one additional fan controlled by a temperature. You can set
-   set at which temperature it should turn on and at which it should reach max. speed.
-*/
-#define FAN_THERMO_PIN -1
-#define FAN_THERMO_MIN_PWM 128
-#define FAN_THERMO_MAX_PWM 255
-#define FAN_THERMO_MIN_TEMP 45
-#define FAN_THERMO_MAX_TEMP 60
-// Analog pin number or channel for due boards
-#define FAN_THERMO_THERMISTOR_PIN -1
-#define FAN_THERMO_THERMISTOR_TYPE 1
-
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"

@@ -68,24 +68,6 @@ void Extruder::manageTemperatures()
         TemperatureController *act = tempController[controller];
         // Get Temperature
         act->updateCurrentTemperature();
-#if FAN_THERMO_PIN > -1
-		// Special case thermistor controlled fan
-        if(act == &thermoController) {
-			if(act->currentTemperatureC < Printer::thermoMinTemp)
-				pwm_pos[PWM_FAN_THERMO] = 0;
-			else if(act->currentTemperatureC > Printer::thermoMaxTemp)
-				pwm_pos[PWM_FAN_THERMO] = FAN_THERMO_MAX_PWM;
-			else {
-				// Interpolate target speed
-				float out = FAN_THERMO_MIN_PWM + (FAN_THERMO_MAX_PWM-FAN_THERMO_MIN_PWM) * (act->currentTemperatureC - Printer::thermoMinTemp) / (Printer::thermoMaxTemp - Printer::thermoMinTemp);
-				if(out > 255)
-					pwm_pos[PWM_FAN_THERMO] = FAN_THERMO_MAX_PWM;
-				else
-					pwm_pos[PWM_FAN_THERMO] = static_cast<uint8_t>(out);
-			}
-			continue;
-		}
-#endif
 #if CHAMBER_SENSOR_PIN > -1
 		if (act == &chamberController) continue;
 #endif
@@ -1987,14 +1969,6 @@ TemperatureController heatedBedController = {PWM_HEATED_BED,HEATED_BED_SENSOR_TY
         ,0,0,0,HEATED_BED_DECOUPLE_TEST_PERIOD};
 #endif
 
-#if FAN_THERMO_PIN > -1
-TemperatureController thermoController = {PWM_FAN_THERMO,FAN_THERMO_THERMISTOR_TYPE,THERMO_ANALOG_INDEX,0,0,0,0,0,0
-	#if TEMP_PID
-	,0,255,0,10,1,1,255,0,0,0,{0,0,0,0}
-	#endif
-,0,0,0,0};
-#endif
-
 #if CHAMBER_SENSOR_PIN > -1
 TemperatureController chamberController = { 0,CHAMBER_TEMPSENSOR_TYPE,CHAMBER_ANALOG_INDEX,0,0,0,0,0,0
 #if TEMP_PID
@@ -2031,13 +2005,6 @@ TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
     ,&heatedBedController
 #endif
 #endif
-#if FAN_THERMO_PIN > -1
-#if NUM_EXTRUDER == 0 && !HAVE_HEATED_BED
-	&thermoController
-#else
-	,&thermoController
-#endif
-#endif // FAN_THERMO_PIN
 
 #if CHAMBER_SENSOR_PIN > -1
 #if NUM_EXTRUDER == 0 && !HAVE_HEATED_BED
