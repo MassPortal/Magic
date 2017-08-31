@@ -91,7 +91,7 @@ void Extruder::manageTemperatures()
                     }
                 }
 #if SHARED_COOLER_BOARD_EXT
-                if(pwm_pos[PWM_BOARD_FAN]) enable = true;
+                if(pwm_pos[pwm_board_fan]) enable = true;
 #endif
                 extruder[0].coolerPWM = (enable ? extruder[0].coolerSpeed : 0);
             } // controller == 0
@@ -671,9 +671,9 @@ void Extruder::setHeatedBedTemperature(float temperatureInCelsius)
     heatedBedController.setTargetTemperature(temperatureInCelsius);
     Com::printFLN(Com::tTargetBedColon,heatedBedController.targetTemperatureC,0);
     if(temperatureInCelsius > 15)
-        pwm_pos[PWM_BOARD_FAN] = 255;    // turn on the mainboard cooling fan
+        pwm_pos[pwm_board_fan] = 255;    // turn on the mainboard cooling fan
     else if(Printer::areAllSteppersDisabled())
-        pwm_pos[PWM_BOARD_FAN] = 0;      // turn off the mainboard cooling fan only if steppers disabled
+        pwm_pos[pwm_board_fan] = 0;      // turn off the mainboard cooling fan only if steppers disabled
 #endif
 }
 
@@ -1962,7 +1962,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif // NUM_EXTRUDER
 
 #if HAVE_HEATED_BED
-TemperatureController heatedBedController = {PWM_HEATED_BED,HEATED_BED_SENSOR_TYPE,BED_SENSOR_INDEX,0,0,0,0,0,HEATED_BED_HEAT_MANAGER
+TemperatureController heatedBedController = {pwm_heated_bed,HEATED_BED_SENSOR_TYPE,BED_SENSOR_INDEX,0,0,0,0,0,HEATED_BED_HEAT_MANAGER
 #if TEMP_PID
         ,0,HEATED_BED_PID_INTEGRAL_DRIVE_MAX,HEATED_BED_PID_INTEGRAL_DRIVE_MIN,HEATED_BED_PID_PGAIN_OR_DEAD_TIME,HEATED_BED_PID_IGAIN,HEATED_BED_PID_DGAIN,HEATED_BED_PID_MAX,0,0,0,{0,0,0,0}
 #endif

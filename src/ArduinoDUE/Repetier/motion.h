@@ -60,7 +60,7 @@ typedef struct
 {
     flag8_t dir; 									///< Direction of delta movement.
     uint16_t deltaSteps[TOWER_ARRAY];   				    ///< Number of steps in move.
-    inline void checkEndstops(PrintLine *cur,bool checkall);
+    inline void checkEndstops(PrintLine *cur);
     inline void setXMoveFinished()
     {
         dir &= ~XSTEP;

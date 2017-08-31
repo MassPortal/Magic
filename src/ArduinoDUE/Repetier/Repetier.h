@@ -528,14 +528,16 @@ extern const uint8 osAnalogInputChannels[];
 #if ANALOG_INPUTS > 0
 extern volatile uint osAnalogInputValues[ANALOG_INPUTS];
 #endif
-#define PWM_HEATED_BED NUM_EXTRUDER
-#define PWM_BOARD_FAN PWM_HEATED_BED+1
-#define PWM_FAN1 PWM_BOARD_FAN+1
-#define PWM_FAN2 PWM_FAN1+1
-#define PWM_FAN3 PWM_FAN2+1
-#define PWM_CHAMB PWM_FAN3+1
-#define NUM_PWM PWM_CHAMB+1
-extern uint8_t pwm_pos[NUM_PWM]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
+enum {
+    pwm_heated_bed = NUM_EXTRUDER - 1,
+    pwm_board_fan,
+    pwm_fan1,
+    pwm_fan2,
+    pwm_fan3,
+    pwm_chamb,
+    num_pwm
+};
+extern uint8_t pwm_pos[num_pwm]; // 0-NUM_EXTRUDER = Heater 0-NUM_EXTRUDER of extruder, NUM_EXTRUDER = Heated bed, NUM_EXTRUDER+1 Board fan, NUM_EXTRUDER+2 = Fan
 #if USE_ADVANCE
 #if ENABLE_QUADRATIC_ADVANCE
 extern int maxadv;

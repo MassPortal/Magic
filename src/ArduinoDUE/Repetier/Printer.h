@@ -659,7 +659,7 @@ public:
     {
         flag0 &= ~PRINTER_FLAG0_STEPPER_DISABLED;
 #if FAN_BOARD_PIN>-1
-        pwm_pos[PWM_BOARD_FAN] = 255;
+        pwm_pos[pwm_board_fan] = 255;
 #endif // FAN_BOARD_PIN
     }
     static INLINE bool isAnyTempsensorDefect()
@@ -809,15 +809,15 @@ public:
     static bool isPositionAllowed(float x,float y,float z);
     static INLINE int getFanSpeed()
     {
-        return (int)pwm_pos[PWM_FAN1];
+        return (int)pwm_pos[pwm_fan1];
     }
     static INLINE int getFan2Speed()
     {
-	    return (int)pwm_pos[PWM_FAN2];
+	    return (int)pwm_pos[pwm_fan2];
     }
 	static INLINE int getFan3Speed()
 	{
-		return (int)pwm_pos[PWM_FAN3];
+		return (int)pwm_pos[pwm_fan3];
 	}
     static INLINE void setDeltaPositions(long xaxis, long yaxis, long zaxis)
     {

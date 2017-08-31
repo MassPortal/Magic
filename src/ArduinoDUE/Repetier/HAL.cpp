@@ -651,7 +651,7 @@ void PWM_TIMER_VECTOR ()
 
   static uint8_t pwm_count_cooler = 0;
   static uint8_t pwm_count_heater = 0;
-  static uint8_t pwm_pos_set[NUM_PWM];
+  static uint8_t pwm_pos_set[num_pwm];
   static uint8_t pwm_cooler_pos_set[NUM_EXTRUDER];
 
   if (pwm_count_heater == 0)
@@ -712,13 +712,13 @@ void PWM_TIMER_VECTOR ()
         if((pwm_pos_set[PWM_BOARD_FAN] = (pwm_pos[PWM_BOARD_FAN] & COOLER_PWM_MASK)) > 0) WRITE(FAN_BOARD_PIN,1);
 #endif
 #if FAN_PIN > -1
-        if((pwm_pos_set[PWM_FAN1] = (pwm_pos[PWM_FAN1] & COOLER_PWM_MASK)) > 0) WRITE(FAN_PIN,1);
+        if((pwm_pos_set[pwm_fan1] = (pwm_pos[pwm_fan1] & COOLER_PWM_MASK)) > 0) WRITE(FAN_PIN,1);
 #endif
 #if FAN2_PIN > -1
-		if((pwm_pos_set[PWM_FAN2] = (pwm_pos[PWM_FAN2] & COOLER_PWM_MASK)) > 0) WRITE(FAN2_PIN,1);
+		if((pwm_pos_set[pwm_fan2] = (pwm_pos[pwm_fan2] & COOLER_PWM_MASK)) > 0) WRITE(FAN2_PIN,1);
 #endif
 #if FAN3_PIN > -1
-		if((pwm_pos_set[PWM_FAN3] = (pwm_pos[PWM_FAN3] & COOLER_PWM_MASK)) > 0) WRITE(FAN3_PIN,1);
+		if((pwm_pos_set[pwm_fan3] = (pwm_pos[pwm_fan3] & COOLER_PWM_MASK)) > 0) WRITE(FAN3_PIN,1);
 #endif
   }
 #if defined(EXT0_HEATER_PIN) && EXT0_HEATER_PIN > -1
@@ -762,15 +762,15 @@ void PWM_TIMER_VECTOR ()
 #endif
 #if FAN_PIN > -1
     if (fanKickstart) fanKickstart--;
-    else if(pwm_pos_set[PWM_FAN1] == pwm_count_cooler && pwm_pos_set[PWM_FAN1] != COOLER_PWM_MASK) WRITE(FAN_PIN,0);
+    else if(pwm_pos_set[pwm_fan1] == pwm_count_cooler && pwm_pos_set[pwm_fan1] != COOLER_PWM_MASK) WRITE(FAN_PIN,0);
 #endif
 #if FAN2_PIN > -1
     if (fan2Kickstart) fan2Kickstart--;
-    else if(pwm_pos_set[PWM_FAN2] == pwm_count_cooler && pwm_pos_set[PWM_FAN2] != COOLER_PWM_MASK) WRITE(FAN2_PIN,0);
+    else if(pwm_pos_set[pwm_fan2] == pwm_count_cooler && pwm_pos_set[pwm_fan2] != COOLER_PWM_MASK) WRITE(FAN2_PIN,0);
 #endif
 #if FAN3_PIN > -1
     if (fan3Kickstart) fan3Kickstart--;
-    else if(pwm_pos_set[PWM_FAN3] == pwm_count_cooler && pwm_pos_set[PWM_FAN3] != COOLER_PWM_MASK) WRITE(FAN3_PIN,0);
+    else if(pwm_pos_set[pwm_fan3] == pwm_count_cooler && pwm_pos_set[pwm_fan3] != COOLER_PWM_MASK) WRITE(FAN3_PIN,0);
 #endif
 #if HEATED_BED_HEATER_PIN > -1 && HAVE_HEATED_BED
   if (pwm_pos_set[NUM_EXTRUDER] == pwm_count_heater && pwm_pos_set[NUM_EXTRUDER] != HEATER_PWM_MASK) WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
