@@ -16,15 +16,13 @@ extern bool reportTempsensorError(); ///< Report defect sensors
 #define HTR_SLOWBANG 2
 #define HTR_DEADTIME 3
 
-typedef struct {
-    uint8_t alarm : 1;
-    uint8_t decoupleFull : 1;
-    uint8_t decoupleHold : 1;
-    uint8_t sensDefect : 1;
-    uint8_t sensDecouple : 1;
-    uint8_t jam : 1;
-    uint8_t slowdown : 1;
-} tcFlag_t;
+#define TEMPERATURE_CONTROLLER_FLAG_ALARM 1
+#define TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_FULL 2  //< Full heating enabled
+#define TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_HOLD 4  //< Holding target temperature
+#define TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT    8  //< Indicating sensor defect
+#define TEMPERATURE_CONTROLLER_FLAG_SENSDECOUPLED 16 //< Indicating sensor decoupling
+#define TEMPERATURE_CONTROLLER_FLAG_JAM           32 //< Indicates a jammed filament
+#define TEMPERATURE_CONTROLLER_FLAG_SLOWDOWN      64 //< Indicates a slowed down extruder
 
 /** TemperatureController manages one heater-temperature sensore loop. You can have up to
 4 loops allowing pid/bang bang for up to 3 extruder and the heated bed.
@@ -57,7 +55,7 @@ public:
     uint8_t tempPointer;
     float tempArray[4];
 #endif
-    tcFlag_t flag;
+    uint8_t flags;
     millis_t lastDecoupleTest;  ///< Last time of decoupling sensor-heater test
     float  lastDecoupleTemp;  ///< Temperature on last test
     millis_t decoupleTestPeriod; ///< Time between setting and testing decoupling.
@@ -67,33 +65,34 @@ public:
     void updateTempControlVars();
     inline bool isAlarm()
     {
-        return flag.alarm;
+        return flags & TEMPERATURE_CONTROLLER_FLAG_ALARM;
     }
     inline void setAlarm(bool on)
     {
-        flag.alarm = on;
+        if(on) flags |= TEMPERATURE_CONTROLLER_FLAG_ALARM;
+        else flags &= ~TEMPERATURE_CONTROLLER_FLAG_ALARM;
     }
     inline bool isDecoupleFull()
     {
-        return flag.decoupleFull;
+        return flags & TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_FULL;
     }
     inline bool isDecoupleFullOrHold()
     {
-        return flag.decoupleFull || flag.decoupleHold;
+        return flags & (TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_FULL | TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_HOLD);
     }
     inline void setDecoupleFull(bool on)
     {
-        flag.decoupleHold = false;
-        flag.decoupleFull = on;
+        flags &= ~(TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_FULL | TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_HOLD);
+        if(on) flags |= TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_FULL;
     }
     inline bool isDecoupleHold()
     {
-        return flag.decoupleHold;
+        return flags & TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_HOLD;
     }
     inline void setDecoupleHold(bool on)
     {
-        flag.decoupleFull = false;
-        flag.decoupleHold = on;
+        flags &= ~(TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_FULL | TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_HOLD);
+        if(on) flags |= TEMPERATURE_CONTROLLER_FLAG_DECOUPLE_HOLD;
     }
     inline void startFullDecouple(millis_t &t)
     {
@@ -116,11 +115,11 @@ public:
     }
     inline bool isSensorDefect()
     {
-        return flag.sensDefect;
+        return flags & TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT;
     }
     inline bool isSensorDecoupled()
     {
-        return flag.sensDecouple;
+        return flags & TEMPERATURE_CONTROLLER_FLAG_SENSDECOUPLED;
     }
     void waitForTargetTemperature();
 #if TEMP_PID

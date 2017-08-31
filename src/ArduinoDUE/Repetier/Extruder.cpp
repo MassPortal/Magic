@@ -135,7 +135,7 @@ void Extruder::manageTemperatures()
 				extruderTempErrors++;
 			else
 			{
-				act->flag.sensDefect = true;
+				act->flags |= TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT;
 				if (!Printer::isAnyTempsensorDefect())
 				{
 					newDefectFound = true;
@@ -151,7 +151,7 @@ void Extruder::manageTemperatures()
             extruderTempErrors++;
             else
             {
-	            act->flag.sensDefect = true;
+	            act->flags |= TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT;
 				Com::printErrorFLN("Heated bed exceeded max temperature!");
 	            if(!Printer::isAnyTempsensorDefect())
 	            {
@@ -180,7 +180,7 @@ void Extruder::manageTemperatures()
                     errorDetected = 1;
                     if(extruderTempErrors > 10)   // Ignore short temporary failures
                     {
-                        act->flag.sensDecouple = true;
+                        act->flags |= TEMPERATURE_CONTROLLER_FLAG_SENSDECOUPLED;
 						
 						if(!Printer::isAnyTempsensorDefect())
 						{
@@ -207,7 +207,7 @@ void Extruder::manageTemperatures()
                     errorDetected = 1;
                     if(extruderTempErrors > 10)   // Ignore short temporary failures
                     {
-                        act->flag.sensDecouple = true;
+                        act->flags |= TEMPERATURE_CONTROLLER_FLAG_SENSDECOUPLED;
 						if(!Printer::isAnyTempsensorDefect())
 						{
 							Printer::setAnyTempsensorDefect();
@@ -1710,9 +1710,9 @@ bool reportTempsensorError()
             Com::printF(Com::tTempSensorDefect);
         else
             Com::printF(Com::tTempSensorWorking);
-		if(act->flag.sensDefect)
-			Com::printF(" marked defect");
-		if(act->flag.sensDecouple)
+		if(act->flags & TEMPERATURE_CONTROLLER_FLAG_SENSDEFECT)
+			Com::printF(" marked defect");	
+		if(act->flags & TEMPERATURE_CONTROLLER_FLAG_SENSDECOUPLED)
 			Com::printF(" marked decoupled");
 		Com::println();
     }
