@@ -152,22 +152,11 @@ class InterruptProtectedBlock {
     }
 };
 
-#define EEPROM_OFFSET               0
-#define SECONDS_TO_TICKS(s) (unsigned long)(s*(float)F_CPU)
 #define ANALOG_INPUT_SAMPLE 6
 #define ANALOG_INPUT_MEDIAN 10
 
-// Bits of the ADC converter
-#define ANALOG_INPUT_BITS 12
-#define ANALOG_REDUCE_BITS 0
-#define ANALOG_REDUCE_FACTOR 1
-
 // maximum available RAM
 #define MAX_RAM 98303u
-
-#define bit_clear(x,y) x&= ~(1<<y) //cbi(x,y)
-#define bit_set(x,y)   x|= (1<<y)//sbi(x,y)
-
 /** defines the data direction (reading from I2C device) in i2cStart(),i2cRepStart() */
 #define I2C_READ    1
 /** defines the data direction (writing to I2C device) in i2cStart(),i2cRepStart() */

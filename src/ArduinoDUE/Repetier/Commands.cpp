@@ -103,7 +103,7 @@ void Commands::printTemperatures(bool showRaw)
     if(showRaw)
     {
         Com::printF(Com::tSpaceRaw,(int)NUM_EXTRUDER);
-        Com::printF(Com::tColon,(1023 << (2 - ANALOG_REDUCE_BITS)) - heatedBedController.currentTemperature);
+        Com::printF(Com::tColon,(1023 << 2) - heatedBedController.currentTemperature);
     }
     //Com::printF(Com::tSpaceBAtColon,(pwm_pos[heatedBedController.pwmIndex])); // Show output of autotune when tuning!
 #endif

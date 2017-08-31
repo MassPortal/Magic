@@ -1038,7 +1038,7 @@ uint8_t EEPROM::computeChecksum()
     uint8_t checksum = 0;
     for(i = 0; i < 2048; i++)
     {
-        if(i == EEPROM_OFFSET + EPR_INTEGRITY_BYTE) continue;
+        if(i == EPR_INTEGRITY_BYTE) continue;
         checksum += HAL::eprGetByte(i);
     }
     return checksum;

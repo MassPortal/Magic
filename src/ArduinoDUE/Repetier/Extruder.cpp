@@ -393,7 +393,7 @@ void createGenericTable(short table[GENERIC_THERM_NUM_ENTRIES][2],short minTemp,
         int adc = static_cast<int>(v);
         t *= 8;
         if(adc > 4092) adc = 4092;
-        table[i][0] = (adc >> (ANALOG_REDUCE_BITS));
+        table[i][0] = adc;
         table[i][1] = static_cast<int>(t);
 #ifdef DEBUG_GENERIC
         Com::printF(Com::tGenTemp,table[i][0]);
@@ -1238,7 +1238,7 @@ void TemperatureController::updateCurrentTemperature()
     case 97:
     case 98:
     case 99:
-        currentTemperature = (1023 << (2 - ANALOG_REDUCE_BITS)) - (osAnalogInputValues[sensorPin] >> (ANALOG_REDUCE_BITS)); // Convert to 10 bit result
+        currentTemperature = (1023 << 2) - osAnalogInputValues[sensorPin]; // Convert to 10 bit result
         break;
     case 13: // PT100 E3D
     case 50: // User defined PTC table
@@ -1247,7 +1247,7 @@ void TemperatureController::updateCurrentTemperature()
     case 60: // HEATER_USES_AD8495 (Delivers 5mV/degC)
     case 61: // HEATER_USES_AD8495 (Delivers 5mV/degC) 1.25v offset
     case 100: // AD595 / AD597
-        currentTemperature = (osAnalogInputValues[sensorPin] >> (ANALOG_REDUCE_BITS));
+        currentTemperature = osAnalogInputValues[sensorPin];
         break;
 #endif
 #ifdef SUPPORT_MAX6675
@@ -1289,7 +1289,7 @@ void TemperatureController::updateCurrentTemperature()
         int16_t oldraw = temptable[0];
         int16_t oldtemp = temptable[1];
         int16_t newraw,newtemp = 0;
-        currentTemperature = (1023 << (2 - ANALOG_REDUCE_BITS)) - currentTemperature;
+        currentTemperature = (1023 << 2) - currentTemperature;
         while(i < num)
         {
             newraw = temptable[i++];
@@ -1338,14 +1338,14 @@ void TemperatureController::updateCurrentTemperature()
         break;
     }
     case 60: // AD8495 (Delivers 5mV/degC vs the AD595's 10mV)
-        currentTemperatureC = ((float)currentTemperature * 660.0f / (1024 << (2 - ANALOG_REDUCE_BITS)));
+        currentTemperatureC = ((float)currentTemperature * 660.0f / (1024 << 2));
         break;
     case 61: // AD8495 1.25V Vref offset (like Adafruit 8495 breakout board)
-        currentTemperatureC = ((float)currentTemperature * 660.0f / (1024 << (2 - ANALOG_REDUCE_BITS))) - 250.0f;
+        currentTemperatureC = ((float)currentTemperature * 660.0f / (1024 << 2)) - 250.0f;
         break;
     case 100: // AD595 / AD597   10mV/°C
         //return (int)((long)raw_temp * 500/(1024<<(2-ANALOG_REDUCE_BITS)));
-        currentTemperatureC = ((float)currentTemperature * 500.0f / (1024 << (2 - ANALOG_REDUCE_BITS)));
+        currentTemperatureC = ((float)currentTemperature * 500.0f / (1024 << 2));
         break;
 #ifdef SUPPORT_MAX6675
     case 101: // MAX6675
@@ -1379,7 +1379,7 @@ void TemperatureController::updateCurrentTemperature()
         short oldraw = temptable[0];
         short oldtemp = temptable[1];
         short newraw,newtemp;
-        currentTemperature = (1023 << (2 - ANALOG_REDUCE_BITS)) - currentTemperature;
+        currentTemperature = (1023 << 2) - currentTemperature;
         while(i<GENERIC_THERM_NUM_ENTRIES*2)
         {
             newraw = temptable[i++];
@@ -1437,14 +1437,14 @@ void TemperatureController::setTargetTemperature(float target)
             newtemp = temptable[i++];
             if (newtemp < temp)
             {
-                targetTemperature = (1023 << (2 - ANALOG_REDUCE_BITS))- oldraw + (int32_t)(oldtemp - temp) * (int32_t)(oldraw - newraw) / (oldtemp - newtemp);
+                targetTemperature = (1023 << 2)- oldraw + (int32_t)(oldtemp - temp) * (int32_t)(oldraw - newraw) / (oldtemp - newtemp);
                 return;
             }
             oldtemp = newtemp;
             oldraw = newraw;
         }
         // Overflow: Set to last value in the table
-        targetTemperature = (1023<<(2-ANALOG_REDUCE_BITS))-newraw;
+        targetTemperature = (1023<<2)-newraw;
         break;
     }
     case 13: // PT100 E3D
@@ -1479,10 +1479,10 @@ void TemperatureController::setTargetTemperature(float target)
         break;
     }
     case 60: // HEATER_USES_AD8495 (Delivers 5mV/degC)
-        targetTemperature = (int)((int32_t)temp * (1024 << (2 - ANALOG_REDUCE_BITS))/ 1000);
+        targetTemperature = (int)((int32_t)temp * (1024 << 2)/ 1000);
         break;
     case 100: // HEATER_USES_AD595
-        targetTemperature = (int)((int32_t)temp * (1024 << (2 - ANALOG_REDUCE_BITS))/ 500);
+        targetTemperature = (int)((int32_t)temp * (1024 << 2)/ 500);
         break;
 #ifdef SUPPORT_MAX6675
     case 101:  // defined HEATER_USES_MAX6675
@@ -1522,14 +1522,14 @@ void TemperatureController::setTargetTemperature(float target)
             newtemp = temptable[i++];
             if (newtemp < temp)
             {
-                targetTemperature = (1023 << (2 - ANALOG_REDUCE_BITS)) - oldraw + (int32_t)(oldtemp-temp) * (int32_t)(oldraw-newraw) / (oldtemp-newtemp);
+                targetTemperature = (1023 << 2) - oldraw + (int32_t)(oldtemp-temp) * (int32_t)(oldraw-newraw) / (oldtemp-newtemp);
                 return;
             }
             oldtemp = newtemp;
             oldraw = newraw;
         }
         // Overflow: Set to last value in the table
-        targetTemperature = (1023 << (2 - ANALOG_REDUCE_BITS)) - newraw;
+        targetTemperature = (1023 << 2) - newraw;
         break;
     }
 #endif
