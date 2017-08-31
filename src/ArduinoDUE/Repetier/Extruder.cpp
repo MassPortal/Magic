@@ -1802,16 +1802,16 @@ void Extruder::retract(bool isRetract,bool isLong)
     float distance = (isLong ? EEPROM_FLOAT( RETRACTION_LONG_LENGTH) : EEPROM_FLOAT(RETRACTION_LENGTH));
     float zLiftF = EEPROM_FLOAT(RETRACTION_Z_LIFT);
     int32_t zlift = static_cast<int32_t>(zLiftF * Printer::axisStepsPerMM[Z_AXIS]);
-    if(isRetract && !flag.retracted)
+    if(isRetract && !isRetracted())
     {
         retractDistance(distance);
-        flag.retracted = true;
+        setRetracted(true);
         if(zlift > 0) {
             PrintLine::moveRelativeDistanceInStepsReal(0,0,zlift,0,Printer::maxFeedrate[Z_AXIS], false);
             Printer::coordinateOffset[Z_AXIS] -= zLiftF;
         }
     }
-    else if(!isRetract && flag.retracted)
+    else if(!isRetract && isRetracted())
     {
         distance += (isLong ? EEPROM_FLOAT(RETRACTION_UNDO_EXTRA_LONG_LENGTH) : EEPROM_FLOAT(RETRACTION_UNDO_EXTRA_LENGTH) );
         if(zlift > 0) {
@@ -1819,7 +1819,7 @@ void Extruder::retract(bool isRetract,bool isLong)
             Printer::coordinateOffset[Z_AXIS] += zLiftF;
         }
         retractDistance(-distance);
-        flag.retracted = false;
+        setRetracted(false);
     }
     Printer::feedrate = oldFeedrate;
 }
