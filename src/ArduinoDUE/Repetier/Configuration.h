@@ -240,10 +240,6 @@ to 0 to disable.
 #define EXT0_EXTRUDER_COOLER_SPEED 255
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
 #define EXT0_DECOUPLE_TEST_PERIOD 18000
-/** Pin which toggles regualrly during extrusion allowing jam control. -1 = disabled */
-#define EXT0_JAM_PIN -1
-/** Pullup resistor for jam pin? */
-#define EXT0_JAM_PULLUP false
 
 // =========================== Configuration for second extruder ========================
 #define EXT1_X_OFFSET 0
@@ -377,10 +373,6 @@ L is the linear factor and seems to be working better then the quadratic depende
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
 #define EXT1_DECOUPLE_TEST_PERIOD 18000
 #define EXT2_DECOUPLE_TEST_PERIOD 18000
-/** Pin which toggles regualrly during extrusion allowing jam control. -1 = disabled */
-#define EXT1_JAM_PIN -1
-/** Pullup resistor for jam pin? */
-#define EXT1_JAM_PULLUP false
 
 /** If enabled you can select the distance your filament gets retracted during a
 M140 command, after a given temperature is reached. */
