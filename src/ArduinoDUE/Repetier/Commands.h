@@ -49,4 +49,5 @@ public:
 	static void fillDefAxisDir();
 };
 bool cmpf(float a, float b);
+bool enableZprobe(bool probeState);
 #endif // COMMANDS_H_INCLUDED
