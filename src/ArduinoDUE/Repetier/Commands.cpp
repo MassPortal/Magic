@@ -668,8 +668,6 @@ void Commands::processGCode(GCode *com)
 	}
 	break;
 	case 31:  // G31 display hall sensor output
-		Endstops::update();
-		Endstops::update();
 		Com::printF(Com::tZProbeState);
 		Com::printF(Endstops::zProbe() ? Com::tHSpace : Com::tLSpace);
 		Com::println();
@@ -1865,8 +1863,6 @@ void Commands::processMCode(GCode *com)
         break;
     case 119: // M119
         Commands::waitUntilEndOfAllMoves();
-        Endstops::update();
-        Endstops::update(); // double test to get right signal. Needed for crosstalk protection.
         Endstops::report();
         break;
 #if MIXING_EXTRUDER > 0
@@ -2326,8 +2322,6 @@ void Commands::processMCode(GCode *com)
                 Com::printFLN("No side door");
 				break;
 			case 3: //Z probe switch
-				Endstops::update();
-				Endstops::update();
 				if ((Printer::probeType == 2) ? !Endstops::zProbe(): Endstops::zProbe())
 					Com::printFLN("1#Probe switch activated");
 				else
@@ -2463,8 +2457,6 @@ bool cmpf(float a, float b)
 bool enableZprobe(bool probeState)
 {
 	Commands::waitUntilEndOfAllMoves();
-	Endstops::update();
-	Endstops::update();
   if (probeState) // Probe has to be activated
   {
     // Probe switch activation
@@ -2480,8 +2472,6 @@ bool enableZprobe(bool probeState)
         Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-7, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Pecking motion as we have no idea when switch is triggered until it is released
         Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]+5.5, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Rise to check
         Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
-        Endstops::update(); // Update enstop positions
-        Endstops::update(); // and protection agains cross-talk
 		if (Printer::currentPosition[Z_AXIS] < probeDepth) {
 			Com::printErrorFLN("[003] Could not activate z-probe!");
 			return false;
@@ -2511,8 +2501,6 @@ bool enableZprobe(bool probeState)
         Printer::moveToReal(IGNORE_COORDINATE, IGNORE_COORDINATE, Printer::currentPosition[Z_AXIS]-0.4, IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]); // Move down with 0.5mm step
         returnPosition += 0.4;
         Commands::waitUntilEndOfAllMoves(); // ... and disable command buffering
-        Endstops::update(); // Update enstop positions
-        Endstops::update(); // and protection agains cross-talk
 		if (Printer::currentPosition[Z_AXIS] < probeDepth) {
 			Com::printErrorFLN("[003] Could not deactivate z-probe!");
 			return false; //break out

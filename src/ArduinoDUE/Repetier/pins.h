@@ -27,17 +27,14 @@ STEPPER_CURRENT_CONTROL
 
 #define ORIG_X_STEP_PIN     24
 #define ORIG_X_DIR_PIN      23
-#define ORIG_X_MAX_PIN      34
 #define ORIG_X_ENABLE_PIN   26
 
 #define ORIG_Y_STEP_PIN     17 
 #define ORIG_Y_DIR_PIN      16
-#define ORIG_Y_MAX_PIN      36
 #define ORIG_Y_ENABLE_PIN   22
 
 #define ORIG_Z_STEP_PIN     2
 #define ORIG_Z_DIR_PIN      3
-#define ORIG_Z_MAX_PIN      38
 #define ORIG_Z_ENABLE_PIN   15
 
 // Note that on the Due pin A0 on the board is channel 2 on the ARM chip
@@ -156,17 +153,17 @@ STEPPER_CURRENT_CONTROL
 #define X_STEP_PIN ORIG_X_STEP_PIN
 #define X_DIR_PIN ORIG_X_DIR_PIN
 #define X_ENABLE_PIN ORIG_X_ENABLE_PIN
-#define X_MAX_PIN ORIG_X_MAX_PIN
+#define X_MAX_PIN 34
 
 #define Y_STEP_PIN ORIG_Y_STEP_PIN
 #define Y_DIR_PIN ORIG_Y_DIR_PIN
 #define Y_ENABLE_PIN ORIG_Y_ENABLE_PIN
-#define Y_MAX_PIN ORIG_Y_MAX_PIN
+#define Y_MAX_PIN 36
 
 #define Z_STEP_PIN ORIG_Z_STEP_PIN
 #define Z_DIR_PIN ORIG_Z_DIR_PIN
 #define Z_ENABLE_PIN ORIG_Z_ENABLE_PIN
-#define Z_MAX_PIN ORIG_Z_MAX_PIN
+#define Z_MAX_PIN 38
 
 #define E0_STEP_PIN ORIG_E0_STEP_PIN
 #define E0_DIR_PIN ORIG_E0_DIR_PIN

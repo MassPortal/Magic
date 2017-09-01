@@ -887,7 +887,6 @@ void DeltaSegment::checkEndstops(PrintLine *cur)
 {
     if(Printer::isZProbingActive())
     {
-		Endstops::update();
         if(isZNegativeMove() && Endstops::zProbe())
         {
             cur->setXMoveFinished();
@@ -910,8 +909,6 @@ void DeltaSegment::checkEndstops(PrintLine *cur)
     }
     if(cur->isCheckEndstops())
     {
-		if(!Printer::isZProbingActive())
-			Endstops::update(); // do not test twice
         if(isXPositiveMove() && Endstops::xMax())
         {
             if(Printer::stepsRemainingAtXHit < 0) Printer::stepsRemainingAtXHit = cur->stepsRemaining;

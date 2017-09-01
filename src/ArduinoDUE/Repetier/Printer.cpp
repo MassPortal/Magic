@@ -149,18 +149,65 @@ float Printer::maxRealSegmentLength = 0;
 float Printer::maxRealJerk = 0;
 #endif
 
-bool Endstops::xMaxHit;
-bool Endstops::yMaxHit;
-bool Endstops::zMaxHit;
-bool Endstops::probeHit;
+volatile bool Endstops::xMaxHit;
+volatile bool Endstops::yMaxHit;
+volatile bool Endstops::zMaxHit;
+volatile bool Endstops::probeHit;
 
-void Endstops::update(void) 
+void Endstops::xMaxRead(void)
 {
     xMaxHit = (READ(X_MAX_PIN) != ENDSTOP_X_MAX_INVERTING) ? true : false;
+}
+void Endstops::yMaxRead(void)
+{
     yMaxHit = (READ(Y_MAX_PIN) != ENDSTOP_Y_MAX_INVERTING) ? true : false;
+}
+void Endstops::zMaxRead(void)
+{
     zMaxHit = (READ(Z_MAX_PIN) != ENDSTOP_Z_MAX_INVERTING) ? true : false;
+}
+void Endstops::probeRead(void)
+{
     if (Printer::probeType == 2) probeHit = READ(Z_PROBE_PIN);
     else probeHit = !READ(Z_PROBE_PIN);
+}
+
+
+void Endstops::init(void)
+{
+#if !(X_MAX_PIN > -1 && Y_MAX_PIN > -1 && Z_MAX_PIN>-1 && Z_PROBE_PIN > -1)
+#error Endstop pins missing
+#endif /* Pin check */
+
+    SET_INPUT(X_MAX_PIN);
+#if ENDSTOP_PULLUP_X_MAX
+    PULLUP(X_MAX_PIN, HIGH);
+#endif
+
+    SET_INPUT(Y_MAX_PIN);
+#if ENDSTOP_PULLUP_Y_MAX
+    PULLUP(Y_MAX_PIN, HIGH);
+#endif
+
+    SET_INPUT(Z_MAX_PIN);
+#if ENDSTOP_PULLUP_Z_MAX
+    PULLUP(Z_MAX_PIN, HIGH);
+#endif
+
+    SET_INPUT(Z_PROBE_PIN);
+#if Z_PROBE_PULLUP
+    PULLUP(Z_PROBE_PIN, HIGH);
+#endif
+    /* Get initial values*/
+    xMaxRead();
+    yMaxRead();
+    zMaxRead();
+    probeRead();
+    /* Setup intterrupts */
+    attachInterrupt(X_MAX_PIN, xMaxRead, CHANGE);
+    attachInterrupt(Y_MAX_PIN, yMaxRead, CHANGE);
+    attachInterrupt(Z_MAX_PIN, zMaxRead, CHANGE);
+    attachInterrupt(Z_PROBE_PIN, probeRead, CHANGE);
 }
 
 void Endstops::report(void)
@@ -653,36 +700,7 @@ void Printer::setup()
     WRITE(Z3_ENABLE_PIN, !Z_ENABLE_ON);
 #endif
 #endif
-
-    //endstop pullups
-#if X_MAX_PIN > -1
-    SET_INPUT(X_MAX_PIN);
-#if ENDSTOP_PULLUP_X_MAX
-    PULLUP(X_MAX_PIN, HIGH);
-#endif
-#else
-#error You have defined hardware x max endstop without pin assignment. Set pin number for X_MAX_PIN
-#endif
-#if Y_MAX_PIN > -1
-    SET_INPUT(Y_MAX_PIN);
-#if ENDSTOP_PULLUP_Y_MAX
-    PULLUP(Y_MAX_PIN, HIGH);
-#endif
-#else
-#error You have defined hardware y max endstop without pin assignment. Set pin number for Y_MAX_PIN
-#endif
-#if Z_MAX_PIN>-1
-    SET_INPUT(Z_MAX_PIN);
-#if ENDSTOP_PULLUP_Z_MAX
-    PULLUP(Z_MAX_PIN, HIGH);
-#endif
-#else
-#error You have defined hardware z max endstop without pin assignment. Set pin number for Z_MAX_PIN
-#endif
-    SET_INPUT(Z_PROBE_PIN);
-#if Z_PROBE_PULLUP
-    PULLUP(Z_PROBE_PIN, HIGH);
-#endif
+    Endstops::init();
 #if FAN_PIN>-1
     SET_OUTPUT(FAN_PIN);
     WRITE(FAN_PIN, LOW);
@@ -920,16 +938,9 @@ void Printer::homeZAxis() // Delta z homing
 
 	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
 	PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
-	Endstops::update();
-	Endstops::update();
-
 	if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
 
 		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
-
-		Endstops::update();
-		Endstops::update();
-				
 		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
 			homingSuccess = true;
 		}
@@ -982,10 +993,6 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     bool autoLevel = isAutolevelActive();
     setAutolevelActive(false);
     setHomed(true);
-    if (!(X_MAX_PIN > -1 && Y_MAX_PIN > -1 && Z_MAX_PIN > -1))
-    {
-        Com::printErrorFLN("Hardware setup inconsistent. Delta cannot home wihtout max endstops.");
-    }
     // The delta has to have home capability to zero and set position,
     // so the redundant check is only an opportunity to
     // gratuitously fail due to incorrect settings.

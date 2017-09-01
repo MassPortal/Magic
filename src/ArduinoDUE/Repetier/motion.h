@@ -296,7 +296,6 @@ public:
     {
         if(isCheckEndstops())
         {
-			Endstops::update();
             if(isXPositiveMove() && Endstops::xMax()) setXMoveFinished();
             if(isYPositiveMove() && Endstops::yMax()) setYMoveFinished();
             if(Printer::isZProbingActive() && isZNegativeMove() && Endstops::zProbe()) {
@@ -308,7 +307,6 @@ public:
             }
         }
         else if(Printer::isZProbingActive() && isZNegativeMove()) {
-			Endstops::update();
 			if(Endstops::zProbe())
 			{
 				setZMoveFinished();

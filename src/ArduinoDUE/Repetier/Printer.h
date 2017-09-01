@@ -118,12 +118,8 @@ private:
 #endif //DISTORTION_CORRECTION
 
 class Endstops {
-    static bool xMaxHit;
-    static bool yMaxHit;
-    static bool zMaxHit;
-    static bool probeHit;
 public:
-    static void update(void);
+    static void init(void);
     static void report(void);
     static INLINE bool anyXYZMax() {
         return xMaxHit || yMaxHit || zMaxHit;
@@ -140,6 +136,15 @@ public:
     static INLINE bool zProbe() {
         return probeHit;
     }
+private:
+    static volatile bool xMaxHit;
+    static volatile bool yMaxHit;
+    static volatile bool zMaxHit;
+    static volatile bool probeHit;
+    static void xMaxRead(void);
+    static void yMaxRead(void);
+    static void zMaxRead(void);
+    static void probeRead(void);
 };
 
 #ifndef DEFAULT_PRINTER_MODE
