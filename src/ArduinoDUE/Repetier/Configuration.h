@@ -1062,33 +1062,6 @@ IMPORTANT: With mode <>0 some changes in Configuration.h are not set any more, a
 */
 #define EEPROM_MODE 1
 
-
-/**************** duplicate motor driver ***************
-
-If you have an unused extruder stepper free, you could use it to drive the second z motor
-instead of driving both with a single stepper. The same works for the other axis if needed.
-*/
-
-#define FEATURE_TWO_XSTEPPER 0
-#define X2_STEP_PIN   E1_STEP_PIN
-#define X2_DIR_PIN    E1_DIR_PIN
-#define X2_ENABLE_PIN E1_ENABLE_PIN
-
-#define FEATURE_TWO_YSTEPPER 0
-#define Y2_STEP_PIN   E1_STEP_PIN
-#define Y2_DIR_PIN    E1_DIR_PIN
-#define Y2_ENABLE_PIN E1_ENABLE_PIN
-
-#define FEATURE_TWO_ZSTEPPER 0
-#define Z2_STEP_PIN   E1_STEP_PIN
-#define Z2_DIR_PIN    E1_DIR_PIN
-#define Z2_ENABLE_PIN E1_ENABLE_PIN
-
-#define FEATURE_THREE_ZSTEPPER 0
-#define Z3_STEP_PIN   E2_STEP_PIN
-#define Z3_DIR_PIN    E2_DIR_PIN
-#define Z3_ENABLE_PIN E2_ENABLE_PIN
-
 /** Some fans won't start for low values, but would run if started with higher power at the beginning.
 This defines the full power duration before returning to set value. Time is in milliseconds */
 #define FAN_KICKSTART_TIME  200

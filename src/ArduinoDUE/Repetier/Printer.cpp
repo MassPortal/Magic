@@ -629,28 +629,21 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 void Printer::setup()
 {
     HAL::stopWatchdog();
-    //HAL::delayMilliseconds(500);  // add a delay at startup to give hardware time for initalization
     HAL::hwSetup();
-#if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
-    HAL::spiBegin();
-#endif
     Printer::setPowerOn(true);
+
+#if X_STEP_PIN < 0 || Y_STEP_PIN < 0 || Z_STEP_PIN < 0 || X_DIR_PIN < 0|| Y_DIR_PIN < 0 || Z_DIR_PIN < 0
+#error Stepper pin definitions missing
+#endif /* Stepper pin check */
 
     //Initialize Step Pins
     SET_OUTPUT(X_STEP_PIN);
     SET_OUTPUT(Y_STEP_PIN);
     SET_OUTPUT(Z_STEP_PIN);
 
-    //Initialize Dir Pins
-#if X_DIR_PIN > -1
     SET_OUTPUT(X_DIR_PIN);
-#endif
-#if Y_DIR_PIN > -1
     SET_OUTPUT(Y_DIR_PIN);
-#endif
-#if Z_DIR_PIN > -1
     SET_OUTPUT(Z_DIR_PIN);
-#endif
 
     //Steppers default to disabled.
 #if X_ENABLE_PIN > -1
@@ -665,41 +658,7 @@ void Printer::setup()
     SET_OUTPUT(Z_ENABLE_PIN);
     WRITE(Z_ENABLE_PIN, !Z_ENABLE_ON);
 #endif
-#if FEATURE_TWO_XSTEPPER
-    SET_OUTPUT(X2_STEP_PIN);
-    SET_OUTPUT(X2_DIR_PIN);
-#if X2_ENABLE_PIN > -1
-    SET_OUTPUT(X2_ENABLE_PIN);
-    WRITE(X2_ENABLE_PIN, !X_ENABLE_ON);
-#endif
-#endif
 
-#if FEATURE_TWO_YSTEPPER
-    SET_OUTPUT(Y2_STEP_PIN);
-    SET_OUTPUT(Y2_DIR_PIN);
-#if Y2_ENABLE_PIN > -1
-    SET_OUTPUT(Y2_ENABLE_PIN);
-    WRITE(Y2_ENABLE_PIN, !Y_ENABLE_ON);
-#endif
-#endif
-
-#if FEATURE_TWO_ZSTEPPER
-    SET_OUTPUT(Z2_STEP_PIN);
-    SET_OUTPUT(Z2_DIR_PIN);
-#if Z2_ENABLE_PIN > -1
-    SET_OUTPUT(Z2_ENABLE_PIN);
-    WRITE(Z2_ENABLE_PIN, !Z_ENABLE_ON);
-#endif
-#endif
-
-#if FEATURE_THREE_ZSTEPPER
-    SET_OUTPUT(Z3_STEP_PIN);
-    SET_OUTPUT(Z3_DIR_PIN);
-#if Z3_ENABLE_PIN > -1
-    SET_OUTPUT(Z3_ENABLE_PIN);
-    WRITE(Z3_ENABLE_PIN, !Z_ENABLE_ON);
-#endif
-#endif
     Endstops::init();
 #if FAN_PIN>-1
     SET_OUTPUT(FAN_PIN);
@@ -772,12 +731,6 @@ void Printer::setup()
     CNCDriver::initialize();
 #endif // defined
 
-#ifdef RED_BLUE_STATUS_LEDS
-    SET_OUTPUT(RED_STATUS_LED);
-    SET_OUTPUT(BLUE_STATUS_LED);
-    WRITE(BLUE_STATUS_LED,HIGH);
-    WRITE(RED_STATUS_LED,LOW);
-#endif // RED_BLUE_STATUS_LEDS
 #if STEPPER_CURRENT_CONTROL != CURRENT_CONTROL_MANUAL
     motorCurrentControlInit(); // Set current if it is firmware controlled
 #endif

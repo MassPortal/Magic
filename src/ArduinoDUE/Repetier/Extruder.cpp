@@ -57,9 +57,6 @@ void Extruder::manageTemperatures()
 {
     HAL::pingWatchdog();
     uint8_t errorDetected = 0;
-#ifdef RED_BLUE_STATUS_LEDS
-    bool hot = false;
-#endif
 	bool newDefectFound = false;
     millis_t time = millis(); // compare time for decouple tests
 #if NUM_TEMPERATURE_LOOPS > 0
@@ -144,10 +141,6 @@ void Extruder::manageTemperatures()
             }
 		}
 #endif // HAVE_HEATED_BED
-#ifdef RED_BLUE_STATUS_LEDS
-        if(act->currentTemperatureC > 50)
-            hot = true;
-#endif // RED_BLUE_STATUS_LEDS
         if(Printer::isAnyTempsensorDefect()) continue;
         uint8_t on = act->currentTemperatureC >= act->targetTemperatureC ? LOW : HIGH;
         // Run test if heater and sensor are decoupled
@@ -277,20 +270,6 @@ void Extruder::manageTemperatures()
             WRITE(LED_PIN,on);
 #endif // LED_PIN
     } // for controller
-
-#ifdef RED_BLUE_STATUS_LEDS
-    if(Printer::isAnyTempsensorDefect())
-    {
-        WRITE(BLUE_STATUS_LED,HIGH);
-        WRITE(RED_STATUS_LED,HIGH);
-    }
-    else
-    {
-        WRITE(BLUE_STATUS_LED,!hot);
-        WRITE(RED_STATUS_LED,hot);
-    }
-#endif // RED_BLUE_STATUS_LEDS
-
     if(errorDetected == 0 && extruderTempErrors > 0)
         extruderTempErrors--;
     if(newDefectFound)

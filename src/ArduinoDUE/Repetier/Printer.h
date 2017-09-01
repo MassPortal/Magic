@@ -424,61 +424,17 @@ public:
 
     static INLINE void setXDirection(bool positive)
     {
-        if(positive)
-        {
-            WRITE(X_DIR_PIN,!xDirection());
-#if FEATURE_TWO_XSTEPPER
-            WRITE(X2_DIR_PIN,!xDirection());
-#endif
-        }
-        else
-        {
-            WRITE(X_DIR_PIN, xDirection());
-#if FEATURE_TWO_XSTEPPER
-            WRITE(X2_DIR_PIN, xDirection());
-#endif
-        }
+        WRITE(X_DIR_PIN, positive ? !xDirection() : xDirection());
     }
 
     static INLINE void setYDirection(bool positive)
     {
-        if(positive)
-        {
-            WRITE(Y_DIR_PIN, !yDirection());
-#if FEATURE_TWO_YSTEPPER
-            WRITE(Y2_DIR_PIN, !yDirection());
-#endif
-        }
-        else
-        {
-            WRITE(Y_DIR_PIN, yDirection());
-#if FEATURE_TWO_YSTEPPER
-            WRITE(Y2_DIR_PIN, yDirection());
-#endif
-        }
+        WRITE(Y_DIR_PIN, positive ? !yDirection() : yDirection());
     }
+
     static INLINE void setZDirection(bool positive)
     {
-        if(positive)
-        {
-            WRITE(Z_DIR_PIN, !zDirection());
-#if FEATURE_TWO_ZSTEPPER
-            WRITE(Z2_DIR_PIN, !zDirection());
-#endif
-#if FEATURE_THREE_ZSTEPPER
-            WRITE(Z3_DIR_PIN, !zDirection());
-#endif
-        }
-        else
-        {
-            WRITE(Z_DIR_PIN, zDirection());
-#if FEATURE_TWO_ZSTEPPER
-            WRITE(Z2_DIR_PIN, zDirection());
-#endif
-#if FEATURE_THREE_ZSTEPPER
-            WRITE(Z3_DIR_PIN, zDirection());
-#endif
-        }
+            WRITE(Z_DIR_PIN, positive ? !zDirection() : zDirection());
     }
 
     static INLINE bool getZDirection()
