@@ -149,58 +149,32 @@ float Printer::maxRealSegmentLength = 0;
 float Printer::maxRealJerk = 0;
 #endif
 
-flag8_t Endstops::lastState = 0;
-flag8_t Endstops::lastRead = 0;
+bool Endstops::xMaxHit;
+bool Endstops::yMaxHit;
+bool Endstops::zMaxHit;
+bool Endstops::probeHit;
 
-void Endstops::update() {
-    flag8_t newRead = 0;
-#if (X_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_X
-        if(READ(X_MAX_PIN) != ENDSTOP_X_MAX_INVERTING)
-            newRead |= ENDSTOP_X_MAX_ID;
-#endif
-#if (Y_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Y
-        if(READ(Y_MAX_PIN) != ENDSTOP_Y_MAX_INVERTING)
-            newRead |= ENDSTOP_Y_MAX_ID;
-#endif
-#if (Z_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Z
-        if(READ(Z_MAX_PIN) != ENDSTOP_Z_MAX_INVERTING)
-            newRead |= ENDSTOP_Z_MAX_ID;
-#endif
-#if FEATURE_Z_PROBE
-		if((Printer::probeType == 2) ? READ(Z_PROBE_PIN) : !READ(Z_PROBE_PIN))
-       newRead |= ENDSTOP_Z_PROBE_ID;
-#endif
-    lastRead &= newRead;
-    if(lastRead != lastState) { // Report endstop hit changes
-        lastState = lastRead;
-#ifdef DEBUG_ENDSTOPS
-        report();
-#endif
-    } else {
-        lastState = lastRead;
-    }
-    lastRead = newRead;
+void Endstops::update(void) 
+{
+    xMaxHit = (READ(X_MAX_PIN) != ENDSTOP_X_MAX_INVERTING) ? true : false;
+    yMaxHit = (READ(Y_MAX_PIN) != ENDSTOP_Y_MAX_INVERTING) ? true : false;
+    zMaxHit = (READ(Z_MAX_PIN) != ENDSTOP_Z_MAX_INVERTING) ? true : false;
+    if (Printer::probeType == 2) probeHit = READ(Z_PROBE_PIN);
+    else probeHit = !READ(Z_PROBE_PIN);
 }
 
-void Endstops::report() {
+void Endstops::report(void)
+{
     Com::printF("endstops hit: ");
-#if (X_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_X
-        Com::printF(Com::tXMaxColon);
-        Com::printF(xMax() ? Com::tHSpace : Com::tLSpace);
-#endif
-#if (Y_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Y
-        Com::printF(Com::tYMaxColon);
-        Com::printF(yMax() ? Com::tHSpace : Com::tLSpace);
-#endif
-#if (Z_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Z
-        Com::printF(Com::tZMaxColon);
-        Com::printF(zMax() ? Com::tHSpace : Com::tLSpace);
-#endif
-#if FEATURE_Z_PROBE
-        Com::printF(Com::tZProbeState);
-        Com::printF(zProbe() ? Com::tHSpace : Com::tLSpace);
-#endif
-        Com::println();
+    Com::printF(Com::tXMaxColon);
+    Com::printF(xMaxHit ? Com::tHSpace : Com::tLSpace);
+    Com::printF(Com::tYMaxColon);
+    Com::printF(yMaxHit ? Com::tHSpace : Com::tLSpace);
+    Com::printF(Com::tZMaxColon);
+    Com::printF(zMaxHit ? Com::tHSpace : Com::tLSpace);
+    Com::printF(Com::tZProbeState);
+    Com::printF(probeHit ? Com::tHSpace : Com::tLSpace);
+    Com::println();
 }
 
 void Printer::setDebugLevel(uint8_t newLevel) {
@@ -212,7 +186,7 @@ bool Printer::isPositionAllowed(float x,float y,float z)
 {
     if(isNoDestinationCheck())  return true;
     bool allowed = true;
-    allowed &= (z >= 0) && (z <= zLength + 0.05 + ENDSTOP_Z_BACK_ON_HOME);
+    allowed &= (z >= 0) && (z <= zLength + 0.05);
     allowed &= (x * x + y * y <= deltaMaxRadiusSquared);
     if(!allowed)
     {
@@ -681,7 +655,6 @@ void Printer::setup()
 #endif
 
     //endstop pullups
-#if MAX_HARDWARE_ENDSTOP_X
 #if X_MAX_PIN > -1
     SET_INPUT(X_MAX_PIN);
 #if ENDSTOP_PULLUP_X_MAX
@@ -690,8 +663,6 @@ void Printer::setup()
 #else
 #error You have defined hardware x max endstop without pin assignment. Set pin number for X_MAX_PIN
 #endif
-#endif
-#if MAX_HARDWARE_ENDSTOP_Y
 #if Y_MAX_PIN > -1
     SET_INPUT(Y_MAX_PIN);
 #if ENDSTOP_PULLUP_Y_MAX
@@ -700,8 +671,6 @@ void Printer::setup()
 #else
 #error You have defined hardware y max endstop without pin assignment. Set pin number for Y_MAX_PIN
 #endif
-#endif
-#if MAX_HARDWARE_ENDSTOP_Z
 #if Z_MAX_PIN>-1
     SET_INPUT(Z_MAX_PIN);
 #if ENDSTOP_PULLUP_Z_MAX
@@ -710,13 +679,10 @@ void Printer::setup()
 #else
 #error You have defined hardware z max endstop without pin assignment. Set pin number for Z_MAX_PIN
 #endif
-#endif
-#if FEATURE_Z_PROBE && Z_PROBE_PIN>-1
     SET_INPUT(Z_PROBE_PIN);
 #if Z_PROBE_PULLUP
     PULLUP(Z_PROBE_PIN, HIGH);
 #endif
-#endif // FEATURE_FEATURE_Z_PROBE
 #if FAN_PIN>-1
     SET_OUTPUT(FAN_PIN);
     WRITE(FAN_PIN, LOW);
@@ -1008,11 +974,6 @@ void Printer::homeZAxis() // Delta z homing
     realDeltaPositionSteps[A_TOWER] = currentDeltaPositionSteps[A_TOWER];
     realDeltaPositionSteps[B_TOWER] = currentDeltaPositionSteps[B_TOWER];
     realDeltaPositionSteps[C_TOWER] = currentDeltaPositionSteps[C_TOWER];
-    //maxDeltaPositionSteps = currentDeltaPositionSteps[X_AXIS];
-#if defined(ENDSTOP_Z_BACK_ON_HOME)
-    if(ENDSTOP_Z_BACK_ON_HOME > 0)
-        maxDeltaPositionSteps += axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_ON_HOME;
-#endif
     Extruder::selectExtruderById(Extruder::current->id);
 }
 // This home axis is for delta
@@ -1021,8 +982,7 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     bool autoLevel = isAutolevelActive();
     setAutolevelActive(false);
     setHomed(true);
-    if (!(X_MAX_PIN > -1 && Y_MAX_PIN > -1 && Z_MAX_PIN > -1
-            && MAX_HARDWARE_ENDSTOP_X && MAX_HARDWARE_ENDSTOP_Y && MAX_HARDWARE_ENDSTOP_Z))
+    if (!(X_MAX_PIN > -1 && Y_MAX_PIN > -1 && Z_MAX_PIN > -1))
     {
         Com::printErrorFLN("Hardware setup inconsistent. Delta cannot home wihtout max endstops.");
     }

@@ -888,7 +888,6 @@ void DeltaSegment::checkEndstops(PrintLine *cur)
     if(Printer::isZProbingActive())
     {
 		Endstops::update();
-#if FEATURE_Z_PROBE
         if(isZNegativeMove() && Endstops::zProbe())
         {
             cur->setXMoveFinished();
@@ -899,7 +898,6 @@ void DeltaSegment::checkEndstops(PrintLine *cur)
             cur->stepsRemaining = 0;
             return;
         }
-#endif
         if(isZPositiveMove() && isXPositiveMove() && isYPositiveMove() && Endstops::anyXYZMax())
         {
             cur->setXMoveFinished();
@@ -930,10 +928,8 @@ void DeltaSegment::checkEndstops(PrintLine *cur)
 
         if(isZPositiveMove() && Endstops::zMax())
         {
-#if MAX_HARDWARE_ENDSTOP_Z
             if(Printer::stepsRemainingAtZHit)
                 Printer::stepsRemainingAtZHit = cur->stepsRemaining;
-#endif
             setZMoveFinished();
             cur->setZMoveFinished();
         }
@@ -1529,7 +1525,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
             removeCurrentLineForbidInterrupt();
             return(wait); // waste some time for path optimization to fill up
         } // End if WARMUP
-#if FEATURE_Z_PROBE
         // z move may consist of mroe then 1 z line segment, so we better ignore them
         // if the probe was already hit.
         if(Printer::isZProbingActive() && Printer::stepsRemainingAtZHit >= 0)
@@ -1537,8 +1532,6 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
             removeCurrentLineForbidInterrupt();
             return 1000;
         }
-#endif
-
         if(cur->isEMove()) Extruder::enable();
         cur->fixStartAndEndSpeed();
         // Set up delta segments

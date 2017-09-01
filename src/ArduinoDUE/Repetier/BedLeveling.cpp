@@ -110,7 +110,7 @@ the bed it self. For deltas you can enable distortion correction to follow the b
 #define BED_LEVELING_REPETITIONS 1
 #endif
 
-#if FEATURE_AUTOLEVEL && FEATURE_Z_PROBE
+#if FEATURE_AUTOLEVEL
 
 class Plane {
 	public:
@@ -301,7 +301,6 @@ void runBedLeveling(GCode *com) {
 		Com::printF("CurrentZ:",currentZ);Com::printFLN(" atZ:",Printer::currentPosition[Z_AXIS]);
 		// With max z endstop we adjust zlength so after next homing we have also a calibrated printer
 		Printer::zMin = 0;
-		#if MAX_HARDWARE_ENDSTOP_Z
 		float xRot,yRot,zRot;
 		#if BED_CORRECTION_METHOD != 1
 		Printer::transformFromPrinter(Printer::currentPosition[X_AXIS],Printer::currentPosition[Y_AXIS],Printer::currentPosition[Z_AXIS],xRot,yRot,zRot);
@@ -314,7 +313,6 @@ void runBedLeveling(GCode *com) {
 		  Printer::zLength += currentZ - zRot;
 		   Com::printFLN(Com::tZProbePrinterHeight, Printer::zLength);
 		}
-		#endif
 		Printer::currentPositionSteps[Z_AXIS] = currentZ * Printer::axisStepsPerMM[Z_AXIS];
 		Printer::updateCurrentPosition(true);
 #if BED_CORRECTION_METHOD == 1
@@ -351,7 +349,7 @@ void Printer::setAutolevelActive(bool on)
 	updateCurrentPosition(false);
 	#endif // FEATURE_AUTOLEVEL
 }
-#if MAX_HARDWARE_ENDSTOP_Z
+
 float Printer::runZMaxProbe()
 {
 	long startZ = realDeltaPositionSteps[Z_AXIS] = currentDeltaPositionSteps[Z_AXIS]; // update real
@@ -375,9 +373,7 @@ float Printer::runZMaxProbe()
 	PrintLine::moveRelativeDistanceInSteps(0,0,-probeDepth,0,EEPROM::zProbeSpeed(),true,true);
 	return distance;
 }
-#endif
 
-#if FEATURE_Z_PROBE
 void Printer::startProbing(void)
 {
 	float oldOffX = Printer::offsetX;
@@ -529,7 +525,6 @@ void Printer::waitForZProbeStart()
 	UI_CLEAR_STATUS;
 	#endif
 }
-#endif
 
 #if FEATURE_AUTOLEVEL
 void Printer::transformToPrinter(float x,float y,float z,float &transX,float &transY,float &transZ)

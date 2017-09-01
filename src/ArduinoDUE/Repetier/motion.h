@@ -299,23 +299,14 @@ public:
 			Endstops::update();
             if(isXPositiveMove() && Endstops::xMax()) setXMoveFinished();
             if(isYPositiveMove() && Endstops::yMax()) setYMoveFinished();
-#if FEATURE_Z_PROBE
-            if(Printer::isZProbingActive() && isZNegativeMove() && Endstops::zProbe())
-            {
+            if(Printer::isZProbingActive() && isZNegativeMove() && Endstops::zProbe()) {
                 setZMoveFinished();
                 Printer::stepsRemainingAtZHit = stepsRemaining;
-            }
-            else
-#endif
-                if(isZPositiveMove() && Endstops::zMax())
-                {
-#if MAX_HARDWARE_ENDSTOP_Z
+            } else if(isZPositiveMove() && Endstops::zMax()) {
                     Printer::stepsRemainingAtZHit = stepsRemaining;
-#endif
                     setZMoveFinished();
-                }
+            }
         }
-#if FEATURE_Z_PROBE
         else if(Printer::isZProbingActive() && isZNegativeMove()) {
 			Endstops::update();
 			if(Endstops::zProbe())
@@ -324,7 +315,6 @@ public:
 				Printer::stepsRemainingAtZHit = stepsRemaining;
 			}
         }
-#endif
     }
 
     inline void setXMoveFinished()

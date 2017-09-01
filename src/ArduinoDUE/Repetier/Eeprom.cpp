@@ -907,7 +907,6 @@ void EEPROM::writeSettings()
     writeFloat(EPR_DELTA_DIAGONAL_CORRECTION_C, Com::tDeltaDiagonalCorrectionC);
 
 #endif
-#if FEATURE_Z_PROBE
     writeFloat(EPR_Z_PROBE_HEIGHT, Com::tZProbeHeight);
     writeFloat(EPR_Z_PROBE_BED_DISTANCE, Com::tZProbeBedDitance);
     writeFloat(EPR_Z_PROBE_SPEED, Com::tZProbeSpeed);
@@ -927,7 +926,6 @@ void EEPROM::writeSettings()
     writeFloat(EPR_BENDING_CORRECTION_A, Com::zZProbeBendingCorA);
     writeFloat(EPR_BENDING_CORRECTION_B, Com::zZProbeBendingCorB);
     writeFloat(EPR_BENDING_CORRECTION_C, Com::zZProbeBendingCorC);
-#endif
 #if FEATURE_AUTOLEVEL
     writeByte(EPR_AUTOLEVEL_ACTIVE, Com::tAutolevelActive);
 #endif

@@ -207,7 +207,6 @@ FSTRINGVAR(tDBGDeltaVirtualAxisSteps)
 #ifdef DEBUG_STEPCOUNT
 FSTRINGVAR(tDBGMissedSteps)
 #endif
-#if FEATURE_Z_PROBE
 FSTRINGVAR(tZProbe)
 FSTRINGVAR(tZProbeState)
 FSTRINGVAR(tHitZProbe)
@@ -216,7 +215,6 @@ FSTRINGVAR(tZProbeZReset)
 FSTRINGVAR(tZProbeBedDitance)
 FSTRINGVAR(tCalBluetapeScript)
 FSTRINGVAR(tCalPettapeScript)
-#endif
 FSTRINGVAR(tAutolevelReset)
 FSTRINGVAR(tAutolevelEnabled)
 FSTRINGVAR(tAutolevelDisabled)
@@ -232,7 +230,6 @@ FSTRINGVAR(tWait)
 #if EEPROM_MODE==0
 FSTRINGVAR(tNoEEPROMSupport)
 #else
-#if FEATURE_Z_PROBE
 FSTRINGVAR(tZProbeHeight)
 FSTRINGVAR(tZProbeOffsetX)
 FSTRINGVAR(tZProbeOffsetY)
@@ -251,7 +248,6 @@ FSTRINGVAR(tZProbeXY3offset)
 FSTRINGVAR(zZProbeBendingCorA)
 FSTRINGVAR(zZProbeBendingCorB)
 FSTRINGVAR(zZProbeBendingCorC)
-#endif
 FSTRINGVAR(tEPRBedLedBrightness)
 #if FEATURE_AUTOLEVEL
 FSTRINGVAR(tAutolevelActive)

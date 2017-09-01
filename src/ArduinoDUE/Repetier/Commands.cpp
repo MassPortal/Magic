@@ -502,7 +502,6 @@ void Commands::processGCode(GCode *com)
 		Printer::updateCurrentPosition();
 	}
 	break;
-#if FEATURE_Z_PROBE
 	case 29: // G29 3 points, build average or distortion compensation
 	{
 #if DISTORTION_CORRECTION
@@ -533,17 +532,12 @@ void Commands::processGCode(GCode *com)
 		Com::printFLN(Com::tZProbeAverage, sum);
 		if (com->hasS() && com->S)
 		{
-#if MAX_HARDWARE_ENDSTOP_Z
 			Printer::updateCurrentPosition();
 			Printer::zLength += sum - Printer::currentPosition[Z_AXIS];
 			Printer::updateDerivedParameter();
 			Printer::homeAxis(true, true, true);
 			Com::printInfoFLN(Com::tZProbeZReset);
 			Com::printFLN(Com::tZProbePrinterHeight, Printer::zLength);
-#else
-			Printer::currentPositionSteps[Z_AXIS] = sum * Printer::axisStepsPerMM[Z_AXIS];
-			Com::printFLN("Adjusted z origin");
-#endif
 		}
 		Printer::feedrate = oldFeedrate;
 		Printer::setAutolevelActive(oldAutolevel);
@@ -836,8 +830,6 @@ void Commands::processGCode(GCode *com)
 			Printer::zLength += com->I;
 		if (com->hasS() && com->S < 4 && com->S > 0)
 		{
-#if MAX_HARDWARE_ENDSTOP_Z
-
 #if DEBUGGING
 			Com::printFLN(" Current pos. Z: ", Printer::currentPosition[Z_AXIS]);
 #endif
@@ -852,7 +844,6 @@ void Commands::processGCode(GCode *com)
 			Printer::zLength += (avgH - EEPROM::zProbeBedDistance());
 
 			Com::printFLN("New printer height: ", Printer::zLength);
-#endif
 			Printer::setAutolevelActive(true);
 			//Z-length compensation. NB! Inverted contrary to I!
 			if (EEPROM::zProbeZOffset() != 0.0) {
@@ -946,7 +937,6 @@ void Commands::processGCode(GCode *com)
 		printCurrentPosition("M114 ");
 
 		break;
-#endif
 	case 37: {
 		Com::printFLN("DIY measure...");
 		float px0 = 0.0,
@@ -1555,8 +1545,6 @@ void Commands::processGCode(GCode *com)
         Com::printF("PosFromSteps:");
         printCurrentPosition("G134 ");
         break;
-
-#if FEATURE_Z_PROBE
     case 134: // - G134 Px Sx Zx - Calibrate nozzle height difference (need z probe in nozzle!) Px = reference extruder, Sx = only measure extrude x against reference, Zx = add to measured z distance for Sx for correction.
         {
             float z = com->hasZ() ? com->Z : 0;
@@ -1580,7 +1568,6 @@ void Commands::processGCode(GCode *com)
 #endif
         }
         break;
-#endif
 #if defined(NUM_MOTOR_DRIVERS) && NUM_MOTOR_DRIVERS > 0
     case 201:
         commandG201(*com);
@@ -2039,7 +2026,7 @@ void Commands::processMCode(GCode *com)
         Printer::updateAdvanceFlags();
         break;
 #endif
-#if Z_HOME_DIR>0 && MAX_HARDWARE_ENDSTOP_Z
+#if Z_HOME_DIR>0
     case 251: // M251
         Printer::zLength -= Printer::currentPosition[Z_AXIS];
         Printer::currentPositionSteps[Z_AXIS] = 0;

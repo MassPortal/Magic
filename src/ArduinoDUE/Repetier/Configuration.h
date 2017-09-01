@@ -668,20 +668,6 @@ on this endstop.
 #define ENDSTOP_Y_MAX_INVERTING true
 #define ENDSTOP_Z_MAX_INVERTING true
 
-// Set the values true where you have a hardware endstop. The Pin number is taken from pins.h.
-
-#define MIN_HARDWARE_ENDSTOP_X false
-#define MIN_HARDWARE_ENDSTOP_Y false
-#define MIN_HARDWARE_ENDSTOP_Z false
-#define MAX_HARDWARE_ENDSTOP_X true
-#define MAX_HARDWARE_ENDSTOP_Y true
-#define MAX_HARDWARE_ENDSTOP_Z true
-
-//If your axes are only moving in one direction, make sure the endstops are connected properly.
-//If your axes move in one direction ONLY when the endstops are triggered, set ENDSTOPS_INVERTING to true here
-
-
-
 //// ADVANCED SETTINGS - to tweak parameters
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
@@ -711,19 +697,6 @@ on this endstop.
 #define Y_HOME_DIR 1
 #define Z_HOME_DIR 1
 
-// Delta robot radius endstop
-#define max_software_endstop_r true
-
-//If true, axis won't move to coordinates less than zero.
-#define min_software_endstop_x false
-#define min_software_endstop_y false
-#define min_software_endstop_z true
-
-//If true, axis won't move to coordinates greater than the defined lengths below.
-#define max_software_endstop_x true
-#define max_software_endstop_y true
-#define max_software_endstop_z true
-
 // If during homing the endstop is reached, ho many mm should the printer move back for the second try
 #define ENDSTOP_X_BACK_MOVE 3
 #define ENDSTOP_Y_BACK_MOVE 3
@@ -734,12 +707,6 @@ on this endstop.
 #define ENDSTOP_X_RETEST_REDUCTION_FACTOR 5
 #define ENDSTOP_Y_RETEST_REDUCTION_FACTOR 5
 #define ENDSTOP_Z_RETEST_REDUCTION_FACTOR 5
-
-// When you have several endstops in one circuit you need to disable it after homing by moving a
-// small amount back. This is also the case with H-belt systems.
-#define ENDSTOP_X_BACK_ON_HOME 0
-#define ENDSTOP_Y_BACK_ON_HOME 0
-#define ENDSTOP_Z_BACK_ON_HOME 0
 
 // You can disable endstop checking for print moves. This is needed, if you get sometimes
 // false signals from your endstops. If your endstops don't give false signals, you

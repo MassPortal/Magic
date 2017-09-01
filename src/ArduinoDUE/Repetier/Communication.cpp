@@ -207,13 +207,11 @@ FSTRINGVALUE(Com::tDBGDeltaVirtualAxisSteps,"Virtual axis steps:")
 #ifdef DEBUG_STEPCOUNT
 FSTRINGVALUE(Com::tDBGMissedSteps,"Missed steps:")
 #endif // DEBUG_STEPCOUNT
-#if FEATURE_Z_PROBE
 FSTRINGVALUE(Com::tZProbe,"Z-probe:")
 FSTRINGVALUE(Com::tZProbeAverage,"Z-probe average height:")
 FSTRINGVALUE(Com::tZProbeZReset,"Reset Z height")
 FSTRINGVALUE(Com::tZProbeState,"Z-probe state:")
 FSTRINGVALUE(Com::tHitZProbe,"Hit z-probe")
-#endif
 FSTRINGVALUE(Com::tAutolevelReset,"Autolevel matrix reset")
 FSTRINGVALUE(Com::tAutolevelEnabled,"Autoleveling enabled")
 FSTRINGVALUE(Com::tAutolevelDisabled,"Autoleveling disabled")
@@ -229,7 +227,6 @@ FSTRINGVALUE(Com::tWait,WAITING_IDENTIFIER)
 FSTRINGVALUE(Com::tNoEEPROMSupport,"No EEPROM support compiled.\r\n")
 #else
 //FSTRINGVALUE(Com::tZProbeOffsetZ, "Coating thickness [mm]")
-#if FEATURE_Z_PROBE
 FSTRINGVALUE(Com::tZProbeHeight,"Z-probe height [mm]")
 FSTRINGVALUE(Com::tZProbeBedDitance,"Max. z-probe - bed dist. [mm]")
 FSTRINGVALUE(Com::tZProbeOffsetX,"Z-probe offset x [mm]")
@@ -249,7 +246,6 @@ FSTRINGVALUE(Com::tZProbeY3,"Z-probe Y3 [mm]")
 FSTRINGVALUE(Com::zZProbeBendingCorA,"Z-probe bending correction A [mm]")
 FSTRINGVALUE(Com::zZProbeBendingCorB,"Z-probe bending correction B [mm]")
 FSTRINGVALUE(Com::zZProbeBendingCorC,"Z-probe bending correction C [mm]")
-#endif
 
 #if FEATURE_AUTOLEVEL
 FSTRINGVALUE(Com::tAutolevelActive,"Autolevel active (1/0)")

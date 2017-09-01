@@ -117,51 +117,28 @@ private:
 };
 #endif //DISTORTION_CORRECTION
 
-#define ENDSTOP_X_MIN_ID 1
-#define ENDSTOP_X_MAX_ID 2
-#define ENDSTOP_Y_MIN_ID 4
-#define ENDSTOP_Y_MAX_ID 8
-#define ENDSTOP_Z_MIN_ID 16
-#define ENDSTOP_Z_MAX_ID 32
-#define ENDSTOP_Z2_MIN_ID 64
-#define ENDSTOP_Z_PROBE_ID 128
-
 class Endstops {
-    static flag8_t lastState;
-    static flag8_t lastRead;
+    static bool xMaxHit;
+    static bool yMaxHit;
+    static bool zMaxHit;
+    static bool probeHit;
 public:
-    static void update();
-    static void report();
+    static void update(void);
+    static void report(void);
     static INLINE bool anyXYZMax() {
-        return (lastState & (ENDSTOP_X_MAX_ID|ENDSTOP_Z_MAX_ID|ENDSTOP_Z_MAX_ID)) != 0;
+        return xMaxHit || yMaxHit || zMaxHit;
     }
     static INLINE bool xMax() {
-#if (X_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_X
-        return (lastState & ENDSTOP_X_MAX_ID) != 0;
-#else
-        return false;
-#endif
+        return xMaxHit;
     }
     static INLINE bool yMax() {
-#if (Y_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Y
-        return (lastState & ENDSTOP_Y_MAX_ID) != 0;
-#else
-        return false;
-#endif
+        return yMaxHit;
     }
     static INLINE bool zMax() {
-#if (Z_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Z
-        return (lastState & ENDSTOP_Z_MAX_ID) != 0;
-#else
-        return false;
-#endif
+        return zMaxHit;
     }
     static INLINE bool zProbe() {
-#if FEATURE_Z_PROBE
-        return (lastState & ENDSTOP_Z_PROBE_ID) != 0;
-#else
-        return false;
-#endif
+        return probeHit;
     }
 };
 
@@ -798,16 +775,12 @@ public:
         currentDeltaPositionSteps[C_TOWER] = zaxis;
     }
     static void deltaMoveToTopEndstops(float feedrate);
-#if MAX_HARDWARE_ENDSTOP_Z
     static float runZMaxProbe();
-#endif
-#if FEATURE_Z_PROBE
 	static void startProbing(void);
 	static void finishProbing();
     static float runZProbe(bool first,bool last,uint8_t repeat = Z_PROBE_REPETITIONS);
     static void waitForZProbeStart();
     static float bendingCorrectionAt(float x,float y);
-#endif
     // Moved outside FEATURE_Z_PROBE to allow auto-level functional test on
     // system without Z-probe
 #if FEATURE_AUTOLEVEL

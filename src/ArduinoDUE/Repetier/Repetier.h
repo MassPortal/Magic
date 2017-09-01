@@ -118,7 +118,7 @@ inline void memcopy4(void *dest,void *source) {
 	*((int32_t*)dest) = *((int32_t*)source);
 }
 
-#if FEATURE_Z_PROBE && Z_PROBE_PIN < 0
+#if Z_PROBE_PIN < 0
 #error You need to define Z_PROBE_PIN to use z probe!
 #endif
 
@@ -155,10 +155,6 @@ inline void memcopy4(void *dest,void *source) {
 */
 #ifndef ROD_RADIUS
 #define ROD_RADIUS (PRINTER_RADIUS-END_EFFECTOR_HORIZONTAL_OFFSET-CARRIAGE_HORIZONTAL_OFFSET)
-#endif
-
-#ifdef FEATURE_Z_PROBE
-#define MANUAL_CONTROL 1
 #endif
 
 //Step to split a cirrcle in small Lines
