@@ -271,14 +271,14 @@ void PrintLine::calculateMove(float axis_diff[], uint8_t pathOptimize)
     updateTrapezoids();
     // how much steps on primary axis do we need to reach target feedrate
     //p->plateauSteps = (long) (((float)p->acceleration *0.5f / slowest_axis_plateau_time_repro + p->vMin) *1.01f/slowest_axis_plateau_time_repro);
-#else
+#else /* !RAMP_ACCELERATION */
 #if USE_ADVANCE
 #if ENABLE_QUADRATIC_ADVANCE
     advanceRate = 0; // No advance for constant speeds
     advanceFull = 0;
 #endif
 #endif
-#endif
+#endif /* RAMP_ACCELERATION */
 
 #ifdef DEBUG_QUEUE_MOVE
     if(Printer::debugEcho())
@@ -938,12 +938,6 @@ void DeltaSegment::checkEndstops(PrintLine *cur)
             cur->setZMoveFinished();
         }
     }
-    if(isZNegativeMove() && Endstops::zMin())
-    {
-        setZMoveFinished();
-        cur->setZMoveFinished();
-    }
-
 }
 
 void PrintLine::calculateDirectionAndDelta(int32_t difference[], ufast8_t *dir, int32_t delta[])

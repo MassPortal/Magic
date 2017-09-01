@@ -1669,21 +1669,8 @@ void Commands::processMCode(GCode *com)
         }
         break;
     case 80: // M80 - ATX Power On
-#if PS_ON_PIN>-1
-        Commands::waitUntilEndOfAllMoves();
-        previousMillisCmd = millis();
-        SET_OUTPUT(PS_ON_PIN); //GND
-        Printer::setPowerOn(true);
-        WRITE(PS_ON_PIN, (POWER_INVERTING ? HIGH : LOW));
-#endif
         break;
     case 81: // M81 - ATX Power Off
-#if PS_ON_PIN>-1
-        Commands::waitUntilEndOfAllMoves();
-        SET_OUTPUT(PS_ON_PIN); //GND
-        Printer::setPowerOn(false);
-        WRITE(PS_ON_PIN,(POWER_INVERTING ? LOW : HIGH));
-#endif
         break;
     case 82: // M82
         Printer::relativeExtruderCoordinateMode = false;

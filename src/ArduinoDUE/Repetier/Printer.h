@@ -135,23 +135,9 @@ public:
     static INLINE bool anyXYZMax() {
         return (lastState & (ENDSTOP_X_MAX_ID|ENDSTOP_Z_MAX_ID|ENDSTOP_Z_MAX_ID)) != 0;
     }
-    static INLINE bool xMin() {
-#if (X_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_X
-        return (lastState & ENDSTOP_X_MIN_ID) != 0;
-#else
-        return false;
-#endif
-    }
     static INLINE bool xMax() {
 #if (X_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_X
         return (lastState & ENDSTOP_X_MAX_ID) != 0;
-#else
-        return false;
-#endif
-    }
-    static INLINE bool yMin() {
-#if (Y_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Y
-        return (lastState & ENDSTOP_Y_MIN_ID) != 0;
 #else
         return false;
 #endif
@@ -163,23 +149,9 @@ public:
         return false;
 #endif
     }
-    static INLINE bool zMin() {
-#if (Z_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Z
-        return (lastState & ENDSTOP_Z_MIN_ID) != 0;
-#else
-        return false;
-#endif
-    }
     static INLINE bool zMax() {
 #if (Z_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Z
         return (lastState & ENDSTOP_Z_MAX_ID) != 0;
-#else
-        return false;
-#endif
-    }
-    static INLINE bool z2MinMax() {
-#if (Z2_MINMAX_PIN > -1) && MINMAX_HARDWARE_ENDSTOP_Z2
-        return (lastState & ENDSTOP_Z2_MINMAX_ID) != 0;
 #else
         return false;
 #endif

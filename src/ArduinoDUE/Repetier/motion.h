@@ -297,14 +297,8 @@ public:
         if(isCheckEndstops())
         {
 			Endstops::update();
-            if(isXNegativeMove() && Endstops::xMin())
-                setXMoveFinished();
-            else if(isXPositiveMove() && Endstops::xMax())
-                setXMoveFinished();
-            if(isYNegativeMove() && Endstops::yMin())
-                setYMoveFinished();
-            else if(isYPositiveMove() && Endstops::yMax())
-                setYMoveFinished();
+            if(isXPositiveMove() && Endstops::xMax()) setXMoveFinished();
+            if(isYPositiveMove() && Endstops::yMax()) setYMoveFinished();
 #if FEATURE_Z_PROBE
             if(Printer::isZProbingActive() && isZNegativeMove() && Endstops::zProbe())
             {
@@ -313,11 +307,7 @@ public:
             }
             else
 #endif
-                if(isZNegativeMove() && Endstops::zMin())
-                {
-                    setZMoveFinished();
-                }
-                else if(isZPositiveMove() && Endstops::zMax())
+                if(isZPositiveMove() && Endstops::zMax())
                 {
 #if MAX_HARDWARE_ENDSTOP_Z
                     Printer::stepsRemainingAtZHit = stepsRemaining;

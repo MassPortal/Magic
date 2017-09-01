@@ -659,17 +659,11 @@ PRINTER_MODE_CNC 2
 use a mechanical endstop connected with GND. Set value to false for no pullup
 on this endstop.
 */
-#define ENDSTOP_PULLUP_X_MIN false
-#define ENDSTOP_PULLUP_Y_MIN false
-#define ENDSTOP_PULLUP_Z_MIN false
 #define ENDSTOP_PULLUP_X_MAX true
 #define ENDSTOP_PULLUP_Y_MAX true
 #define ENDSTOP_PULLUP_Z_MAX true
 
 // Set to true to invert the logic of the endstops
-#define ENDSTOP_X_MIN_INVERTING true
-#define ENDSTOP_Y_MIN_INVERTING true
-#define ENDSTOP_Z_MIN_INVERTING true
 #define ENDSTOP_X_MAX_INVERTING true
 #define ENDSTOP_Y_MAX_INVERTING true
 #define ENDSTOP_Z_MAX_INVERTING true
@@ -1065,12 +1059,6 @@ to activate the quadratic term. Only adds lots of computations and storage usage
 //#define BAUDRATE 250000
 
 /**
-Some boards like Gen7 have a power on pin, to enable the atx power supply. If this is defined,
-the power will be turned on without the need to call M80 if initially started.
-*/
-#define ENABLE_POWER_ON_STARTUP 1
-
-/**
 If you use an ATX power supply you need the power pin to work non inverting. For some special
 boards you might need to make it inverting.
 */
@@ -1157,7 +1145,7 @@ to recalibrate z.
 #define Z_PROBE_Z_OFFSET_MODE 0
 
 #define FEATURE_Z_PROBE true
-#define Z_PROBE_PIN ORIG_Z_MIN_PIN
+#define Z_PROBE_PIN 32
 #define Z_PROBE_PULLUP 1
 #define Z_PROBE_ON_HIGH 1 // changed by Valters - inverted probe due to z-probe switch action
 #define Z_PROBE_X_OFFSET -23

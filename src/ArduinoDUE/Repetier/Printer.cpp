@@ -154,33 +154,17 @@ flag8_t Endstops::lastRead = 0;
 
 void Endstops::update() {
     flag8_t newRead = 0;
-#if (X_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_X
-        if(READ(X_MIN_PIN) != ENDSTOP_X_MIN_INVERTING)
-            newRead |= ENDSTOP_X_MIN_ID;
-#endif
 #if (X_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_X
         if(READ(X_MAX_PIN) != ENDSTOP_X_MAX_INVERTING)
             newRead |= ENDSTOP_X_MAX_ID;
-#endif
-#if (Y_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Y
-        if(READ(Y_MIN_PIN) != ENDSTOP_Y_MIN_INVERTING)
-            newRead |= ENDSTOP_Y_MIN_ID;
 #endif
 #if (Y_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Y
         if(READ(Y_MAX_PIN) != ENDSTOP_Y_MAX_INVERTING)
             newRead |= ENDSTOP_Y_MAX_ID;
 #endif
-#if (Z_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Z
-        if(READ(Z_MIN_PIN) != ENDSTOP_Z_MIN_INVERTING)
-            newRead |= ENDSTOP_Z_MIN_ID;
-#endif
 #if (Z_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Z
         if(READ(Z_MAX_PIN) != ENDSTOP_Z_MAX_INVERTING)
             newRead |= ENDSTOP_Z_MAX_ID;
-#endif
-#if (Z2_MINMAX_PIN > -1) && MINMAX_HARDWARE_ENDSTOP_Z2
-        if(READ(Z2_MINMAX_PIN) != ENDSTOP_Z2_MINMAX_INVERTING)
-            newRead |= ENDSTOP_Z2_MINMAX_ID;
 #endif
 #if FEATURE_Z_PROBE
 		if((Printer::probeType == 2) ? READ(Z_PROBE_PIN) : !READ(Z_PROBE_PIN))
@@ -200,33 +184,17 @@ void Endstops::update() {
 
 void Endstops::report() {
     Com::printF("endstops hit: ");
-#if (X_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_X
-        Com::printF(Com::tXMinColon);
-        Com::printF(xMin() ? Com::tHSpace : Com::tLSpace);
-#endif
 #if (X_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_X
         Com::printF(Com::tXMaxColon);
         Com::printF(xMax() ? Com::tHSpace : Com::tLSpace);
-#endif
-#if (Y_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Y
-        Com::printF(Com::tYMinColon);
-        Com::printF(yMin() ? Com::tHSpace : Com::tLSpace);
 #endif
 #if (Y_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Y
         Com::printF(Com::tYMaxColon);
         Com::printF(yMax() ? Com::tHSpace : Com::tLSpace);
 #endif
-#if (Z_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Z
-        Com::printF(Com::tZMinColon);
-        Com::printF(zMin() ? Com::tHSpace : Com::tLSpace);
-#endif
 #if (Z_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Z
         Com::printF(Com::tZMaxColon);
         Com::printF(zMax() ? Com::tHSpace : Com::tLSpace);
-#endif
-#if (Z2_MINMAX_PIN > -1) && MINMAX_HARDWARE_ENDSTOP_Z2
-        Com::printF(Com::tZMinMaxColon);
-        Com::printF(z2MinMax() ? Com::tHSpace : Com::tLSpace);
 #endif
 #if FEATURE_Z_PROBE
         Com::printF(Com::tZProbeState);
@@ -363,7 +331,7 @@ void Printer::updateDerivedParameter()
     for(uint8_t i = 0; i < E_AXIS_ARRAY; i++)
     {
         invAxisStepsPerMM[i] = 1.0f/axisStepsPerMM[i];
-#ifdef RAMP_ACCELERATION
+#if RAMP_ACCELERATION
         /** Acceleration in steps/s^3 in printing mode.*/
         maxPrintAccelerationStepsPerSquareSecond[i] = maxAccelerationMMPerSquareSecond[i] * axisStepsPerMM[i];
         /** Acceleration in steps/s^2 in movement mode.*/
@@ -404,12 +372,6 @@ void Printer::kill(uint8_t only_steppers)
         for(uint8_t i = 0; i < NUM_TEMPERATURE_LOOPS; i++)
             Extruder::setTemperatureForExtruder(0, i);
         Extruder::setHeatedBedTemperature(0);
-#if defined(PS_ON_PIN) && PS_ON_PIN>-1
-        //pinMode(PS_ON_PIN,INPUT);
-        SET_OUTPUT(PS_ON_PIN); //GND
-        WRITE(PS_ON_PIN, (POWER_INVERTING ? LOW : HIGH));
-        Printer::setPowerOn(false);
-#endif
         Printer::setAllKilled(true);
     }
 #if BED_LEDS
@@ -651,19 +613,7 @@ void Printer::setup()
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
 #endif
-
-#if defined(ENABLE_POWER_ON_STARTUP) && ENABLE_POWER_ON_STARTUP && (PS_ON_PIN>-1)
-    SET_OUTPUT(PS_ON_PIN); //GND
-    WRITE(PS_ON_PIN, (POWER_INVERTING ? HIGH : LOW));
     Printer::setPowerOn(true);
-#else
-#if PS_ON_PIN > -1
-    SET_OUTPUT(PS_ON_PIN); //GND
-    Printer::setPowerOn(false);
-#else
-    Printer::setPowerOn(true);
-#endif
-#endif
 
     //Initialize Step Pins
     SET_OUTPUT(X_STEP_PIN);
@@ -731,36 +681,6 @@ void Printer::setup()
 #endif
 
     //endstop pullups
-#if MIN_HARDWARE_ENDSTOP_X
-#if X_MIN_PIN > -1
-    SET_INPUT(X_MIN_PIN);
-#if ENDSTOP_PULLUP_X_MIN
-    PULLUP(X_MIN_PIN, HIGH);
-#endif
-#else
-#error You have defined hardware x min endstop without pin assignment. Set pin number for X_MIN_PIN
-#endif
-#endif
-#if MIN_HARDWARE_ENDSTOP_Y
-#if Y_MIN_PIN > -1
-    SET_INPUT(Y_MIN_PIN);
-#if ENDSTOP_PULLUP_Y_MIN
-    PULLUP(Y_MIN_PIN, HIGH);
-#endif
-#else
-#error You have defined hardware y min endstop without pin assignment. Set pin number for Y_MIN_PIN
-#endif
-#endif
-#if MIN_HARDWARE_ENDSTOP_Z
-#if Z_MIN_PIN > -1
-    SET_INPUT(Z_MIN_PIN);
-#if ENDSTOP_PULLUP_Z_MIN
-    PULLUP(Z_MIN_PIN, HIGH);
-#endif
-#else
-#error You have defined hardware z min endstop without pin assignment. Set pin number for Z_MIN_PIN
-#endif
-#endif
 #if MAX_HARDWARE_ENDSTOP_X
 #if X_MAX_PIN > -1
     SET_INPUT(X_MAX_PIN);
@@ -1174,7 +1094,7 @@ void Printer::showConfiguration() {
     Com::config("Fan2:0");
 #endif	
     Com::config("LCD:", true);
-    Com::config("SoftwarePowerSwitch:",PS_ON_PIN > -1);
+    Com::config("SoftwarePowerSwitch:",0);
     Com::config("XHomeDir:",X_HOME_DIR);
     Com::config("YHomeDir:",Y_HOME_DIR);
     Com::config("ZHomeDir:",Z_HOME_DIR);
