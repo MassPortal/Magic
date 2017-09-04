@@ -49,8 +49,8 @@ class Lighting
 	 void loop();
 	 void ShowTemps();
 	 void SetShowType(ShowType SType);
-	 int ary[LED_COUNT][3];
-	
+	 uint8_t ary[LED_COUNT][3];
+     bool dimTo(uint8_t target[LED_COUNT][3]);
 };
 
 extern Lighting Light;
