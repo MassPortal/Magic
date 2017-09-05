@@ -2557,8 +2557,8 @@ void Commands::processMCode(GCode *com)
         if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND))
         {
             if (!com->hasP()) setFanSpeed(com->hasS() ? com->S : 255, true);
-            else if (com->P == 1) setFan2Speed(com->hasS() ? com->S : 255, true);
-            else setFan3Speed(com->hasS() ? com->S : 255, true);
+            else if (com->P == 1) setFan2Speed(com->hasS() ? com->S : 255);
+            else setFan3Speed(com->hasS() ? com->S : 255);
         }
         break;
 #endif
