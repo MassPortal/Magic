@@ -73,7 +73,7 @@ void Commands::commandLoop()
         /* Raspberry should filter these messages out*/
         /* Only applys for movement commands*/
         if (PrintLine::NExecuted) {
-            Com::printF("Error: ex ");
+            Com::printF("ex ");
             Com::printNumber(PrintLine::NExecuted);
             Com::println();
             PrintLine::NExecuted = 0;
@@ -98,8 +98,11 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
             writeMonitor();
         counter250ms = 5;
         EVENT_TIMER_500MS;
-		if (managePressure)
+		if (managePressure) {
 			Commands::printPressureValue();
+            Commands::logTemperatures();
+            Commands::printPower();
+        }
     }
     // If called from queueDelta etc. it is an error to start a new move since it
     // would invalidate old computation resulting in unpredicted behaviour.
@@ -262,6 +265,27 @@ void Commands::printPressureValue() {
 #endif
 	//Com::printF("FW:9=", Extruder::getPressureValue());
 	//Com::printFLN("#Pressure value");
+}
+
+void Commands::logTemperatures(void)
+{
+    BTAdapter.print("FW:5=");
+    BTAdapter.print(Extruder::getHeaterTemperature(0));
+    BTAdapter.println("#Heater0 temp");
+
+    BTAdapter.print("FW:6=");
+    BTAdapter.print( Extruder::getHeaterTemperature(1));
+    BTAdapter.println("#Heater1 temp");
+}
+
+void Commands::printPower(void)
+{
+    float tmp;
+    tmp = 40.0 * pwm_pos[0] / 0xff;
+    tmp += 40.0 * pwm_pos[1] / 0xff;
+
+    BTAdapter.print("FW:11=");
+    BTAdapter.println(tmp);
 }
 
 void Commands::changeFeedrateMultiply(int factor)
