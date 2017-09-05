@@ -2553,6 +2553,14 @@ void Commands::processMCode(GCode *com)
 		else
             setFanSpeed(0);
         break;
+    case 108: // M108 Fan On now!
+        if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND))
+        {
+            if (!com->hasP()) setFanSpeed(com->hasS() ? com->S : 255, true);
+            else if (com->P == 1) setFan2Speed(com->hasS() ? com->S : 255, true);
+            else setFan3Speed(com->hasS() ? com->S : 255, true);
+        }
+        break;
 #endif
     case 111: // M111 enable/disable run time debug flags
         if(com->hasS()) Printer::setDebugLevel(static_cast<uint8_t>(com->S));
