@@ -1823,6 +1823,59 @@ void Printer::zBabystep()
     //HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 1);
 }
 
+void Printer::moveZ(float Zmm)
+{
+    bool dir, xDir, yDir, zDir;
+    uint32_t steps;
+
+    /* Save xyz direction settings */
+    xDir = getXDirection();
+    yDir = getYDirection();
+    zDir = getZDirection();
+    /* Configure babystep direction */
+    dir = (Zmm > 0) ? true : false;
+    setXDirection(dir);
+    setYDirection(dir);
+    setZDirection(dir);
+    /* Calculate steps neccessary */
+    steps = floor(abs(Zmm)*ZAXIS_STEPS_PER_MM + 0.5);
+    /* Execute steps */
+    while (steps) {
+        startXStep();
+        startYStep();
+        startZStep();
+        HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 2);
+        endXYZSteps();
+        HAL::delayMicroseconds(40);
+        steps--;
+    }
+    /* Set old xyz settings */
+    setXDirection(xDir);
+    setYDirection(yDir);
+    setZDirection(zDir);
+}
+
+void Printer::haltSteppers(void)
+{
+    TC_Stop(TIMER1_TIMER, TIMER1_TIMER_CHANNEL);
+}
+
+void Printer::resumeSteppers(void)
+{
+    TC_Start(TIMER1_TIMER, TIMER1_TIMER_CHANNEL);
+}
+
+void Printer::babyStep(float Zmm)
+{
+    /* Check for zeros and NaNs */
+    if (!Zmm || Zmm != Zmm) return;
+    /* Disable motor timer */
+    haltSteppers();
+    moveZ(Zmm);
+    /* Enable motor timer */
+    resumeSteppers();
+}
+
 void Printer::moveToPausePosition() {
 	if (!hasMovedToPausePosition) {
 		Commands::waitUntilEndOfAllMoves();

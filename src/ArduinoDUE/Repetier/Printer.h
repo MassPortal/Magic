@@ -309,6 +309,10 @@ public:
 	static bool isPaused;
 	static bool hasMovedToPausePosition; // if has already moved to pause position after pause request
 	static bool canMoveToPausePosition; // is it safe to move to pause position (have we homed before?)
+    static void moveZ(float Zmm); // Move in Z axis in a brutal manner (saves existing motor directions)
+    static void haltSteppers(void); // Disable stepper timer and nothing else
+    static void resumeSteppers(void); // Enable stepper timer
+    static void babyStep(float Zmm);
 	static void moveToPausePosition();
 	static void resumePrinting();
 	static float positionBeforePause[3]; //zPosition before pause

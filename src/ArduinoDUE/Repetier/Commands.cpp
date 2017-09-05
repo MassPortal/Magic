@@ -1894,6 +1894,9 @@ void Commands::processGCode(GCode *com)
 			Printer::setAutolevelActive(autoLevelActive);
 	}
 		break;
+    case 39:
+        if (com->hasI()) Printer::babyStep(com->I);
+        break;
     case 90: // G90
         Printer::relativeCoordinateMode = false;
         if(com->internalCommand)
