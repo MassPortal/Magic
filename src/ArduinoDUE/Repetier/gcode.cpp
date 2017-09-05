@@ -169,6 +169,7 @@ void GCode::requestResend()
 */
 void GCode::checkAndPushCommand()
 {
+    static bool halted = false;
     if(hasM())
     {
         if(M == 110)   // Reset line number
@@ -177,10 +178,16 @@ void GCode::checkAndPushCommand()
             Com::printFLN(Com::tOk);
             waitingForResend = -1;
             return;
-        }
-        if(M == 112)   // Emergency kill - freeze printer
-        {
+        } else if(M == 112) {// Emergency kill - freeze printer
             Commands::emergencyStop();
+        } else if (M == 113 && !halted) { // Imediate halt
+            Printer::haltSteppers();
+            Printer::moveZ(70);
+            halted = true;
+        } else if (M == 114 && halted) { // Unhalt
+            Printer::moveZ(-70);
+            Printer::resumeSteppers();
+            halted = false;
         }
 #ifdef DEBUG_COM_ERRORS
         if(M == 666) // force an communication error
@@ -223,7 +230,8 @@ void GCode::checkAndPushCommand()
         }
         lastLineNumber = actLineNumber;
     }
-    pushCommand();
+    /* Too late - it's done for some */
+    if (!(hasM() && (M == 113 || M == 114))) pushCommand();
 #ifdef DEBUG_COM_ERRORS
     if(hasM() && M == 667)
         return; // omit ok

@@ -1841,6 +1841,8 @@ void Printer::moveZ(float Zmm)
     steps = floor(abs(Zmm)*ZAXIS_STEPS_PER_MM + 0.5);
     /* Execute steps */
     while (steps) {
+        Endstops::update();
+        if (Endstops::xMax() || Endstops::yMax() || Endstops::zMax()) break;
         startXStep();
         startYStep();
         startZStep();
