@@ -180,9 +180,9 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_E3_ENABLE_PIN  37
 
 // Extra driver on extension port
-#define ORIG_E4_STEP_PIN    29
-#define ORIG_E4_DIR_PIN     27
-#define ORIG_E4_ENABLE_PIN  31
+#define ORIG_E4_STEP_PIN    -1
+#define ORIG_E4_DIR_PIN     -1
+#define ORIG_E4_ENABLE_PIN  -1
 
 #define EXTENSION_BOARD_MS1 67
 #define EXTENSION_BOARD_MS2 68
@@ -1058,6 +1058,10 @@ STEPPER_CURRENT_CONTROL
 #endif
 
 #define PS_ON_PIN ORIG_PS_ON_PIN
+
+#define GRAB_PIN        29
+#define RELEASE_PIN     31
+#define GRAB_STOP_PIN   27
 
 #ifndef ORIG_SDCARDDETECT
 #define ORIG_SDCARDDETECT -1

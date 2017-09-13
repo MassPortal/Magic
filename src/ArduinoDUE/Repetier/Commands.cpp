@@ -3197,6 +3197,14 @@ void Commands::processMCode(GCode *com)
     case 603:
         Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_DETECTED, true);
         break;
+    case 700:
+        Commands::toolChange(com->hasS() ? com->S : 0, true);
+        //grip(true);
+        break;
+    case 701:
+        Commands::toolChange(com->hasS() ? com->S : 0, false);
+        //grip(false);
+        break;
     case 907: // M907 Set digital trimpot/DAC motor current using axis codes.
     {
 #if STEPPER_CURRENT_CONTROL != CURRENT_CONTROL_MANUAL
@@ -3299,6 +3307,7 @@ void Commands::executeGCode(GCode *com)
     {
         Commands::waitUntilEndOfAllMoves();
         Extruder::selectExtruderById(com->T);
+        if (com->hasP()) Commands::selectToolById(com->T);
     }
     else
     {
@@ -3316,6 +3325,11 @@ void Commands::executeGCode(GCode *com)
 }
 #endif
 
+}
+
+bool Commands::selectToolById(uint8_t toolId)
+{
+    return false;
 }
 
 void Commands::emergencyStop()
@@ -3499,4 +3513,42 @@ void Commands::fillDefAxisDir()
 		Printer::retDefAxisDir[Y_AXIS] = false;
 		Printer::retDefAxisDir[Z_AXIS] = true;
 	}
+}
+
+void Commands::grip(bool pickUp)
+{
+    millis_t startTime;
+    millis_t endTime;
+
+    waitUntilEndOfAllMoves();
+    startTime = millis();
+    if (pickUp) WRITE(GRAB_PIN, 1);
+    else WRITE(RELEASE_PIN, 1);
+    /* Ignore Inrush */
+    while (startTime + 300 > millis()) HAL::pingWatchdog();
+    while (startTime + 3e3 > millis()) {
+        endTime = (READ(GRAB_STOP_PIN) && !endTime) ? millis() : 0;
+        /* Force 500 high current */
+        if (endTime && endTime + 500 < millis()) break;
+        
+        HAL::pingWatchdog();
+    }
+    if (pickUp) WRITE(GRAB_PIN, 0);
+    else WRITE(RELEASE_PIN, 0);
+}
+
+void Commands::toolChange(uint8_t tool, bool take)
+{
+    int saveFeedrte = Printer::feedrateMultiply;
+    changeFeedrateMultiply(500);
+    Printer::homeAxis(true, true, true);
+    Printer::updateCurrentPosition();
+    if (tool == 0) GCode::executeFString("G1 X-35 G1 Z164");
+    else if (tool == 1) GCode::executeFString("G1 X41 G1 Z164");
+    else return;
+    waitUntilEndOfAllMoves();
+    GCode::executeFString("G1 Y-77");
+    grip(take);
+    GCode::executeFString("G1 Y0");
+    changeFeedrateMultiply(saveFeedrte);
 }

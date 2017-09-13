@@ -33,6 +33,7 @@ public:
     static void processGCode(GCode *com);
     static void processMCode(GCode *com);
     static void executeGCode(GCode *com);
+    static bool selectToolById(uint8_t toolId);
     static void waitUntilEndOfAllMoves();
     static void waitUntilEndOfAllBuffers();
     static void printCurrentPosition(FSTRINGPARAM(s));
@@ -53,6 +54,8 @@ public:
 private:
     static int lowestRAMValue;
     static int lowestRAMValueSend;
+    static void grip(bool pickUp);
+    static void toolChange(uint8_t tool, bool take);
 };
 bool cmpf(float a, float b);
 bool enableZprobe(bool probeState);

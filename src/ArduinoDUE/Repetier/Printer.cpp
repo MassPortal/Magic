@@ -1251,6 +1251,13 @@ if (EEPROM::getBedLED()>1)
         uid.showLanguageSelectionWizard();
     }
 #endif // EEPROM_MODE
+#if GRAB_STOP_PIN > 0 && RELEASE_PIN > 0 && GRAB_PIN > 0
+    SET_OUTPUT(GRAB_PIN);
+    SET_OUTPUT(RELEASE_PIN);
+    WRITE(GRAB_PIN, 0);
+    WRITE(RELEASE_PIN, 0);
+    SET_INPUT(GRAB_STOP_PIN);
+#endif /* TOOLCHANGE PINS*/
 }
 
 void Printer::defaultLoopActions()
