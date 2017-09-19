@@ -739,6 +739,8 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 #define CHAMBER_TEMPSENSOR_TYPE 97
 /** Analog pin of analog sensor to read temperature of the chamber.  */
 #define CHAMBER_SENSOR_PIN TEMP_4_PIN
+#define CHAMBER_HEAT_PIN        33
+
 // ##########################################################################################
 // ##                             Laser configuration                                      ##
 // ##########################################################################################
@@ -1668,8 +1670,8 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1U"
-#define FIRMWARE_VERSION "223-rc"
+#define HARDWARE_VERSION "v1U-HC"
+#define FIRMWARE_VERSION "222-6cf0029"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0

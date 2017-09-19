@@ -956,6 +956,9 @@ void PWM_TIMER_VECTOR ()
 #if HEATED_BED_HEATER_PIN > -1 && HAVE_HEATED_BED
     if ((pwm_pos_set[NUM_EXTRUDER] = pwm_pos[NUM_EXTRUDER]) > 0) WRITE(HEATED_BED_HEATER_PIN, !HEATER_PINS_INVERTED);
 #endif
+#if CHAMBER_HEAT_PIN > -1
+    if ((pwm_pos_set[PWM_CHAMB] = (pwm_pos[PWM_CHAMB] & HEATER_PWM_MASK)) > 0) WRITE(CHAMBER_HEAT_PIN, 1);
+#endif
   }
   if (pwm_count_cooler == 0 && !PDM_FOR_COOLER)
   {
@@ -1137,6 +1140,7 @@ if(fan3Kickstart == 0)
 #else
   if (pwm_pos_set[NUM_EXTRUDER] == pwm_count_heater && pwm_pos_set[NUM_EXTRUDER] != HEATER_PWM_MASK) WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
 #endif
+  if (pwm_pos_set[PWM_CHAMB] == pwm_count_heater && pwm_pos_set[PWM_CHAMB] != HEATER_PWM_MASK) WRITE(CHAMBER_HEAT_PIN, 0);
 #endif
   //noInt.unprotect();
   counterPeriodical++; // Appxoimate a 100ms timer

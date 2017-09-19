@@ -175,9 +175,9 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_E2_ENABLE_PIN  49
 
 // Extra driver on extension board
-#define ORIG_E3_STEP_PIN    35
-#define ORIG_E3_DIR_PIN     33
-#define ORIG_E3_ENABLE_PIN  37
+#define ORIG_E3_STEP_PIN    -1
+#define ORIG_E3_DIR_PIN     -1
+#define ORIG_E3_ENABLE_PIN  -1
 
 // Extra driver on extension port
 #define ORIG_E4_STEP_PIN    29

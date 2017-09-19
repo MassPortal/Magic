@@ -293,7 +293,11 @@ void Commands::setFan2Speed(int speed)
 void Commands::setFan3Speed(int speed)
 {
 	#if FAN3_PIN >- 1 && FEATURE_VENTILATION
-	speed = constrain(speed,0,255);
+    if (chamberController.targetTemperature > 0) {
+	    speed = constrain(speed,85,255);
+    } else {
+        speed = constrain(speed,0,255);
+    }
 	Printer::setFan3SpeedDirectly(speed);
 	Com::printFLN(Com::tFan3speed,speed); // send only new values to break update loops!
 	#endif
@@ -2399,7 +2403,11 @@ void Commands::processMCode(GCode *com)
 #endif
         if (com->hasS()) 
         {	
-			if (com->hasT() && com->T < NUM_EXTRUDER)
+            if (com->hasT() && com->T == 9) {
+                setFan3Speed(0xff/2);
+                chamberController.setTargetTemperature((com->S < 80) ? com->S : 80);
+                chamberController.updateTempControlVars();
+            } else if (com->hasT() && com->T < NUM_EXTRUDER)
 				Extruder::setTemperatureForExtruder(com->S, com->T, com->hasF() && com->F > 0);
             else
                 Extruder::setTemperatureForExtruder(com->S, Extruder::current->id, com->hasF() && com->F > 0);
@@ -2536,7 +2544,7 @@ void Commands::processMCode(GCode *com)
 				if(com->P == 1)
 	            setFan2Speed(com->hasS() ? com->S : 255);
 			else
-					setFan3Speed(com->hasS() ? com->S : 255);				
+					setFan3Speed(com->hasS() ? com->S : 255);
 			else
             setFanSpeed(com->hasS() ? com->S : 255);
         }
