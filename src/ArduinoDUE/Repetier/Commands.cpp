@@ -224,6 +224,13 @@ void Commands::printTemperature() {
 	Com::printFLN("#Chamber temp");
 }
 
+void Commands::reportSwitch(uint8_t sw)
+{
+    Com::printF("Switch", sw);
+    /* Invert for reporting: high lvl -> no filamet, low lvl -> filamet detected */
+    Com::printFLN(": ", Printer::switchStatus[sw] ? 0 : 1);
+}
+
 void Commands::changeFeedrateMultiply(int factor)
 {
     if(factor < 25) factor = 25;

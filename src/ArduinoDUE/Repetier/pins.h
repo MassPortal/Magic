@@ -175,14 +175,14 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_E2_ENABLE_PIN  49
 
 // Extra driver on extension board
-#define ORIG_E3_STEP_PIN    35
-#define ORIG_E3_DIR_PIN     33
-#define ORIG_E3_ENABLE_PIN  37
+#define ORIG_E3_STEP_PIN    -1
+#define ORIG_E3_DIR_PIN     -1
+#define ORIG_E3_ENABLE_PIN  -1
 
 // Extra driver on extension port
-#define ORIG_E4_STEP_PIN    29
-#define ORIG_E4_DIR_PIN     27
-#define ORIG_E4_ENABLE_PIN  31
+#define ORIG_E4_STEP_PIN    -1
+#define ORIG_E4_DIR_PIN     -1
+#define ORIG_E4_ENABLE_PIN  -1
 
 #define EXTENSION_BOARD_MS1 67
 #define EXTENSION_BOARD_MS2 68
@@ -235,6 +235,9 @@ STEPPER_CURRENT_CONTROL
 #define EEPROM_ADDRSZ_BYTES     TWI_MMR_IADRSZ_2_BYTE
 #define EEPROM_AVAILABLE 1
 #endif
+
+#define FILASENS1_PIN   33
+#define FILASENS2_PIN   31
 
 /****************************************************************************/
 // RAMPS-FD Board

@@ -410,6 +410,7 @@ public:
     static float memoryE;
     static float memoryF;
 	static bool allowBelow; /// allow probing below Z max length
+    static bool switchStatus[2];
 #if GANTRY
     static int8_t motorX;
     static int8_t motorYorZ;

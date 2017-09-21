@@ -81,6 +81,7 @@ float Printer::positionBeforePause[3] = {0, 0, 0};
 float oldFeedrate = Printer::feedrate;
 uint8_t Printer::ledVal = 0;
 bool Printer::allowBelow = true;
+bool Printer::switchStatus[2];
 
 uint8_t Printer::interruptEvent = 0;
 #if EEPROM_MODE != 0
@@ -1255,6 +1256,28 @@ if (EEPROM::getBedLED()>1)
 
 void Printer::defaultLoopActions()
 {
+    static bool first = true;
+
+    if (EEPROM::getFilamentSensor() == 2) {
+        if (first) {
+            pinMode(FILASENS1_PIN, INPUT_PULLUP);
+            pinMode(FILASENS2_PIN, INPUT_PULLUP);
+            switchStatus[0] = READ(FILASENS1_PIN);
+            Commands::reportSwitch(0);
+            switchStatus[1] = READ(FILASENS2_PIN);
+            Commands::reportSwitch(1);
+            first = false;
+        }
+        if (switchStatus[0] != READ(FILASENS1_PIN)) {
+            switchStatus[0] = !switchStatus[0];
+            Commands::reportSwitch(0);
+        }
+        if (switchStatus[1] != READ(FILASENS2_PIN)) {
+            switchStatus[1] = !switchStatus[1];
+            Commands::reportSwitch(1);
+        }
+    }
+
     Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
     UI_MEDIUM; // do check encoder
     millis_t curtime = HAL::timeInMilliseconds();
