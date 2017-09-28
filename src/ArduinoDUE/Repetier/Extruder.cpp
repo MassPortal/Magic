@@ -21,6 +21,9 @@
 
 #include "Repetier.h"
 
+uint8_t Extruder::stepInc[3] = {0xFF, 0xFF, 0xFF};
+uint32_t Extruder::stepSum[3] = {0, 0, 0};
+
 uint8_t manageMonitor = 0; ///< Temp. we want to monitor with our host. 1+NUM_EXTRUDER is heated bed
 unsigned int counterPeriodical = 0;
 volatile uint8_t executePeriodical = 0;
@@ -1082,9 +1085,11 @@ Call this function only, if interrupts are disabled.
 void Extruder::step()
 {
 #if NUM_EXTRUDER == 1
-    WRITE(EXT0_STEP_PIN, START_STEP_WITH_HIGH);
-    WRITE(EXT1_STEP_PIN, START_STEP_WITH_HIGH);
-    WRITE(EXT2_STEP_PIN, START_STEP_WITH_HIGH);
+    for (uint8_t i = 0; i < 3; i++) stepSum[i] += stepInc[i];
+
+    if (stepSum[0] >= 0xff) WRITE(EXT0_STEP_PIN, START_STEP_WITH_HIGH);
+    if (stepSum[1] >= 0xff) WRITE(EXT1_STEP_PIN, START_STEP_WITH_HIGH);
+    if (stepSum[2] >= 0xff) WRITE(EXT2_STEP_PIN, START_STEP_WITH_HIGH);
 #if EXTRUDER_JAM_CONTROL && defined(EXT0_JAM_PIN) && EXT0_JAM_PIN > -1
     TEST_EXTRUDER_JAM(0)
 #endif
@@ -1178,9 +1183,10 @@ Call this function only, if interrupts are disabled.
 void Extruder::unstep()
 {
 #if NUM_EXTRUDER == 1
-    WRITE(EXT0_STEP_PIN,!START_STEP_WITH_HIGH);
-    WRITE(EXT1_STEP_PIN,!START_STEP_WITH_HIGH);
-    WRITE(EXT2_STEP_PIN,!START_STEP_WITH_HIGH);
+    if (stepSum[0] >= 0xff) WRITE(EXT0_STEP_PIN,!START_STEP_WITH_HIGH);
+    if (stepSum[1] >= 0xff) WRITE(EXT1_STEP_PIN,!START_STEP_WITH_HIGH);
+    if (stepSum[2] >= 0xff) WRITE(EXT2_STEP_PIN,!START_STEP_WITH_HIGH);
+    for (uint8_t i = 0; i < 3; i++) if (stepSum[i] >= 0xff) stepSum[i] -= 0xff;
 #else
     switch(Extruder::current->id)
     {

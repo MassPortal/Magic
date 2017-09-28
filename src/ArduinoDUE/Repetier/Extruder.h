@@ -191,6 +191,8 @@ class Extruder   // Size: 12*1 Byte+12*4 Byte+4*2Byte = 68 Byte
 {
 public:
     static Extruder *current;
+    static uint8_t stepInc[3];
+    static uint32_t stepSum[3];
 #if FEATURE_DITTO_PRINTING
     static uint8_t dittoMode;
 #endif

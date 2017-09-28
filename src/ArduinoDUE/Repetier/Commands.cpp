@@ -2385,7 +2385,15 @@ void Commands::processMCode(GCode *com)
             Printer::enableZStepper();
     }
     break;
-
+    case 103: // M103 set extruder proportions
+        if (!com->hasP() || com->P < 0 || com->P > 2) {
+            Com::printFLN("P<0-2> (Extruder selection)");
+        } else if (!com->hasS() || com->S < 0 || com->S > 0xFF) {
+            Com::printFLN("S<0-255> (Extruder speed)");
+        } else {
+            Extruder::stepInc[com->P] = com->S;
+        }
+        break;
     case 104: // M104 temperature
 #if NUM_EXTRUDER > 0
 		if (reportTempsensorError()) break;
