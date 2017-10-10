@@ -583,6 +583,7 @@ This function changes and initializes a new extruder. This is also called, after
 */
 void Extruder::selectExtruderById(uint8_t extruderId)
 {
+    millis_t startSwap;
 #if NUM_EXTRUDER > 0
 #if MIXING_EXTRUDER
     if(extruderId >= VIRTUAL_EXTRUDER)
@@ -606,6 +607,11 @@ void Extruder::selectExtruderById(uint8_t extruderId)
         executeSelect = true;
     }
     Commands::waitUntilEndOfAllMoves();
+    if (extruderId != Extruder::current->id) {
+        HAL::servoMicroseconds(0, extruderId ? EXT1_SERVO_POS : EXT0_SERVO_POS, SERVO_TIME);
+        startSwap = millis();
+        while (startSwap + SERVO_TIME > millis()) Commands::checkForPeriodicalActions(false);
+    }
 #endif
     Extruder::current->extrudePosition = Printer::currentPositionSteps[E_AXIS];
     Extruder::current = &extruder[extruderId];

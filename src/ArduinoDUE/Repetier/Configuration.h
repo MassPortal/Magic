@@ -200,6 +200,10 @@ Overridden if EEPROM activated.*/
 // These commands get executed before we go to stored position.
 #define PAUSE_END_COMMANDS ""
 
+#define EXT0_SERVO_POS  550u
+#define EXT1_SERVO_POS  2500u
+#define SERVO_TIME      1000u // ms
+
 #define EXT0_X_OFFSET 0
 #define EXT0_Y_OFFSET 0
 #define EXT0_Z_OFFSET 0
@@ -1338,14 +1342,14 @@ Servos are controlled by a pulse width normally between 500 and 2500 with 1500ms
 WARNING: Servos can draw a considerable amount of current. Make sure your system can handle this or you may risk your hardware!
 */
 
-#define FEATURE_SERVO 0
+#define FEATURE_SERVO 1
 // Servo pins on a RAMPS board are 11,6,5,4
-#define SERVO0_PIN 11
-#define SERVO1_PIN 6
+#define SERVO0_PIN 6
+#define SERVO1_PIN 11
 #define SERVO2_PIN 5
 #define SERVO3_PIN 4
 /* for set servo(s) at designed neutral position at power-up. Values < 500 mean no start position */
-#define SERVO0_NEUTRAL_POS  -1
+#define SERVO0_NEUTRAL_POS  EXT0_SERVO_POS
 #define SERVO1_NEUTRAL_POS  -1
 #define SERVO2_NEUTRAL_POS  -1
 #define SERVO3_NEUTRAL_POS  -1

@@ -3300,6 +3300,13 @@ void Commands::processMCode(GCode *com)
     case 603:
         Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_DETECTED, true);
         break;
+    case 800:
+        if (com->hasS() && com->S < 2) {
+            HAL::servoMicroseconds(0, com->S ? EXT1_SERVO_POS : EXT0_SERVO_POS, com->hasP() ? com->P : SERVO_TIME);
+        } else {
+            Com::print("Needs S<0-1>\n");
+        }
+        break;
     case 907: // M907 Set digital trimpot/DAC motor current using axis codes.
     {
 #if STEPPER_CURRENT_CONTROL != CURRENT_CONTROL_MANUAL
