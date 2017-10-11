@@ -1260,6 +1260,7 @@ if (EEPROM::getBedLED()>1)
 
 void Printer::manageSwitches(void)
 {
+    bool goodSwap;
 #if 0
     const uint8_t switchPin[2] = {55,56};
     static bool switchState[2];
@@ -1339,9 +1340,12 @@ void Printer::manageSwitches(void)
         for (uint8_t i = 0; i < NUM_EXTRUDER; i++) {
             /* Seek primed */
             if (extruder[i].fiStatus == FI_STANDBY) {
-            /* Use primed */
-                if (swapFilament(Extruder::current->id, i)) {
-                   /* Successful swap */
+                /* Use primed */
+                haltSteppers();
+                goodSwap = swapFilament(Extruder::current->id, i);
+                resumeSteppers();
+                if (goodSwap) {
+                    /* Successful swap */
                     Extruder::selectExtruderById(i); 
                     break;
                 }
@@ -2011,20 +2015,23 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
     upSteps = floor(SAFE_UP_DIST_MM*axisStepsPerMM[Z_AXIS] + 0.5);
     downSteps = upSteps;
     /* Attempt to prime target, you have 5 seconds to comply */
+#warning dont do this like this... it all-ready gets checked
     if (!primeFilament(toIndex, 5000)) return false;
     Extruder::enableExt(fromIndex);
     Extruder::enableExt(toIndex);
+    Extruder::setExtDir(toIndex, true);
+    Extruder::setExtDir(fromIndex, false);
 
     /* Save xyz direction settings */
     xDir = getXDirection();
     yDir = getYDirection();
     zDir = getZDirection();
-    setXDirection(false);
-    setYDirection(false);
-    setZDirection(false);
+    setXDirection(true);
+    setYDirection(true);
+    setZDirection(true);
 
     breaker = false;
-    while (digitalRead(to->swFirst) || breaker) {
+    while (digitalRead(to->swFirst) && !breaker) {
         switch(state) {
             case 0:
                 Endstops::update();
@@ -2038,9 +2045,6 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
                     startZStep();
                     upSteps--;
                 } else {
-                    setXDirection(true);
-                    setYDirection(true);
-                    setZDirection(true);
                     state++;
                 }
                 break;
@@ -2049,6 +2053,9 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
                     Extruder::extStep(toIndex);
                     inSteps--;
                 } else {
+                    setXDirection(false);
+                    setYDirection(false);
+                    setZDirection(false);
                     state++;
                 }
                 break;
@@ -2069,6 +2076,7 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
         Extruder::extUnstep(fromIndex);
         Extruder::extUnstep(toIndex);
         HAL::delayMicroseconds(70);
+        HAL::pingWatchdog();
     }
     /* Set old xyz settings */
     setXDirection(xDir);
