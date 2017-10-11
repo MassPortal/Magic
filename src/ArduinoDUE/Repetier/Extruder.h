@@ -182,6 +182,16 @@ extern Extruder extruder[];
 #define EXTRUDER_FLAG_RETRACTED 1
 #define EXTRUDER_FLAG_WAIT_JAM_STARTCOUNT 2 ///< Waiting for the first signal to start counting
 
+typedef enum {
+    FI_UNKNOWN, // 1st = ?, 2nd = ? (Who knows)
+    FI_MISSING, // 1st = 0, 2nd = 0 (No filamet anywhere)
+    FI_EMPTY,   // 1st = 0, 2nd = 1 (Begin swaping if possible)
+    FI_INSERED, // 1st = 1, 2nd = 0 (Comes from MISSING)
+    FI_WAITING, // 1st = 1, 2nd = 0 (Comes from EMPTY)
+    FI_UNPRIMED,// 1st = 1, 2nd = 1 (All is good but unknown position)
+    FI_STANDBY  // 1st = 1, 2nd = 1 (All is good & at known position)
+} filamentStatus_e;
+
 /** \brief Data to drive one extruder.
 
 This structure contains all definitions for an extruder and all
@@ -200,6 +210,10 @@ public:
     static uint8_t activeMixingExtruder;
 	static void recomputeMixingExtruderSteps();
 #endif
+    filamentStatus_e fiStatus;
+    int8_t swFirst; // IO for first filament detection switch
+    int8_t swLast; // IO for last filament detection switch
+
     uint8_t id;
     int32_t xOffset;
     int32_t yOffset;
@@ -262,9 +276,13 @@ public:
 #if MIXING_EXTRUDER > 0
     static void setMixingWeight(uint8_t extr,int weight);
 #endif
+    static void extStep(uint8_t ext);
+    static void extUnstep(uint8_t ext);
     static void step();
     static void unstep();
+    static void setExtDir(uint8_t ext, bool dir);
     static void setDirection(uint8_t dir);
+    static void enableExt(uint8_t ext);
     static void enable();
 #if FEATURE_RETRACTION
     inline bool isRetracted() {return (flags & EXTRUDER_FLAG_RETRACTED) != 0;}

@@ -180,9 +180,9 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_E3_ENABLE_PIN  37
 
 // Extra driver on extension port
-#define ORIG_E4_STEP_PIN    29
-#define ORIG_E4_DIR_PIN     27
-#define ORIG_E4_ENABLE_PIN  31
+#define ORIG_E4_STEP_PIN    -1
+#define ORIG_E4_DIR_PIN     -1
+#define ORIG_E4_ENABLE_PIN  -1
 
 #define EXTENSION_BOARD_MS1 67
 #define EXTENSION_BOARD_MS2 68
@@ -209,7 +209,6 @@ STEPPER_CURRENT_CONTROL
 #define ORIG_FAN2_PIN   8
 #define ORIG_FAN3_PIN   9
 #define ORIG_PS_ON_PIN          -1
-#define KILL_PIN	   50
 #define SUICIDE_PIN    -1  //PIN that has to be turned on right after start, to keep power flowing.
 
 // 20 or 70

@@ -218,11 +218,11 @@ Define the pin
 #define UI_DISPLAY_ENABLE_PIN	43		// PINK.3, 86, D_E
 #define UI_DISPLAY_D0_PIN		44		// PINF.5, 92, D_D4
 #define UI_DISPLAY_D1_PIN		45		// PINK.2, 87, D_D5
-#define UI_DISPLAY_D2_PIN		46		// PINL.5, 40, D_D6
+#define UI_DISPLAY_D2_PIN		44		// PINL.5, 40, D_D6
 #define UI_DISPLAY_D3_PIN		47		// PINK.4, 85, D_D7
 #define UI_DISPLAY_D4_PIN		44		// PINF.5, 92, D_D4
 #define UI_DISPLAY_D5_PIN		45		// PINK.2, 87, D_D5
-#define UI_DISPLAY_D6_PIN		46		// PINL.5, 40, D_D6
+#define UI_DISPLAY_D6_PIN		44		// PINL.5, 40, D_D6
 #define UI_DISPLAY_D7_PIN		47		// PINK.4, 85, D_D7
 #define UI_DELAYPERCHAR		   50
 
@@ -367,12 +367,11 @@ const int matrixActions[] PROGMEM = UI_MATRIX_ACTIONS;
 void uiInitKeys() {
 #if UI_HAS_KEYS!=0
   //UI_KEYS_INIT_CLICKENCODER_LOW(33,31); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
-  UI_KEYS_INIT_BUTTON_LOW(33); // push button, connects gnd to pin
-  UI_KEYS_INIT_BUTTON_LOW(31);
-  UI_KEYS_INIT_BUTTON_LOW(29);
-  UI_KEYS_INIT_BUTTON_LOW(37);
-  UI_KEYS_INIT_BUTTON_LOW(35);
-  UI_KEYS_INIT_BUTTON_LOW(KILL_PIN); // ENCODER_B - pin 52
+  //UI_KEYS_INIT_BUTTON_LOW(33); // push button, connects gnd to pin
+  //UI_KEYS_INIT_BUTTON_LOW(31);
+  //UI_KEYS_INIT_BUTTON_LOW(29);
+  //UI_KEYS_INIT_BUTTON_LOW(37);
+  //UI_KEYS_INIT_BUTTON_LOW(35);
 
 //  UI_KEYS_INIT_CLICKENCODER_LOW(47,45); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
 //  UI_KEYS_INIT_BUTTON_LOW(43); // push button, connects gnd to pin
@@ -399,12 +398,11 @@ void uiCheckKeys(uint16_t &action) {
 #if UI_HAS_KEYS!=0
 
  //UI_KEYS_CLICKENCODER_LOW_REV(33,31); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
-    UI_KEYS_BUTTON_LOW(33,UI_ACTION_OK); //35 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(35,UI_ACTION_PREVIOUS); //34 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(31,UI_ACTION_NEXT); //43 push button, connects gnd to pin
-    UI_KEYS_BUTTON_LOW(29,UI_ACTION_BACK); //44 push button, connects gnd to pin
-	UI_KEYS_BUTTON_LOW(37, UI_ACTION_MENU_SDCARD); //33 push button, connects gnd to pin
-	UI_KEYS_BUTTON_LOW(KILL_PIN, UI_ACTION_KILL ); //33 push button, connects gnd to pin
+    //UI_KEYS_BUTTON_LOW(33,UI_ACTION_OK); //35 push button, connects gnd to pin
+    //UI_KEYS_BUTTON_LOW(35,UI_ACTION_PREVIOUS); //34 push button, connects gnd to pin
+    //UI_KEYS_BUTTON_LOW(31,UI_ACTION_NEXT); //43 push button, connects gnd to pin
+    //UI_KEYS_BUTTON_LOW(29,UI_ACTION_BACK); //44 push button, connects gnd to pin
+	//UI_KEYS_BUTTON_LOW(37, UI_ACTION_MENU_SDCARD); //33 push button, connects gnd to pin
 //  UI_KEYS_BUTTON_LOW(43,UI_ACTION_OK); // push button, connects gnd to pin
 
     //pause button- when connected to GND, sends pause request to host

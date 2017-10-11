@@ -1905,11 +1905,11 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_DISPLAY_ENABLE_PIN	43		// PINK.3, 86, D_E
 #define UI_DISPLAY_D0_PIN		44		// PINF.5, 92, D_D4
 #define UI_DISPLAY_D1_PIN		45		// PINK.2, 87, D_D5
-#define UI_DISPLAY_D2_PIN		46		// PINL.5, 40, D_D6
+#define UI_DISPLAY_D2_PIN		-1		// PINL.5, 40, D_D6
 #define UI_DISPLAY_D3_PIN		47		// PINK.4, 85, D_D7
 #define UI_DISPLAY_D4_PIN		44		// PINF.5, 92, D_D4
 #define UI_DISPLAY_D5_PIN		45		// PINK.2, 87, D_D5
-#define UI_DISPLAY_D6_PIN		46		// PINL.5, 40, D_D6
+#define UI_DISPLAY_D6_PIN		-1		// PINL.5, 40, D_D6
 #define UI_DISPLAY_D7_PIN		47		// PINK.4, 85, D_D7
 #define UI_DELAYPERCHAR		   50
 /*

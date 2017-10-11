@@ -309,7 +309,10 @@ public:
 	static bool isPaused;
 	static bool hasMovedToPausePosition; // if has already moved to pause position after pause request
 	static bool canMoveToPausePosition; // is it safe to move to pause position (have we homed before?)
+    static void extrude(uint8_t num, float Zmm);
     static void moveZ(float Zmm); // Move in Z axis in a brutal manner (saves existing motor directions)
+    static bool swapFilament(uint8_t fromIndex,uint8_t toIndex);
+    static bool primeFilament(uint8_t index, millis_t timeOut);
     static void haltSteppers(void); // Disable stepper timer and nothing else
     static void resumeSteppers(void); // Enable stepper timer
     static void babyStep(float Zmm);
@@ -1110,6 +1113,7 @@ public:
     static void kill(uint8_t only_steppers);
     static void updateAdvanceFlags();
     static void setup();
+    static void manageSwitches(void);
     static void defaultLoopActions();
     static uint8_t setDestinationStepsFromGCode(GCode *com);
     static uint8_t moveTo(float x,float y,float z,float e,float f);

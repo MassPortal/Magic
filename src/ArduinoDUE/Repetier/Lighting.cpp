@@ -91,7 +91,7 @@ void Lighting::init()
         ary[k][1] = 0xff/4;
         ary[k][2] = 0xff/4;
     }
-    while (!dimTo(ary));
+    while (!dimTo(ary)|| maxIter++ >= 30);
 }
 
 void Lighting::factoryTest(){

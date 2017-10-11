@@ -3208,6 +3208,18 @@ void Commands::processMCode(GCode *com)
     case 603:
         Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_DETECTED, true);
         break;
+    case 700: // M700
+        if (com->hasS()) Com::print(Printer::primeFilament(com->S, com->hasP() ? com->P : 10000) ? "Good!\n" : "Fail!\n");
+        else Com::print("M700 S<0-2> extruders P<ms> timeout \n");
+        break;
+    case 701: // M701
+        if (com->hasS()) Printer::swapFilament(Extruder::current->id, com->S);
+        else Com::print("M701 S<0-2> extruders\n");
+        break;
+    case 702: // M702
+        if (com->hasS() && com->hasI()) Printer::extrude(com->S, com->I);
+        else Com::print("M7002 S<0-2> extruders I<mm> len\n");
+        break;
     case 907: // M907 Set digital trimpot/DAC motor current using axis codes.
     {
 #if STEPPER_CURRENT_CONTROL != CURRENT_CONTROL_MANUAL
@@ -3304,6 +3316,7 @@ void Commands::executeGCode(GCode *com)
             }
         }
     }
+    if (com->hasE() && Extruder::current->fiStatus == FI_STANDBY) Extruder::current->fiStatus = FI_UNPRIMED;
     if(com->hasG()) processGCode(com);
     else if(com->hasM()) processMCode(com);
     else if(com->hasT())      // Process T code
