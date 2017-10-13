@@ -22,7 +22,7 @@
 #endif
 
 autoStatus_e Printer::primeStatus = AUTO_NONE;
-autoStatus_e Printer::swapStatus = AUTO_NONE;
+autoStatus_e Printer::swapStatus = AUTO_ACTIVE;
 long Printer::PrinterId = 0;
 uint8_t Printer::probeType;
 uint16_t Printer::bedType;
@@ -810,13 +810,48 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     return !com->hasNoXYZ() || (com->hasE() && destinationSteps[E_AXIS] != currentPositionSteps[E_AXIS]); // ignore unproductive moves
 }
 
+static void ext0SwChange(void)
+{
+    extruder[0].swTime = millis();
+}
+
+static void ext1SwChange(void)
+{
+    extruder[1].swTime = millis();
+}
+
+static void ext2SwChange(void)
+{
+    extruder[2].swTime = millis();
+}
+
 void Printer::setup()
 {
     // Switch pins
-    PULLUP(29, HIGH);
-    PULLUP(31, HIGH);
-    PULLUP(25, HIGH);
-    PULLUP(27, HIGH);
+    if (extruder[0].swFirst > -1) {
+        pinMode(extruder[0].swFirst, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(extruder[0].swFirst), ext0SwChange, CHANGE);
+    }
+    if (extruder[1].swFirst > -1) {
+        pinMode(extruder[1].swFirst, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(extruder[1].swFirst), ext1SwChange, CHANGE);
+    }
+    if (extruder[2].swFirst > -1) {
+        pinMode(extruder[2].swFirst, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(extruder[2].swFirst), ext2SwChange, CHANGE);
+    }
+    if (extruder[0].swLast > -1) {
+        pinMode(extruder[0].swLast, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(extruder[0].swLast), ext0SwChange, CHANGE);
+    }
+    if (extruder[1].swLast > -1) {
+        pinMode(extruder[1].swLast, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(extruder[1].swLast), ext1SwChange, CHANGE);
+    }
+    if (extruder[2].swLast > -1) {
+        pinMode(extruder[2].swLast, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(extruder[2].swLast), ext2SwChange, CHANGE);
+    }
     HAL::stopWatchdog();
 #if FEATURE_CONTROLLER == CONTROLLER_VIKI
     HAL::delayMilliseconds(100);
@@ -1269,6 +1304,8 @@ void Printer::manageSwitches(void)
     filamentStatus_e tmpStatus;
 
     for (uint8_t i = 0; i < NUM_EXTRUDER; i++) {
+        /* Debounce & read only changes */
+        if ((!extruder[i].swTime || extruder[i].swTime + 5 > millis()) && !first) continue;
         if (extruder[i].swFirst >= 0 && extruder[i].swLast >= 0 && extruder[i].fiStatus != FI_STANDBY) {
             if (digitalRead(extruder[i].swFirst)) {
                 tmpStatus = digitalRead(extruder[i].swLast) ? FI_UNPRIMED : (extruder[i].fiStatus == FI_EMPTY) ? FI_WAITING : FI_INSERED;
@@ -1285,6 +1322,7 @@ void Printer::manageSwitches(void)
             }
         }
     }
+    if (first) first = false;
     if (Extruder::current->fiStatus == FI_EMPTY && Printer::swapStatus > AUTO_NONE) {
         /* Attempt to fix */
         for (uint8_t i = 0; i < NUM_EXTRUDER; i++) {
