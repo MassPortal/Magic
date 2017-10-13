@@ -280,6 +280,7 @@ public:
     static void extUnstep(uint8_t ext);
     static void step();
     static void unstep();
+    static bool getExtDir(uint8_t ext);
     static void setExtDir(uint8_t ext, bool dir);
     static void setDirection(uint8_t dir);
     static void enableExt(uint8_t ext);

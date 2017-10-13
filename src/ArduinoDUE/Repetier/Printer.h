@@ -273,10 +273,18 @@ public:
 #endif
 #endif
 
+typedef enum {
+    AUTO_NONE,  // Swap / Prime manual
+    AUTO_STBY,  // Swap / Prime when not printing
+    AUTO_ACTIVE // Swap / Prime agressively
+} autoStatus_e;
+
 class Printer
 {
     static uint8_t debugLevel;
 public:
+    static autoStatus_e primeStatus;
+    static autoStatus_e swapStatus;
 	static long PrinterId;
 	static uint8_t probeType; //1-inductive, 2-toggle switch
 	static uint16_t bedType; //0 - not set, 1 - no heatbed, >=2 has heatbed
@@ -311,7 +319,7 @@ public:
 	static bool canMoveToPausePosition; // is it safe to move to pause position (have we homed before?)
     static void extrude(uint8_t num, float Zmm);
     static void moveZ(float Zmm); // Move in Z axis in a brutal manner (saves existing motor directions)
-    static bool swapFilament(uint8_t fromIndex,uint8_t toIndex);
+    static bool swapFilament(uint8_t fromIndex,uint8_t toIndex, bool lift);
     static bool primeFilament(uint8_t index, millis_t timeOut);
     static void haltSteppers(void); // Disable stepper timer and nothing else
     static void resumeSteppers(void); // Enable stepper timer

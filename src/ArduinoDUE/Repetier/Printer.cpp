@@ -21,6 +21,8 @@
 #include "Lighting.h"
 #endif
 
+autoStatus_e Printer::primeStatus = AUTO_NONE;
+autoStatus_e Printer::swapStatus = AUTO_NONE;
 long Printer::PrinterId = 0;
 uint8_t Printer::probeType;
 uint16_t Printer::bedType;
@@ -1260,118 +1262,48 @@ if (EEPROM::getBedLED()>1)
 
 void Printer::manageSwitches(void)
 {
+    static bool first = true;
+    static millis_t missTime[NUM_EXTRUDER];
     bool goodSwap;
-#if 0
-    const uint8_t switchPin[2] = {55,56};
-    static bool switchState[2];
-    static bool hasFilament[2];
-    static bool first = true;
     bool broken;
-    millis_t start;
+    filamentStatus_e tmpStatus;
 
-    if (first) {
-        switchState[0] = digitalRead(switchPin[0]);
-        switchState[1] = digitalRead(switchPin[1]);
-        first = false;
-    }
-
-        for (uint8_t i = 0 ,broken = false; i < 2; i++) {
-        if (switchState[i] != digitalRead(switchPin[i])) {
-            start = millis();
-            while (start + 1 > millis()) {
-                if (switchState[i] == digitalRead(switchPin[i])) {
-                    broken = true;
-                    break;
-                }
+    for (uint8_t i = 0; i < NUM_EXTRUDER; i++) {
+        if (extruder[i].swFirst >= 0 && extruder[i].swLast >= 0 && extruder[i].fiStatus != FI_STANDBY) {
+            if (digitalRead(extruder[i].swFirst)) {
+                tmpStatus = digitalRead(extruder[i].swLast) ? FI_UNPRIMED : (extruder[i].fiStatus == FI_EMPTY) ? FI_WAITING : FI_INSERED;
+            } else {
+                tmpStatus = digitalRead(extruder[i].swLast)  ? FI_EMPTY : FI_MISSING;
             }
-            if (!broken) {
-                switchState[i] = !switchState[i];
-                /* Do stuff here */
-                if (switchState[i] && !hasFilament[i]) {
-                    /* Inserted */
-                    haltSteppers();
-                    extrude(i, 500);
-                    resumeSteppers();
-                    hasFilament[i] = true;
-                } else if (!switchState[i] && hasFilament[i]) {
-                /* Expired */
-                /* Jump up */
-                    if (hasFilament[!i]) {
-                        /* Change used extruder */
-                    } else {
-                         /* Current == NULL (no - will break everything)? */
-                         /* Report compleate lack of filaments */
-                    }
-                    hasFilament[i] = false;
-                } else if (!switchState[i] && !hasFilament[i]) {
-                /* User pulled out redundant filament */
-                /* == Light position */
-                } else {
-                    /* Report incident  */
-                }
+            if (tmpStatus != extruder[i].fiStatus) {
+                extruder[i].fiStatus = tmpStatus;
+                if (tmpStatus == FI_MISSING) missTime[i] = millis();
+            }
+            /* Delay insertion - in case of jittery 1st switch */
+            if (extruder[i].fiStatus == FI_INSERED && missTime[i] + 4000 < millis() && Printer::primeStatus > AUTO_NONE) {
+                primeFilament(i, 5000);
             }
         }
     }
-#else
-    static bool states[4];
-    static bool first = true;
-    bool broken;
-    millis_t start;
-#warning add debounce
-    if (first) {
-        for (uint8_t i = 0; i < NUM_EXTRUDER; i++) {
-            if (extruder[i].swFirst >= 0 && extruder[i].swLast >= 0 && extruder[i].fiStatus != FI_STANDBY) {
-                if (digitalRead(extruder[i].swFirst)) {
-                    extruder[i].fiStatus = digitalRead(extruder[i].swLast) ? FI_UNPRIMED : (extruder[i].fiStatus == FI_EMPTY) ? FI_WAITING : FI_INSERED;
-                } else {
-                    extruder[i].fiStatus = digitalRead(extruder[i].swLast)  ? FI_EMPTY : FI_MISSING;
-                }
-#warning ADD LIFT n Pause if in use!
-#warning setup commands for autoprime
-                if (extruder[i].fiStatus == FI_INSERED) {
-                    primeFilament(i, 20000);
-                }
-            }
-        }
-    } 
-#warning setup commands for autoswap
-    if (Extruder::current->fiStatus == FI_EMPTY) {
+    if (Extruder::current->fiStatus == FI_EMPTY && Printer::swapStatus > AUTO_NONE) {
         /* Attempt to fix */
         for (uint8_t i = 0; i < NUM_EXTRUDER; i++) {
             /* Seek primed */
-            if (extruder[i].fiStatus == FI_STANDBY) {
+            if (extruder[i].fiStatus == FI_STANDBY && i != Extruder::current->id) {
                 /* Use primed */
                 haltSteppers();
-                goodSwap = swapFilament(Extruder::current->id, i);
+                goodSwap = swapFilament(Extruder::current->id, i, true);
                 resumeSteppers();
                 if (goodSwap) {
                     /* Successful swap */
-                    Extruder::selectExtruderById(i); 
+                    Com::print("GOOD Swap!\n");
                     break;
+                } else {
+                    Com::print("BOD Swap!\n");
                 }
             }
         }
     }
-    /*
-    for (uint8_t i = 0; i < 4; i++) {
-        broken = false;
-        if (states[i] != digitalRead(pins[i])) {
-            start = millis();
-            while (start + 1 > millis()) {
-                if (states[i] == digitalRead(pins[i])) {
-                    broken = true;
-                    break;
-                }
-            }
-            if (!broken) {
-                states[i] = !states[i];
-            }
-        }
-    }
-    */
-
-#endif /* if e 0 */
-
 }
 
 void Printer::defaultLoopActions()
@@ -1961,6 +1893,7 @@ void Printer::extrude(uint8_t num, float Zmm)
         Extruder::extUnstep(num);
         HAL::delayMicroseconds(40);
         steps--;
+        HAL::pingWatchdog();
     }
 }
 
@@ -1998,25 +1931,29 @@ void Printer::moveZ(float Zmm)
     setZDirection(zDir);
 }
 
-bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
+bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex, bool lift)
 {
     bool breaker;
-    bool xDir, yDir, zDir;
+    bool xDir, yDir, zDir, eDir;
     uint32_t inSteps;
+    uint32_t outSteps;
     uint32_t upSteps;
     uint32_t downSteps;
     int_fast8_t state = 0; // Mini state machine
     Extruder* from = &extruder[fromIndex];
     Extruder* to = &extruder[toIndex];
 
-    if (!from || !to || from == to) return false;
-
+    if (!from || !to || from == to || extruder[toIndex].fiStatus != FI_STANDBY) {
+        Com::print("Cant swap this...\n");
+        return false;
+    }
     inSteps = floor(PRELOAD_DIST_MM*to->stepsPerMM + 0.5);
-    upSteps = floor(SAFE_UP_DIST_MM*axisStepsPerMM[Z_AXIS] + 0.5);
+    upSteps = lift ? floor(SAFE_UP_DIST_MM*axisStepsPerMM[Z_AXIS] + 0.5) : 0;
+    outSteps = 0;
     downSteps = upSteps;
-    /* Attempt to prime target, you have 5 seconds to comply */
-#warning dont do this like this... it all-ready gets checked
-    if (!primeFilament(toIndex, 5000)) return false;
+
+    eDir = Extruder::getExtDir(fromIndex);
+
     Extruder::enableExt(fromIndex);
     Extruder::enableExt(toIndex);
     Extruder::setExtDir(toIndex, true);
@@ -2034,6 +1971,7 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
     while (digitalRead(to->swFirst) && !breaker) {
         switch(state) {
             case 0:
+                /* Go up if neccessary */
                 Endstops::update();
                 if (Endstops::xMax() || Endstops::yMax() || Endstops::zMax()) {
                     downSteps -= upSteps;
@@ -2049,6 +1987,13 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
                 }
                 break;
             case 1:
+                /* Pull up to clear hotend */
+                if (outSteps >= inSteps) {
+                    state++;
+                }
+                break;
+            case 2:
+                /* Push in new filament */
                 if (inSteps) {
                     Extruder::extStep(toIndex);
                     inSteps--;
@@ -2059,7 +2004,8 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
                     state++;
                 }
                 break;
-            case 2:
+            case 3:
+                /* Go down if neccessary */
                 if (downSteps) {
                     startXStep();
                     startYStep();
@@ -2071,19 +2017,28 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex)
                 break;
         }
         Extruder::extStep(fromIndex);
+        outSteps++;
         HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 2);
         endXYZSteps();
         Extruder::extUnstep(fromIndex);
         Extruder::extUnstep(toIndex);
-        HAL::delayMicroseconds(70);
+        HAL::delayMicroseconds(50);
         HAL::pingWatchdog();
     }
     /* Set old xyz settings */
     setXDirection(xDir);
     setYDirection(yDir);
     setZDirection(zDir);
-
-    return breaker ? true : false;
+    if (breaker) {
+        /* All is good, apply target direction*/
+        Extruder::selectExtruderById(toIndex); 
+        Extruder::setExtDir(toIndex, eDir);
+        return true;
+    } else {
+        /* Restore from direction */
+        Extruder::setExtDir(fromIndex, eDir);
+        return false;
+    }
 }
 
 bool Printer::primeFilament(uint8_t index, millis_t timeOut)
@@ -2123,6 +2078,9 @@ bool Printer::primeFilament(uint8_t index, millis_t timeOut)
         }
         HAL::pingWatchdog();
     }
+#warning go up now?
+    extrude(index, (float)PRELOAD_OFFSET_MM);
+#warning go down now? for agressive primeing
     if (!digitalRead(ext->swFirst)) {
         ext->fiStatus = digitalRead(ext->swLast) ? FI_EMPTY : FI_MISSING;
         Com::printF("P1\n");

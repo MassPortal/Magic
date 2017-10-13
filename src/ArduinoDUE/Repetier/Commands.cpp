@@ -3208,15 +3208,17 @@ void Commands::processMCode(GCode *com)
     case 603:
         Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_DETECTED, true);
         break;
-    case 700: // M700
-        if (com->hasS()) Com::print(Printer::primeFilament(com->S, com->hasP() ? com->P : 10000) ? "Good!\n" : "Fail!\n");
-        else Com::print("M700 S<0-2> extruders P<ms> timeout \n");
+    case 700: // M700 prime extruder
+        if (com->hasX()) Printer::primeStatus = com->hasP() ? (autoStatus_e)com->P : AUTO_NONE;
+        else if (com->hasS()) Com::print(Printer::primeFilament(com->S, com->hasP() ? com->P : 5000) ? "Good!\n" : "Fail!\n");
+        else Com::print("M700 S<0-2> extruders P<ms> timeout OR X P<0-2> auto status\n");
         break;
-    case 701: // M701
-        if (com->hasS()) Printer::swapFilament(Extruder::current->id, com->S);
-        else Com::print("M701 S<0-2> extruders\n");
+    case 701: // M701 swap current filament to... 
+        if (com->hasX()) Printer::swapStatus = com->hasP() ? (autoStatus_e)com->P : AUTO_NONE;
+        else if (com->hasS()) Com::print(Printer::swapFilament(Extruder::current->id, com->S, false) ? "Good swap!\n" : "Failed swap!\n");
+        else Com::print("M701 S<0-2> target extruder OR X P<0-2> auto status\n");
         break;
-    case 702: // M702
+    case 702: // M702 extrude using brute force
         if (com->hasS() && com->hasI()) Printer::extrude(com->S, com->I);
         else Com::print("M7002 S<0-2> extruders I<mm> len\n");
         break;

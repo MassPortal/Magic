@@ -1271,6 +1271,33 @@ void Extruder::unstep()
 #endif
 }
 
+bool Extruder::getExtDir(uint8_t ext)
+{
+    bool tmp;
+    switch (ext) {
+#if defined (EXT0_DIR_PIN)
+    case 0:
+        tmp = READ(EXT0_DIR_PIN);
+        return EXT0_INVERSE ? !tmp : tmp;
+        break;
+#endif /* Has pin */
+#if defined (EXT1_DIR_PIN)
+    case 1:
+        tmp = READ(EXT1_DIR_PIN);
+        return EXT1_INVERSE ? !tmp : tmp;
+        break;
+#endif /* Has pin */
+#if defined (EXT2_DIR_PIN)
+    case 2:
+        tmp = READ(EXT2_DIR_PIN);
+        return EXT2_INVERSE ? !tmp : tmp;
+        break;
+#endif /* Has pin */
+    default:
+        break;
+    }
+}
+
 void Extruder::setExtDir(uint8_t ext, bool dir)
 {
         switch (ext) {
