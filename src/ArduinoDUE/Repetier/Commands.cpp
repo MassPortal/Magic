@@ -3218,9 +3218,18 @@ void Commands::processMCode(GCode *com)
         else if (com->hasS()) Com::print(Printer::swapFilament(Extruder::current->id, com->S, false) ? "Good swap!\n" : "Failed swap!\n");
         else Com::print("M701 S<0-2> target extruder OR X P<0-2> auto status\n");
         break;
-    case 702: // M702 extrude using brute force
+    case 702: // M702 
+        if (com->hasS() && com->S < NUM_EXTRUDER) {
+            Com::printF("Sw[", extruder[com->S].swFirst > -1 ? digitalRead(extruder[com->S].swFirst) ? "1" : "0" : "?");
+            Com::printF("/", extruder[com->S].swLast > -1 ? digitalRead(extruder[com->S].swLast) ? "1" : "0" : "?");
+            Com::printFLN("]");
+        } else {
+            Com::print("M702 S<0-2> extruder switches\n");
+        }
+        break;
+    case 703: // M703 extrude using brute force
         if (com->hasS() && com->hasI()) Printer::extrude(com->S, com->I);
-        else Com::print("M7002 S<0-2> extruders I<mm> len\n");
+        else Com::print("M703 S<0-2> extruders I<mm> len\n");
         break;
     case 907: // M907 Set digital trimpot/DAC motor current using axis codes.
     {

@@ -2064,7 +2064,7 @@ bool Printer::primeFilament(uint8_t index, millis_t timeOut)
         Extruder::extStep(index);
         HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 2);
         Extruder::extUnstep(index);
-        HAL::delayMicroseconds(100);
+        HAL::delayMicroseconds(50);
         if (state == 0 && start + timeOut < millis()) {
             timedOut = true;
             break;
