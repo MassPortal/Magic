@@ -2046,6 +2046,7 @@ bool Printer::primeFilament(uint8_t index, millis_t timeOut)
     millis_t start = millis(); // For timeout
     uint_fast8_t state = 0; // Mini state machine
     Extruder* ext = &extruder[index];
+    bool timedOut = false;
 
     if (!ext) return false;
 
@@ -2058,12 +2059,16 @@ bool Printer::primeFilament(uint8_t index, millis_t timeOut)
     Extruder::enableExt(index);
     Extruder::setExtDir(index, true);
 
-    while (start + timeOut > millis() && digitalRead(ext->swFirst)) {
+    while (digitalRead(ext->swFirst)) {
         /* Forward */
         Extruder::extStep(index);
         HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 2);
         Extruder::extUnstep(index);
         HAL::delayMicroseconds(100);
+        if (state == 0 && start + timeOut < millis()) {
+            timedOut = true;
+            break;
+        }
         if (digitalRead(ext->swLast) && state == 0) {
            /* Reverse */
             Extruder::setExtDir(index, false);
@@ -2078,17 +2083,18 @@ bool Printer::primeFilament(uint8_t index, millis_t timeOut)
         }
         HAL::pingWatchdog();
     }
+    if (timedOut) {
+        Com::printF("PT\n");
+        return false;
+    } else if (!digitalRead(ext->swFirst)) {
+        ext->fiStatus = digitalRead(ext->swLast) ? FI_EMPTY : FI_MISSING;
+        Com::printF("PMI\n");
+        return false;
+    }
 #warning go up now?
     extrude(index, (float)PRELOAD_OFFSET_MM);
 #warning go down now? for agressive primeing
-    if (!digitalRead(ext->swFirst)) {
-        ext->fiStatus = digitalRead(ext->swLast) ? FI_EMPTY : FI_MISSING;
-        Com::printF("P1\n");
-        return false;
-    } else if (start + timeOut <= millis()) {
-        Com::printF("P2\n");
-        return false;
-    }
+    
     ext->fiStatus = FI_STANDBY;
     return true;
 }
