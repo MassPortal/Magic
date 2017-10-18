@@ -317,10 +317,10 @@ public:
 	static bool isPaused;
 	static bool hasMovedToPausePosition; // if has already moved to pause position after pause request
 	static bool canMoveToPausePosition; // is it safe to move to pause position (have we homed before?)
-    static void extrude(uint8_t num, float Zmm);
+    static void extrude(uint8_t num, float Zmm, bool lift);
     static void moveZ(float Zmm); // Move in Z axis in a brutal manner (saves existing motor directions)
     static bool swapFilament(uint8_t fromIndex,uint8_t toIndex, bool lift);
-    static bool primeFilament(uint8_t index, millis_t timeOut);
+    static bool primeFilament(uint8_t index, millis_t timeOut, bool lift);
     static void haltSteppers(void); // Disable stepper timer and nothing else
     static void resumeSteppers(void); // Enable stepper timer
     static void babyStep(float Zmm);

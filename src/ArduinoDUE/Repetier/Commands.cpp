@@ -2537,8 +2537,8 @@ void Commands::processMCode(GCode *com)
         {
             if(com->hasP())
 				if(com->P == 1)
-	            setFan2Speed(com->hasS() ? com->S : 255);
-			else
+	                setFan2Speed(com->hasS() ? com->S : 255);
+			    else
 					setFan3Speed(com->hasS() ? com->S : 255);				
 			else
             setFanSpeed(com->hasS() ? com->S : 255);
@@ -2547,8 +2547,8 @@ void Commands::processMCode(GCode *com)
     case 107: // M107 Fan Off
         if(com->hasP())
 			if(com->P == 1)
-	        setFan2Speed(0);
-		else
+	            setFan2Speed(0);
+		    else
 				setFan3Speed(0);
 		else
             setFanSpeed(0);
@@ -3209,26 +3209,33 @@ void Commands::processMCode(GCode *com)
         Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_DETECTED, true);
         break;
     case 700: // M700 prime extruder
-        if (com->hasX()) Printer::primeStatus = com->hasP() ? (autoStatus_e)com->P : AUTO_NONE;
-        else if (com->hasS()) Com::print(Printer::primeFilament(com->S, com->hasP() ? com->P : 5000) ? "Good!\n" : "Fail!\n");
-        else Com::print("M700 S<0-2> extruders P<ms> timeout OR X P<0-2> auto status\n");
+        if (com->hasP()) {
+            Printer::primeStatus = com->hasP() ? (autoStatus_e)com->P : AUTO_NONE;
+        } else if (com->hasS()) {
+            Printer::primeFilament(com->S, 5000, (bool)PrintLine::hasLines());
+        } else {
+            Com::print("M700 S<0-2> extruders P<ms> timeout OR X P<0-2> auto status\n");
+        }
         break;
     case 701: // M701 swap current filament to... 
         if (com->hasX()) Printer::swapStatus = com->hasP() ? (autoStatus_e)com->P : AUTO_NONE;
-        else if (com->hasS()) Com::print(Printer::swapFilament(Extruder::current->id, com->S, false) ? "Good swap!\n" : "Failed swap!\n");
+        else if (com->hasS()) Printer::swapFilament(Extruder::current->id, com->S, (bool)PrintLine::hasLines());
         else Com::print("M701 S<0-2> target extruder OR X P<0-2> auto status\n");
         break;
     case 702: // M702 
         if (com->hasS() && com->S < NUM_EXTRUDER) {
-            Com::printF("Sw[", extruder[com->S].swFirst > -1 ? digitalRead(extruder[com->S].swFirst) ? "1" : "0" : "?");
+            Com::printF("Sw[", extruder[com->S].swEntry > -1 ? digitalRead(extruder[com->S].swEntry) ? "1" : "0" : "?");
+            Com::printF("/", extruder[com->S].swFirst > -1 ? digitalRead(extruder[com->S].swFirst) ? "1" : "0" : "?");
             Com::printF("/", extruder[com->S].swLast > -1 ? digitalRead(extruder[com->S].swLast) ? "1" : "0" : "?");
+            #warning erase this line
+            Com::printF("/", (int32_t)extruder[com->S].fiStatus);
             Com::printFLN("]");
         } else {
             Com::print("M702 S<0-2> extruder switches\n");
         }
         break;
     case 703: // M703 extrude using brute force
-        if (com->hasS() && com->hasI()) Printer::extrude(com->S, com->I);
+        if (com->hasS() && com->hasI()) Printer::extrude(com->S, com->I, (bool)PrintLine::hasLines());
         else Com::print("M703 S<0-2> extruders I<mm> len\n");
         break;
     case 907: // M907 Set digital trimpot/DAC motor current using axis codes.

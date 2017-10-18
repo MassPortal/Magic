@@ -212,8 +212,9 @@ public:
 #endif
     filamentStatus_e fiStatus;
     volatile millis_t swTime;
-    int8_t swFirst; // IO for first filament detection switch
-    int8_t swLast; // IO for last filament detection switch
+    const int8_t swFirst; // IO for first filament detection switch
+    const int8_t swLast; // IO for last filament detection switch
+    const int8_t swEntry;
 
     uint8_t id;
     int32_t xOffset;
