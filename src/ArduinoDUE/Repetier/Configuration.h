@@ -730,11 +730,11 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
-#define MAXTEMP 300
+#define MAXTEMP 350
 
 /** Extreme values to detect defect thermistors. */
 #define MIN_DEFECT_TEMPERATURE -10
-#define MAX_DEFECT_TEMPERATURE 310
+#define MAX_DEFECT_TEMPERATURE 360
 
 #define CHAMBER_TEMPSENSOR_TYPE 97
 /** Analog pin of analog sensor to read temperature of the chamber.  */
@@ -1668,8 +1668,8 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1U"
-#define FIRMWARE_VERSION "222-6cf0029"
+#define HARDWARE_VERSION "v1U-VHH"
+#define FIRMWARE_VERSION "224-7c434f5"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0
