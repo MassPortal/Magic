@@ -194,6 +194,7 @@ wizardVar Printer::wizardStack[WIZARD_STACK_SIZE];
 flag8_t Endstops::lastState = 0;
 flag8_t Endstops::lastRead = 0;
 flag8_t Endstops::accumulator = 0;
+bool Endstops::inverting = true;
 #ifdef EXTENDED_ENDSTOPS
 flag8_t Endstops::lastState2 = 0;
 flag8_t Endstops::lastRead2 = 0;
@@ -210,7 +211,7 @@ void Endstops::update() {
             newRead |= ENDSTOP_X_MIN_ID;
 #endif
 #if (X_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_X
-        if(READ(X_MAX_PIN) != ENDSTOP_X_MAX_INVERTING)
+        if(READ(X_MAX_PIN) != inverting)
             newRead |= ENDSTOP_X_MAX_ID;
 #endif
 #if (Y_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Y
@@ -218,7 +219,7 @@ void Endstops::update() {
             newRead |= ENDSTOP_Y_MIN_ID;
 #endif
 #if (Y_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Y
-        if(READ(Y_MAX_PIN) != ENDSTOP_Y_MAX_INVERTING)
+        if(READ(Y_MAX_PIN) != inverting)
             newRead |= ENDSTOP_Y_MAX_ID;
 #endif
 #if (Z_MIN_PIN > -1) && MIN_HARDWARE_ENDSTOP_Z
@@ -226,7 +227,7 @@ void Endstops::update() {
             newRead |= ENDSTOP_Z_MIN_ID;
 #endif
 #if (Z_MAX_PIN > -1) && MAX_HARDWARE_ENDSTOP_Z
-        if(READ(Z_MAX_PIN) != ENDSTOP_Z_MAX_INVERTING)
+        if(READ(Z_MAX_PIN) != inverting)
             newRead |= ENDSTOP_Z_MAX_ID;
 #endif
 #if (Z2_MINMAX_PIN > -1) && MINMAX_HARDWARE_ENDSTOP_Z2
@@ -1305,6 +1306,7 @@ if (EEPROM::getBedLED()>1)
         uid.showLanguageSelectionWizard();
     }
 #endif // EEPROM_MODE
+    Endstops::inverting = (EEPROM::getEstopVer() == 17231) ? false : true;
 }
 
 void Printer::manageSwitches(void)
