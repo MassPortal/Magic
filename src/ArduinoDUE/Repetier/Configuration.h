@@ -814,9 +814,6 @@ on this endstop.
 #define ENDSTOP_X_MIN_INVERTING true
 #define ENDSTOP_Y_MIN_INVERTING true
 #define ENDSTOP_Z_MIN_INVERTING true
-#define ENDSTOP_X_MAX_INVERTING true
-#define ENDSTOP_Y_MAX_INVERTING true
-#define ENDSTOP_Z_MAX_INVERTING true
 
 // Set the values true where you have a hardware endstop. The Pin number is taken from pins.h.
 
@@ -1669,7 +1666,7 @@ computations, so do not enable it if your display works stable!
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
 #define HARDWARE_VERSION "v1U"
-#define FIRMWARE_VERSION "223-rc"
+#define FIRMWARE_VERSION "225-rc"
 
 #define PRINTER_MODEL			   0
 #define EXTRUDER_COUNT			   0

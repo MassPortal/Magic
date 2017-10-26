@@ -186,6 +186,7 @@ class Endstops {
     static flag8_t accumulator2;
 #endif
 public:
+    static bool inverting;
     static void update();
     static void report();
     static INLINE bool anyXYZMax() {
