@@ -3198,12 +3198,12 @@ void Commands::processMCode(GCode *com)
         Printer::setInterruptEvent(PRINTER_INTERRUPT_EVENT_JAM_DETECTED, true);
         break;
     case 700:
-        Commands::toolChange(com->hasS() ? com->S : 0, true);
-        //grip(true);
+        if (!com->hasS()) grip(true);
+        else Commands::toolChange(com->S, true);
         break;
     case 701:
-        Commands::toolChange(com->hasS() ? com->S : 0, false);
-        //grip(false);
+        if (!com->hasS()) grip(false);
+        else Commands::toolChange(com->S, false);
         break;
     case 907: // M907 Set digital trimpot/DAC motor current using axis codes.
     {
@@ -3518,7 +3518,7 @@ void Commands::fillDefAxisDir()
 void Commands::grip(bool pickUp)
 {
     millis_t startTime;
-    millis_t endTime;
+    millis_t endTime = 0;
 
     waitUntilEndOfAllMoves();
     startTime = millis();
@@ -3529,8 +3529,7 @@ void Commands::grip(bool pickUp)
     while (startTime + 3e3 > millis()) {
         endTime = (READ(GRAB_STOP_PIN) && !endTime) ? millis() : 0;
         /* Force 500 high current */
-        if (endTime && endTime + 500 < millis()) break;
-        
+        if (endTime && endTime + 1000 < millis()) break;
         HAL::pingWatchdog();
     }
     if (pickUp) WRITE(GRAB_PIN, 0);
@@ -3539,16 +3538,33 @@ void Commands::grip(bool pickUp)
 
 void Commands::toolChange(uint8_t tool, bool take)
 {
-    int saveFeedrte = Printer::feedrateMultiply;
-    changeFeedrateMultiply(500);
     Printer::homeAxis(true, true, true);
     Printer::updateCurrentPosition();
-    if (tool == 0) GCode::executeFString("G1 X-35 G1 Z164");
-    else if (tool == 1) GCode::executeFString("G1 X41 G1 Z164");
-    else return;
+    if (take) {
+        if (tool == 0) GCode::executeFString("G1 X-104.9 Z397.4");
+        else if (tool == 1) GCode::executeFString("G1 X-32.40 Z397.4");
+        //else if (tool == 2) GCode::executeFString("G1 X41.5 Z397.4");
+        //else if (tool == 3) GCode::executeFString("G1 X108.9 Z397.4");
+        else return;
+    } else {
+        if (tool == 0) GCode::executeFString("G1 X-104.9 Z400.78");
+        else if (tool == 1) GCode::executeFString("G1 X-32.40 Z400.78");
+        //else if (tool == 2) GCode::executeFString("G1 X41.5 Z400.78");
+        //else if (tool == 3) GCode::executeFString("G1 X108.9 Z400.78");
+        else return;
+    }
     waitUntilEndOfAllMoves();
-    GCode::executeFString("G1 Y-77");
+    GCode::executeFString("G1 Y-137");
+    if (take) GCode::executeFString("G1 Z400.78");
+    GCode::executeFString("G1 Y-166");
     grip(take);
-    GCode::executeFString("G1 Y0");
-    changeFeedrateMultiply(saveFeedrte);
+    if (take) {
+        GCode::executeFString("G1 Y-126");
+        grip(take);
+        GCode::executeFString("G1 Y0");
+    } else {
+        GCode::executeFString("G1 Y-137");
+        GCode::executeFString("G1 Z397.4");
+        GCode::executeFString("G1 Y0");
+    }
 }
