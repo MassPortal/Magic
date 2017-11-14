@@ -24,6 +24,7 @@
 
 #include <math.h>
 #include <stdint.h>
+#include "Motor.h"
 #define REPETIER_VERSION "0.92.8"
 
 // ##########################################################################################
