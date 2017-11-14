@@ -13,7 +13,7 @@
 #define MOT_REG_DRVSTATUS   0x6F
 
 static bool endstops[M_GUARD] = {false, false, false};
-static volatile millis_t homeingTime = 0;
+static volatile millis_t homeingTime[M_GUARD] = {0,0,0};
 
 void tmc_Z_int(void)
 {
@@ -148,7 +148,27 @@ void motorInit(void)
     }
 }
 
-void motorClearInt(void)
+void startHomeing(bool z, bool y, bool x)
+{
+    if (z) homeingTime[M_Z] = millis();
+    if (y) homeingTime[M_Y] = millis();
+    if (x) homeingTime[M_X] = millis();
+}
+
+void clearHomeing(bool z, bool y, bool x)
+{
+    if (z) homeingTime[M_Z] = 0;
+    if (y) homeingTime[M_Y] = 0;
+    if (x) homeingTime[M_X] = 0;
+}
+
+bool checkHomeing(motor_e mot)
+{
+    return (homeingTime[mot] && homeingTime[mot] + MOTOR_STALL_DELAY < millis()) ? true : false;
+}
+
+#ifdef USING_DEAD_CODE
+static void motorClearInt(void)
 {
     uint32_t data;
     uint8_t status;
@@ -171,18 +191,4 @@ void motorClearInt(void)
     /* Clear enstop falgs */
     //Endstops::lastState &= ~(ENDSTOP_Z_MAX_ID|ENDSTOP_Y_MAX_ID|ENDSTOP_X_MAX_ID);
 }
-
-void startHomeing(void)
-{
-    homeingTime = millis();
-}
-
-void clearHomeing(void)
-{
-    homeingTime = 0;
-}
-
-bool checkHomeing(void)
-{
-    return (homeingTime && homeingTime + 80 < millis()) ? true : false;
-}
+#endif /* USING_DEAD_CODE */

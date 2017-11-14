@@ -200,14 +200,23 @@ flag8_t Endstops::accumulator2 = 0;
 #endif
 
 void Endstops::update() {
-    if (checkHomeing()) {
-        if (!READ(38)) lastState |= ENDSTOP_Z_MAX_ID;
-        if (!READ(36)) lastState |= ENDSTOP_Y_MAX_ID;
-        if (!READ(34)) lastState |= ENDSTOP_X_MAX_ID;
+    if (checkHomeing(M_Z)) {
+        if (!READ(38))lastState |= ENDSTOP_Z_MAX_ID;
     } else {
-        lastState &= ~(ENDSTOP_X_MAX_ID | ENDSTOP_Y_MAX_ID | ENDSTOP_Z_MAX_ID);
+        lastState &= ~(ENDSTOP_Z_MAX_ID);
     }
 
+    if (checkHomeing(M_Y)) {
+        if (!READ(36))lastState |= ENDSTOP_Y_MAX_ID;
+    } else {
+        lastState &= ~(ENDSTOP_Y_MAX_ID);
+    }
+
+    if (checkHomeing(M_X)) {
+        if (!READ(34))lastState |= ENDSTOP_X_MAX_ID;
+    } else {
+        lastState &= ~(ENDSTOP_X_MAX_ID);
+    }
     return;
     flag8_t newRead = 0;
 #ifdef EXTENDED_ENDSTOPS
@@ -1345,70 +1354,29 @@ void Printer::homeZAxis() // Delta z homing
 	bool homingSuccess = false; // By default fail homing (safety feature)
 
 	Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
-#warning do this with z probe current
-    PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
 #warning do this wiithc homeing current
-    startHomeing();
-	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
-	PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
-    clearHomeing();
-    Endstops::update();
-	Endstops::update();
+    startHomeing(true, true, true);
+	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]/2);
 
-
-
-	if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
-
-        startHomeing();
-		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
-
-		Endstops::update();
-		Endstops::update();
-				
-		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
+	if ((Endstops::xMax() && Endstops::yMax() && Endstops::zMax())) {
+	    PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS]/3, true, true);
+        clearHomeing(true, false, false);
+        startHomeing(true, false, false);
+		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] /3);
+        //PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_MOVE + 3, 0, Printer::homingFeedrate[Z_AXIS]/3, true, true);
+        clearHomeing(false, true, false);
+        startHomeing(false, true, false);
+        Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] /3);
+        //PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_MOVE + 3, 0, Printer::homingFeedrate[Z_AXIS]/3, true, true);
+        clearHomeing(false, false, true);
+        startHomeing(false, false, true);
+        Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] /3);
+		//PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_MOVE + 3, 0, Printer::homingFeedrate[Z_AXIS]/3, true, true);
+        if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
 			homingSuccess = true;
 		}
-        clearHomeing();
+        clearHomeing(true, true, true);
 	}
-#warning restore working current
-    /*
-	
-
-	
-		
-		Endstops::update();
-		Endstops::update();
-
-		if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
-			Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
-			
-			
-		}
-	}
-	else {
-		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]); // Move to end stops ASAP
-		
-		Endstops::update();
-		Endstops::update();
-			
-		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) { // If not all end stops are active, fail homing
-			PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
-		
-			Endstops::update();
-			Endstops::update();
-		
-			if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
-				Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
-		
-				Endstops::update();
-				Endstops::update();
-		
-				if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
-					homingSuccess = true;
-				}
-			}
-		}
-	} */
 
 	// Check if homing failed.  If so, request pause!
 	if (!homingSuccess) {
