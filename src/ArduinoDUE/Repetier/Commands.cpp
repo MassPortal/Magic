@@ -84,6 +84,7 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
 #endif
     if(--counter250ms == 0)
     {
+        reportStalling();
         if(manageMonitor)
             writeMonitor();
         counter250ms = 5;

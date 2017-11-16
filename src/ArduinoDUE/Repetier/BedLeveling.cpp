@@ -458,7 +458,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 	realDeltaPositionSteps[Z_AXIS] = currentDeltaPositionSteps[Z_AXIS]; // update real
 	#endif
 	//int32_t updateZ = 0;
-	waitForZProbeStart();
+    waitForZProbeStart();
 	for(int8_t r = 0; r < repeat; r++)
 	{
 		//MAX 10% of total printer height + z-probe - bed distance
@@ -468,14 +468,17 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 		//int32_t offx = axisStepsPerMM[X_AXIS] * EEPROM::zProbeXOffset();
 		//int32_t offy = axisStepsPerMM[Y_AXIS] * EEPROM::zProbeYOffset();
 		//PrintLine::moveRelativeDistanceInSteps(-offx,-offy,0,0,EEPROM::zProbeXYSpeed(),true,true);
-		setZProbingActive(true);
+        startProbeing();
+        setZProbingActive(true);
 		PrintLine::moveRelativeDistanceInSteps(0, 0, -probeDepth, 0, EEPROM::zProbeSpeed(), true, true);
 		if(stepsRemainingAtZHit < 0 && Printer::allowBelow)
 		{
 			Com::printErrorFLN(Com::tZProbeFailed);
+            clearProbeing();
 			setZProbingActive(false);
 			return -1;
 		}
+        clearProbeing();
 		setZProbingActive(false);
 		#if NONLINEAR_SYSTEM
 		stepsRemainingAtZHit = realDeltaPositionSteps[C_TOWER] - currentDeltaPositionSteps[C_TOWER]; // nonlinear moves may split z so stepsRemainingAtZHit is only what is left from last segment not total move. This corrects the problem.

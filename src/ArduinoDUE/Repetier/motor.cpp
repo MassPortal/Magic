@@ -11,32 +11,34 @@
 #define MOT_REG_COOLCONF    0x6D
 #define MOT_REG_DCCTRL      0x6E
 #define MOT_REG_DRVSTATUS   0x6F
+#define MOT_REG_PWMCOMF     0x70
 
-static bool endstops[M_GUARD] = {false, false, false};
+static uint32_t stallDetect[M_GUARD] = {0,0,0};
 static volatile millis_t homeingTime[M_GUARD] = {0,0,0};
+static volatile millis_t probeingTime = 0;
 
 void tmc_Z_int(void)
 {
     //Endstops::lastState |= ENDSTOP_Z_MAX_ID;
-    Serial.println(" Motor Z int");
+    //Serial.println(" Motor Z int");
+    if (!PrintLine::cur->moveAccelerating() && !PrintLine::cur->moveDecelerating()) stallDetect[M_Z]++;
 }
 
 
 void tmc_Y_int(void)
 {
     //Endstops::lastState |= ENDSTOP_Y_MAX_ID;
-    Serial.println(" Motor Y int");
+    //Serial.println(" Motor Y int");
+    if (!PrintLine::cur->moveAccelerating() && !PrintLine::cur->moveDecelerating()) stallDetect[M_Y]++;
 }
 
 void tmc_X_int(void)
 {
     //Endstops::lastState |= ENDSTOP_X_MAX_ID;
-    Serial.println(" Motor X int");
+    //Serial.println(" Motor X int");
+    if (!PrintLine::cur->moveAccelerating() && !PrintLine::cur->moveDecelerating()) stallDetect[M_X]++;
 }
 
-static const uint8_t TMC_enable[M_GUARD] = {15, 22, 26};
-static const uint8_t TMC_step[M_GUARD] = {2, 17, 24};
-static const uint8_t TMC_dir[M_GUARD] = {3, 16, 23};
 static const uint8_t TMC_cs[M_GUARD] = {25, 27, 29};
 static const uint8_t TMC_int[M_GUARD] = {38, 36, 34};
 void(*TMC_handlers[M_GUARD]) (void) = {tmc_Z_int, tmc_Y_int, tmc_X_int};
@@ -45,16 +47,10 @@ static void motorPinsInit(void)
 {
     /* Set up all pins for all motors */
     for (uint8_t mot = 0; mot < M_GUARD; mot++) {
-        //pinMode(TMC_enable[mot], OUTPUT);
-        //digitalWrite(TMC_enable[mot], LOW); // Active low
-        //pinMode(TMC_dir[mot], OUTPUT);
-        //digitalWrite(TMC_dir[mot], LOW); //LOW or HIGH
-        //pinMode(TMC_step[mot], OUTPUT);
-        //digitalWrite(TMC_step[mot], LOW);
         pinMode(TMC_cs[mot], OUTPUT);
         digitalWrite(TMC_cs[mot], HIGH);
         pinMode(TMC_int[mot], INPUT_PULLUP);
-        //attachInterrupt(digitalPinToInterrupt(TMC_int[mot]), TMC_handlers[mot], FALLING);
+        attachInterrupt(digitalPinToInterrupt(TMC_int[mot]), TMC_handlers[mot], FALLING);
     }
 }
 
@@ -141,10 +137,18 @@ void motorInit(void)
             Serial.print("Motor regwrite fail");
             Serial.println(regVal);
         }
-        motorWrite((motor_e)mot, MOT_REG_TCOOLTHRS, 0xfffff); // Always on coolstep & stallguard
-        motorWrite((motor_e)mot, MOT_REG_COOLCONF, 0); // Always on coolstep & stallguard
-        motorSetCurrent((motor_e)mot, 11, 31, 2);
+        motorWrite((motor_e)mot, MOT_REG_TCOOLTHRS, 0x3ffff);   // Always on coolstep & stallguard
+        motorWrite((motor_e)mot, MOT_REG_COOLCONF, 0);          // Always on coolstep & stallguard 
+        //motorWrite((motor_e)mot, MOT_REG_PWMCOMF, 0b11 << 20);  // HS break /w 0 hold current
+        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
         motorSetMicroSteps((motor_e)mot, U_STEPS_32);
+    }
+}
+
+void motorsActive(bool yes)
+{
+    for (uint8_t mot; mot < M_GUARD; mot++) {
+        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, yes ? MOTOR_CURRENT_HOLD : MOTOR_CURRENT_STBY, 2);
     }
 }
 
@@ -165,6 +169,28 @@ void clearHomeing(bool z, bool y, bool x)
 bool checkHomeing(motor_e mot)
 {
     return (homeingTime[mot] && homeingTime[mot] + MOTOR_STALL_DELAY < millis()) ? true : false;
+}
+
+void startProbeing(void)
+{
+    for (uint8_t mot=0; mot<M_GUARD; mot++) {
+        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_PROBE, MOTOR_CURRENT_HOLD, 2);
+    }
+    probeingTime = millis();
+}
+
+void clearProbeing(void)
+{
+    for (uint8_t mot=0; mot<M_GUARD; mot++) {
+        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
+    }
+    //Serial.println((Endstops::zProbe()) ? "Z - Hit" : "Z - Miss");
+    probeingTime = 0;
+}
+
+bool checkProbeing(void)
+{
+    return(probeingTime && probeingTime + MOTOR_STALL_DELAY < millis()) ? true : false;
 }
 
 #ifdef USING_DEAD_CODE
@@ -192,3 +218,14 @@ static void motorClearInt(void)
     //Endstops::lastState &= ~(ENDSTOP_Z_MAX_ID|ENDSTOP_Y_MAX_ID|ENDSTOP_X_MAX_ID);
 }
 #endif /* USING_DEAD_CODE */
+
+void reportStalling(void)
+{
+    return;
+    Serial.print("Stall values, ");
+    Serial.print(stallDetect[M_Z]);
+    Serial.print(", ");
+    Serial.print(stallDetect[M_Y]);
+    Serial.print(", ");
+    Serial.println(stallDetect[M_X]);
+}

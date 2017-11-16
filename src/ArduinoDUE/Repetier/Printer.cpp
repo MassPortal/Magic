@@ -201,21 +201,26 @@ flag8_t Endstops::accumulator2 = 0;
 
 void Endstops::update() {
     if (checkHomeing(M_Z)) {
-        if (!READ(38))lastState |= ENDSTOP_Z_MAX_ID;
+        if (!READ(38)) lastState |= ENDSTOP_Z_MAX_ID;
     } else {
         lastState &= ~(ENDSTOP_Z_MAX_ID);
     }
 
     if (checkHomeing(M_Y)) {
-        if (!READ(36))lastState |= ENDSTOP_Y_MAX_ID;
+        if (!READ(36)) lastState |= ENDSTOP_Y_MAX_ID;
     } else {
         lastState &= ~(ENDSTOP_Y_MAX_ID);
     }
 
     if (checkHomeing(M_X)) {
-        if (!READ(34))lastState |= ENDSTOP_X_MAX_ID;
+        if (!READ(34)) lastState |= ENDSTOP_X_MAX_ID;
     } else {
         lastState &= ~(ENDSTOP_X_MAX_ID);
+    }
+    if (checkProbeing()) {
+        if (!READ(38) || !READ(36) || !READ(34)) lastState |= ENDSTOP_Z_PROBE_ID;
+    } else {
+        lastState &= ~(ENDSTOP_Z_PROBE_ID);
     }
     return;
     flag8_t newRead = 0;
@@ -1354,7 +1359,9 @@ void Printer::homeZAxis() // Delta z homing
 	bool homingSuccess = false; // By default fail homing (safety feature)
 
 	Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
-#warning do this wiithc homeing current
+    for (uint8_t mot = 0; mot < M_GUARD; mot++) {
+        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_HOME, MOTOR_CURRENT_HOLD, 2);
+    }
     startHomeing(true, true, true);
 	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]/2);
 
@@ -1377,6 +1384,10 @@ void Printer::homeZAxis() // Delta z homing
 		}
         clearHomeing(true, true, true);
 	}
+
+    for (uint8_t mot = 0; mot < M_GUARD; mot++) {
+        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
+    }
 
 	// Check if homing failed.  If so, request pause!
 	if (!homingSuccess) {
