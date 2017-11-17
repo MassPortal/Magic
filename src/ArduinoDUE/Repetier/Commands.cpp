@@ -1096,18 +1096,50 @@ void Commands::processGCode(GCode *com)
 		bool oldAutolevel = Printer::isAutolevelActive();
 		Printer::setAutolevelActive(false);
 		float sum = 0, last, oldFeedrate = Printer::feedrate;
+        float points[3];
+        float center = 0;
 		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		sum = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
-		if (sum < -1) break;
+        points[0] = sum;
+        Printer::moveTo(0, 0, Printer::zLength - 50, IGNORE_COORDINATE, oldFeedrate);
+        Commands::waitUntilEndOfAllMoves();
+        if (sum < -1) break;
+        Printer::homeAxis(true, true, true);
+		Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 		Printer::moveTo(EEPROM::zProbeX2(), EEPROM::zProbeY2(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		last = Printer::runZProbe(false, false);
-		if (last < -2) break;
+        points[1] = last;
+        Printer::moveTo(0, 0, Printer::zLength - 50, IGNORE_COORDINATE, oldFeedrate);
+        Commands::waitUntilEndOfAllMoves();
+        if (last < -2) break;
 		sum += last;
+        Printer::homeAxis(true, true, true);
+		Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 		Printer::moveTo(EEPROM::zProbeX3(), EEPROM::zProbeY3(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		last = Printer::runZProbe(false, true);
+        points[2] = last;
+        Printer::moveTo(0, 0, Printer::zLength - 50, IGNORE_COORDINATE, oldFeedrate);
+        Commands::waitUntilEndOfAllMoves();
 		if (last < -3) break;
 		sum += last;
-		sum *= 0.33333333333333;
+		
+        Printer::homeAxis(true, true, true);
+		Printer::moveTo(IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+		Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+		last = Printer::runZProbe(false, true);
+        center = last;
+        Printer::moveTo(0, 0, Printer::zLength - 50, IGNORE_COORDINATE, oldFeedrate);
+		
+        for (uint8_t i=0;i<3;i++) {
+            Serial.print("Point ");
+            Serial.print(i);
+            Serial.print(": ");
+            Serial.println(points[i], 5);
+        }
+        Serial.print("Center: ");
+        Serial.println(center, 5);
+        
+        sum *= 0.33333333333333;
 		Com::printFLN(Com::tZProbeAverage, sum);
 		if (com->hasS() && com->S)
 		{
