@@ -41,7 +41,7 @@ void tmc_X_int(void)
 
 static const uint8_t TMC_cs[M_GUARD] = {25, 27, 29};
 static const uint8_t TMC_int[M_GUARD] = {38, 36, 34};
-void(*TMC_handlers[M_GUARD]) (void) = {tmc_Z_int, tmc_Y_int, tmc_X_int};
+static void(*TMC_handlers[M_GUARD]) (void) = {tmc_Z_int, tmc_Y_int, tmc_X_int};
 
 static void motorPinsInit(void)
 {
@@ -137,7 +137,7 @@ void motorInit(void)
             Serial.print("Motor regwrite fail");
             Serial.println(regVal);
         }
-        motorWrite((motor_e)mot, MOT_REG_TCOOLTHRS, 0x3ffff);   // Always on coolstep & stallguard
+        motorWrite((motor_e)mot, MOT_REG_TCOOLTHRS, 0xfffff);   // Always on coolstep & stallguard
         motorWrite((motor_e)mot, MOT_REG_COOLCONF, 0);          // Always on coolstep & stallguard 
         //motorWrite((motor_e)mot, MOT_REG_PWMCOMF, 0b11 << 20);  // HS break /w 0 hold current
         motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
@@ -147,7 +147,7 @@ void motorInit(void)
 
 void motorsActive(bool yes)
 {
-    for (uint8_t mot; mot < M_GUARD; mot++) {
+    for (uint8_t mot = 0; mot < M_GUARD; mot++) {
         motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, yes ? MOTOR_CURRENT_HOLD : MOTOR_CURRENT_STBY, 2);
     }
 }
