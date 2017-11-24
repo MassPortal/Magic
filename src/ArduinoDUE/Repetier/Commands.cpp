@@ -1101,7 +1101,7 @@ void Commands::processGCode(GCode *com)
 		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		sum = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
         points[0] = sum;
-        Printer::moveTo(0, 0, Printer::zLength - 50, IGNORE_COORDINATE, oldFeedrate);
+        Printer::moveTo(0, 0, Printer::zLength - 50, 0, oldFeedrate);
         Commands::waitUntilEndOfAllMoves();
         if (sum < -1) break;
         Printer::homeAxis(true, true, true);
@@ -1109,7 +1109,7 @@ void Commands::processGCode(GCode *com)
 		Printer::moveTo(EEPROM::zProbeX2(), EEPROM::zProbeY2(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		last = Printer::runZProbe(false, false);
         points[1] = last;
-        Printer::moveTo(0, 0, Printer::zLength - 50, IGNORE_COORDINATE, oldFeedrate);
+        Printer::moveTo(0, 0, Printer::zLength - 50, 0, oldFeedrate);
         Commands::waitUntilEndOfAllMoves();
         if (last < -2) break;
 		sum += last;
@@ -1118,7 +1118,7 @@ void Commands::processGCode(GCode *com)
 		Printer::moveTo(EEPROM::zProbeX3(), EEPROM::zProbeY3(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		last = Printer::runZProbe(false, true);
         points[2] = last;
-        Printer::moveTo(0, 0, Printer::zLength - 50, IGNORE_COORDINATE, oldFeedrate);
+        Printer::moveTo(0, 0, Printer::zLength - 50, 0, oldFeedrate);
         Commands::waitUntilEndOfAllMoves();
 		if (last < -3) break;
 		sum += last;
@@ -1128,7 +1128,8 @@ void Commands::processGCode(GCode *com)
 		Printer::moveTo(0, 0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		last = Printer::runZProbe(false, true);
         center = last;
-        Printer::moveTo(0, 0, Printer::zLength - 50, IGNORE_COORDINATE, oldFeedrate);
+        Printer::moveTo(0, 0, Printer::zLength - 50, 0, oldFeedrate);
+        Commands::waitUntilEndOfAllMoves();
 		
         for (uint8_t i=0;i<3;i++) {
             Serial.print("Point ");
