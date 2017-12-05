@@ -25,6 +25,23 @@ const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS; // Sensitive pin list fo
 int Commands::lowestRAMValue = MAX_RAM;
 int Commands::lowestRAMValueSend = MAX_RAM;
 
+#if defined(FEATURE_COOLED_BED) && FEATURE_COOLED_BED
+static int32_t cooledBedTarget = 0;     // 0 Stand for not-in use
+static bool cooledBedReached = false;   // Clear me when setting target
+
+void Commands::cooledBedSet(int32_t temp)
+{
+    cooledBedTarget = temp;
+    if (!temp) {
+        WRITE(HEATED_BED_HEATER_PIN,0);
+        cooledBedReached = true;
+    } else {
+        cooledBedReached = false;
+    }
+    heatedBedController.targetTemperatureC = temp;
+}
+#endif /* Cooled bed */
+
 void Commands::commandLoop()
 {
     while(true)
@@ -73,6 +90,20 @@ void Commands::commandLoop()
 
 void Commands::checkForPeriodicalActions(bool allowNewMoves)
 {
+#if defined(FEATURE_COOLED_BED) && FEATURE_COOLED_BED
+    static millis_t cooledBedCheck = 0;
+    if (cooledBedTarget && (cooledBedCheck + COOLED_BED_SWITCHING < millis())) {
+        cooledBedCheck = millis();
+        if (heatedBedController.currentTemperatureC < cooledBedTarget) {
+            WRITE(HEATED_BED_HEATER_PIN,0);
+            cooledBedReached = true;
+            //Serial.println("Cooling LOW");
+        } else {
+            WRITE(HEATED_BED_HEATER_PIN,1);
+            //Serial.println("Cooling HIGH");
+        }
+    }
+#endif /* Cooled bed */
     Printer::handleInterruptEvent();
     EVENT_PERIODICAL;
     if(!executePeriodical) return;
@@ -284,7 +315,7 @@ void Commands::setBedLed(int light)
 
 void Commands::setFan2Speed(int speed)
 {
-	#if FAN2_PIN >- 1 && FEATURE_FAN2_CONTROL
+	#if FAN2_PIN >- 1 && FEATURE_FAN2_CONTROL && false
 	speed = constrain(speed,0,255);
 	Printer::setFan2SpeedDirectly(speed);
 	Com::printFLN(Com::tFan2speed,speed); // send only new values to break update loops!
@@ -292,7 +323,7 @@ void Commands::setFan2Speed(int speed)
 }
 void Commands::setFan3Speed(int speed)
 {
-	#if FAN3_PIN >- 1 && FEATURE_VENTILATION
+	#if FAN3_PIN >- 1 && FEATURE_VENTILATION && false
 	speed = constrain(speed,0,255);
 	Printer::setFan3SpeedDirectly(speed);
 	Com::printFLN(Com::tFan3speed,speed); // send only new values to break update loops!
@@ -2410,10 +2441,20 @@ void Commands::processMCode(GCode *com)
 #endif
         break;
     case 140: // M140 set bed temp
+#if defined(FEATURE_COOLED_BED) && FEATURE_COOLED_BED
+        if(reportTempsensorError()) break;
+        if (com->hasS()) {
+            cooledBedSet(com->S);
+        } else {
+            cooledBedSet(0);
+            Serial.println("M140 S<0-25>[degC]");
+        }
+#else
         if(reportTempsensorError()) break;
         previousMillisCmd = HAL::timeInMilliseconds();
         if(Printer::debugDryrun()) break;
         if (com->hasS()) Extruder::setHeatedBedTemperature(com->S,com->hasF() && com->F > 0);
+#endif /* Cooled & heated */
 #if BED_LEDS
 		//Light.ShowTemps();
 #endif
@@ -2490,7 +2531,18 @@ void Commands::processMCode(GCode *com)
     break;
     case 190: // M190 - Wait bed for heater to reach target.
 		{
-#if HAVE_HEATED_BED
+#if FEATURE_COOLED_BED
+        if (com->hasS()) {
+            cooledBedSet(com->S);
+        } else {
+            cooledBedSet(0);
+            Serial.println("M140 S<0-25>[degC]");
+        }
+        while (!cooledBedReached) {
+            checkForPeriodicalActions(true);
+        }
+
+#elif HAVE_HEATED_BED
         if(Printer::debugDryrun()) break;
         UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HEATING_BED_ID));
         Commands::waitUntilEndOfAllMoves();
@@ -2532,22 +2584,30 @@ void Commands::processMCode(GCode *com)
     case 106: // M106 Fan On
         if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND))
         {
-            if(com->hasP())
-				if(com->P == 1)
-	            setFan2Speed(com->hasS() ? com->S : 255);
-			else
-					setFan3Speed(com->hasS() ? com->S : 255);				
-			else
-            setFanSpeed(com->hasS() ? com->S : 255);
+            if (com->hasP())
+#if !FEATURE_COOLED_BED
+                if (com->P == 1)
+                    setFan2Speed(com->hasS() ? com->S : 255);
+                else
+                    setFan3Speed(com->hasS() ? com->S : 255);
+#else
+                Serial.println("No such fan");
+#endif /* Cooled bed */
+            else
+                setFanSpeed(com->hasS() ? com->S : 255);
         }
         break;
     case 107: // M107 Fan Off
         if(com->hasP())
-			if(com->P == 1)
-	        setFan2Speed(0);
-		else
-				setFan3Speed(0);
-		else
+#if !FEATURE_COOLED_BED
+            if(com->P == 1)
+                setFan2Speed(0);
+            else
+                setFan3Speed(0);
+#else
+            Serial.println("No such fan");
+#endif /* Cooled bed */
+        else
             setFanSpeed(0);
         break;
 #endif
@@ -2668,7 +2728,7 @@ void Commands::processMCode(GCode *com)
         {
             if(com->S<0) break;
             if(com->S<NUM_EXTRUDER) temp = &extruder[com->S].tempControl;
-#if HAVE_HEATED_BED
+#if HAVE_HEATED_BED && !FEATURE_COOLED_BED
             else temp = &heatedBedController;
 #else
             else break;
@@ -2830,6 +2890,9 @@ void Commands::processMCode(GCode *com)
         if(com->hasP()) cont = com->P;
         if(com->hasR()) cycles = static_cast<int>(com->R);
         if(cont>=NUM_TEMPERATURE_LOOPS) cont = NUM_TEMPERATURE_LOOPS;
+#if FEATURE_COOLED_BED
+        if (tempController[cont] == &heatedBedController) break;
+#endif /* Cooled bed*/
         tempController[cont]->autotunePID(temp,cont,cycles,com->hasX());
 #endif
     }

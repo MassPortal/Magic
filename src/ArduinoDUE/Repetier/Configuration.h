@@ -734,11 +734,14 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 
 /** Extreme values to detect defect thermistors. */
 #define MIN_DEFECT_TEMPERATURE -10
-#define MAX_DEFECT_TEMPERATURE 310
+#define MAX_DEFECT_TEMPERATURE (MAXTEMP+10)
 
 #define CHAMBER_TEMPSENSOR_TYPE 97
 /** Analog pin of analog sensor to read temperature of the chamber.  */
 #define CHAMBER_SENSOR_PIN TEMP_4_PIN
+
+#define FEATURE_COOLED_BED      1    // Needs heated bed for UI
+#define COOLED_BED_SWITCHING    2000 // Dont turn on/off faster than this
 // ##########################################################################################
 // ##                             Laser configuration                                      ##
 // ##########################################################################################
@@ -1207,7 +1210,7 @@ is at least molten. After havong some complains that the extruder does not work,
 it 0 as default.
 */
 
-#define MIN_EXTRUDER_TEMP 160
+#define MIN_EXTRUDER_TEMP 25
 
 /** \brief Enable advance algorithm.
 
@@ -1665,7 +1668,7 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1U"
+#define HARDWARE_VERSION "v1U-bio"
 #define FIRMWARE_VERSION "225-rc"
 
 #define PRINTER_MODEL			   0
@@ -1774,9 +1777,9 @@ If you have leveling with bed coating or fixed z min you can use this menu to ad
 #define UI_SET_PRESET_HEATED_BED_TEMP_PET 80
 #define UI_SET_PRESET_EXTRUDER_TEMP_PET   255
 // Extreme values
-#define UI_SET_MIN_HEATED_BED_TEMP  45
-#define UI_SET_MAX_HEATED_BED_TEMP 120
-#define UI_SET_MIN_EXTRUDER_TEMP   160
+#define UI_SET_MIN_HEATED_BED_TEMP  5
+#define UI_SET_MAX_HEATED_BED_TEMP 30
+#define UI_SET_MIN_EXTRUDER_TEMP   MIN_EXTRUDER_TEMP
 #define UI_SET_MAX_EXTRUDER_TEMP   300
 #define UI_SET_EXTRUDER_FEEDRATE 10 // mm/sec
 #define UI_SET_EXTRUDER_RETRACT_DISTANCE 10 // mm

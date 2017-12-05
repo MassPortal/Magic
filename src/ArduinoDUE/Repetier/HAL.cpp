@@ -872,6 +872,16 @@ void TIMER1_COMPA_VECTOR ()
   } else {
      stepperChannel->TC_RC = timer_count;
   }
+    if (Extruder::current->id == 0 || !PrintLine::cur) {
+        pwm_pos[PWM_FAN2] = 0;
+        pwm_pos[PWM_FAN3] = 0;
+    } else if (Extruder::current->id == 1) {
+        pwm_pos[PWM_FAN2] = (PrintLine::cur->isEMove()) ? 0xff : 0;
+        pwm_pos[PWM_FAN3] = 0;
+    } else if (Extruder::current->id == 2) {
+        pwm_pos[PWM_FAN3] = (PrintLine::cur->isEMove()) ? 0xff : 0;
+        pwm_pos[PWM_FAN2] = 0;
+    }
 }
 
 #if !defined(HEATER_PWM_SPEED)
@@ -954,7 +964,9 @@ void PWM_TIMER_VECTOR ()
     if ((pwm_pos_set[5] = (pwm_pos[5] & HEATER_PWM_MASK)) > 0) WRITE(EXT5_HEATER_PIN, !HEATER_PINS_INVERTED);
 #endif
 #if HEATED_BED_HEATER_PIN > -1 && HAVE_HEATED_BED
+#if !FEATURE_COOLED_BED
     if ((pwm_pos_set[NUM_EXTRUDER] = pwm_pos[NUM_EXTRUDER]) > 0) WRITE(HEATED_BED_HEATER_PIN, !HEATER_PINS_INVERTED);
+#endif /* !FEATURE_COOLED_BED */
 #endif
   }
   if (pwm_count_cooler == 0 && !PDM_FOR_COOLER)
@@ -1132,11 +1144,13 @@ if(fan3Kickstart == 0)
 	#endif
 #endif
 #if HEATED_BED_HEATER_PIN > -1 && HAVE_HEATED_BED
+#if !FEATURE_COOLED_BED
 #if PDM_FOR_EXTRUDER
   pulseDensityModulate(HEATED_BED_HEATER_PIN, pwm_pos[NUM_EXTRUDER], pwm_pos_set[NUM_EXTRUDER], HEATER_PINS_INVERTED);
 #else
   if (pwm_pos_set[NUM_EXTRUDER] == pwm_count_heater && pwm_pos_set[NUM_EXTRUDER] != HEATER_PWM_MASK) WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
 #endif
+#endif /* !FEATURE_COOLED_BED */
 #endif
   //noInt.unprotect();
   counterPeriodical++; // Appxoimate a 100ms timer

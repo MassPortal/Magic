@@ -2819,8 +2819,12 @@ ZPOS2:
         else tmp += increment;
         if(tmp < UI_SET_MIN_HEATED_BED_TEMP) tmp = 0;
         else if(tmp > UI_SET_MAX_HEATED_BED_TEMP) tmp = UI_SET_MAX_HEATED_BED_TEMP;
+#if FEATURE_COOLED_BED
+        Commands::cooledBedSet(tmp);
+#else
         Extruder::setHeatedBedTemperature(tmp);
-		if (tmp > 0)
+#endif /* Cooled bed */
+        if (tmp > 0)
 			UI_STATUS_UPD_F(UI_TEXT_PREHEATING_EN)
 		else if (!extruder->tempControl.targetTemperatureC > 0)
 			UI_STATUS_UPD_F(UI_TEXT_PRINTER_READY_EN)

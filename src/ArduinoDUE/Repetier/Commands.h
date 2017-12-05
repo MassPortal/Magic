@@ -27,6 +27,7 @@
 class Commands
 {
 public:
+    static void cooledBedSet(int32_t temp);
     static void commandLoop();
     static void checkForPeriodicalActions(bool allowNewMoves);
     static void processArc(GCode *com);

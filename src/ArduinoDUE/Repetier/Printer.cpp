@@ -382,6 +382,7 @@ void Printer::setFanSpeedDirectly(uint8_t speed) {
 #endif
 }
 void Printer::setFan2SpeedDirectly(uint8_t speed) {
+    return;
 	#if FAN2_PIN>-1 && FEATURE_FAN_CONTROL
 	if(pwm_pos[PWM_FAN2] == speed)
 		return;
@@ -396,6 +397,7 @@ void Printer::setFan2SpeedDirectly(uint8_t speed) {
 #endif
 }
 void Printer::setFan3SpeedDirectly(uint8_t speed) {
+    return;
 	#if FAN3_PIN>-1 && FEATURE_FAN_CONTROL
 	if(pwm_pos[PWM_FAN3] == speed)
 	return;
@@ -1253,6 +1255,8 @@ if (EEPROM::getBedLED()>1)
     }
 #endif // EEPROM_MODE
     Endstops::inverting = (EEPROM::getEstopVer() == 17231) ? false : true;
+    /* bio specific */
+    flag1 |= PRINTER_FLAG1_ALLOW_COLD_EXTRUSION;
 }
 
 void Printer::defaultLoopActions()
