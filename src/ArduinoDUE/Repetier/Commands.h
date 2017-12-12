@@ -36,6 +36,8 @@ public:
     static void waitUntilEndOfAllMoves();
     static void waitUntilEndOfAllBuffers();
     static void printCurrentPosition(FSTRINGPARAM(s));
+    static bool isBent(float pointA, float center, float pointB);
+    static void probePoints(float* height, uint8_t num, bool report = false);
     static void printTemperatures(bool showRaw = false);
 	static void printTemperature();
     static void setFanSpeed(int speed, bool immediately = false); /// Set fan speed 0..255

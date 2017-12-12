@@ -4,6 +4,7 @@ enum motor_e {
     M_Z,
     M_Y,
     M_X,
+    M_E1,
     M_GUARD
 };
 
@@ -23,12 +24,12 @@ enum {
 
 
 /* Holding currents */
-#define MOTOR_CURRENT_HOLD      20
+#define MOTOR_CURRENT_HOLD      24
 #define MOTOR_CURRENT_STBY      0
 /* 31 is max current - heatsink could be useful */
 #define MOTOR_CURRENT_PROBE     6
 #define MOTOR_CURRENT_HOME      11
-#define MOTOR_CURRENT_NORMAL    16
+#define MOTOR_CURRENT_NORMAL    20
 /* When starting a move ignore this many ms */
 #define MOTOR_STALL_DELAY       80
 
@@ -43,3 +44,5 @@ void startProbeing(void);
 void clearProbeing(void);
 bool checkProbeing(void);
 void reportStalling(void);
+int16_t motorGetLoad(motor_e mot);
+uint32_t motorGetStatus(motor_e mot);

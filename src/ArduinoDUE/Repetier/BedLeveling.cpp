@@ -348,16 +348,13 @@ void runBedLeveling(GCode *com) {
 
 #endif
 
-void Printer::setAutolevelActive(bool on)
+void Printer::setAutolevelActive(bool on, bool silent)
 {
 	#if FEATURE_AUTOLEVEL
 	if(on == isAutolevelActive()) return;
 	flag0 = (on ? flag0 | PRINTER_FLAG0_AUTOLEVEL_ACTIVE : flag0 & ~PRINTER_FLAG0_AUTOLEVEL_ACTIVE);
-	if(on)
-	Com::printInfoFLN(Com::tAutolevelEnabled);
-	else
-	Com::printInfoFLN(Com::tAutolevelDisabled);
-	updateCurrentPosition(false);
+	if(!silent) Com::printInfoFLN(on ? Com::tAutolevelEnabled : Com::tAutolevelDisabled);
+    updateCurrentPosition(false);
 	#endif // FEATURE_AUTOLEVEL
 }
 #if MAX_HARDWARE_ENDSTOP_Z
@@ -506,7 +503,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 	}
 	#endif
 	distance += bendingCorrectionAt(currentPosition[X_AXIS], currentPosition[Y_AXIS]);
-	Com::printF(Com::tXColon, realXPosition(), 3);
+	//Com::printF(Com::tXColon, realXPosition(), 3);
 	#if DISTORTION_CORRECTION
 	if(Printer::distortion.isEnabled()) {
 		Com::printF(Com::tSpaceYColon, realYPosition());
@@ -515,9 +512,9 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 		Com::printFLN(Com::tSpaceYColon, realYPosition());		
 	}
 	#else
-	Com::printF(Com::tSpaceYColon, realYPosition(), 3);
+	//Com::printF(Com::tSpaceYColon, realYPosition(), 3);
 	#endif
-	Com::printFLN(Com::tSpaceZColon, distance, 3);
+	//Com::printFLN(Com::tSpaceZColon, distance, 3);
 	// Go back to start position
 	if (!doNotLift)
 		PrintLine::moveRelativeDistanceInSteps(0, 0, lastCorrection - currentPositionSteps[Z_AXIS], 0, EEPROM::zProbeSpeed(), true, false);

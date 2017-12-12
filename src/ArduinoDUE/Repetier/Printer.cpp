@@ -1359,7 +1359,7 @@ void Printer::homeZAxis() // Delta z homing
 	bool homingSuccess = false; // By default fail homing (safety feature)
 
 	Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
-    for (uint8_t mot = 0; mot < M_GUARD; mot++) {
+    for (uint8_t mot = 0; mot < M_E1; mot++) {
         motorSetCurrent((motor_e)mot, MOTOR_CURRENT_HOME, MOTOR_CURRENT_HOLD, 2);
     }
     startHomeing(true, true, true);
@@ -1385,7 +1385,7 @@ void Printer::homeZAxis() // Delta z homing
         clearHomeing(true, true, true);
 	}
 
-    for (uint8_t mot = 0; mot < M_GUARD; mot++) {
+    for (uint8_t mot = 0; mot < M_E1; mot++) {
         motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
     }
 
@@ -1433,13 +1433,14 @@ void Printer::homeZAxis() // Delta z homing
     if(ENDSTOP_Z_BACK_ON_HOME > 0)
         maxDeltaPositionSteps += axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_ON_HOME;
 #endif
-    Extruder::selectExtruderById(Extruder::current->id);
+//#warning dont get it 0_o
+//    Extruder::selectExtruderById(Extruder::current->id);
 }
 // This home axis is for delta
 void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
 {
     bool autoLevel = isAutolevelActive();
-    setAutolevelActive(false);
+    setAutolevelActive(false, true);
     setHomed(true);
     if (!(X_MAX_PIN > -1 && Y_MAX_PIN > -1 && Z_MAX_PIN > -1
             && MAX_HARDWARE_ENDSTOP_X && MAX_HARDWARE_ENDSTOP_Y && MAX_HARDWARE_ENDSTOP_Z))
@@ -1457,7 +1458,7 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     updateCurrentPosition(true);
     UI_CLEAR_STATUS
     Commands::printCurrentPosition(PSTR("homeAxis "));
-    setAutolevelActive(autoLevel);
+    setAutolevelActive(autoLevel, true);
 #if BED_LEDS
 		if (Printer::ledVal > 1) Light.ShowTemps();
 #endif

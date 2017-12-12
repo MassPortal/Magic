@@ -13,8 +13,8 @@
 #define MOT_REG_DRVSTATUS   0x6F
 #define MOT_REG_PWMCOMF     0x70
 
-static uint32_t stallDetect[M_GUARD] = {0,0,0};
-static volatile millis_t homeingTime[M_GUARD] = {0,0,0};
+static uint32_t stallDetect[M_GUARD] = {0,0,0,0};
+static volatile millis_t homeingTime[M_GUARD] = {0,0,0,0};
 static volatile millis_t probeingTime = 0;
 
 void tmc_Z_int(void)
@@ -39,19 +39,23 @@ void tmc_X_int(void)
     if (!PrintLine::cur->moveAccelerating() && !PrintLine::cur->moveDecelerating()) stallDetect[M_X]++;
 }
 
-static const uint8_t TMC_cs[M_GUARD] = {25, 27, 29};
-static const uint8_t TMC_int[M_GUARD] = {38, 36, 34};
-static void(*TMC_handlers[M_GUARD]) (void) = {tmc_Z_int, tmc_Y_int, tmc_X_int};
+static const int8_t TMC_cs[M_GUARD] = {25, 27, 29, 31};
+static const int8_t TMC_int[M_GUARD] = {38, 36, 34, -1};
+static void(*TMC_handlers[M_GUARD]) (void) = {tmc_Z_int, tmc_Y_int, tmc_X_int, NULL};
 
 static void motorPinsInit(void)
 {
     /* Set up all pins for all motors */
     for (uint8_t mot = 0; mot < M_GUARD; mot++) {
-        pinMode(TMC_cs[mot], OUTPUT);
-        digitalWrite(TMC_cs[mot], HIGH);
-        pinMode(TMC_int[mot], INPUT_PULLUP);
-        attachInterrupt(digitalPinToInterrupt(TMC_int[mot]), TMC_handlers[mot], FALLING);
-    }
+        if (TMC_cs[mot] > -1) {
+            pinMode(TMC_cs[mot], OUTPUT);
+            digitalWrite(TMC_cs[mot], HIGH);
+        }
+        if (TMC_int[mot] > -1) {
+            pinMode(TMC_int[mot], INPUT_PULLUP);
+            if (TMC_handlers[mot]) attachInterrupt(digitalPinToInterrupt(TMC_int[mot]), TMC_handlers[mot], FALLING);
+        }
+   }
 }
 
 
@@ -60,19 +64,13 @@ static uint8_t motorPush(motor_e mot,uint8_t reg, uint32_t data)
     uint8_t status;
 
     digitalWrite(TMC_cs[mot], LOW);
-#if 0
+
     status = SPI.transfer(reg);
     SPI.transfer((data>>24UL)&0xFF);
     SPI.transfer((data>>16UL)&0xFF);
     SPI.transfer((data>> 8UL)&0xFF);
     SPI.transfer((data>> 0UL)&0xFF);
-#else 
-    status = SPI.transfer(reg);
-    SPI.transfer((data>>24UL)&0xFF);
-    SPI.transfer((data>>16UL)&0xFF);
-    SPI.transfer((data>> 8UL)&0xFF);
-    SPI.transfer((data>> 0UL)&0xFF);
-#endif
+
     digitalWrite(TMC_cs[mot], HIGH);
 
     return status;
@@ -80,18 +78,20 @@ static uint8_t motorPush(motor_e mot,uint8_t reg, uint32_t data)
 
 static uint8_t motorWrite(motor_e mot,uint8_t reg, uint32_t data)
 {
-    return motorPush(mot,  reg | (1<<7), data);
+    return (TMC_cs[mot] < 0) ? false : motorPush(mot,  reg | (1<<7), data);
 }
 
 static uint8_t motorRead(motor_e mot, uint8_t cmd, uint32_t *data)
 {
     uint8_t status;
 
+    if (TMC_cs[mot] < 0) return 0;
+
     motorPush(mot, cmd, 0); //set read address
 
     digitalWrite(TMC_cs[mot], LOW);
-#if 1
     status = SPI.transfer(cmd);
+
     *data  = SPI.transfer(0);
     *data <<=8;
     *data |= SPI.transfer(0);
@@ -99,9 +99,7 @@ static uint8_t motorRead(motor_e mot, uint8_t cmd, uint32_t *data)
     *data |= SPI.transfer(0);
     *data <<=8;
     *data |= SPI.transfer(0);
-#else
 
-#endif 
     digitalWrite(TMC_cs[mot], HIGH);
 
     return status;
@@ -139,15 +137,19 @@ void motorInit(void)
         }
         motorWrite((motor_e)mot, MOT_REG_TCOOLTHRS, 0xfffff);   // Always on coolstep & stallguard
         motorWrite((motor_e)mot, MOT_REG_COOLCONF, 0);          // Always on coolstep & stallguard 
-        //motorWrite((motor_e)mot, MOT_REG_PWMCOMF, 0b11 << 20);  // HS break /w 0 hold current
-        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
+        motorWrite((motor_e)mot, MOT_REG_PWMCOMF, 0b11 << 20);  // HS break /w 0 hold current
+        if (mot < M_E1) {
+            motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
+        } else {
+            motorSetCurrent((motor_e)mot, 16, 21, 2);
+        }
         motorSetMicroSteps((motor_e)mot, U_STEPS_32);
     }
 }
 
 void motorsActive(bool yes)
 {
-    for (uint8_t mot = 0; mot < M_GUARD; mot++) {
+    for (uint8_t mot = 0; mot < M_E1; mot++) {
         motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, yes ? MOTOR_CURRENT_HOLD : MOTOR_CURRENT_STBY, 2);
     }
 }
@@ -173,7 +175,7 @@ bool checkHomeing(motor_e mot)
 
 void startProbeing(void)
 {
-    for (uint8_t mot=0; mot<M_GUARD; mot++) {
+    for (uint8_t mot=0; mot<M_E1; mot++) {
         motorSetCurrent((motor_e)mot, MOTOR_CURRENT_PROBE, MOTOR_CURRENT_HOLD, 2);
     }
     probeingTime = millis();
@@ -181,7 +183,7 @@ void startProbeing(void)
 
 void clearProbeing(void)
 {
-    for (uint8_t mot=0; mot<M_GUARD; mot++) {
+    for (uint8_t mot=0; mot<M_E1; mot++) {
         motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
     }
     //Serial.println((Endstops::zProbe()) ? "Z - Hit" : "Z - Miss");
@@ -193,39 +195,17 @@ bool checkProbeing(void)
     return(probeingTime && probeingTime + MOTOR_STALL_DELAY < millis()) ? true : false;
 }
 
-#ifdef USING_DEAD_CODE
-static void motorClearInt(void)
+int16_t motorGetLoad(motor_e mot)
 {
-    uint32_t data;
-    uint8_t status;
-
-    for (uint8_t i=0; i<M_GUARD; i++) {
-        if (digitalRead(TMC_int[i])) continue;
-        status = motorRead((motor_e)i, MOT_REG_GSTAT, &data);
-        if (data & (1 << 0) || status & (1 << 0)) motorInit();
-#warning this data might be useful
-        return; 
-        if (data & (1 << 0)) Serial.println("Motor reset");
-        if (data & (1 << 1)) Serial.println("Overcurrent or overtemp");
-        if (data & (1 << 2)) Serial.println("Undervoltage");
-
-        if(status & (1 << 0)) Serial.println("Stat reset");
-        if(status & (1 << 1)) Serial.println("Stat error");
-        if(status & (1 << 2)) Serial.println("Stat stallguard");
-        if(status & (1 << 3)) Serial.println("Stat standstill");
-    }
-    /* Clear enstop falgs */
-    //Endstops::lastState &= ~(ENDSTOP_Z_MAX_ID|ENDSTOP_Y_MAX_ID|ENDSTOP_X_MAX_ID);
+    uint32_t tmp;
+    motorRead(mot, MOT_REG_DRVSTATUS, &tmp);
+    /* CAN HAS OPEN LOAD? else STALLGUARD_RESUT */
+    return (tmp & 0b11<<29) ? -1 : 0x3ff - (tmp & 0x3ff);
 }
-#endif /* USING_DEAD_CODE */
 
-void reportStalling(void)
+uint32_t motorGetStatus(motor_e mot)
 {
-    return;
-    Serial.print("Stall values, ");
-    Serial.print(stallDetect[M_Z]);
-    Serial.print(", ");
-    Serial.print(stallDetect[M_Y]);
-    Serial.print(", ");
-    Serial.println(stallDetect[M_X]);
+    uint32_t tmp;
+    motorRead(mot, 0x6B, &tmp);
+    return tmp;
 }
