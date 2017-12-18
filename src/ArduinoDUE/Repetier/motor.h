@@ -24,12 +24,12 @@ enum {
 
 
 /* Holding currents */
-#define MOTOR_CURRENT_HOLD      24
+#define MOTOR_CURRENT_HOLD      12
 #define MOTOR_CURRENT_STBY      0
 /* 31 is max current - heatsink could be useful */
-#define MOTOR_CURRENT_PROBE     6
-#define MOTOR_CURRENT_HOME      11
-#define MOTOR_CURRENT_NORMAL    20
+#define MOTOR_CURRENT_PROBE     7
+#define MOTOR_CURRENT_HOME      6
+#define MOTOR_CURRENT_NORMAL    12
 /* When starting a move ignore this many ms */
 #define MOTOR_STALL_DELAY       80
 

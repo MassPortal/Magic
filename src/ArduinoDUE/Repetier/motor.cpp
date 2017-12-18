@@ -53,7 +53,7 @@ static void motorPinsInit(void)
         }
         if (TMC_int[mot] > -1) {
             pinMode(TMC_int[mot], INPUT_PULLUP);
-            if (TMC_handlers[mot]) attachInterrupt(digitalPinToInterrupt(TMC_int[mot]), TMC_handlers[mot], FALLING);
+            //if (TMC_handlers[mot]) attachInterrupt(digitalPinToInterrupt(TMC_int[mot]), TMC_handlers[mot], FALLING);
         }
    }
 }
@@ -129,9 +129,9 @@ void motorInit(void)
         SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE3));
     }
     for (uint8_t mot = 0; mot < M_GUARD; mot++) {
-        motorWrite((motor_e)mot, MOT_REG_GCONF, 1<<0 | 1<<4 | 1<<7); // Voltage on AIN is current reference & enable interrupts
+        motorWrite((motor_e)mot, MOT_REG_GCONF,1<<4 | 1<<7); // Voltage on AIN is current reference & enable interrupts
         motorRead((motor_e)mot, MOT_REG_GCONF, &regVal);
-        if (regVal != (1 << 0 | 1 << 4 | 1 << 7)) {
+        if (regVal != (1<<4 | 1<<7)) {
             Serial.print("Motor regwrite fail");
             Serial.println(regVal);
         }
