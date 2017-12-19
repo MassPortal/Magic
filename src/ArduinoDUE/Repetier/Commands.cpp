@@ -3127,6 +3127,32 @@ void Commands::processMCode(GCode *com)
         uid.executeAction(UI_ACTION_WIZARD_FILAMENTCHANGE, true);
         break;
 #endif
+    case 700: // M700
+#if PIN_UV_LIGHT > 0
+        millis_t startTime;
+        uint8_t point;
+
+        Printer::homeAxis(true, true, true);
+        waitUntilEndOfAllMoves();
+        Printer::moveToReal(0, 0, 10, 0, 100/3);
+        waitUntilEndOfAllMoves();
+ 
+        digitalWrite(PIN_UV_LIGHT, HIGH);
+        startTime = millis();
+        point = 0;
+        while (millis() - startTime < 30e3) {
+            Printer::moveToReal(point < 2 ? 60 : -60, (point == 0 || point == 3) ? 60 : -60, 10, 0, 100/3);
+            waitUntilEndOfAllMoves();
+            if (point < 3) point++;
+            else point = 0;
+        }
+        digitalWrite(PIN_UV_LIGHT, LOW);
+        Printer::homeAxis(true, true, true);
+        waitUntilEndOfAllMoves();
+#else 
+        Serial.println("Error: UV light not available");
+#endif /* PIN_UV_LIGHT */
+        break;
 	case 880: //M880 print all settings for auto-updater
 		Com::print("UI_PRINTER_COMPANY: ");	Com::println(UI_PRINTER_COMPANY);
 		Com::print("UI_PRINTER_NAME: ");	Com::println(UI_PRINTER_NAME);

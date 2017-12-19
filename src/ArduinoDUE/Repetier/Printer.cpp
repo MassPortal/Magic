@@ -1257,6 +1257,10 @@ if (EEPROM::getBedLED()>1)
     Endstops::inverting = (EEPROM::getEstopVer() == 17231) ? false : true;
     /* bio specific */
     flag1 |= PRINTER_FLAG1_ALLOW_COLD_EXTRUSION;
+#if PIN_UV_LIGHT 
+    pinMode(PIN_UV_LIGHT, OUTPUT);
+    digitalWrite(PIN_UV_LIGHT, LOW);
+#endif
 }
 
 void Printer::defaultLoopActions()
