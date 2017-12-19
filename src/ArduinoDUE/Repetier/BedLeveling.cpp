@@ -442,12 +442,8 @@ Then we return the measured and corrected z distance.
 */
 float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript, bool doNotLift)
 {
-	float oldOffX = Printer::offsetX;
-	float oldOffY = Printer::offsetY;
-	float oldOffZ = Printer::offsetZ;
-	if(first)
-	startProbing(runStartScript);
-	Commands::waitUntilEndOfAllMoves();
+    if(first) startProbing(runStartScript);
+    Commands::waitUntilEndOfAllMoves();
 	int32_t sum = 0, probeDepth;
 	int32_t shortMove = static_cast<int32_t>((float)Z_PROBE_SWITCHING_DISTANCE * axisStepsPerMM[Z_AXIS]); // distance to go up for repeated moves
 	int32_t lastCorrection = currentPositionSteps[Z_AXIS]; // starting position
@@ -516,11 +512,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 	#endif
 	//Com::printFLN(Com::tSpaceZColon, distance, 3);
 	// Go back to start position
-	if (!doNotLift)
-		PrintLine::moveRelativeDistanceInSteps(0, 0, lastCorrection - currentPositionSteps[Z_AXIS], 0, EEPROM::zProbeSpeed(), true, false);
-	else
-		PrintLine::moveRelativeDistanceInSteps(0, 0, 0, 0, EEPROM::zProbeSpeed(), true, false);
-	//PrintLine::moveRelativeDistanceInSteps(offx,offy,0,0,EEPROM::zProbeXYSpeed(),true,true);
+	if (!doNotLift) PrintLine::moveRelativeDistanceInSteps(0, 0, lastCorrection - currentPositionSteps[Z_AXIS], 0, EEPROM::zProbeSpeed(), true, false);
 	if(last)
 	finishProbing();
 	return distance;

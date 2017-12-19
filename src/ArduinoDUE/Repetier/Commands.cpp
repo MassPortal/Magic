@@ -1421,7 +1421,7 @@ void Commands::processGCode(GCode *com)
             } else {
                 /* Now can be negative - relative to set z-height */
                 points[i] -= EEPROM::zProbeBedDistance();
-                points[i] -= 0.08;
+                points[i] -= 0.40;
                 /* Parameter for compensating total height. E.g. in case of blue tape. */
                 if (com->hasI()) points[i] += com->I;
             }
