@@ -3132,23 +3132,27 @@ void Commands::processMCode(GCode *com)
         millis_t startTime;
         uint8_t point;
 
-        Printer::homeAxis(true, true, true);
-        waitUntilEndOfAllMoves();
-        Printer::moveToReal(0, 0, 10, 0, 100/3);
-        waitUntilEndOfAllMoves();
- 
-        digitalWrite(PIN_UV_LIGHT, HIGH);
-        startTime = millis();
-        point = 0;
-        while (millis() - startTime < 30e3) {
-            Printer::moveToReal(point < 2 ? 60 : -60, (point == 0 || point == 3) ? 60 : -60, 10, 0, 100/3);
+        if (com->hasS() && (com->S > 3600 || com->S < 1)) {
+                Serial.println("M700 S<1-3600>");
+        } else {
+            Printer::homeAxis(true, true, true);
             waitUntilEndOfAllMoves();
-            if (point < 3) point++;
-            else point = 0;
+            Printer::moveToReal(0, 0, 10, 0, 100/3);
+            waitUntilEndOfAllMoves();
+ 
+            digitalWrite(PIN_UV_LIGHT, HIGH);
+            startTime = millis();
+            point = 0;
+            while (millis() - startTime < (com->hasS() ? com->S*1e3 : 30e3)) {
+                Printer::moveToReal(point < 2 ? 60 : -60, (point == 0 || point == 3) ? 60 : -60, 10, 0, 100/3);
+                waitUntilEndOfAllMoves();
+                if (point < 3) point++;
+                else point = 0;
+            }
+            digitalWrite(PIN_UV_LIGHT, LOW);
+            Printer::homeAxis(true, true, true);
+            waitUntilEndOfAllMoves();
         }
-        digitalWrite(PIN_UV_LIGHT, LOW);
-        Printer::homeAxis(true, true, true);
-        waitUntilEndOfAllMoves();
 #else 
         Serial.println("Error: UV light not available");
 #endif /* PIN_UV_LIGHT */
