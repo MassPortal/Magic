@@ -828,39 +828,47 @@ TcChannel *stepperChannel = (TIMER1_TIMER->TC_CHANNEL + TIMER1_TIMER_CHANNEL);
 */
 void TIMER1_COMPA_VECTOR ()
 {
-  // apparently have to read status register
-  stepperChannel->TC_SR;
-  stepperChannel->TC_RC = 1000000;
-  uint32_t delay;
-  if (PrintLine::hasLines())
-  {
-    delay = PrintLine::bresenhamStep();
-  }
-  else if (Printer::zBabystepsMissing != 0) {
-    Printer::zBabystep();
-    delay = Printer::interval;
-  } else {
-    if (waitRelax == 0)
-    {
+    // apparently have to read status register
+    stepperChannel->TC_SR;
+    stepperChannel->TC_RC = 1000000;
+    uint32_t delay;
+    if (PrintLine::hasLines()) {
+        delay = PrintLine::bresenhamStep();
+    } else if (Printer::zBabystepsMissing != 0) {
+        Printer::zBabystep();
+        delay = Printer::interval;
+    } else {
+        if (waitRelax == 0) {
 #if USE_ADVANCE
-      if (Printer::advanceStepsSet)
-      {
-        Printer::extruderStepsNeeded -= Printer::advanceStepsSet;
+            if (Printer::advanceStepsSet) {
+                Printer::extruderStepsNeeded -= Printer::advanceStepsSet;
 #if ENABLE_QUADRATIC_ADVANCE
-        Printer::advanceExecuted = 0;
+                Printer::advanceExecuted = 0;
 #endif
-        Printer::advanceStepsSet = 0;
-      }
-      if ((!Printer::extruderStepsNeeded) && (DISABLE_E))
-        Extruder::disableCurrentExtruderMotor();
+                Printer::advanceStepsSet = 0;
+            }
+            if ((!Printer::extruderStepsNeeded) && (DISABLE_E)) {
+                Extruder::disableCurrentExtruderMotor();
+            }
 #else
       if (DISABLE_E) Extruder::disableCurrentExtruderMotor();
 #endif
+    } else {
+        waitRelax--;
     }
-    else waitRelax--;
-    
-    delay = 10000;
-  }
+        delay = 10000;
+    }
+    if (Extruder::current->id == 0 || !PrintLine::cur || !PrintLine::cur->isExtruderForwardMove()) {
+        pwm_pos[PWM_FAN2] = 0;
+        pwm_pos[PWM_FAN3] = 0;
+    } else if (Extruder::current->id == 1) {
+        pwm_pos[PWM_FAN2] = 0xff;
+        pwm_pos[PWM_FAN3] = 0;
+    } else if (Extruder::current->id == 2) {
+        pwm_pos[PWM_FAN3] = 0xff;
+        pwm_pos[PWM_FAN2] = 0;
+    }
+
     // convert old AVR timer delay value for SAM timers
   uint32_t timer_count = (delay * TIMER1_PRESCALE);
   //if (timer_count < 210) // max. 200 khz timer frequency
@@ -872,16 +880,6 @@ void TIMER1_COMPA_VECTOR ()
   } else {
      stepperChannel->TC_RC = timer_count;
   }
-    if (Extruder::current->id == 0 || !PrintLine::cur) {
-        pwm_pos[PWM_FAN2] = 0;
-        pwm_pos[PWM_FAN3] = 0;
-    } else if (Extruder::current->id == 1) {
-        pwm_pos[PWM_FAN2] = (PrintLine::cur->isEMove()) ? 0xff : 0;
-        pwm_pos[PWM_FAN3] = 0;
-    } else if (Extruder::current->id == 2) {
-        pwm_pos[PWM_FAN3] = (PrintLine::cur->isEMove()) ? 0xff : 0;
-        pwm_pos[PWM_FAN2] = 0;
-    }
 }
 
 #if !defined(HEATER_PWM_SPEED)
