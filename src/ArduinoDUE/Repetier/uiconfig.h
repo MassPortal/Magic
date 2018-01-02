@@ -366,6 +366,7 @@ const int matrixActions[] PROGMEM = UI_MATRIX_ACTIONS;
 
 void uiInitKeys() {
 #if UI_HAS_KEYS!=0
+    return;
   //UI_KEYS_INIT_CLICKENCODER_LOW(33,31); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
   UI_KEYS_INIT_BUTTON_LOW(33); // push button, connects gnd to pin
   UI_KEYS_INIT_BUTTON_LOW(31);
@@ -397,7 +398,7 @@ void uiInitKeys() {
 }
 void uiCheckKeys(uint16_t &action) {
 #if UI_HAS_KEYS!=0
-
+    return;
  //UI_KEYS_CLICKENCODER_LOW_REV(33,31); // click encoder on pins 47 and 45. Phase is connected with gnd for signals.
     UI_KEYS_BUTTON_LOW(33,UI_ACTION_OK); //35 push button, connects gnd to pin
     UI_KEYS_BUTTON_LOW(35,UI_ACTION_PREVIOUS); //34 push button, connects gnd to pin
