@@ -24,21 +24,16 @@ enum {
 
 
 /* Holding currents */
-#define MOTOR_CURRENT_HOLD      12
+#define MOTOR_CURRENT_HOLD      21
 #define MOTOR_CURRENT_STBY      0
 /* 31 is max current - heatsink could be useful */
 #define MOTOR_CURRENT_PROBE     7
-#define MOTOR_CURRENT_HOME      12
-#define MOTOR_CURRENT_NORMAL    21
+#define MOTOR_CURRENT_NORMAL    27
 /* When starting a move ignore this many ms */
 #define MOTOR_STALL_DELAY       80
 
 void motorInit(void);
 void tmcSetCurrent(uint8_t mot, uint8_t run, uint8_t hold, uint8_t holdDly);
-void motorsActive(bool yes);
-void startHomeing(bool z, bool y, bool x);
-void clearHomeing(bool z, bool y, bool x);
-bool checkHomeing(motor_e mot);
 void startProbeing(void);
 void clearProbeing(void);
 bool checkProbeing(void);

@@ -200,29 +200,13 @@ flag8_t Endstops::accumulator2 = 0;
 #endif
 
 void Endstops::update() {
-    if (checkHomeing(M_Z)) {
-        if (!READ(38)) lastState |= ENDSTOP_Z_MAX_ID;
-    } else {
-        lastState &= ~(ENDSTOP_Z_MAX_ID);
-    }
-
-    if (checkHomeing(M_Y)) {
-        if (!READ(36)) lastState |= ENDSTOP_Y_MAX_ID;
-    } else {
-        lastState &= ~(ENDSTOP_Y_MAX_ID);
-    }
-
-    if (checkHomeing(M_X)) {
-        if (!READ(34)) lastState |= ENDSTOP_X_MAX_ID;
-    } else {
-        lastState &= ~(ENDSTOP_X_MAX_ID);
-    }
+#if false
     if (checkProbeing()) {
-        if (!READ(38) || !READ(36) || !READ(34)) lastState |= ENDSTOP_Z_PROBE_ID;
+        if (!READ(32) || !READ(30) || !READ(28)) lastState |= ENDSTOP_Z_PROBE_ID;
     } else {
         lastState &= ~(ENDSTOP_Z_PROBE_ID);
     }
-    return;
+#endif
     flag8_t newRead = 0;
 #ifdef EXTENDED_ENDSTOPS
     flag8_t newRead2 = 0;
@@ -255,7 +239,7 @@ void Endstops::update() {
         if(READ(Z2_MINMAX_PIN) != ENDSTOP_Z2_MINMAX_INVERTING)
             newRead |= ENDSTOP_Z2_MINMAX_ID;
 #endif
-#if FEATURE_Z_PROBE
+#if FEATURE_Z_PROBE && false
 		if((Printer::probeType == 2) ? READ(Z_PROBE_PIN) : !READ(Z_PROBE_PIN))
        newRead |= ENDSTOP_Z_PROBE_ID;
 #endif
@@ -1277,6 +1261,7 @@ if (EEPROM::getBedLED()>1)
 #endif // EEPROM_MODE
     Endstops::inverting = (EEPROM::getEstopVer() == 17231) ? false : true;
     motorInit();
+    flag1 |= PRINTER_FLAG1_ALLOW_COLD_EXTRUSION;
 }
 
 void Printer::defaultLoopActions()
@@ -1354,41 +1339,31 @@ void Printer::homeYAxis()
         Com::printWarningFLN(PSTR("homeYAxis / queueDeltaMove returns error"));
     }
 }
+
+/* Delta z homing */
 void Printer::homeZAxis() // Delta z homing
 {
 	bool homingSuccess = false; // By default fail homing (safety feature)
 
 	Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
-    for (uint8_t mot = 0; mot < M_E1; mot++) {
-        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_HOME, MOTOR_CURRENT_HOLD, 2);
-    }
-    startHomeing(true, true, true);
-	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]/2);
 
-	if ((Endstops::xMax() && Endstops::yMax() && Endstops::zMax())) {
-	    PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS]/3, true, true);
-        clearHomeing(true, false, false);
-        startHomeing(true, false, false);
-		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] /3);
-        //PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_MOVE + 3, 0, Printer::homingFeedrate[Z_AXIS]/3, true, true);
-        clearHomeing(false, true, false);
-        startHomeing(false, true, false);
-        Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] /3);
-        //PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_MOVE + 3, 0, Printer::homingFeedrate[Z_AXIS]/3, true, true);
-        clearHomeing(false, false, true);
-        startHomeing(false, false, true);
-        Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] /3);
-		//PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_MOVE + 3, 0, Printer::homingFeedrate[Z_AXIS]/3, true, true);
-        if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
+	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
+	PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
+	Endstops::update();
+	Endstops::update();
+
+	if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
+
+		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
+
+		Endstops::update();
+		Endstops::update();
+				
+		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
 			homingSuccess = true;
 		}
-        clearHomeing(true, true, true);
+
 	}
-
-    for (uint8_t mot = 0; mot < M_E1; mot++) {
-        motorSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
-    }
-
 	// Check if homing failed.  If so, request pause!
 	if (!homingSuccess) {
 		setHomed(false); // Clear the homed flag
@@ -1433,14 +1408,14 @@ void Printer::homeZAxis() // Delta z homing
     if(ENDSTOP_Z_BACK_ON_HOME > 0)
         maxDeltaPositionSteps += axisStepsPerMM[Z_AXIS] * ENDSTOP_Z_BACK_ON_HOME;
 #endif
-//#warning dont get it 0_o
-//    Extruder::selectExtruderById(Extruder::current->id);
+    Extruder::selectExtruderById(Extruder::current->id);
 }
+
 // This home axis is for delta
 void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
 {
     bool autoLevel = isAutolevelActive();
-    setAutolevelActive(false, true);
+    setAutolevelActive(false);
     setHomed(true);
     if (!(X_MAX_PIN > -1 && Y_MAX_PIN > -1 && Z_MAX_PIN > -1
             && MAX_HARDWARE_ENDSTOP_X && MAX_HARDWARE_ENDSTOP_Y && MAX_HARDWARE_ENDSTOP_Z))
@@ -1458,7 +1433,7 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     updateCurrentPosition(true);
     UI_CLEAR_STATUS
     Commands::printCurrentPosition(PSTR("homeAxis "));
-    setAutolevelActive(autoLevel, true);
+    setAutolevelActive(autoLevel);
 #if BED_LEDS
 		if (Printer::ledVal > 1) Light.ShowTemps();
 #endif

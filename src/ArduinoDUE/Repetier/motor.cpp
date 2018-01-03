@@ -48,16 +48,15 @@ typedef enum {
     USTEPS_1
 } __attribute__((packed)) usteps_e;
 
-static volatile millis_t homeingTime[M_GUARD] = {0,0,0,0};
 static volatile millis_t probeingTime = 0;
 
 static const int8_t TMC_cs[M_GUARD] = {25, 27, 29, 31};
-static const int8_t TMC_int[M_GUARD] = {38, 36, 34, -1};
+static const int8_t TMC_int[M_GUARD] = {32, 30, 28, -1};
 
 static void motorPinsInit(void)
 {
     /* Set up all pins for all motors */
-    for (uint8_t mot = 0; mot < M_GUARD; mot++) {
+    for (uint8_t mot=0; mot<M_GUARD; mot++) {
         if (TMC_cs[mot] > -1) {
             pinMode(TMC_cs[mot], OUTPUT);
             digitalWrite(TMC_cs[mot], HIGH);
@@ -76,8 +75,8 @@ static uint8_t tmcPush(uint8_t mot,uint8_t reg, uint32_t data)
   status = SPI.transfer(reg);
   SPI.transfer((data>>24UL)&0xFF);
   SPI.transfer((data>>16UL)&0xFF);
-  SPI.transfer((data>> 8UL)&0xFF);
-  SPI.transfer((data>> 0UL)&0xFF);
+  SPI.transfer((data>>8UL)&0xFF);
+  SPI.transfer((data>>0UL)&0xFF);
   digitalWrite(TMC_cs[mot], HIGH);
 
   return status;
@@ -128,11 +127,12 @@ static void tmcInit(uint8_t mot, bool extruder)
     reg |= ((uint32_t)(1 & 0x1) << 28);         // Setup interpol
     reg |= ((uint32_t)(0 & 0x1) << 29);         // NOT Step on toggle
     tmcWrite(mot, REG_CHOPCONF, reg);           // Write the damn thing
-    if (!extruder) {
-        tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);               // Setup currents
+    if (!extruder) {                            // Setup currents
+        tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
     } else {
-        tmcSetCurrent(mot, 21, 12, 2);
+        tmcSetCurrent(mot, 27, 21, 2);
     }
+    tmcWrite(mot, REG_THIGH, 1);                // Never make fullsteps
     tmcWrite(mot, REG_TPOWERDOWN, 0);           // power down never
     tmcWrite(mot, REG_COOLCONF, 0 << 16);       // Stall guard thereshold - default
     tmcWrite(mot, REG_TCOOLTHRS, 0);            // Setup coolstep thereshold (no coolstep/stallguard)
@@ -143,7 +143,7 @@ static void tmcInit(uint8_t mot, bool extruder)
     tmcWrite(mot, REG_GCONF, reg);              // Write main setup
     reg = 0;
     reg |= ((uint32_t)(0xff & 0xff) << 0);      // Pwm amplitude
-    reg |= ((uint32_t)(2 & 0xff) << 8);         // Pwm gradient
+    reg |= ((uint32_t)(50 & 0xff) << 8);        // Pwm gradient
     reg |= ((uint32_t)(2 & 0x3) << 16);         // fPWM=2/512 fCLK
     reg |= ((uint32_t)(1 & 1) << 18);           // Autoscale enable
     tmcWrite(mot, REG_PWMCONF, reg);
@@ -160,44 +160,9 @@ void motorInit(void)
         SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE3));
         first = false;
     }
-    for (uint8_t mot = 0; mot < M_GUARD; mot++) {
-        tmcInit(mot, mot < M_E1 ? false : true);
+    for (uint8_t mot=0; mot<M_GUARD; mot++) {
+        tmcInit(mot, mot<M_E1 ? false : true);
     }
-}
-
-void motorsActive(bool yes)
-{
-    for (uint8_t mot = 0; mot < M_E1; mot++) {
-        tmcSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, yes ? MOTOR_CURRENT_HOLD : MOTOR_CURRENT_STBY, 2);
-    }
-}
-
-void startHomeing(bool z, bool y, bool x)
-{
-    millis_t now = millis();
-    for (uint8_t mot=0; mot<M_E1; mot++) {
-        /* Enable stallGuard */
-        tmcWrite(mot, REG_TCOOLTHRS, 0xfffff);
-    }
-    if (z) homeingTime[M_Z] = now;
-    if (y) homeingTime[M_Y] = now;
-    if (x) homeingTime[M_X] = now;
-}
-
-void clearHomeing(bool z, bool y, bool x)
-{
-    for (uint8_t mot=0; mot<M_E1; mot++) {
-        /* Make motors silent */
-        tmcWrite(mot, REG_TCOOLTHRS, 0);
-    }
-    if (z) homeingTime[M_Z] = 0;
-    if (y) homeingTime[M_Y] = 0;
-    if (x) homeingTime[M_X] = 0;
-}
-
-bool checkHomeing(motor_e mot)
-{
-    return (homeingTime[mot] && homeingTime[mot] + MOTOR_STALL_DELAY < millis()) ? true : false;
 }
 
 void startProbeing(void)
@@ -216,7 +181,7 @@ void clearProbeing(void)
         /* Make motors silent */
         tmcWrite(mot, REG_TCOOLTHRS, 0);
         /* Restore currnents */
-        tmcSetCurrent((motor_e)mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
+        tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
     }
     probeingTime = 0;
 }
