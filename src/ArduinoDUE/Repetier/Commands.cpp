@@ -84,6 +84,7 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
 #endif
     if(--counter250ms == 0)
     {
+        motorInit();
         //reportStalling();
         if(manageMonitor)
             writeMonitor();
@@ -179,10 +180,6 @@ static inline float processPoints(float values[3])
 {
     uint8_t minIndex, maxIndex;
 
-    /* Duplicats considered best option */
-    if (cmpf(values[0], values[1])) return values[0];
-    else if (cmpf(values[0], values[2])) return values[0];
-    else if (cmpf(values[1], values[2])) return values[1];
     /* Find not midPoint */
     minIndex = 0;
     maxIndex = 0;
@@ -198,9 +195,6 @@ static inline float processPoints(float values[3])
 
 void Commands::probePoints(float* height, uint8_t num, bool report)
 {
-    #warning useless tmp
-    static float tmp[7];
-
     const uint8_t repeat = 2;
     float tmpRep[3];
     uint8_t curr = 0;
@@ -214,30 +208,26 @@ void Commands::probePoints(float* height, uint8_t num, bool report)
     while (num > point) {
         switch (point) {
         case 0:
-            coordX = 0;
-            coordY = 0;
-            break;
-        case 1:
             coordX = EEPROM::zProbeX1();
             coordY = EEPROM::zProbeY1();
             break;
-        case 2:
+        case 1:
             coordX = EEPROM::zProbeX2();
             coordY = EEPROM::zProbeY2();
             break;
-        case 3:
+        case 2:
             coordX = EEPROM::zProbeX3();
             coordY = EEPROM::zProbeY3();
             break;
-        case 4:
+        case 3:
             coordX = -EEPROM::zProbeX1();
             coordY = -EEPROM::zProbeY1();
             break;
-        case 5:
+        case 4:
             coordX = -EEPROM::zProbeX2();
             coordY = -EEPROM::zProbeY2();
             break;
-        case 6:
+        case 5:
             coordX = -EEPROM::zProbeX3();
             coordY = -EEPROM::zProbeY3();
             break;
@@ -247,18 +237,9 @@ void Commands::probePoints(float* height, uint8_t num, bool report)
         }
 
         Printer::homeAxis(true, true, true);
-        //Printer::moveTo(0, 0, Printer::zLength - 10, 0, 100);
-        //Commands::waitUntilEndOfAllMoves();
         Printer::moveToReal(coordX, coordY, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), 0, 125);
-		Commands::waitUntilEndOfAllMoves();
+        Commands::waitUntilEndOfAllMoves();
         tmpHeight = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false, true);
-        /*
-        if (height) {
-            *height = tmpHeight;
-            height++;
-        }
-        tmp[point] = tmpHeight;
-        */
         if (report) {
             Com::printF("Point[", point);
             Com::printFLN("]: ", tmpHeight);
@@ -272,7 +253,6 @@ void Commands::probePoints(float* height, uint8_t num, bool report)
                 *height = tmpHeight;
                 height++;
             }
-            tmp[point] = tmpHeight;
             if (report) {
                 Com::printF("Point[", point);
                 Com::printFLN("] final: ", tmpHeight);
@@ -282,21 +262,6 @@ void Commands::probePoints(float* height, uint8_t num, bool report)
         } else {
             curr++;
         }
-    }
-    if (num) {
-        Serial.println("First bend:");
-        isBent(tmp[1], tmp[0], tmp[4]);
-        isBent(tmp[2], tmp[0], tmp[5]);
-        isBent(tmp[3], tmp[0], tmp[6]);
-        Serial.println("Second bend:");
-        isBent(tmp[1], (tmp[0] + tmp[6]) / 2, tmp[2]);
-        isBent(tmp[2], (tmp[0] + tmp[4]) / 2, tmp[3]);
-        isBent(tmp[3], (tmp[0] + tmp[5]) / 2, tmp[1]);
-        Serial.println("Third bend:");
-        isBent(tmp[4], (tmp[0] + tmp[3]) / 2, tmp[5]);
-        isBent(tmp[5], (tmp[0] + tmp[1]) / 2, tmp[6]);
-        isBent(tmp[6], (tmp[0] + tmp[2]) / 2, tmp[4]);
-#warning check possible parallelism?
     }
     Printer::setAutolevelActive(oldAutoLevel, true);
 }
@@ -1231,7 +1196,7 @@ void Commands::processGCode(GCode *com)
 #if FEATURE_Z_PROBE
 	case 29: // G29 3 points, build average or distortion compensation
 	{
-        probePoints(NULL, 4, true);
+        probePoints(NULL, 3, true);
         /*
         if (com->hasS() && com->S)
 		{
@@ -1408,13 +1373,13 @@ void Commands::processGCode(GCode *com)
 		Com::println();
 		break;
 #if FEATURE_AUTOLEVEL
-	case 32: // G32 Auto-Bed leveling
-	{
-        float points[4];
+    case 32: // G32 Auto-Bed leveling
+    {
+        float points[3];
         bool fault = false;
 
-        probePoints(points, 4, true);
-        for (uint8_t i=0; i<4 && !fault; i++) {
+        probePoints(points, 3, true);
+        for (uint8_t i=0; i<3 && !fault; i++) {
             if (points[i] < 0) {
                 /* returns -1 if takes too long */
                 fault = true;
@@ -1430,9 +1395,9 @@ void Commands::processGCode(GCode *com)
             Serial.println("Error: failed probeing");
             break;
         }
-        Printer::buildTransformationMatrix(points[1], points[2], points[3]);
+        Printer::buildTransformationMatrix(points[0], points[1], points[2]);
         Com::printFLN("Old printer height: ", Printer::zLength);
-        Printer::zLength += points[0];
+        Printer::zLength += (points[0] + points[1] + points[2])/3;
         Com::printFLN("New printer height: ", Printer::zLength);
         if (com->hasS() && com->S > 0) {
             Printer::setAutolevelActive(true);
@@ -2985,7 +2950,8 @@ void Commands::processMCode(GCode *com)
         break;
 #endif
     case 700: //M700
-        probePoints(NULL, com->hasS() ? com->S : 1, true);
+        if (com->hasX()) Serial.println(Printer::runZProbe(false,false));
+        else probePoints(NULL, com->hasS() ? com->S : 1, true);
         //Printer::moveToReal(com->hasX() ? 50 : 0, com->hasY() ? 50 : 0, com->hasZ() ? 50 : 0, com->hasE() ? 50 : 0, Printer::feedrate);
         break;
 	case 880: //M880 print all settings for auto-updater
@@ -3074,13 +3040,15 @@ void Commands::processMCode(GCode *com)
 			Com::printF("=");
 			switch (com->S) {
 			case 1: //Front door
+                break;
 				if (Printer::fDoorOpen)
 					Com::printFLN("1#Front door open");
 				else
 					Com::printFLN("0#Front door closed");
 				break;
 			case 2: //Side doors
-				if (Printer::sDoorOpen)
+                break;
+                if (Printer::sDoorOpen)
 					Com::printFLN("1#Side door(s) open");
 				else
 					Com::printFLN("0#Side door(s) closed");

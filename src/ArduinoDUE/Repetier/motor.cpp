@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include "Repetier.h"
 #include "Motor.h"
+#include "HAL.h"
 
 /* Driver registers */
 #define REG_GCONF       0x00
@@ -51,7 +52,7 @@ typedef enum {
 static volatile millis_t probeingTime = 0;
 
 static const int8_t TMC_cs[M_GUARD] = {25, 27, 29, 31};
-static const int8_t TMC_int[M_GUARD] = {32, 30, 28, -1};
+static const int8_t TMC_int[M_GUARD] = {ORIG_Z_MIN_PIN, ORIG_Y_MIN_PIN, ORIG_X_MIN_PIN, -1};
 
 static void motorPinsInit(void)
 {
@@ -67,7 +68,7 @@ static void motorPinsInit(void)
    }
 }
 
-static uint8_t tmcPush(uint8_t mot,uint8_t reg, uint32_t data)
+static uint8_t tmcPush(uint8_t mot, uint8_t reg, uint32_t data)
 {
   uint8_t status;
 
@@ -82,7 +83,7 @@ static uint8_t tmcPush(uint8_t mot,uint8_t reg, uint32_t data)
   return status;
 }
 
-static uint8_t tmcWrite(uint8_t mot,uint8_t reg, uint32_t data)
+static uint8_t tmcWrite(uint8_t mot, uint8_t reg, uint32_t data)
 {
     return tmcPush(mot,  reg | (1<<7), data);
 }
@@ -91,7 +92,7 @@ static uint8_t tmcRead(uint8_t mot, uint8_t cmd, uint32_t *data)
 {
   uint8_t status;
 
-  tmcPush(mot, cmd, 0); //set read address
+  tmcPush(mot, cmd, 0); // Set read address
 
   digitalWrite(TMC_cs[mot], LOW);
   status = SPI.transfer(cmd);
@@ -115,37 +116,43 @@ void tmcSetCurrent(uint8_t mot, uint8_t run, uint8_t hold, uint8_t holdDly)
     tmcWrite(mot, REG_IHOLD_IRUN, hold | (uint32_t)run<<8 | (uint32_t)holdDly<<16);
 }
 
-static void tmcInit(uint8_t mot, bool extruder)
+static void tmcInit(uint8_t mot, bool extruder, bool first)
 {
-    uint32_t reg = 0; 
-    reg |= ((uint32_t)(3 & 0xf) << 0);          // Setup TOFF
-    reg |= ((uint32_t)(5 & 0x7) << 4);          // Setup VOID hstrt 
-    reg |= ((uint32_t)(1 & 0xf) << 7);          // Setup VOID hend
-    reg |= ((uint32_t)(2 & 0x3) << 15);         // Setup VOID TBL
-	reg |= ((uint32_t)(1 & 0x1) << 17);         // Setup vsense
-    reg |= ((uint32_t)(USTEPS_8 & 0xf) << 24);  // Setup microsteps
-    reg |= ((uint32_t)(1 & 0x1) << 28);         // Setup interpol
-    reg |= ((uint32_t)(0 & 0x1) << 29);         // NOT Step on toggle
-    tmcWrite(mot, REG_CHOPCONF, reg);           // Write the damn thing
-    if (!extruder) {                            // Setup currents
+    uint32_t reg, compa;
+    reg = 0;
+    reg |= ((uint32_t)(3 & 0xful) << 0);            // Setup TOFF
+    reg |= ((uint32_t)(5 & 0x7ul) << 4);            // Setup VOID hstrt
+    reg |= ((uint32_t)(1 & 0xful) << 7);            // Setup VOID hend
+    reg |= ((uint32_t)(2 & 0x3ul) << 15);           // Setup VOID TBL
+    reg |= ((uint32_t)(1 & 0x1ul) << 17);           // Setup vsense
+    reg |= ((uint32_t)(USTEPS_32 & 0xful) << 24);   // Setup microsteps
+    reg |= ((uint32_t)(1 & 0x1ul) << 28);           // Setup interpol
+    reg |= ((uint32_t)(0 & 0x1ul) << 29);           // NOT Step on toggle
+    if (!first) {
+        tmcRead(mot, REG_CHOPCONF, &compa);
+        /* All is good - motors haven't been reset*/
+        if (compa == reg) return;
+    }
+    tmcWrite(mot, REG_CHOPCONF, reg);               // Write the damn thing
+    if (!extruder) {                                // Setup currents
         tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
     } else {
-        tmcSetCurrent(mot, 27, 21, 2);
+        tmcSetCurrent(mot, 31, 31, 2);
     }
-    tmcWrite(mot, REG_THIGH, 1);                // Never make fullsteps
+    tmcWrite(mot, REG_THIGH, 0);                // Never make fullsteps
     tmcWrite(mot, REG_TPOWERDOWN, 0);           // power down never
-    tmcWrite(mot, REG_COOLCONF, 0 << 16);       // Stall guard thereshold - default
-    tmcWrite(mot, REG_TCOOLTHRS, 0);            // Setup coolstep thereshold (no coolstep/stallguard)
+    tmcWrite(mot, REG_COOLCONF, 0 << 16);       // Stall guard threshold - default
+    tmcWrite(mot, REG_TCOOLTHRS, 0);          // Setup coolstep threshold (no coolstep/stallguard)
     reg = 0;
-    reg |= ((uint32_t)(1 & 0x1) << 2);          // Setup stealthChop
-    reg |= ((uint32_t)(1 & 0x1) << 4);          // Inverse
-    reg |= ((uint32_t)(1 & 0x1) << 7);          // Enable diag0 interrupt - OD config
+    reg |= ((uint32_t)(1 & 0x1ul) << 2);          // Setup stealthChop
+    reg |= ((uint32_t)(1 & 0x1ul) << 4);          // Inverse
+    reg |= ((uint32_t)(1 & 0x1ul) << 7);          // Enable diag0 interrupt - OD config
     tmcWrite(mot, REG_GCONF, reg);              // Write main setup
     reg = 0;
-    reg |= ((uint32_t)(0xff & 0xff) << 0);      // Pwm amplitude
-    reg |= ((uint32_t)(50 & 0xff) << 8);        // Pwm gradient
-    reg |= ((uint32_t)(2 & 0x3) << 16);         // fPWM=2/512 fCLK
-    reg |= ((uint32_t)(1 & 1) << 18);           // Autoscale enable
+    reg |= ((uint32_t)(0xff & 0xfful) << 0);      // Pwm amplitude
+    reg |= ((uint32_t)(50 & 0xfful) << 8);        // Pwm gradient
+    reg |= ((uint32_t)(2 & 0x3ul) << 16);         // fPWM=2/512 fCLK
+    reg |= ((uint32_t)(1 & 1ul) << 18);           // Autoscale enable
     tmcWrite(mot, REG_PWMCONF, reg);
     tmcWrite(mot, REG_TPWMTHRS, 0);
 }
@@ -161,7 +168,7 @@ void motorInit(void)
         first = false;
     }
     for (uint8_t mot=0; mot<M_GUARD; mot++) {
-        tmcInit(mot, mot<M_E1 ? false : true);
+        tmcInit(mot, mot<M_E1 ? false : true, first);
     }
 }
 
@@ -180,7 +187,7 @@ void clearProbeing(void)
     for (uint8_t mot=0; mot<M_E1; mot++) {
         /* Make motors silent */
         tmcWrite(mot, REG_TCOOLTHRS, 0);
-        /* Restore currnents */
+        /* Restore currents */
         tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
     }
     probeingTime = 0;
@@ -188,5 +195,9 @@ void clearProbeing(void)
 
 bool checkProbeing(void)
 {
-    return(probeingTime && probeingTime + MOTOR_STALL_DELAY < millis()) ? true : false;
+    if (probeingTime && probeingTime + MOTOR_STALL_DELAY < millis()) {
+        return (!READ(ORIG_Z_MIN_PIN) || !READ(ORIG_Y_MIN_PIN) || !READ(ORIG_X_MIN_PIN)) ? true : false;
+    } else {
+        return false;
+    }
 }

@@ -199,15 +199,13 @@ flag8_t Endstops::lastRead2 = 0;
 flag8_t Endstops::accumulator2 = 0;
 #endif
 
-void Endstops::update() {
-#if false
-    if (checkProbeing()) {
-        if (!READ(32) || !READ(30) || !READ(28)) lastState |= ENDSTOP_Z_PROBE_ID;
-    } else {
-        lastState &= ~(ENDSTOP_Z_PROBE_ID);
-    }
-#endif
+void Endstops::update()
+{
     flag8_t newRead = 0;
+
+    if (checkProbeing()) newRead |= ENDSTOP_Z_PROBE_ID;
+    else newRead &= ~(ENDSTOP_Z_PROBE_ID);
+
 #ifdef EXTENDED_ENDSTOPS
     flag8_t newRead2 = 0;
 #endif
