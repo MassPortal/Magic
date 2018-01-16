@@ -4,24 +4,8 @@ enum motor_e {
     M_Z,
     M_Y,
     M_X,
-    M_E1,
     M_GUARD
 };
-
-enum {
-    U_STEPS_256,
-    U_STEPS_128,
-    U_STEPS_64,
-    U_STEPS_32,
-    U_STEPS_16,
-    U_STEPS_8,
-    U_STEPS_4,
-    U_STEPS_3,
-    U_STEPS_2,
-    U_STEPS_1,
-    U_STEPS_GUARD
-};
-
 
 /* Holding currents */
 #define MOTOR_CURRENT_HOLD      31
