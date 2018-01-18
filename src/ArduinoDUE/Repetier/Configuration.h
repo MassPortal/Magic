@@ -1781,7 +1781,7 @@ If you have leveling with bed coating or fixed z min you can use this menu to ad
 #define UI_SET_EXTRUDER_FEEDRATE 10 // mm/sec
 #define UI_SET_EXTRUDER_RETRACT_DISTANCE 10 // mm
 
-#define PRELOAD_OFFSET_MM           607     // How far is second switch from preload spot
+#define PRELOAD_OFFSET_MM           520     // How far is second switch from preload spot
 #define PRELOAD_DIST_MM             87      // How far from nozzle to preload spot
 #define SAFE_UP_DIST_MM             10      // How far up is considered safe for part
 

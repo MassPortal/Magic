@@ -1319,20 +1319,36 @@ void Printer::manageSwitches(void)
         /* Debounce & read only changes */
         if ((!extruder[i].swTime || extruder[i].swTime + DEBOUNCE_TIME_MS > millis()) && !first) continue;
         if (digitalRead(extruder[i].swEntry)) {
+#if true
+            if (digitalRead(extruder[i].swLast)) {
+                extruder[i].fiStatus = (extruder[i].fiStatus == FI_STANDBY) ? FI_STANDBY : FI_UNPRIMED;
+            } else {
+                extruder[i].fiStatus = (extruder[i].fiStatus == FI_MISSING) ? FI_INSERED : FI_WAITING;
+            }
+#else
             if (digitalRead(extruder[i].swFirst)) {
                 extruder[i].fiStatus = (digitalRead(extruder[i].swLast)) ? extruder[i].fiStatus == FI_STANDBY ? FI_STANDBY : FI_UNPRIMED : extruder[i].fiStatus == FI_MISSING ? FI_INSERED : FI_WAITING;
             }
             /* Don't change if entry only (considered missing) */
+#endif /* true */
         } else {
+#if true
+            if (digitalRead(extruder[i].swLast)) {
+                extruder[i].fiStatus = FI_EMPTY;
+            } else {
+                extruder[i].fiStatus = FI_MISSING;
+            }
+#else
             if (digitalRead(extruder[i].swFirst)) {
                 extruder[i].fiStatus = digitalRead(extruder[i].swLast) ? FI_EMPTY : FI_WAITING;
             } else if (!digitalRead(extruder[i].swLast)) {
                  extruder[i].fiStatus = FI_MISSING;
             }
+#endif /* true */
         }
-        if (&extruder[i] != Extruder::current && extruder[i].fiStatus == FI_INSERED && Printer::primeStatus > AUTO_NONE) {
-            if (!PrintLine::hasLines()) primeReturn = primeFilament(i, 5000, false);
-            else if (Printer::primeStatus == AUTO_ACTIVE) primeReturn = primeFilament(i, 7000, true);
+        if (extruder[i].fiStatus == FI_INSERED && Printer::primeStatus > AUTO_NONE) {
+            if (!PrintLine::hasLines()) primeReturn = primeFilament(i, 15000, false);
+            else if (Printer::primeStatus == AUTO_ACTIVE) primeReturn = primeFilament(i, 15000, true);
             extruder[i].fiStatus = primeReturn ? FI_STANDBY : FI_WAITING;
         }
         extruder[i].swTime = 0;
@@ -2038,7 +2054,7 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex, bool lift)
     Extruder* from = &extruder[fromIndex];
     Extruder* to = &extruder[toIndex];
 
-    if (!from || !to || from == to || extruder[toIndex].fiStatus != FI_STANDBY) {
+    if (from == to || extruder[toIndex].fiStatus != FI_STANDBY) {
         return false;
     }
     if (lift) Commands::waitUntilEndOfAllMoves();
@@ -2130,7 +2146,7 @@ bool Printer::swapFilament(uint8_t fromIndex, uint8_t toIndex, bool lift)
         HAL::delayMicroseconds(50);
         HAL::pingWatchdog();
         /* End conditions */
-        if (!digitalRead(to->swFirst) || breaker) break;
+        if (breaker) break;
         Commands::checkForPeriodicalActions(false);
     }
     /* Set old xyz settings */
