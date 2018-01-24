@@ -462,6 +462,7 @@ void uiCheckSlowKeys(uint16_t &action) {
   // ----- End RGB shield ----------
   */
 #endif
+#if false
 	if (READ(X_MIN_PIN) != Printer::fDoorOpen) {
 		Printer::fDoorOpen = READ(X_MIN_PIN);
 		uid.executeAction(UI_ACTION_DOOR_FRONT, true);
@@ -470,6 +471,7 @@ void uiCheckSlowKeys(uint16_t &action) {
 		Printer::sDoorOpen = READ(Y_MIN_PIN);
 		uid.executeAction(UI_ACTION_DOOR_SIDE, true);
 	}
+#endif /* NO */
 }
 
 #endif

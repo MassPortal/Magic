@@ -56,4 +56,6 @@ private:
 };
 bool cmpf(float a, float b);
 bool enableZprobe(bool probeState);
+void manageSwitch(void);
+
 #endif // COMMANDS_H_INCLUDED

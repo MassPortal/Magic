@@ -1253,10 +1253,13 @@ if (EEPROM::getBedLED()>1)
     }
 #endif // EEPROM_MODE
     Endstops::inverting = (EEPROM::getEstopVer() == 17231) ? false : true;
+    //PULLUP(X_MIN_PIN, HIGH);
+    pinMode(X_MIN_PIN, INPUT_PULLUP);
 }
 
 void Printer::defaultLoopActions()
 {
+    manageSwitch();
     Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
     UI_MEDIUM; // do check encoder
     millis_t curtime = HAL::timeInMilliseconds();

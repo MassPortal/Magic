@@ -71,6 +71,47 @@ void Commands::commandLoop()
     }
 }
 
+static void extrude(float Zmm)
+{
+    uint8_t state = 0;
+    uint32_t  steps;
+
+    if (Zmm != Zmm || !Zmm) return;
+
+    steps = floor(abs(Zmm)*Extruder::current->stepsPerMM + 0.5);
+    Extruder::current->setDirection((Zmm > 0) ? true : false);
+    Extruder::current->enable();
+    HAL::delayMicroseconds(40);
+    while (steps) {
+        Extruder::current->step();
+        HAL::delayMicroseconds(STEPPER_HIGH_DELAY + 2);
+        Extruder::current->unstep();
+        HAL::delayMicroseconds(40);
+        steps--;
+        HAL::pingWatchdog();
+        Commands::checkForPeriodicalActions(false);
+    }
+}
+
+void manageSwitch(void)
+{
+    static bool loaded = true;
+    static uint8_t debouncer = 3;
+    if (READ(X_MIN_PIN)) {
+        if (debouncer < 4) {
+            debouncer++;
+        } else if (!loaded) {
+            /* Extrude some length */
+            extrude(800);
+            loaded = true;
+        }
+    } else if (debouncer) {
+        debouncer--;
+    } else {
+        loaded = false;
+    }
+}
+
 void Commands::checkForPeriodicalActions(bool allowNewMoves)
 {
     Printer::handleInterruptEvent();
