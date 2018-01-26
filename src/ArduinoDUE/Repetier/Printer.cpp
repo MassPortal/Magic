@@ -1341,33 +1341,26 @@ void Printer::homeYAxis()
 /* Delta z homing */
 void Printer::homeZAxis() // Delta z homing
 {
-	bool homingSuccess = false; // By default fail homing (safety feature)
+    bool homingSuccess = false; // By default fail homing (safety feature)
 
-	Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
+    Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
+    Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
+    PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
+    Endstops::update();
 
-	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
-	PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
-	Endstops::update();
-	Endstops::update();
-
-	if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
-
-		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
-
-		Endstops::update();
-		Endstops::update();
-				
-		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
-			homingSuccess = true;
-		}
-
-	}
-	// Check if homing failed.  If so, request pause!
-	if (!homingSuccess) {
-		setHomed(false); // Clear the homed flag
-		Com::printFLN(PSTR("Homing failed!"));
-	}
-	Commands::checkForPeriodicalActions(true);
+    if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
+        Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
+        Endstops::update();
+        if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
+            homingSuccess = true;
+        }
+    }
+    // Check if homing failed.  If so, request pause!
+    if (!homingSuccess) {
+        setHomed(false); // Clear the homed flag
+        Com::printFLN(PSTR("Homing failed!"));
+    }
+    Commands::checkForPeriodicalActions(true);
 
     // Correct different endstop heights
     // These can be adjusted by two methods. You can use offsets stored by determining the center
