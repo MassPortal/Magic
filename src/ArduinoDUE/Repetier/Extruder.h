@@ -200,6 +200,8 @@ public:
     static uint8_t activeMixingExtruder;
 	static void recomputeMixingExtruderSteps();
 #endif
+    bool(*asyncBreak) (void);
+    volatile uint32_t asyncSteps;
     uint8_t id;
     int32_t xOffset;
     int32_t yOffset;
@@ -263,7 +265,9 @@ public:
     static void setMixingWeight(uint8_t extr,int weight);
 #endif
     static void step();
+    static void fstepId(uint8_t id);
     static void unstep();
+    static void dirId(uint8_t id, uint8_t dir);
     static void setDirection(uint8_t dir);
     static void enable();
 #if FEATURE_RETRACTION

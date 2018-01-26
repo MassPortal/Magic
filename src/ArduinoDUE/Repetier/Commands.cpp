@@ -2960,6 +2960,9 @@ void Commands::processMCode(GCode *com)
         else probePoints(NULL, com->hasS() ? com->S : 1, true);
         //Printer::moveToReal(com->hasX() ? 50 : 0, com->hasY() ? 50 : 0, com->hasZ() ? 50 : 0, com->hasE() ? 50 : 0, Printer::feedrate);
         break;
+    case 701: // M701
+        beginAsync(com->S, com->P, NULL);
+        break;
 	case 880: //M880 print all settings for auto-updater
 		Com::print("UI_PRINTER_COMPANY: ");	Com::println(UI_PRINTER_COMPANY);
 		Com::print("UI_PRINTER_NAME: ");	Com::println(UI_PRINTER_NAME);
