@@ -235,7 +235,7 @@ Overridden if EEPROM activated.*/
 // 102 is MAX31855
 #define EXT0_TEMPSENSOR_TYPE 13
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT0_TEMPSENSOR_PIN TEMP_0_PIN
+#define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN//TEMP_0_PIN
 // Which pin enables the heater
 #define EXT0_HEATER_PIN HEATER_0_PIN
 #define EXT0_STEP_PIN E0_STEP_PIN
