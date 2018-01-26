@@ -146,35 +146,35 @@ static void tmcInit(uint8_t mot, bool first)
 {
     uint32_t reg, compa;
     reg = 0;
-    reg |= ((uint32_t)(3 & 0xful) << 0);            // Setup TOFF
-    reg |= ((uint32_t)(5 & 0x7ul) << 4);            // Setup VOID hstrt
-    reg |= ((uint32_t)(1 & 0xful) << 7);            // Setup VOID hend
-    reg |= ((uint32_t)(2 & 0x3ul) << 15);           // Setup VOID TBL
-    reg |= ((uint32_t)(1 & 0x1ul) << 17);           // Setup vsense
-    reg |= ((uint32_t)(ustepsToReg(MICRO_STEPS) & 0xful) << 24);   // Setup microsteps
-    reg |= ((uint32_t)(1 & 0x1ul) << 28);           // Setup interpol
-    reg |= ((uint32_t)(0 & 0x1ul) << 29);           // NOT Step on toggle
+    reg |= ((uint32_t)(3 & 0xful) << 0);                            // Setup TOFF
+    reg |= ((uint32_t)(5 & 0x7ul) << 4);                            // Setup VOID hstrt
+    reg |= ((uint32_t)(1 & 0xful) << 7);                            // Setup VOID hend
+    reg |= ((uint32_t)(2 & 0x3ul) << 15);                           // Setup VOID TBL
+    reg |= ((uint32_t)(1 & 0x1ul) << 17);                           // Setup vsense
+    reg |= ((uint32_t)(ustepsToReg(MICRO_STEPS) & 0xful) << 24);    // Setup microsteps
+    reg |= ((uint32_t)(1 & 0x1ul) << 28);                           // Setup interpol
+    reg |= ((uint32_t)(0 & 0x1ul) << 29);                           // NOT Step on toggle
     if (!first) {
         tmcRead(mot, REG_CHOPCONF, &compa);
         /* All is good - motors haven't been reset*/
         if (compa == reg) return;
     }
-    tmcWrite(mot, REG_CHOPCONF, reg);               // Write the damn thing
-    tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2); // Setup currents
-    tmcWrite(mot, REG_THIGH, 0);                // Never make fullsteps
-    tmcWrite(mot, REG_TPOWERDOWN, 0);           // power down never
-    tmcWrite(mot, REG_COOLCONF, 0 << 16);       // Stall guard threshold - default
-    tmcWrite(mot, REG_TCOOLTHRS, 0);          // Setup coolstep threshold (no coolstep/stallguard)
+    tmcWrite(mot, REG_CHOPCONF, reg);                                   // Write the damn thing
+    tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);    // Setup currents
+    tmcWrite(mot, REG_THIGH, 0);                                        // Never make fullsteps
+    tmcWrite(mot, REG_TPOWERDOWN, 0);                                   // power down never
+    tmcWrite(mot, REG_COOLCONF, 0 << 16);                               // Stall guard threshold - default
+    tmcWrite(mot, REG_TCOOLTHRS, 0);                                    // Setup coolstep threshold (no coolstep/stallguard)
     reg = 0;
-    reg |= ((uint32_t)(1 & 0x1ul) << 2);          // Setup stealthChop
-    reg |= ((uint32_t)(1 & 0x1ul) << 4);          // Inverse
-    reg |= ((uint32_t)(1 & 0x1ul) << 7);          // Enable diag0 interrupt - OD config
-    tmcWrite(mot, REG_GCONF, reg);              // Write main setup
+    reg |= ((uint32_t)(1 & 0x1ul) << 2);            // Setup stealthChop
+    reg |= ((uint32_t)(1 & 0x1ul) << 4);            // Inverse
+    reg |= ((uint32_t)(1 & 0x1ul) << 7);            // Enable diag0 interrupt - OD config
+    tmcWrite(mot, REG_GCONF, reg);                  // Write main setup
     reg = 0;
-    reg |= ((uint32_t)(0xff & 0xfful) << 0);      // Pwm amplitude
-    reg |= ((uint32_t)(50 & 0xfful) << 8);        // Pwm gradient
-    reg |= ((uint32_t)(2 & 0x3ul) << 16);         // fPWM=2/512 fCLK
-    reg |= ((uint32_t)(1 & 1ul) << 18);           // Autoscale enable
+    reg |= ((uint32_t)(0xff & 0xfful) << 0);        // Pwm amplitude
+    reg |= ((uint32_t)(50 & 0xfful) << 8);          // Pwm gradient
+    reg |= ((uint32_t)(2 & 0x3ul) << 16);           // fPWM=2/512 fCLK
+    reg |= ((uint32_t)(1 & 1ul) << 18);             // Autoscale enable
     tmcWrite(mot, REG_PWMCONF, reg);
     tmcWrite(mot, REG_TPWMTHRS, 0);
 }
