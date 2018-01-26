@@ -21,6 +21,9 @@
 
 #include "Repetier.h"
 
+#define PROBEING_REP        5
+#define PROBEING_DROP       1
+
 const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS; // Sensitive pin list for M42
 int Commands::lowestRAMValue = MAX_RAM;
 int Commands::lowestRAMValueSend = MAX_RAM;
@@ -153,50 +156,45 @@ void Commands::waitUntilEndOfAllBuffers()
     }
 }
 
-bool Commands::isBent(float pointA, float center, float pointB)
+static inline void sort(float* data, size_t num)
 {
-    float validMin, validMax;
-    float delta;
+    bool done;
+    float tmp;
 
-    delta = (pointA - 0.12) - (pointB - 0.12);
-    validMin = (pointB - 0.12) + delta / 2;
-    if (validMin > center + 0.12) {
-        Serial.print("Bent up: ");
-        Serial.println(validMin - (center + 0.12));
-        return true;
-    }
-    delta = (pointA + 0.12) - (pointB + 0.12);
-    validMax = (pointB + 0.12) + delta / 2;
-    if (validMax < center - 0.12) {
-        Serial.print("Bent down: ");
-        Serial.println((center - 0.12) - validMax);
-        return true;
-    }
-    Serial.println("Not bent");
-    return false;
+    do {
+        done = true;        
+        for (size_t i=0, k=1; k<num; i++, k++) {
+            if (data[i] > data[k]) {
+                tmp = data[i];
+                data[i] = data[k];
+                data[k] = tmp;
+                done = false;
+            }
+        }
+    } while (!done);
 }
 
-static inline float processPoints(float values[3])
+static inline float processPoints(float values[7])
 {
-    uint8_t minIndex, maxIndex;
+    float sum;
 
-    /* Find not midPoint */
-    minIndex = 0;
-    maxIndex = 0;
-    for (uint8_t i=1; i<3; i++) {
-        if (values[minIndex] > values[i]) minIndex = i;
-        if (values[maxIndex] < values[i]) maxIndex = i;
+    sort(values, PROBEING_REP);
+    /* drop fist & last two */
+    sum = 0;
+    for (uint8_t i=PROBEING_DROP; i<(PROBEING_REP-PROBEING_DROP); i++) {
+        sum += values[i];
     }
-    /* Return midPoint */
-    if (maxIndex != 0 && minIndex != 0) return values[0];
-    else if (maxIndex != 1 && minIndex != 1) return values[1];
-    else return values[2];
+    sum /= PROBEING_REP - (2*PROBEING_DROP);
+    for (uint8_t i=PROBEING_DROP; i<(PROBEING_REP-PROBEING_DROP); i++) {
+        /* Look for very bad points */
+        if (abs(sum - values[i]) > 0.11) return -1;
+    }
+    return sum;
 }
 
 void Commands::probePoints(float* height, uint8_t num, bool report)
 {
-    const uint8_t repeat = 2;
-    float tmpRep[3];
+    float tmpRep[PROBEING_REP];
     uint8_t curr = 0;
 
     uint8_t point = 0;
@@ -237,18 +235,25 @@ void Commands::probePoints(float* height, uint8_t num, bool report)
         }
 
         Printer::homeAxis(true, true, true);
-        Printer::moveToReal(coordX, coordY, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), 0, 125);
-        Commands::waitUntilEndOfAllMoves();
+        Printer::moveToReal(coordX, coordY, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
         tmpHeight = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false, true);
+        if (tmpHeight < 0) {
+            if (height) *height = -1;
+            return;
+        }
         if (report) {
             Com::printF("Point[", point);
             Com::printFLN("]: ", tmpHeight);
         }
-        Printer::moveTo(0, 0, Printer::zLength - 10, 0, 200);
+        Printer::moveTo(0, 0, Printer::zLength - 10, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed() * 0.9);
         Commands::waitUntilEndOfAllMoves();
         tmpRep[curr] = tmpHeight;
-        if (curr == 2) {
+        if (curr == PROBEING_REP-1) {
             tmpHeight = processPoints(tmpRep);
+            if (tmpHeight < 0) {
+                if (height) *height = -1;
+                return;
+            }
             if (height) {
                 *height = tmpHeight;
                 height++;
@@ -1386,8 +1391,9 @@ void Commands::processGCode(GCode *com)
             } else {
                 /* Now can be negative - relative to set z-height */
                 points[i] -= EEPROM::zProbeBedDistance();
-                points[i] -= 0.40;
+                points[i] -= 0.32;// 4 Full steps -> (1/400)*32*4
                 /* Parameter for compensating total height. E.g. in case of blue tape. */
+                /* I should be -0.35 to -0.4 for BuildTek */
                 if (com->hasI()) points[i] += com->I;
             }
         }
