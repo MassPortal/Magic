@@ -874,7 +874,7 @@ on this endstop.
 // If during homing the endstop is reached, ho many mm should the printer move back for the second try
 #define ENDSTOP_X_BACK_MOVE 3
 #define ENDSTOP_Y_BACK_MOVE 3
-#define ENDSTOP_Z_BACK_MOVE 3
+#define ENDSTOP_Z_BACK_MOVE 4
 
 // For higher precision you can reduce the speed for the second test on the endstop
 // during homing operation. The homing speed is divided by the value. 1 = same speed, 2 = half speed
