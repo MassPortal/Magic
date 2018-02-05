@@ -46,13 +46,13 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 /** Number of extruders. Maximum 6 extruders. */
-#define NUM_EXTRUDER 3
+#define NUM_EXTRUDER 2
 
 /** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. */
 #define MIXING_EXTRUDER 0
-#define MIXING_SEMI 1
+#define MIXING_SEMI 0
 
-#define SHARED_EXTRUDER_HEATER true
+#define SHARED_EXTRUDER_HEATER false
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // Arduino Due with RADDS     = 402
@@ -200,6 +200,10 @@ Overridden if EEPROM activated.*/
 // These commands get executed before we go to stored position.
 #define PAUSE_END_COMMANDS ""
 
+#define EXT0_SERVO_POS  550u
+#define EXT1_SERVO_POS  2500u
+#define SERVO_TIME 800u // ms
+
 #define EXT0_X_OFFSET 0
 #define EXT0_Y_OFFSET 0
 #define EXT0_Z_OFFSET 0
@@ -229,7 +233,7 @@ Overridden if EEPROM activated.*/
 // 100 is AD595
 // 101 is MAX6675
 // 102 is MAX31855
-#define EXT0_TEMPSENSOR_TYPE 100
+#define EXT0_TEMPSENSOR_TYPE 13
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 // Which pin enables the heater
@@ -316,7 +320,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT0_SELECT_COMMANDS "M117 Extruder 1"
 #define EXT0_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT0_EXTRUDER_COOLER_PIN HEATER_2_PIN
+#define EXT0_EXTRUDER_COOLER_PIN -1
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT0_EXTRUDER_COOLER_SPEED 255
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
@@ -356,13 +360,13 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // 99 Generic thermistor table 3
 // 100 is AD595
 // 101 is MAX6675
-#define EXT1_TEMPSENSOR_TYPE 100
-#define EXT2_TEMPSENSOR_TYPE 100
+#define EXT1_TEMPSENSOR_TYPE 13
+#define EXT2_TEMPSENSOR_TYPE 13
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT1_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
-#define EXT2_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
+#define EXT1_TEMPSENSOR_PIN TEMP_2_PIN
+#define EXT2_TEMPSENSOR_PIN -1
 // Which pin enables the heater
-#define EXT1_HEATER_PIN -1
+#define EXT1_HEATER_PIN HEATER_2_PIN
 #define EXT2_HEATER_PIN -1
 #define EXT1_STEP_PIN E1_STEP_PIN
 #define EXT2_STEP_PIN E2_STEP_PIN
@@ -459,7 +463,7 @@ cog. Direct drive extruder need 0. */
 #define EXT1_DESELECT_COMMANDS ""
 #define EXT2_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT1_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
+#define EXT1_EXTRUDER_COOLER_PIN -1
 #define EXT2_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT1_EXTRUDER_COOLER_SPEED 255
@@ -1335,14 +1339,14 @@ Servos are controlled by a pulse width normally between 500 and 2500 with 1500ms
 WARNING: Servos can draw a considerable amount of current. Make sure your system can handle this or you may risk your hardware!
 */
 
-#define FEATURE_SERVO 0
+#define FEATURE_SERVO 1
 // Servo pins on a RAMPS board are 11,6,5,4
-#define SERVO0_PIN 11
-#define SERVO1_PIN 6
+#define SERVO0_PIN 6
+#define SERVO1_PIN 11
 #define SERVO2_PIN 5
 #define SERVO3_PIN 4
 /* for set servo(s) at designed neutral position at power-up. Values < 500 mean no start position */
-#define SERVO0_NEUTRAL_POS  -1
+#define SERVO0_NEUTRAL_POS  EXT0_SERVO_POS
 #define SERVO1_NEUTRAL_POS  -1
 #define SERVO2_NEUTRAL_POS  -1
 #define SERVO3_NEUTRAL_POS  -1
@@ -1665,7 +1669,7 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1U"
+#define HARDWARE_VERSION "v1U-SER"
 #define FIRMWARE_VERSION "225-rc"
 
 #define PRINTER_MODEL			   0
