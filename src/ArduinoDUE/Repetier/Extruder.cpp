@@ -574,6 +574,7 @@ This function changes and initializes a new extruder. This is also called, after
 */
 void Extruder::selectExtruderById(uint8_t extruderId)
 {
+    millis_t startSwap;
 #if NUM_EXTRUDER > 0
 #if MIXING_EXTRUDER
     if(extruderId >= VIRTUAL_EXTRUDER)
@@ -597,6 +598,11 @@ void Extruder::selectExtruderById(uint8_t extruderId)
         executeSelect = true;
     }
     Commands::waitUntilEndOfAllMoves();
+    if (extruderId != Extruder::current->id) {
+        HAL::servoMicroseconds(0, extruderId ? EXT1_SERVO_POS : EXT0_SERVO_POS, SERVO_TIME);
+        startSwap = millis();
+        while (startSwap + SERVO_TIME > millis()) Commands::checkForPeriodicalActions(false);
+    }
 #endif
     Extruder::current->extrudePosition = Printer::currentPositionSteps[E_AXIS];
     Extruder::current = &extruder[extruderId];
@@ -1474,11 +1480,19 @@ const short temptable_12[NUMTEMPS_12][2] PROGMEM =
     {351*4, 140*8},{386*4, 134*8},{421*4, 128*8},{456*4, 122*8},{491*4, 117*8},{526*4, 112*8},{561*4, 107*8},{596*4, 102*8},{631*4, 97*8},{666*4, 91*8},
     {701*4, 86*8},{736*4, 81*8},{771*4, 76*8},{806*4, 70*8},{841*4, 63*8},{876*4, 56*8},{911*4, 48*8},{946*4, 38*8},{981*4, 23*8},{1005*4, 5*8},{1016*4, 0*8}
 };
-#define NUMTEMPS_13 19
+#define NUMTEMPS_13 49 //19
 const short temptable_13[NUMTEMPS_13][2] PROGMEM =
 {
-    {0,0},{908,8},{942,10*8},{982,20*8},{1015,8*30},{1048,8*40},{1080,8*50},{1113,8*60},{1146,8*70},{1178,8*80},{1211,8*90},{1276,8*110},{1318,8*120}
-    ,{1670,8*230},{2455,8*500},{3445,8*900},{3666,8*1000},{3871,8*1100},{4095,8*2000}
+    /*{0,0},{908,8},{942,10*8},{982,20*8},{1015,8*30},{1048,8*40},{1080,8*50},{1113,8*60}
+    ,{1146,8*70},{1178,8*80},{1211,8*90},{1276,8*110},{1318,8*120},{1670,8*230}
+    ,{2455,8*500},{3445,8*900},{3666,8*1000},{3871,8*1100},{4095,8*2000}*/
+
+    {919,0},{923,1},{954,10},{989,20},{1023,30},{1057,40},{1091,50},{1125,60},{1159,70}
+    ,{1192,80},{1226,90},{1259,100},{1292,110},{1325,120},{1357,130},{1390,140},{1423,150}
+    ,{1455,160},{1487,170},{1519,180},{1551,190},{1583,200},{1614,210},{1645,220},{1677,230}
+    ,{1708,240},{1739,250},{1770,260},{1800,270},{1831,280},{1861,290},{1891,300},{1909,310}
+    ,{1942,320},{1974,330},{1999,340},{2032,350},{2056,360},{2089,370},{2114,380},{2146,390}
+    ,{2179,400},{2458,500},{2728,600},{2974,700},{3219,800},{3449,900},{3670,1000},{3875,1100}
 };
 #if NUM_TEMPS_USERTHERMISTOR0 > 0
 const short temptable_5[NUM_TEMPS_USERTHERMISTOR0][2] PROGMEM = USER_THERMISTORTABLE0 ;
@@ -1634,14 +1648,14 @@ void TemperatureController::updateCurrentTemperature()
             newtemp = pgm_read_word(&temptable[i++]);
             if (newraw > currentTemperature)
             {
-                currentTemperatureC = TEMP_INT_TO_FLOAT(oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(newraw-oldraw));
+                currentTemperatureC = (float)oldtemp + (float)(currentTemperature-oldraw)*(float)(newtemp-oldtemp)/(float)(newraw-oldraw);
                 return;
             }
             oldtemp = newtemp;
             oldraw = newraw;
         }
         // Overflow: Set to last value in the table
-        currentTemperatureC = TEMP_INT_TO_FLOAT(newtemp);
+        currentTemperatureC = (float)newtemp;
         break;
     }
     case 60: // AD8495 (Delivers 5mV/degC vs the AD595's 10mV)
