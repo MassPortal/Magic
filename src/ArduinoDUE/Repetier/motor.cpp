@@ -155,9 +155,24 @@ static void tmcInit(uint8_t mot, bool first)
     reg |= ((uint32_t)(1 & 0x1ul) << 28);                           // Setup interpol
     reg |= ((uint32_t)(0 & 0x1ul) << 29);                           // NOT Step on toggle
     if (!first) {
-        tmcRead(mot, REG_CHOPCONF, &compa);
-        /* All is good - motors haven't been reset*/
-        if (compa == reg) return;
+        tmcRead(mot, REG_GSTAT, &compa);
+        if (compa & 1<<1) {
+            /* This is bad, very bad, very very bad */
+            if (mot == M_Z) Printer::disableZStepper();
+            else if (mot == M_Y) Printer::disableYStepper();
+            else if (mot == M_X) Printer::disableXStepper();
+            delay(5);
+            if (mot == M_Z) Printer::enableZStepper();
+            else if (mot == M_Y) Printer::enableYStepper();
+            else if (mot == M_X) Printer::enableXStepper();
+            delay(5);
+        } else {
+            /* Must read to clear, dont care about contents */
+            tmcRead(mot, REG_DRV_STATUS, &compa);
+            tmcRead(mot, REG_CHOPCONF, &compa);
+            /* All is good - motors haven't been reset*/
+            if (compa == reg) return;
+        }
     }
     tmcWrite(mot, REG_CHOPCONF, reg);                                   // Write the damn thing
     tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);    // Setup currents
@@ -187,11 +202,11 @@ void motorInit(void)
         motorPinsInit();
         SPI.begin();
         SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE3));
-        first = false;
     }
     for (uint8_t mot=0; mot<M_GUARD; mot++) {
         tmcInit(mot, first);
     }
+    first = false;
 }
 
 void startProbeing(void)
