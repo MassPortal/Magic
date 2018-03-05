@@ -74,6 +74,26 @@ void Commands::commandLoop()
     }
 }
 
+#define SWITCH_PIN  -1
+#define BOWDEN_LEN  800
+static inline void manageSwitches(void)
+{
+    static bool first = true;
+    static bool swStatus;
+    if (first) {
+        if (SWITCH_PIN > -1) {
+            pinMode(SWITCH_PIN, INPUT_PULLUP);
+        }
+        swStatus = digitalRead(SWITCH_PIN);
+        first = false;
+    } else {
+        if (swStatus != digitalRead(SWITCH_PIN)) {
+            swStatus = digitalRead(SWITCH_PIN);
+            if (swStatus) GCode::executeFString("G1 E800"); // XXX extrude 800mm
+        }
+    }
+}
+
 void Commands::checkForPeriodicalActions(bool allowNewMoves)
 {
     Printer::handleInterruptEvent();
@@ -174,9 +194,25 @@ static inline void sort(float* data, size_t num)
     } while (!done);
 }
 
-static inline float processPoints(float values[7])
+static inline float processPoints(float values[PROBEING_REP])
 {
-    float sum;
+    float sum, avg;
+
+#ifndef I_DONT_CARE_ABOUT_DEVIATION_OR_ERRORS_IN_GENERAL
+    sum = 0;
+    avg = 0;
+    for (uint8_t i=0; i<PROBEING_REP; i++) {
+        avg += values[i];
+    }
+    avg /= PROBEING_REP;
+    for (uint8_t i=0; i<PROBEING_REP; i++) {
+        sum += (avg-values[i])*(avg-values[i]);
+    }
+    sum /= (PROBEING_REP-1);
+    sum = sqrt(sum);
+    Serial.print("PointDeviation: ");
+    Serial.println(sum, 3);
+#endif /* long text */
 
     sort(values, PROBEING_REP);
     /* drop fist & last two */
@@ -236,7 +272,7 @@ void Commands::probePoints(float* height, uint8_t num, bool report)
 
         Printer::homeAxis(true, true, true);
         Printer::moveToReal(coordX, coordY, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-        tmpHeight = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false, true);
+        tmpHeight = Printer::runZProbe(true, true, Z_PROBE_REPETITIONS, true, true);
         if (tmpHeight < 0) {
             if (height) *height = -1;
             return;
@@ -1391,7 +1427,7 @@ void Commands::processGCode(GCode *com)
             } else {
                 /* Now can be negative - relative to set z-height */
                 points[i] -= EEPROM::zProbeBedDistance();
-                points[i] -= 0.32;// 4 Full steps -> (1/400)*32*4
+                //points[i] += EEPROM::zProbeHeight();// 4 Full steps -> (1/400)*32*4
                 /* Parameter for compensating total height. E.g. in case of blue tape. */
                 /* I should be -0.35 to -0.4 for BuildTek */
                 if (com->hasI()) points[i] += com->I;
@@ -1401,18 +1437,20 @@ void Commands::processGCode(GCode *com)
             Serial.println("Error: failed probeing");
             break;
         }
-        Printer::buildTransformationMatrix(points[0], points[1], points[2]);
-        Com::printFLN("Old printer height: ", Printer::zLength);
-        Printer::zLength += (points[0] + points[1] + points[2])/3;
-        Com::printFLN("New printer height: ", Printer::zLength);
+
         if (com->hasS() && com->S > 0) {
-            Printer::setAutolevelActive(true);
+            Printer::buildTransformationMatrix(points[0], points[1], points[2]);
+            Com::printFLN("Old printer height: ", Printer::zLength);
+            Printer::zLength += (points[0] + points[1] + points[2])/3;
+            Com::printFLN("New printer height: ", Printer::zLength);
             if (com->S == 2) {
                 EEPROM::storeDataIntoEEPROM(false);
                 Serial.println("Parameters saved.");
             }
         }
         Printer::updateDerivedParameter();
+        Printer::setAutolevelActive(true);
+        Printer::homeAxis(true, true, true);
     }
     break;
 #endif
