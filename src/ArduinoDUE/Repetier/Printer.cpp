@@ -724,7 +724,9 @@ void Printer::updateCurrentPosition(bool copyLastCmd)
 uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 {
     register int32_t p;
+    bool sillyMove;
     float x, y, z;
+    float moveLen[Z_AXIS_ARRAY];
 #if FEATURE_RETRACTION
     if(com->hasNoXYZ() && com->hasE() && isAutoretract()) { // convert into autoretract
         if(relativeCoordinateMode || relativeExtruderCoordinateMode) {
@@ -736,14 +738,31 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
         return 0; // Fake no move so nothing gets added
     }
 #endif
+    sillyMove = true;
     if(!relativeCoordinateMode)
     {
+        moveLen[X_AXIS] = abs(currentPosition[X_AXIS] - convertToMM(com->X));
+        moveLen[Y_AXIS] = abs(currentPosition[Y_AXIS] - convertToMM(com->Y));
+        moveLen[Z_AXIS] = abs(currentPosition[Z_AXIS] - convertToMM(com->Z));
+
+        if (com->hasX() && moveLen[X_AXIS] > 0.003) sillyMove = false;
+        if (com->hasY() && moveLen[Y_AXIS] > 0.003) sillyMove = false;
+        if (com->hasZ() && moveLen[Z_AXIS] > 0.003) sillyMove = false;
+        if (com->hasE() && com->hasNoXYZ()) sillyMove = false;
+        if (com->hasF()) sillyMove = false;
+        if (sillyMove) return 0;
         if(com->hasX()) lastCmdPos[X_AXIS] = currentPosition[X_AXIS] = convertToMM(com->X) - coordinateOffset[X_AXIS];
         if(com->hasY()) lastCmdPos[Y_AXIS] = currentPosition[Y_AXIS] = convertToMM(com->Y) - coordinateOffset[Y_AXIS];
         if(com->hasZ()) lastCmdPos[Z_AXIS] = currentPosition[Z_AXIS] = convertToMM(com->Z) - coordinateOffset[Z_AXIS];
     }
     else
     {
+        if (com->hasX() && abs(convertToMM(com->X)) > 0.003) sillyMove = false;
+        if (com->hasY() && abs(convertToMM(com->Y)) > 0.003) sillyMove = false;
+        if (com->hasZ() && abs(convertToMM(com->Z)) > 0.003) sillyMove = false;
+        if (com->hasE() && com->hasNoXYZ()) sillyMove = false;
+        if (com->hasF()) sillyMove = false;
+        if (sillyMove) return 0;
         if(com->hasX()) currentPosition[X_AXIS] = (lastCmdPos[X_AXIS] += convertToMM(com->X));
         if(com->hasY()) currentPosition[Y_AXIS] = (lastCmdPos[Y_AXIS] += convertToMM(com->Y));
         if(com->hasZ()) currentPosition[Z_AXIS] = (lastCmdPos[Z_AXIS] += convertToMM(com->Z));
@@ -1338,29 +1357,74 @@ void Printer::homeYAxis()
     }
 }
 
-/* Delta z homing */
 void Printer::homeZAxis() // Delta z homing
 {
-    bool homingSuccess = false; // By default fail homing (safety feature)
+	bool homingSuccess = false; // By default fail homing (safety feature)
 
-    Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
-    Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
-    PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
-    Endstops::update();
+	Commands::checkForPeriodicalActions(false); // Temporary disable new command read from buffer
 
-    if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
-        Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
-        Endstops::update();
-        if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
-            homingSuccess = true;
-        }
-    }
-    // Check if homing failed.  If so, request pause!
-    if (!homingSuccess) {
-        setHomed(false); // Clear the homed flag
-        Com::printFLN(PSTR("Homing failed!"));
-    }
-    Commands::checkForPeriodicalActions(true);
+	Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]);
+	PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
+	Endstops::update();
+	Endstops::update();
+
+	if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
+
+		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
+
+		Endstops::update();
+		Endstops::update();
+				
+		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
+			homingSuccess = true;
+		}
+
+	}
+/*
+	
+
+	
+		
+		Endstops::update();
+		Endstops::update();
+
+		if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
+			Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
+			
+			
+		}
+	}
+	else {
+		Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS]); // Move to end stops ASAP
+		
+		Endstops::update();
+		Endstops::update();
+			
+		if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) { // If not all end stops are active, fail homing
+			PrintLine::moveRelativeDistanceInSteps(0, 0, axisStepsPerMM[Z_AXIS] * -ENDSTOP_Z_BACK_MOVE, 0, Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR, true, true);
+		
+			Endstops::update();
+			Endstops::update();
+		
+			if (!(Endstops::xMax() || Endstops::yMax() || Endstops::zMax())) {
+				Printer::deltaMoveToTopEndstops(Printer::homingFeedrate[Z_AXIS] / ENDSTOP_Z_RETEST_REDUCTION_FACTOR);
+		
+				Endstops::update();
+				Endstops::update();
+		
+				if (Endstops::xMax() && Endstops::yMax() && Endstops::zMax()) {
+					homingSuccess = true;
+				}
+			}
+		}
+	} */
+
+	// Check if homing failed.  If so, request pause!
+	if (!homingSuccess) {
+		setHomed(false); // Clear the homed flag
+		Com::printFLN(PSTR("Homing failed!"));
+	}
+	Commands::checkForPeriodicalActions(true);
 
     // Correct different endstop heights
     // These can be adjusted by two methods. You can use offsets stored by determining the center
@@ -1401,7 +1465,6 @@ void Printer::homeZAxis() // Delta z homing
 #endif
     Extruder::selectExtruderById(Extruder::current->id);
 }
-
 // This home axis is for delta
 void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
 {
