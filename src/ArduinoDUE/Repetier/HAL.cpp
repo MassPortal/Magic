@@ -1150,7 +1150,7 @@ if(fan3Kickstart == 0)
 #if FEATURE_FAN2_CONTROL
     if (fan2Kickstart) fan2Kickstart--;
 #endif
-#if FEATURE_VENTILATIONL
+#if FEATURE_VENTILATION
 if (fan3Kickstart) fan3Kickstart--;
 #endif
   }
