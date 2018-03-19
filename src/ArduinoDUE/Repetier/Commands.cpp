@@ -1435,17 +1435,20 @@ void Commands::processGCode(GCode *com)
         }
         if (fault) {
             Serial.println("Error: failed probeing");
-            break;
         }
 
         if (com->hasS() && com->S > 0) {
-            Printer::buildTransformationMatrix(points[0], points[1], points[2]);
-            Com::printFLN("Old printer height: ", Printer::zLength);
-            Printer::zLength += (points[0] + points[1] + points[2])/3;
-            Com::printFLN("New printer height: ", Printer::zLength);
-            if (com->S == 2) {
-                EEPROM::storeDataIntoEEPROM(false);
-                Serial.println("Parameters saved.");
+            if (!fault) {
+                Printer::buildTransformationMatrix(points[0], points[1], points[2]);
+                Com::printFLN("Old printer height: ", Printer::zLength);
+                Printer::zLength += (points[0] + points[1] + points[2])/3;
+                Com::printFLN("New printer height: ", Printer::zLength);
+                if (com->S == 2) {
+                    EEPROM::storeDataIntoEEPROM(false);
+                    Serial.println("Parameters saved.");
+                }
+            } else {
+                Com::printFLN("New printer height: ", -1);
             }
         }
         Printer::updateDerivedParameter();
