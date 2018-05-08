@@ -1840,46 +1840,44 @@ void Commands::processGCode(GCode *com)
 					break;
 			}
 
-
-		if (com->hasP()) 
-			if (com->P == 5) {
-				//Run single probe at current position
-				Com::print("DM=");
-				Printer::runZProbe(probeCenterFirst, false, repeat, false, false);
-				Printer::updateCurrentPosition(true);
-				//printCurrentPosition(PSTR("M114 "));
-			}
-			else if (com->P == 6) {
-				//Run single probe at current position and stay at trigger point
-				Com::print("DM2=");
-				Printer::runZProbe(probeCenterFirst, false, repeat, false, true);
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
-			} else {
-				int ST = 0;
-				ptx = zx1 - (Max / 2);
-				pty = zy1 - (Max / 2);
-
-				Printer::moveTo(zx1, zy1, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-				int maxX = Max + ptx + incr,
-					maxY = Max + pty + incr;
-				for (int mx = ST; (ptx + mx) < maxX; mx += incr) {
-					Printer::moveTo(ptx + mx , IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-					for (int my = ST; (pty + my) < maxY; my += incr) {
-						Printer::moveTo(IGNORE_COORDINATE, pty + my, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-						if (((ptx + mx) >= maxX) && ((pty + my) >= maxX)) {
-							Com::printFLN("Last");
-							probeCenterLast = true;
-						}
-						Com::print("MM="); Printer::runZProbe(probeCenterFirst, probeCenterLast, repeat, false);
+        if (!com->hasP()) com->P = 0;
+		if (com->P == 5) {
+			//Run single probe at current position
+			Com::print("DM=");
+			Printer::runZProbe(probeCenterFirst, false, repeat, false, false);
+			Printer::updateCurrentPosition(true);
+			//printCurrentPosition(PSTR("M114 "));
+		}
+		else if (com->P == 6) {
+			//Run single probe at current position and stay at trigger point
+			Com::print("DM2=");
+			Printer::runZProbe(probeCenterFirst, false, repeat, false, true);
+			Printer::updateCurrentPosition(true);
+			printCurrentPosition(PSTR("M114 "));
+		} else {
+			int ST = 0;
+			ptx = zx1 - (Max / 2);
+			pty = zy1 - (Max / 2);
+            Printer::moveTo(zx1, zy1, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+			int maxX = Max + ptx + incr,
+				maxY = Max + pty + incr;
+			for (int mx = ST; (ptx + mx) < maxX; mx += incr) {
+				Printer::moveTo(ptx + mx , IGNORE_COORDINATE, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+				for (int my = ST; (pty + my) < maxY; my += incr) {
+					Printer::moveTo(IGNORE_COORDINATE, pty + my, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+					if (((ptx + mx) >= maxX) && ((pty + my) >= maxX)) {
+						Com::printFLN("Last");
+						probeCenterLast = true;
 					}
+					Com::print("MM="); Printer::runZProbe(probeCenterFirst, probeCenterLast, repeat, false);
 				}
-				Printer::updateCurrentPosition(true);
-				printCurrentPosition(PSTR("M114 "));
+			}
+			Printer::updateCurrentPosition(true);
+			printCurrentPosition(PSTR("M114 "));
 		}
 		//Com::printFLN("Finished");
 		//Printer::setAutolevelActive(false);
-		if (com->hasR() && (com->R > 0.1 && com->R < 2 || com->R > 2.1)) {
+		if (com->hasR() && ((com->R > 0.1 && com->R < 2) || com->R > 2.1)) {
 			//Com::printFLN("HasR!");
 #if Z_PROBE_LATCHING_SWITCH
 			if (Printer::probeType == 2)

@@ -965,7 +965,7 @@ void UIDisplay::initialize()
 	stringOne += EEPROM::PrinterId();
 	char charBuf[11]; //11=max length of long. eg. -1234567890 
 	stringOne.toCharArray(charBuf, 11);
-	printRow(2, "ID:", charBuf,4);
+	printRow(2, (char*)"ID:", charBuf,4);
     printRowP(UI_ROWS-1, PSTR(UI_PRINTER_COMPANY));
 #endif
 #endif
@@ -1371,7 +1371,7 @@ void UIDisplay::parse(const char *txt,bool ram)
             else if(c2 >= '0' && c2 <= '9') fvalue = extruder[c2 - '0'].tempControl.targetTemperatureC;
 #else
 			// Semi mixing extruder
-			if (c2 >= '0' && c2 <= '9' || c2 == 'c')
+			if ((c2 >= '0' && c2 <= '9') || c2 == 'c')
 				fvalue = extruder[0].tempControl.targetTemperatureC;
 #endif
 #if HAVE_HEATED_BED
@@ -1382,19 +1382,20 @@ void UIDisplay::parse(const char *txt,bool ram)
 #if FAN_PIN > -1 && FEATURE_FAN_CONTROL
         case 'F': // FAN speed
             if(c2 == 's') addInt(floor(Printer::getFanSpeed() * 100 / 255 + 0.5f), 3);
-            if(c2=='i') addStringP((Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND) ? ui_selected : ui_unselected);
-            if(c2=='j')
-			 if (!pwm_pos[PWM_FAN3])
-					addStringP((pwm_pos[PWM_FAN2]==FAN_SLOW) ? ui_selected : ui_unselected);
-				else
-					addStringP(ui_unselected);
-            if(c2=='l')
+            else if(c2=='i') addStringP((Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND) ? ui_selected : ui_unselected);
+            else if(c2=='j') {
+                if (!pwm_pos[PWM_FAN3])
+                    addStringP((pwm_pos[PWM_FAN2]==FAN_SLOW) ? ui_selected : ui_unselected);
+                else
+                    addStringP(ui_unselected);
+            } else if(c2=='l') {
 				if (!pwm_pos[PWM_FAN3])
 					addStringP((pwm_pos[PWM_FAN2]>FAN_SLOW) ? ui_selected : ui_unselected);
 				else
 					addStringP(ui_unselected);
-            if(c2=='k') addStringP((pwm_pos[PWM_FAN3]) ? ui_selected : ui_unselected);
-            if(c2=='p') addStringP((pwm_pos[PWM_FAN2] || pwm_pos[PWM_FAN3]) ? ui_unselected : ui_selected);
+            }
+            else if(c2=='k') addStringP((pwm_pos[PWM_FAN3]) ? ui_selected : ui_unselected);
+            else if(c2=='p') addStringP((pwm_pos[PWM_FAN2] || pwm_pos[PWM_FAN3]) ? ui_unselected : ui_selected);
             break;
 #endif
         case 'f':
@@ -1457,7 +1458,7 @@ void UIDisplay::parse(const char *txt,bool ram)
             }
 			if(c2 == 'F')
 			{
-				for (int i=0; i<sizeof(shortFilename); i++)
+				for (uint32_t i=0; i<sizeof(shortFilename); i++)
 					addChar(shortFilename[i]);
 				break;
 			}
@@ -1784,7 +1785,7 @@ void UIDisplay::updateSDFileCount()
             continue;
         if (folderLevel>=SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0]=='.' && p->name[1]=='.'))
             continue;
-		if( DIR_IS_SUBDIR(p) || ((DIR_IS_FILE(p) && (hasExtension(tempLongFilename,VALID_EXT1) || hasExtension(tempLongFilename,VALID_EXT2))))) 
+		if( DIR_IS_SUBDIR(p) || ((DIR_IS_FILE(p) && (hasExtension(tempLongFilename,(char*)VALID_EXT1) || hasExtension(tempLongFilename,(char*)VALID_EXT2))))) 
         nFilesOnCard++;
         if (nFilesOnCard > 5000) // Arbitrary maximum, limited only by how long someone would scroll
             return;
@@ -1804,7 +1805,7 @@ void getSDFilenameAt(uint16_t filePos,char *filename)
         HAL::pingWatchdog();
         if (!DIR_IS_FILE(p) && !DIR_IS_SUBDIR(p)) continue;
         if(uid.folderLevel>=SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0]=='.' && p->name[1]=='.')) continue;
-		if(DIR_IS_FILE(p) && (!hasExtension(tempLongFilename,VALID_EXT1) && !hasExtension(tempLongFilename,VALID_EXT2)))  
+		if(DIR_IS_FILE(p) && (!hasExtension(tempLongFilename,(char*)VALID_EXT1) && !hasExtension(tempLongFilename,(char*)VALID_EXT2)))  
 			continue; 
         if (filePos--)
             continue;
@@ -1869,7 +1870,7 @@ void sdrefresh(uint16_t &r,char cache[UI_ROWS][MAX_COLS+1])
         // done if past last used entry
         // skip deleted entry and entries for . and  ..
         // only list subdirectories and files
-		if( DIR_IS_SUBDIR(p) || (DIR_IS_FILE(p) && (hasExtension(tempLongFilename,VALID_EXT1) || hasExtension(tempLongFilename,VALID_EXT2))))
+		if( DIR_IS_SUBDIR(p) || (DIR_IS_FILE(p) && (hasExtension(tempLongFilename,(char*)VALID_EXT1) || hasExtension(tempLongFilename,(char*)VALID_EXT2))))
         {
             if(uid.folderLevel >= SD_MAX_FOLDER_DEPTH && DIR_IS_SUBDIR(p) && !(p->name[0]=='.' && p->name[1]=='.'))
                 continue;

@@ -1897,7 +1897,6 @@ void uiCheckSlowKeys(uint16_t &action) {}
 #define UI_COLS 20
 #define UI_ROWS 4
 #define UI_HAS_KEYS 1
-#define UI_HAS_BACK_KEY 0
 #define UI_INVERT_MENU_DIRECTION 1
 #define UI_DISPLAY_CHARSET 1
 #define UI_DISPLAY_RS_PIN		42		// PINK.1, 88, D_RS

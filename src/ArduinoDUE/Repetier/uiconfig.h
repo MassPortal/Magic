@@ -231,7 +231,6 @@ Define the pin
 #define UI_DISPLAY_CS1 59
 #define UI_DISPLAY_CS2 59
 #define UI_DISPLAY_DI 59
-#define UI_DISPLAY_RW_PIN 59
 #define UI_DISPLAY_RESET_PIN 59
 #endif
 
