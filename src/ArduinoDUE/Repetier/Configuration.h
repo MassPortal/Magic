@@ -1691,6 +1691,8 @@ computations, so do not enable it if your display works stable!
 #define HEAD_VER					0
 #define PS_VER						0
 #define BED_LED						0
+#define AXIS_DRV                    0
+#define EXT_DRV                     0
 
 //#define DEBUGGING false
 #define BED_LEDS true

@@ -464,6 +464,8 @@ FSTRINGVALUE(Com::tProbeType,"Probe type")
 FSTRINGVALUE(Com::tHeadVer,"Head ver.")
 FSTRINGVALUE(Com::tPSVer,"Power supply ver.")
 FSTRINGVALUE(Com::tBedLED,"Bed LED")
+FSTRINGVALUE(Com::tAxisDrv,"Axis driver")
+FSTRINGVALUE(Com::tExtDrv,"Extruder driver")
 
 #ifdef STARTUP_GCODE
 FSTRINGVALUE(Com::tStartupGCode,STARTUP_GCODE)

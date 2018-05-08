@@ -536,6 +536,8 @@ void EEPROM::initalizeUncached()
 	HAL::eprSetByte(EPR_HEAD_VER, HEAD_VER);
 	HAL::eprSetByte(EPR_PS_VER, PS_VER);
 	HAL::eprSetByte(EPR_BED_LED, BED_LED);
+    HAL::eprSetByte(EPR_AXIS_DRV, AXIS_DRV);
+    HAL::eprSetByte(EPR_EXT_DRV, EXT_DRV);
 }
 
 void EEPROM::readDataFromEEPROM(bool includeExtruder)
@@ -806,6 +808,8 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
 			HAL::eprSetByte(EPR_HEAD_VER, HEAD_VER);
 			HAL::eprSetByte(EPR_PS_VER, PS_VER);
 			HAL::eprSetByte(EPR_BED_LED, BED_LED);
+            HAL::eprSetByte(EPR_AXIS_DRV, AXIS_DRV);
+            HAL::eprSetByte(EPR_EXT_DRV, EXT_DRV);
 		}
         /*        if (version<8) {
         #if DRIVE_SYSTEM==DELTA
@@ -1119,6 +1123,8 @@ void EEPROM::writeSettings()
 	writeByte(EPR_HEAD_VER, Com::tHeadVer);
 	writeByte(EPR_PS_VER, Com::tPSVer);
 	writeByte(EPR_BED_LED, Com::tBedLED);
+    writeByte(EPR_AXIS_DRV, Com::tAxisDrv);
+    writeByte(EPR_EXT_DRV, Com::tExtDrv);
 #else
     Com::printErrorF(Com::tNoEEPROMSupport);
 #endif
