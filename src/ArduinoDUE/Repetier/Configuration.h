@@ -831,11 +831,6 @@ on this endstop.
 
 //// ADVANCED SETTINGS - to tweak parameters
 
-// For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-#define X_ENABLE_ON 1
-#define Y_ENABLE_ON 1
-#define Z_ENABLE_ON 1
-
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false

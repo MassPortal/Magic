@@ -277,6 +277,7 @@ public:
 class Printer
 {
     static uint8_t debugLevel;
+    static bool axisEnInverted, extEnInverted;
 public:
 	static long PrinterId;
 	static uint8_t probeType; //1-inductive, 2-toggle switch
@@ -535,10 +536,10 @@ public:
     static INLINE void disableXStepper()
     {
 #if (X_ENABLE_PIN > -1)
-        WRITE(X_ENABLE_PIN, !X_ENABLE_ON);
+        WRITE(X_ENABLE_PIN, axisEnInverted);
 #endif
 #if FEATURE_TWO_XSTEPPER && (X2_ENABLE_PIN > -1)
-        WRITE(X2_ENABLE_PIN, !X_ENABLE_ON);
+        WRITE(X2_ENABLE_PIN, axisEnInverted);
 #endif
     }
 
@@ -546,23 +547,23 @@ public:
     static INLINE void disableYStepper()
     {
 #if (Y_ENABLE_PIN > -1)
-        WRITE(Y_ENABLE_PIN, !Y_ENABLE_ON);
+        WRITE(Y_ENABLE_PIN, axisEnInverted);
 #endif
 #if FEATURE_TWO_YSTEPPER && (Y2_ENABLE_PIN > -1)
-        WRITE(Y2_ENABLE_PIN, !Y_ENABLE_ON);
+        WRITE(Y2_ENABLE_PIN, axisEnInverted);
 #endif
     }
     /** \brief Disable stepper motor for z direction. */
     static INLINE void disableZStepper()
     {
 #if (Z_ENABLE_PIN > -1)
-        WRITE(Z_ENABLE_PIN, !Z_ENABLE_ON);
+        WRITE(Z_ENABLE_PIN, axisEnInverted);
 #endif
 #if FEATURE_TWO_ZSTEPPER && (Z2_ENABLE_PIN > -1)
-        WRITE(Z2_ENABLE_PIN, !Z_ENABLE_ON);
+        WRITE(Z2_ENABLE_PIN, axisEnInverted);
 #endif
 #if FEATURE_THREE_ZSTEPPER && (Z3_ENABLE_PIN > -1)
-        WRITE(Z3_ENABLE_PIN, !Z_ENABLE_ON);
+        WRITE(Z3_ENABLE_PIN, axisEnInverted);
 #endif
     }
 
@@ -570,10 +571,10 @@ public:
     static INLINE void  enableXStepper()
     {
 #if (X_ENABLE_PIN > -1)
-        WRITE(X_ENABLE_PIN, X_ENABLE_ON);
+        WRITE(X_ENABLE_PIN, !axisEnInverted);
 #endif
 #if FEATURE_TWO_XSTEPPER && (X2_ENABLE_PIN > -1)
-        WRITE(X2_ENABLE_PIN, X_ENABLE_ON);
+        WRITE(X2_ENABLE_PIN,!axisEnInverted);
 #endif
     }
 
@@ -581,23 +582,23 @@ public:
     static INLINE void  enableYStepper()
     {
 #if (Y_ENABLE_PIN > -1)
-        WRITE(Y_ENABLE_PIN, Y_ENABLE_ON);
+        WRITE(Y_ENABLE_PIN, !axisEnInverted);
 #endif
 #if FEATURE_TWO_YSTEPPER && (Y2_ENABLE_PIN > -1)
-        WRITE(Y2_ENABLE_PIN, Y_ENABLE_ON);
+        WRITE(Y2_ENABLE_PIN, !axisEnInverted);
 #endif
     }
     /** \brief Enable stepper motor for z direction. */
     static INLINE void  enableZStepper()
     {
 #if (Z_ENABLE_PIN > -1)
-        WRITE(Z_ENABLE_PIN, Z_ENABLE_ON);
+        WRITE(Z_ENABLE_PIN, !axisEnInverted);
 #endif
 #if FEATURE_TWO_ZSTEPPER && (Z2_ENABLE_PIN > -1)
-        WRITE(Z2_ENABLE_PIN, Z_ENABLE_ON);
+        WRITE(Z2_ENABLE_PIN, !axisEnInverted);
 #endif
 #if FEATURE_THREE_ZSTEPPER && (Z3_ENABLE_PIN > -1)
-        WRITE(Z3_ENABLE_PIN, Z_ENABLE_ON);
+        WRITE(Z3_ENABLE_PIN, !axisEnInverted);
 #endif
     }
 

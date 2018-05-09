@@ -68,6 +68,8 @@ uint8_t Printer::flag1 = 0;
 uint8_t Printer::flag2 = 0;
 uint8_t Printer::flag3 = 0;
 uint8_t Printer::debugLevel = 6; ///< Bitfield defining debug output. 1 = echo, 2 = info, 4 = error, 8 = dry run., 16 = Only communication, 32 = No moves
+bool Printer::axisEnInverted = false;
+bool Printer::extEnInverted = false;
 fast8_t Printer::stepsPerTimerCall = 1;
 uint8_t Printer::menuMode = 0;
 uint8_t Printer::mode = DEFAULT_PRINTER_MODE;
@@ -528,6 +530,8 @@ void Printer::updateDerivedParameter()
     distortion.updateDerived();
 #endif // DISTORTION_CORRECTION
     Printer::updateAdvanceFlags();
+    Printer::axisEnInverted = EEPROM::getAxisDrv() != 0 ? true : false;
+    Printer::extEnInverted = EEPROM::getExtDrv() != 0 ? true : false;
     EVENT_UPDATE_DERIVED;
 }
 /**
@@ -895,22 +899,22 @@ void Printer::setup()
     //Steppers default to disabled.
 #if X_ENABLE_PIN > -1
     SET_OUTPUT(X_ENABLE_PIN);
-    WRITE(X_ENABLE_PIN, !X_ENABLE_ON);
+    WRITE(X_ENABLE_PIN, axisEnInverted);
 #endif
 #if Y_ENABLE_PIN > -1
     SET_OUTPUT(Y_ENABLE_PIN);
-    WRITE(Y_ENABLE_PIN, !Y_ENABLE_ON);
+    WRITE(Y_ENABLE_PIN,  axisEnInverted);
 #endif
 #if Z_ENABLE_PIN > -1
     SET_OUTPUT(Z_ENABLE_PIN);
-    WRITE(Z_ENABLE_PIN, !Z_ENABLE_ON);
+    WRITE(Z_ENABLE_PIN,  axisEnInverted);
 #endif
 #if FEATURE_TWO_XSTEPPER
     SET_OUTPUT(X2_STEP_PIN);
     SET_OUTPUT(X2_DIR_PIN);
 #if X2_ENABLE_PIN > -1
     SET_OUTPUT(X2_ENABLE_PIN);
-    WRITE(X2_ENABLE_PIN, !X_ENABLE_ON);
+    WRITE(X2_ENABLE_PIN, axisEnInverted);
 #endif
 #endif
 
@@ -919,7 +923,7 @@ void Printer::setup()
     SET_OUTPUT(Y2_DIR_PIN);
 #if Y2_ENABLE_PIN > -1
     SET_OUTPUT(Y2_ENABLE_PIN);
-    WRITE(Y2_ENABLE_PIN, !Y_ENABLE_ON);
+    WRITE(Y2_ENABLE_PIN, axisEnInverted);
 #endif
 #endif
 
@@ -928,7 +932,7 @@ void Printer::setup()
     SET_OUTPUT(Z2_DIR_PIN);
 #if Z2_ENABLE_PIN > -1
     SET_OUTPUT(Z2_ENABLE_PIN);
-    WRITE(Z2_ENABLE_PIN, !Z_ENABLE_ON);
+    WRITE(Z2_ENABLE_PIN, axisEnInverted);
 #endif
 #endif
 
@@ -937,7 +941,7 @@ void Printer::setup()
     SET_OUTPUT(Z3_DIR_PIN);
 #if Z3_ENABLE_PIN > -1
     SET_OUTPUT(Z3_ENABLE_PIN);
-    WRITE(Z3_ENABLE_PIN, !Z_ENABLE_ON);
+    WRITE(Z3_ENABLE_PIN, axisEnInverted);
 #endif
 #endif
 
