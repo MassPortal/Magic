@@ -1892,6 +1892,17 @@ void Commands::processGCode(GCode *com)
 			Printer::setAutolevelActive(autoLevelActive);
 	}
 		break;
+    case 39: // G39
+        if (com->hasI()) {
+            if (abs(com->I) <= 50) {
+                Printer::zBabystepsMissing += com->I*ZAXIS_STEPS_PER_MM;
+            } else {
+                Com::printErrorFLN("Max babystep lenght is 50mm");
+            }
+        } else {
+            Com::printErrorFLN("Missing 'I' for babysteps");
+        }
+        break;
     case 90: // G90
         Printer::relativeCoordinateMode = false;
         if(com->internalCommand)
@@ -2528,25 +2539,30 @@ void Commands::processMCode(GCode *com)
 #endif
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
     case 106: // M106 Fan On
-        if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND))
-        {
-            if(com->hasP())
-				if(com->P == 1)
-	            setFan2Speed(com->hasS() ? com->S : 255);
-			else
-					setFan3Speed(com->hasS() ? com->S : 255);				
-			else
-            setFanSpeed(com->hasS() ? com->S : 255);
-        }
+        /* Check for ignore */
+        if (!com->hasR() && (Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND)) break;
+        /* Head fan is default */
+        if (!com->hasP()) com->P = 0;
+        /* Part cooling fan */
+        if (com->P == 0) setFanSpeed(com->hasS() ? com->S : 255, com->hasR() ? true : false);
+        /* Exhaust fan */
+        else if (com->P == 1) setFan2Speed(com->hasS() ? com->S : 255);
+        /* Intake fan */
+        else if (com->P == 2) setFan3Speed(com->hasS() ? com->S : 255);
+
         break;
     case 107: // M107 Fan Off
-        if(com->hasP())
-			if(com->P == 1)
-	        setFan2Speed(0);
-		else
-				setFan3Speed(0);
-		else
-            setFanSpeed(0);
+        /* Check for ignore */
+        if (!com->hasR() && (Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND)) break;
+        /* Head fan is default */
+        if (!com->hasP()) com->P = 0;
+        /* Part cooling fan */
+        if (com->P == 0) setFanSpeed(0, com->hasR() ? true : false);
+        /* Exhaust fan */
+        else if (com->P == 1) setFan2Speed(0);
+        /* Intake fan */
+        else if (com->P == 2) setFan3Speed(0);
+        
         break;
 #endif
     case 111: // M111 enable/disable run time debug flags
