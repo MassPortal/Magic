@@ -208,7 +208,6 @@ public:
     int8_t enablePin;          ///< Pin to enable extruder stepper motor.
 //  uint8_t directionPin; ///< Pin number to assign the direction.
 //  uint8_t stepPin; ///< Pin number for a step.
-    uint8_t enableOn;
 //  uint8_t invertDir; ///< 1 if the direction of the extruder should be inverted.
     float maxFeedrate;      ///< Maximum feedrate in mm/s.
     float maxAcceleration;  ///< Maximum acceleration in mm/s^2.

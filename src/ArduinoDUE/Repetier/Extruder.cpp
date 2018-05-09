@@ -529,7 +529,7 @@ void Extruder::initExtruder()
         if(act->enablePin > -1)
         {
             HAL::pinMode(act->enablePin, OUTPUT);
-            HAL::digitalWrite(act->enablePin,!act->enableOn);
+            HAL::digitalWrite(act->enablePin,Printer::extEnInverted);
         }
         act->tempControl.lastTemperatureUpdate = HAL::timeInMilliseconds();
 #if defined(SUPPORT_MAX6675) || defined(SUPPORT_MAX31855)
@@ -1049,22 +1049,22 @@ void Extruder::setDirection(uint8_t dir)
 void Extruder::enable()
 {
 #if NUM_EXTRUDER > 0 && defined(EXT0_ENABLE_PIN) && EXT0_ENABLE_PIN > -1
-    WRITE(EXT0_ENABLE_PIN, EXT0_ENABLE_ON );
+    WRITE(EXT0_ENABLE_PIN, !Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 1 && defined(EXT1_ENABLE_PIN) && EXT1_ENABLE_PIN > -1
-    WRITE(EXT1_ENABLE_PIN, EXT1_ENABLE_ON );
+    WRITE(EXT1_ENABLE_PIN, !Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 2 && defined(EXT2_ENABLE_PIN) && EXT2_ENABLE_PIN > -1
-    WRITE(EXT2_ENABLE_PIN, EXT2_ENABLE_ON );
+    WRITE(EXT2_ENABLE_PIN, !Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 3 && defined(EXT3_ENABLE_PIN) && EXT3_ENABLE_PIN > -1
-    WRITE(EXT3_ENABLE_PIN, EXT3_ENABLE_ON );
+    WRITE(EXT3_ENABLE_PIN, !Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 4 && defined(EXT4_ENABLE_PIN) && EXT4_ENABLE_PIN > -1
-    WRITE(EXT4_ENABLE_PIN, EXT4_ENABLE_ON );
+    WRITE(EXT4_ENABLE_PIN, !Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 5 && defined(EXT5_ENABLE_PIN) && EXT5_ENABLE_PIN > -1
-    WRITE(EXT5_ENABLE_PIN, EXT5_ENABLE_ON );
+    WRITE(EXT5_ENABLE_PIN, !Printer::extEnInverted);
 #endif
 }
 #else // Normal extruder
@@ -1327,23 +1327,23 @@ void Extruder::enable()
 {
 #if NUM_EXTRUDER == 1
 #if EXT0_ENABLE_PIN > -1
-    WRITE(EXT0_ENABLE_PIN,EXT0_ENABLE_ON );
+    WRITE(EXT0_ENABLE_PIN,!Printer::extEnInverted);
 #endif
 #else
     if(Extruder::current->enablePin > -1)
-        digitalWrite(Extruder::current->enablePin,Extruder::current->enableOn);
+        digitalWrite(Extruder::current->enablePin,!Printer::extEnInverted);
 #if FEATURE_DITTO_PRINTING
     if(Extruder::dittoMode)
     {
         if(extruder[1].enablePin > -1)
-            digitalWrite(extruder[1].enablePin,extruder[1].enableOn);
+            digitalWrite(extruder[1].enablePin,!Printer::extEnInverted);
 #if NUM_EXTRUDER > 2
         if(Extruder::dittoMode > 1 && extruder[2].enablePin > -1)
-            digitalWrite(extruder[2].enablePin,extruder[2].enableOn);
+            digitalWrite(extruder[2].enablePin,!Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 3
         if(Extruder::dittoMode > 2 && extruder[3].enablePin > -1)
-            digitalWrite(extruder[3].enablePin,extruder[3].enableOn);
+            digitalWrite(extruder[3].enablePin,!Printer::extEnInverted);
 #endif
     }
 #endif
@@ -1356,38 +1356,38 @@ void Extruder::disableCurrentExtruderMotor()
 {
 #if MIXING_EXTRUDER
 #if NUM_EXTRUDER > 0 && defined(EXT0_ENABLE_PIN) && EXT0_ENABLE_PIN > -1
-    WRITE(EXT0_ENABLE_PIN, !EXT0_ENABLE_ON );
+    WRITE(EXT0_ENABLE_PIN, Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 1 && defined(EXT1_ENABLE_PIN) && EXT1_ENABLE_PIN > -1
-    WRITE(EXT1_ENABLE_PIN, !EXT1_ENABLE_ON );
+    WRITE(EXT1_ENABLE_PIN, Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 2 && defined(EXT2_ENABLE_PIN) && EXT2_ENABLE_PIN > -1
-    WRITE(EXT2_ENABLE_PIN, !EXT2_ENABLE_ON );
+    WRITE(EXT2_ENABLE_PIN, Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 3 && defined(EXT3_ENABLE_PIN) && EXT3_ENABLE_PIN > -1
-    WRITE(EXT3_ENABLE_PIN, !EXT3_ENABLE_ON );
+    WRITE(EXT3_ENABLE_PIN, Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 4 && defined(EXT4_ENABLE_PIN) && EXT4_ENABLE_PIN > -1
-    WRITE(EXT4_ENABLE_PIN, !EXT4_ENABLE_ON );
+    WRITE(EXT4_ENABLE_PIN, Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 5 && defined(EXT5_ENABLE_PIN) && EXT5_ENABLE_PIN > -1
-    WRITE(EXT5_ENABLE_PIN, !EXT5_ENABLE_ON );
+    WRITE(EXT5_ENABLE_PIN, Printer::extEnInverted);
 #endif
 #else // MIXING_EXTRUDER
     if(Extruder::current->enablePin > -1)
-        HAL::digitalWrite(Extruder::current->enablePin,!Extruder::current->enableOn);
+        HAL::digitalWrite(Extruder::current->enablePin,Printer::extEnInverted);
 #if FEATURE_DITTO_PRINTING
     if(Extruder::dittoMode)
     {
         if(extruder[1].enablePin > -1)
-            HAL::digitalWrite(extruder[1].enablePin,!extruder[1].enableOn);
+            HAL::digitalWrite(extruder[1].enablePin,Printer::extEnInverted);
 #if NUM_EXTRUDER > 2
         if(Extruder::dittoMode > 1 && extruder[2].enablePin > -1)
-            HAL::digitalWrite(extruder[2].enablePin,!extruder[2].enableOn);
+            HAL::digitalWrite(extruder[2].enablePin,Printer::extEnInverted);
 #endif
 #if NUM_EXTRUDER > 3
         if(Extruder::dittoMode > 2 && extruder[3].enablePin > -1)
-            HAL::digitalWrite(extruder[3].enablePin,!extruder[3].enableOn);
+            HAL::digitalWrite(extruder[3].enablePin,Printer::extEnInverted);
 #endif
     }
 #endif
@@ -1398,7 +1398,7 @@ void Extruder::disableAllExtruderMotors()
     for(fast8_t i = 0; i < NUM_EXTRUDER; i++)
     {
         if(extruder[i].enablePin > -1)
-            HAL::digitalWrite(extruder[i].enablePin, !extruder[i].enableOn);
+            HAL::digitalWrite(extruder[i].enablePin,Printer::extEnInverted);
     }
 }
 #define NUMTEMPS_1 28
@@ -2196,7 +2196,7 @@ Extruder extruder[NUM_EXTRUDER] =
 {
 #if NUM_EXTRUDER > 0
     {
-        0,EXT0_X_OFFSET,EXT0_Y_OFFSET,EXT0_Z_OFFSET,EXT0_STEPS_PER_MM,EXT0_ENABLE_PIN,EXT0_ENABLE_ON,
+        0,EXT0_X_OFFSET,EXT0_Y_OFFSET,EXT0_Z_OFFSET,EXT0_STEPS_PER_MM,EXT0_ENABLE_PIN,
         EXT0_MAX_FEEDRATE,EXT0_MAX_ACCELERATION,EXT0_MAX_START_FEEDRATE,0,EXT0_WATCHPERIOD
         ,EXT0_WAIT_RETRACT_TEMP,EXT0_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2223,7 +2223,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 1
     ,{
-        1,EXT1_X_OFFSET,EXT1_Y_OFFSET,EXT1_Z_OFFSET,EXT1_STEPS_PER_MM,EXT1_ENABLE_PIN,EXT1_ENABLE_ON,
+        1,EXT1_X_OFFSET,EXT1_Y_OFFSET,EXT1_Z_OFFSET,EXT1_STEPS_PER_MM,EXT1_ENABLE_PIN,
         EXT1_MAX_FEEDRATE,EXT1_MAX_ACCELERATION,EXT1_MAX_START_FEEDRATE,0,EXT1_WATCHPERIOD
         ,EXT1_WAIT_RETRACT_TEMP,EXT1_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2250,7 +2250,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 2
     ,{
-        2,EXT2_X_OFFSET,EXT2_Y_OFFSET,EXT2_Z_OFFSET,EXT2_STEPS_PER_MM,EXT2_ENABLE_PIN,EXT2_ENABLE_ON,
+        2,EXT2_X_OFFSET,EXT2_Y_OFFSET,EXT2_Z_OFFSET,EXT2_STEPS_PER_MM,EXT2_ENABLE_PIN,
         EXT2_MAX_FEEDRATE,EXT2_MAX_ACCELERATION,EXT2_MAX_START_FEEDRATE,0,EXT2_WATCHPERIOD
         ,EXT2_WAIT_RETRACT_TEMP,EXT2_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2277,7 +2277,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 3
     ,{
-        3,EXT3_X_OFFSET,EXT3_Y_OFFSET,EXT3_Z_OFFSET,EXT3_STEPS_PER_MM,EXT3_ENABLE_PIN,EXT3_ENABLE_ON,
+        3,EXT3_X_OFFSET,EXT3_Y_OFFSET,EXT3_Z_OFFSET,EXT3_STEPS_PER_MM,EXT3_ENABLE_PIN,
         EXT3_MAX_FEEDRATE,EXT3_MAX_ACCELERATION,EXT3_MAX_START_FEEDRATE,0,EXT3_WATCHPERIOD
         ,EXT3_WAIT_RETRACT_TEMP,EXT3_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2304,7 +2304,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 4
     ,{
-        4,EXT4_X_OFFSET,EXT4_Y_OFFSET,EXT4_Z_OFFSET,EXT4_STEPS_PER_MM,EXT4_ENABLE_PIN,EXT4_ENABLE_ON,
+        4,EXT4_X_OFFSET,EXT4_Y_OFFSET,EXT4_Z_OFFSET,EXT4_STEPS_PER_MM,EXT4_ENABLE_PIN,
         EXT4_MAX_FEEDRATE,EXT4_MAX_ACCELERATION,EXT4_MAX_START_FEEDRATE,0,EXT4_WATCHPERIOD
         ,EXT4_WAIT_RETRACT_TEMP,EXT4_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2331,7 +2331,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 5
     ,{
-        5,EXT5_X_OFFSET,EXT5_Y_OFFSET,EXT5_Z_OFFSET,EXT5_STEPS_PER_MM,EXT5_ENABLE_PIN,EXT5_ENABLE_ON,
+        5,EXT5_X_OFFSET,EXT5_Y_OFFSET,EXT5_Z_OFFSET,EXT5_STEPS_PER_MM,EXT5_ENABLE_PIN,
         EXT5_MAX_FEEDRATE,EXT5_MAX_ACCELERATION,EXT5_MAX_START_FEEDRATE,0,EXT5_WATCHPERIOD
         ,EXT5_WAIT_RETRACT_TEMP,EXT5_WAIT_RETRACT_UNITS
 #if USE_ADVANCE

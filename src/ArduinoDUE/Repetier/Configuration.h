@@ -101,7 +101,6 @@ is a full cartesian system where x, y and z moves are handled by separate motors
 8 = y axis + xz H-gantry (x_motor = x+z, z_motor = x-z)
 9 = y axis + xz H-gantry (x_motor = x+z, z_motor = z-x)
 Cases 1, 2, 8 and 9 cover all needed xy and xz H gantry systems. If you get results mirrored etc. you can swap motor connections for x and y.
-If a motor turns in the wrong direction change INVERT_X_DIR or INVERT_Y_DIR.
 */
 #define DRIVE_SYSTEM 3
 
@@ -239,8 +238,6 @@ Overridden if EEPROM activated.*/
 // set to false/true for normal / inverse direction
 #define EXT0_INVERSE true
 #define EXT0_ENABLE_PIN E0_ENABLE_PIN
-// For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-#define EXT0_ENABLE_ON 1
 // The following speed settings are for skeinforge 40+ where e is the
 // length of filament pulled inside the heater. For repsnap or older
 // skeinforge use higher values.
@@ -373,9 +370,6 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT2_INVERSE true
 #define EXT1_ENABLE_PIN E1_ENABLE_PIN
 #define EXT2_ENABLE_PIN E2_ENABLE_PIN
-// For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-#define EXT1_ENABLE_ON 1
-#define EXT2_ENABLE_ON 1
 // The following speed settings are for skeinforge 40+ where e is the
 // length of filament pulled inside the heater. For repsnap or older
 // skeinforge use heigher values.
@@ -841,11 +835,6 @@ on this endstop.
   turn z off when heaters get also disabled. 
 */
 //#define PREVENT_Z_DISABLE_ON_STEPPER_TIMEOUT
-
-// Inverting axis direction
-#define INVERT_X_DIR true
-#define INVERT_Y_DIR false
-#define INVERT_Z_DIR true
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
