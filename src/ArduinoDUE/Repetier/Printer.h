@@ -433,18 +433,7 @@ public:
             interruptEvent = evt;
     }
     static void reportPrinterMode();
-    static INLINE void setMenuMode(uint8_t mode,bool on)
-    {
-        if(on)
-            menuMode |= mode;
-        else
-            menuMode &= ~mode;
-    }
 
-    static INLINE bool isMenuMode(uint8_t mode)
-    {
-        return (menuMode & mode) == mode;
-    }
 	static void setDebugLevel(uint8_t newLevel);
 	static void toggleEcho();
 	static void toggleInfo();
@@ -734,16 +723,6 @@ public:
     static INLINE void setAnimation(uint8_t b)
     {
         flag1 = (b ? flag1 | PRINTER_FLAG1_ANIMATION : flag1 & ~PRINTER_FLAG1_ANIMATION);
-    }
-
-    static INLINE uint8_t isUIErrorMessage()
-    {
-        return flag1 & PRINTER_FLAG1_UI_ERROR_MESSAGE;
-    }
-
-    static INLINE void setUIErrorMessage(uint8_t b)
-    {
-        flag1 = (b ? flag1 | PRINTER_FLAG1_UI_ERROR_MESSAGE : flag1 & ~PRINTER_FLAG1_UI_ERROR_MESSAGE);
     }
 
     static INLINE uint8_t isNoDestinationCheck()

@@ -260,10 +260,6 @@ inline void memcopy4(void *dest,void *source) {
 #define ROD_RADIUS (PRINTER_RADIUS-END_EFFECTOR_HORIZONTAL_OFFSET-CARRIAGE_HORIZONTAL_OFFSET)
 #endif
 
-#ifndef UI_SPEEDDEPENDENT_POSITIONING
-#define UI_SPEEDDEPENDENT_POSITIONING true
-#endif
-
 #if DRIVE_SYSTEM==DELTA || DRIVE_SYSTEM==TUGA || DRIVE_SYSTEM==BIPOD
 #define NONLINEAR_SYSTEM 1
 #else
@@ -318,11 +314,6 @@ inline void memcopy4(void *dest,void *source) {
 #define SHARED_COOLER_BOARD_EXT 1
 #else
 #define SHARED_COOLER_BOARD_EXT 0
-#endif
-
-#if defined(UI_SERVO_CONTROL) && UI_SERVO_CONTROL > FEATURE_SERVO
-#undef UI_SERVO_CONTROL
-#define UI_SERVO_CONTROL FEATURE_SERVO
 #endif
 
 #if (defined(EXT0_JAM_PIN) && EXT0_JAM_PIN > -1) || (defined(EXT1_JAM_PIN) && EXT1_JAM_PIN > -1) || (defined(EXT2_JAM_PIN) && EXT2_JAM_PIN > -1) || (defined(EXT3_JAM_PIN) && EXT3_JAM_PIN > -1) || (defined(EXT4_JAM_PIN) && EXT4_JAM_PIN > -1) || (defined(EXT5_JAM_PIN) && EXT5_JAM_PIN > -1)
@@ -450,14 +441,6 @@ inline void memcopy4(void *dest,void *source) {
 #define  ANALOG_INPUT_CHANNELS {EXT0_ANALOG_CHANNEL EXT1_ANALOG_CHANNEL EXT2_ANALOG_CHANNEL EXT3_ANALOG_CHANNEL EXT4_ANALOG_CHANNEL EXT5_ANALOG_CHANNEL BED_ANALOG_CHANNEL THERMO_ANALOG_CHANNEL CHAMBER_ANALOG_CHANNEL}
 #endif
 
-#define MENU_MODE_SD_MOUNTED 1
-#define MENU_MODE_SD_PRINTING 2
-#define MENU_MODE_SD_PAUSED 4
-#define MENU_MODE_FAN_RUNNING 8
-#define MENU_MODE_PRINTING 16
-#define MENU_MODE_FULL_PID 32
-#define MENU_MODE_DEADTIME 64
-
 #ifndef BENDING_CORRECTION_A
 #define BENDING_CORRECTION_A 0
 #endif
@@ -481,29 +464,10 @@ inline void memcopy4(void *dest,void *source) {
 #define LONG_FILENAME_LENGTH (13*MAX_VFAT_ENTRIES+1)
 #define SD_MAX_FOLDER_DEPTH 2
 
-#include "ui.h"
 #if BED_LEDS
 #include "Lighting.h"
 #endif
 #include "Communication.h"
-
-
-#if UI_DISPLAY_TYPE != DISPLAY_U8G
-#if (defined(USER_KEY1_PIN) && (USER_KEY1_PIN==UI_DISPLAY_D5_PIN || USER_KEY1_PIN==UI_DISPLAY_D6_PIN || USER_KEY1_PIN==UI_DISPLAY_D7_PIN)) || (defined(USER_KEY2_PIN) && (USER_KEY2_PIN==UI_DISPLAY_D5_PIN || USER_KEY2_PIN==UI_DISPLAY_D6_PIN || USER_KEY2_PIN==UI_DISPLAY_D7_PIN)) || (defined(USER_KEY3_PIN) && (USER_KEY3_PIN==UI_DISPLAY_D5_PIN || USER_KEY3_PIN==UI_DISPLAY_D6_PIN || USER_KEY3_PIN==UI_DISPLAY_D7_PIN)) || (defined(USER_KEY4_PIN) && (USER_KEY4_PIN==UI_DISPLAY_D5_PIN || USER_KEY4_PIN==UI_DISPLAY_D6_PIN || USER_KEY4_PIN==UI_DISPLAY_D7_PIN))
-#error You cannot use DISPLAY_D5_PIN, DISPLAY_D6_PIN or DISPLAY_D7_PIN for "User Keys" with character LCD display
-#endif
-#endif
-
-
-#ifndef SDCARDDETECT
-#define SDCARDDETECT       -1
-#endif
-#ifndef SDSUPPORT
-#define SDSUPPORT 0
-#endif
-#if SDSUPPORT
-#include "SdFat.h"
-#endif
 
 #if ENABLE_BACKLASH_COMPENSATION && DRIVE_SYSTEM != CARTESIAN
 #undef ENABLE_BACKLASH_COMPENSATION
@@ -798,9 +762,6 @@ extern float maxadvspeed;
 
 #include "Extruder.h"
 
-void manage_inactivity(uint8_t debug);
-
-extern void finishNextSegment();
 #if NONLINEAR_SYSTEM
 extern uint8_t transformCartesianStepsToDeltaSteps(long cartesianPosSteps[], long deltaPosSteps[]);
 #if SOFTWARE_LEVELING
@@ -844,78 +805,6 @@ extern uint8_t fan2Kickstart;
 #endif
 #if FEATURE_VENTILATION
 extern uint8_t fan3Kickstart;
-#endif
-
-
-#if SDSUPPORT
-extern char tempLongFilename[LONG_FILENAME_LENGTH+1];
-extern char fullName[LONG_FILENAME_LENGTH*SD_MAX_FOLDER_DEPTH+SD_MAX_FOLDER_DEPTH+1];
-#define SHORT_FILENAME_LENGTH 14
-#include "SdFat.h"
-
-enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
-class SDCard
-{
-public:
-    SdFat fat;
-    //Sd2Card card; // ~14 Byte
-    //SdVolume volume;
-    //SdFile root;
-    //SdFile dir[SD_MAX_FOLDER_DEPTH+1];
-    SdFile file;
-#if JSON_OUTPUT
-    GCodeFileInfo fileInfo;
-#endif
-    uint32_t filesize;
-    uint32_t sdpos;
-    //char fullName[13*SD_MAX_FOLDER_DEPTH+13]; // Fill name
-    char *shortname; // Pointer to start of filename itself
-    char *pathend; // File to char where pathname in fullname ends
-    uint8_t sdmode;  // true if we are printing from sd card, 2 = stop accepting new commands
-    bool sdactive;
-    //int16_t n;
-    bool savetosd;
-    SdBaseFile parentFound;
-
-    SDCard();
-    void initsd();
-    void writeCommand(GCode *code);
-    bool selectFile(const char *filename,bool silent=false);
-    void mount();
-    void unmount();
-    void startPrint();
-    void pausePrint(bool intern = false);
-    void continuePrint(bool intern = false);
-    void stopPrint();
-    inline void setIndex(uint32_t  newpos)
-    {
-        if(!sdactive) return;
-        sdpos = newpos;
-        file.seekSet(sdpos);
-    }
-    void printStatus();
-    void ls();
-#if JSON_OUTPUT
-    void lsJSON(const char *filename);
-    void JSONFileInfo(const char *filename);
-    static void printEscapeChars(const char *s);
-#endif
-    void startWrite(char *filename);
-    void deleteFile(char *filename);
-    void finishWrite();
-    char *createFilename(char *buffer,const dir_t &p);
-    void makeDirectory(char *filename);
-    bool showFilename(const uint8_t *name);
-    void automount();
-#ifdef GLENN_DEBUG
-    void writeToFile();
-#endif
-private:
-    uint8_t lsRecursive(SdBaseFile *parent,uint8_t level,char *findFilename);
-// SdFile *getDirectory(char* name);
-};
-
-extern SDCard sd;
 #endif
 
 extern volatile int waitRelax; // Delay filament relax at the end of print, could be a simple timeout

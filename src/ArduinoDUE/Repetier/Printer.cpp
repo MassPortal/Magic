@@ -560,7 +560,6 @@ void Printer::kill(uint8_t only_steppers)
         for(uint8_t i = 0; i < NUM_TEMPERATURE_LOOPS; i++)
             Extruder::setTemperatureForExtruder(0, i);
         Extruder::setHeatedBedTemperature(0);
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_STANDBY_ID));
 #if defined(PS_ON_PIN) && PS_ON_PIN>-1
         //pinMode(PS_ON_PIN,INPUT);
         SET_OUTPUT(PS_ON_PIN); //GND
@@ -569,7 +568,6 @@ void Printer::kill(uint8_t only_steppers)
 #endif
         Printer::setAllKilled(true);
     }
-    else UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_STEPPER_DISABLED_ID));
 #if BED_LEDS
 	if (Printer::ledVal > 1) Light.ShowTemps();
 #endif
@@ -819,10 +817,6 @@ void Printer::setup()
 #if FEATURE_CONTROLLER == CONTROLLER_VIKI
     HAL::delayMilliseconds(100);
 #endif // FEATURE_CONTROLLER
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-    Com::selectLanguage(0); // just make sure we have a language in case someone uses it early
-#endif
-    //HAL::delayMilliseconds(500);  // add a delay at startup to give hardware time for initalization
     HAL::hwSetup();
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
@@ -866,17 +860,6 @@ void Printer::setup()
     Printer::setPowerOn(false);
 #else
     Printer::setPowerOn(true);
-#endif
-#endif
-#if SDSUPPORT
-    //power to SD reader
-#if SDPOWER > -1
-    SET_OUTPUT(SDPOWER);
-    WRITE(SDPOWER, HIGH);
-#endif
-#if defined(SDCARDDETECT) && SDCARDDETECT > -1
-    SET_INPUT(SDCARDDETECT);
-    PULLUP(SDCARDDETECT, HIGH);
 #endif
 #endif
 
@@ -1109,10 +1092,6 @@ void Printer::setup()
     SET_OUTPUT(CASE_LIGHTS_PIN);
     WRITE(CASE_LIGHTS_PIN, CASE_LIGHT_DEFAULT_ON);
 #endif // CASE_LIGHTS_PIN
-#if defined(UI_VOLTAGE_LEVEL) && defined(EXP_VOLTAGE_LEVEL_PIN) && EXP_VOLTAGE_LEVEL_PIN >-1
-    SET_OUTPUT(EXP_VOLTAGE_LEVEL_PIN);
-    WRITE(EXP_VOLTAGE_LEVEL_PIN,UI_VOLTAGE_LEVEL);
-#endif // UI_VOLTAGE_LEVEL
 #if defined(SUPPORT_LASER) && SUPPORT_LASER
     LaserDriver::initialize();
 #endif // defined
@@ -1194,7 +1173,6 @@ void Printer::setup()
 	Printer::setYdir(retDefAxisDir[Y_AXIS]);
 	Printer::setZdir(retDefAxisDir[Z_AXIS]);
 
-    UI_INITIALIZE;
     for(uint8_t i = 0; i < E_AXIS_ARRAY; i++)
     {
         currentPositionSteps[i] = 0;
@@ -1225,9 +1203,6 @@ void Printer::setup()
 	//Avoid watchdog bootloop by disabling this
     //HAL::startWatchdog();
 #endif // FEATURE_WATCHDOG
-#if SDSUPPORT
-    //sd.mount();
-#endif
 #if FEATURE_SERVO                   // set servos to neutral positions at power_up
   #if defined(SERVO0_NEUTRAL_POS) && SERVO0_NEUTRAL_POS >= 500
     HAL::servoMicroseconds(0,SERVO0_NEUTRAL_POS, 1000);
@@ -1250,24 +1225,16 @@ GCode::executeFString(Com::tStartupGCode);
 if (EEPROM::getBedLED()>1)
 	Light.init();
 #endif
-#if EEPROM_MODE != 0 && UI_DISPLAY_TYPE != NO_DISPLAY
-    if(EEPROM::getStoredLanguage() == 254) {
-            Com::printFLN(PSTR("Needs language selection"));
-        uid.showLanguageSelectionWizard();
-    }
-#endif // EEPROM_MODE
     Endstops::inverting = (EEPROM::getEstopVer() == 17231) ? false : true;
 }
 
 void Printer::defaultLoopActions()
 {
     Commands::checkForPeriodicalActions(true);  //check heater every n milliseconds
-    UI_MEDIUM; // do check encoder
     millis_t curtime = HAL::timeInMilliseconds();
-    if(PrintLine::hasLines() || isMenuMode(MENU_MODE_SD_PAUSED))
+    if(PrintLine::hasLines()) {
         previousMillisCmd = curtime;
-    else
-    {
+    } else {
         curtime -= previousMillisCmd;
         if(maxInactiveTime != 0 && curtime >  maxInactiveTime )
             Printer::kill(false);
@@ -1276,9 +1243,6 @@ void Printer::defaultLoopActions()
         if(stepperInactiveTime != 0 && curtime >  stepperInactiveTime )
             Printer::kill(true);
     }
-#if SDCARDDETECT>-1 && SDSUPPORT
-    //sd.automount();
-#endif
     DEBUG_MEMORY;
 }
 
@@ -1457,12 +1421,10 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     // so the redundant check is only an opportunity to
     // gratuitously fail due to incorrect settings.
     // The following movements would be meaningless unless it was zeroed for example.
-    UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HOME_DELTA_ID));
     // Homing Z axis means that you must home X and Y
     homeZAxis();
     moveToReal(0,0,Printer::zLength,IGNORE_COORDINATE,homingFeedrate[Z_AXIS]); // Move to designed coordinates including translation
     updateCurrentPosition(true);
-    UI_CLEAR_STATUS
     Commands::printCurrentPosition(PSTR("homeAxis "));
     setAutolevelActive(autoLevel);
 #if BED_LEDS
@@ -1491,7 +1453,6 @@ void Printer::homeXAxis()
         }
         // Reposition extruder that way, that all extruders can be selected at home pos.
 #endif
-        UI_STATUS_UPD(UI_TEXT_HOME_X);
         steps = (Printer::xMaxSteps-Printer::xMinSteps) * X_HOME_DIR;
         currentPositionSteps[X_AXIS] = -steps;
         currentPositionSteps[Y_AXIS] = 0;
@@ -1540,7 +1501,6 @@ void Printer::homeXAxis()
 #endif
         // Reposition extruder that way, that all extruders can be selected at home pos.
 #endif // NUM_EXTRUDER > 1
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HOME_X_ID));
         steps = (Printer::xMaxSteps - Printer::xMinSteps) * X_HOME_DIR;
         currentPositionSteps[X_AXIS] = -steps;
         setHoming(true);
@@ -1578,7 +1538,6 @@ void Printer::homeYAxis()
 #endif
         // Reposition extruder that way, that all extruders can be selected at home pos.
 #endif
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HOME_Y_ID));
         steps = (yMaxSteps-Printer::yMinSteps) * Y_HOME_DIR;
         currentPositionSteps[Y_AXIS] = -steps;
         setHoming(true);
@@ -1608,7 +1567,6 @@ void Printer::homeZAxis() // cartesian homing
     long steps;
     if ((MIN_HARDWARE_ENDSTOP_Z && Z_MIN_PIN > -1 && Z_HOME_DIR == -1) || (MAX_HARDWARE_ENDSTOP_Z && Z_MAX_PIN > -1 && Z_HOME_DIR == 1))
     {
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HOME_Z_ID));
         steps = (zMaxSteps - zMinSteps) * Z_HOME_DIR;
         currentPositionSteps[Z_AXIS] = -steps;
         setHoming(true);
@@ -1779,7 +1737,6 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // home non-delta print
 #endif
     moveToReal(startX, startY, startZ, IGNORE_COORDINATE, homingFeedrate[X_AXIS]);
 	updateCurrentPosition(true);
-    UI_CLEAR_STATUS
     Commands::printCurrentPosition(PSTR("homeAxis "));
 }
 #endif  // Not delta printer
@@ -1848,7 +1805,6 @@ void Printer::moveToPausePosition() {
 		}
 		hasMovedToPausePosition = true;
 		Commands::waitUntilEndOfAllMoves();
-		UI_STATUS_UPD_RAM(UI_TEXT_PAUSED);
 	}
 }
 
@@ -1889,12 +1845,8 @@ void Printer::handleInterruptEvent() {
     case PRINTER_INTERRUPT_EVENT_JAM_DETECTED:
         EVENT_JAM_DETECTED;
         Com::printFLN(PSTR("important:Extruder jam detected"));
-        UI_ERROR_P(Com::translatedF(UI_TEXT_EXTRUDER_JAM_ID));
 #if JAM_ACTION == 1 // start dialog
         Printer::setUIErrorMessage(false);
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-        uid.executeAction(UI_ACTION_WIZARD_JAM_EOF, true);
-#endif
 #elif JAM_ACTION == 2 // pause host/print
 #if SDSUPPORT
         if(sd.sdmode == 2) {
@@ -1919,7 +1871,6 @@ void Printer::handleInterruptEvent() {
             if(steps > JAM_SLOWDOWN_STEPS && !extruder[extruderIndex].tempControl.isSlowedDown()) {
                 extruder[extruderIndex].tempControl.setSlowedDown(true);
                 Commands::changeFeedrateMultiply(JAM_SLOWDOWN_TO);
-                UI_ERROR_P(Com::tFilamentSlipping);
             }
             if(isDebugJam()) {
                 Com::printF(PSTR("Jam signal steps:"),steps);
@@ -1942,7 +1893,7 @@ void Printer::showConfiguration() {
     Com::config(PSTR("NumExtruder:"),NUM_EXTRUDER);
     Com::config(PSTR("MixingExtruder:"),MIXING_EXTRUDER);
     Com::config(PSTR("HeatedBed:"),HAVE_HEATED_BED);
-    Com::config(PSTR("SDCard:"),SDSUPPORT);
+    Com::config(PSTR("SDCard:"),0);
     Com::config(PSTR("Fan:"),FAN_PIN > -1 && FEATURE_FAN_CONTROL);
 #if FEATURE_FAN2_CONTROL && defined(FAN2_PIN) && FAN2_PIN > -1	
     Com::config(PSTR("Fan2:1"));

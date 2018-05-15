@@ -182,7 +182,6 @@ void Extruder::manageTemperatures()
         // Make a sound if alarm was set on reaching target temperature
         if(!on && act->isAlarm())
         {
-            beep(50 * (controller + 1), 3);
             act->setAlarm(false);  //reset alarm
         }
 
@@ -205,7 +204,6 @@ void Extruder::manageTemperatures()
 							Printer::setAnyTempsensorDefect();
 							newDefectFound = true;
 						}
-                        UI_ERROR_P(Com::tHeaterDecoupled);
                         Com::printErrorFLN(Com::tHeaterDecoupledWarning);
                         Com::printF(PSTR("Error:Temp. raised to slow. Rise = "),act->currentTemperatureC - act->lastDecoupleTemp);
                         Com::printF(PSTR(" after "),(int32_t)(time-act->lastDecoupleTest));
@@ -233,7 +231,6 @@ void Extruder::manageTemperatures()
 							Printer::setAnyTempsensorDefect();
 							newDefectFound = true;
 						}
-                        UI_ERROR_P(Com::tHeaterDecoupled);
                         Com::printErrorFLN(Com::tHeaterDecoupledWarning);
                         Com::printF(PSTR("Error:Could not hold temperature "),act->lastDecoupleTemp);
                         Com::printF(PSTR(" measured "),act->currentTemperatureC);
@@ -725,7 +722,6 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
       )
     {
         Extruder *actExtruder = &extruder[extr];
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HEATING_EXTRUDER_ID));
         EVENT_WAITING_HEATER(actExtruder->id);
         bool dirRising = actExtruder->tempControl.targetTemperature > actExtruder->tempControl.currentTemperature;
         millis_t printedTime = HAL::timeInMilliseconds();
@@ -771,7 +767,6 @@ void Extruder::setTemperatureForExtruder(float temperatureInCelsius, uint8_t ext
 #endif
         EVENT_HEATING_FINISHED(actExtruder->id);
     }
-    UI_CLEAR_STATUS;
 
     bool alloff = true;
     for(uint8_t i = 0; i < NUM_EXTRUDER; i++)
@@ -2016,8 +2011,6 @@ void TemperatureController::autotunePID(float temp,uint8_t controllerId,int maxC
             }
             return;
         }
-        UI_MEDIUM;
-        UI_SLOW(true);
     }
 }
 #endif

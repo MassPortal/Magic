@@ -36,36 +36,15 @@ void Commands::commandLoop()
         {
             GCode::readFromSerial();
             GCode *code = GCode::peekCurrentCommand();
-            //UI_SLOW; // do longer timed user interface action
-            UI_MEDIUM; // do check encoder
-			
 			if (!code && Printer::isPaused && !PrintLine::hasLines()) {
 				Printer::moveToPausePosition();
 			}
 
             if(code)
             {
-#if SDSUPPORT
-                if(sd.savetosd)
-                {
-                    if(!(code->hasM() && code->M == 29))   // still writing to file
-                        sd.writeCommand(code);
-                    else
-                        sd.finishWrite();
-#if ECHO_ON_EXECUTE
-                    code->echoCommand();
-#endif
-                }
-                else
-#endif
-                    Commands::executeGCode(code);
+                Commands::executeGCode(code);
                 code->popCurrentCommand();
             }
-
-        }
-        else
-        {
-            UI_MEDIUM;
         }
         Printer::defaultLoopActions();
     }
@@ -89,11 +68,6 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
         counter250ms = 5;
         EVENT_TIMER_500MS;
     }
-    // If called from queueDelta etc. it is an error to start a new move since it
-    // would invalidate old computation resulting in unpredicted behaviour.
-    // lcd controller can start new moves, so we disallow it if called from within
-    // a move command.
-    UI_SLOW(allowNewMoves);
 }
 
 /** \brief Waits until movement cache is empty.
@@ -111,7 +85,6 @@ void Commands::waitUntilEndOfAllMoves()
     {
         GCode::readFromSerial();
         checkForPeriodicalActions(false);
-        UI_MEDIUM;
     }
 }
 
@@ -125,27 +98,12 @@ void Commands::waitUntilEndOfAllBuffers()
     {
         GCode::readFromSerial();
         code = GCode::peekCurrentCommand();
-        UI_MEDIUM; // do check encoder
         if(code)
         {
-#if SDSUPPORT
-            if(sd.savetosd)
-            {
-                if(!(code->hasM() && code->M == 29))   // still writing to file
-                    sd.writeCommand(code);
-                else
-                    sd.finishWrite();
-#if ECHO_ON_EXECUTE
-                code->echoCommand();
-#endif
-            }
-            else
-#endif
                 Commands::executeGCode(code);
             code->popCurrentCommand();
         }
         Commands::checkForPeriodicalActions(false); // only called from memory
-        UI_MEDIUM;
     }
 }
 
@@ -261,7 +219,6 @@ void Commands::setFanSpeed(int speed, bool immediately)
     if(Printer::fanSpeed == speed)
         return;
     speed = constrain(speed,0,255);
-    Printer::setMenuMode(MENU_MODE_FAN_RUNNING,speed != 0);
     Printer::fanSpeed = speed;
     if(PrintLine::linesCount == 0 || immediately) {
         if(Printer::mode == PRINTER_MODE_FFF)
@@ -988,13 +945,6 @@ void Commands::processGCode(GCode *com)
 #else
 			PrintLine::queueCartesianMove(ALWAYS_CHECK_ENDSTOPS, true);
 #endif
-#if UI_HAS_KEYS
-		// ui can only execute motion commands if we are not waiting inside a move for an
-		// old move to finish. For normal response times, we always leave one free after
-		// sending a line. Drawback: 1 buffer line less for limited time. Since input cache
-		// gets filled while waiting, the lost is neglectible.
-		PrintLine::waitForXFreeLines(1, true);
-#endif // UI_HAS_KEYS
 #ifdef DEBUG_QUEUE_MOVE
 		{
 
@@ -1157,7 +1107,6 @@ void Commands::processGCode(GCode *com)
 		Printer::setAutolevelActive(false);
 
 		if (com->hasP()) {
-			UI_STATUS_UPD("Adj. probe height");
 			Com::printFLN("Adj. probe height");
 			float probeHeight;
 			/*
@@ -1197,14 +1146,11 @@ void Commands::processGCode(GCode *com)
 			//Move to P1
 			Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 
-			UI_STATUS_UPD("Probing...");
 			Com::printFLN("Probing...");
 			//Run probe and get the deviation
 			deviation = Printer::runZProbe(true, true);
 			//Move to the bed center
 			Printer::moveTo(0.0, 0.0, IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
-			BEEP_SHORT
-				UI_STATUS_UPD("Measuring...");
 			Com::printFLN("Measuring...");
 			Printer::homeAxis(true, true, true);
 			Printer::moveTo(0, 0, EEPROM::zProbeBedDistance(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
@@ -1215,7 +1161,6 @@ void Commands::processGCode(GCode *com)
 			//Store the deviation offset temporarily as Z-probe height
 			HAL::eprSetFloat(EPR_Z_PROBE_HEIGHT, EEPROM::zProbeBedDistance() - deviation + EEPROM::zProbeXY1offset());
 			EEPROM::storeDataIntoEEPROM(false);
-			UI_STATUS_UPD("Please adjust 0:");
 			Com::printFLN("Please adjust 0:");
 		}
 
@@ -1225,7 +1170,6 @@ void Commands::processGCode(GCode *com)
 		and THEN "G30 P" to store the new zProbeHeight value.)
 		*/
 		if (!com->hasT()) {
-			UI_STATUS_UPD("Adjusting...");
 			Com::printFLN("Adjusting...");
 			float newLength;
 			Printer::homeAxis(true, true, true);
@@ -1235,7 +1179,6 @@ void Commands::processGCode(GCode *com)
 			//Move to P1
 			Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 
-			UI_STATUS_UPD("Probing...");
 			Com::printFLN("Probing...");
 			//Run probe and get the deviation
 			deviation = Printer::runZProbe(true, true);
@@ -1265,8 +1208,6 @@ void Commands::processGCode(GCode *com)
 			}
 
 			Printer::updateCurrentPosition(true);
-			UI_CLEAR_STATUS
-				UI_STATUS_UPD_RAM("Calibration complete");
 			Com::printFLN("Probe height calibration complete");
 		}
 		Commands::waitUntilEndOfAllMoves();
@@ -2208,74 +2149,6 @@ void Commands::processMCode(GCode *com)
         }
 #endif // defined
         break;
-#if SDSUPPORT
-    case 20: // M20 - list SD card
-#if JSON_OUTPUT
-       if (com->hasString() && com->text[1] == '2') { // " S2 P/folder"
-            if (com->text[3] == 'P') {
-                sd.lsJSON(com->text + 4);
-            }
-        } else sd.ls();
-#else
-        sd.ls();
-#endif
-        break;
-    case 21: // M21 - init SD card
-        sd.mount();
-        break;
-    case 22: //M22 - release SD card
-        sd.unmount();
-        break;
-    case 23: //M23 - Select file
-        if(com->hasString())
-        {
-            sd.fat.chdir();
-            sd.selectFile(com->text);
-        }
-        break;
-    case 24: //M24 - Start SD print
-        sd.startPrint();
-        break;
-    case 25: //M25 - Pause SD print
-        sd.pausePrint();
-        break;
-    case 26: //M26 - Set SD index
-        if(com->hasS())
-            sd.setIndex(com->S);
-        break;
-    case 27: //M27 - Get SD status
-        sd.printStatus();
-        break;
-    case 28: //M28 - Start SD write
-        if(com->hasString())
-            sd.startWrite(com->text);
-        break;
-    case 29: //M29 - Stop SD write
-        //processed in write to file routine above
-        //savetosd = false;
-        break;
-    case 30: // M30 filename - Delete file
-        if(com->hasString())
-        {
-            sd.fat.chdir();
-            sd.deleteFile(com->text);
-        }
-        break;
-    case 32: // M32 directoryname
-        if(com->hasString())
-        {
-            sd.fat.chdir();
-            sd.makeDirectory(com->text);
-        }
-        break;
-#endif
-#if JSON_OUTPUT && SDSUPPORT
-    case 36: // M36 JSON File Info
-        if (com->hasString()) {
-            sd.JSONFileInfo(com->text);
-        }
-        break;
-#endif
     case 42: //M42 -Change pin status via gcode
         if (com->hasP())
         {
@@ -2443,7 +2316,7 @@ void Commands::processMCode(GCode *com)
         Extruder *actExtruder = Extruder::current;
         if(com->hasT() && com->T < NUM_EXTRUDER) actExtruder = &extruder[com->T];
         if (com->hasS()) Extruder::setTemperatureForExtruder(com->S, actExtruder->id, /*com->hasF() && com->F > 0,*/ true, true);
-        /*        UI_STATUS_UPD(UI_TEXT_HEATING_EXTRUDER);
+        /* 
 #if defined(SKIP_M109_IF_WITHIN) && SKIP_M109_IF_WITHIN > 0
         if(abs(actExtruder->tempControl.currentTemperatureC - actExtruder->tempControl.targetTemperatureC) < (SKIP_M109_IF_WITHIN)) break; // Already in range
 #endif
@@ -2492,7 +2365,7 @@ void Commands::processMCode(GCode *com)
 #endif
                 EVENT_HEATING_FINISHED(actExtruder->id);
     }
-            UI_CLEAR_STATUS;*/
+*/
     }
 #endif
     previousMillisCmd = HAL::timeInMilliseconds();
@@ -2501,7 +2374,6 @@ void Commands::processMCode(GCode *com)
 		{
 #if HAVE_HEATED_BED
         if(Printer::debugDryrun()) break;
-        UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_HEATING_BED_ID));
         Commands::waitUntilEndOfAllMoves();
 #if HAVE_HEATED_BED
         if (com->hasS()) Extruder::setHeatedBedTemperature(com->S,com->hasF() && com->F > 0);
@@ -2523,7 +2395,6 @@ void Commands::processMCode(GCode *com)
 #endif
         EVENT_HEATING_FINISHED(-1);
 #endif
-        UI_CLEAR_STATUS;
         previousMillisCmd = HAL::timeInMilliseconds();
 		}
         break;
@@ -2592,12 +2463,6 @@ void Commands::processMCode(GCode *com)
         break;
     case 114: // M114
         printCurrentPosition(PSTR("M114 "));
-        break;
-    case 117: // M117 message to lcd
-        if(com->hasString())
-        {
-            UI_STATUS_UPD_RAM(com->text);
-        }
         break;
     case 119: // M119
         Commands::waitUntilEndOfAllMoves();
@@ -3073,11 +2938,6 @@ void Commands::processMCode(GCode *com)
               if(com->hasS())
                   Com::printFLN(Com::tInfo,(int32_t)HAL::integerSqrt(com->S));
               break;*/
-#if FEATURE_CONTROLLER != NO_CONTROLLER && FEATURE_RETRACTION
-    case 600:
-        uid.executeAction(UI_ACTION_WIZARD_FILAMENTCHANGE, true);
-        break;
-#endif
 	case 880: //M880 print all settings for auto-updater
 		Com::print("UI_PRINTER_COMPANY: ");	Com::println(UI_PRINTER_COMPANY);
 		Com::print("UI_PRINTER_NAME: ");	Com::println(UI_PRINTER_NAME);
@@ -3109,12 +2969,7 @@ void Commands::processMCode(GCode *com)
 	case 896: //Run custom action by its ID
 	if(com->hasS() && com->S)
 	{
-#if FEATURE_CONTROLLER == CONTROLLER_LCD_MP_PHARAOH_DUE
-		if(com->S > 0 && com->S <2000)
-			uid.executeAction(com->S, true);
-		else
-#endif
-			Com::printWarningFLN(PSTR("Not a valid action ID!"));
+		Com::printWarningFLN(PSTR("Not a valid action ID!"));
 	}
 	break;
 	
@@ -3251,31 +3106,6 @@ void Commands::processMCode(GCode *com)
         dacCommitEeprom();
 #endif
         break;
-#if 0 && UI_DISPLAY_TYPE != NO_DISPLAY
-    // some debuggingcommands normally disabled
-    case 888:
-        Com::printFLN(PSTR("Selected language:"),(int)Com::selectedLanguage);
-        Com::printF(PSTR("Translation:"));
-        Com::printFLN(Com::translatedF(0));
-        break;
-    case 889:
-        uid.showLanguageSelectionWizard();
-        break;
-    case 890:
-        {
-            if(com->hasX() && com->hasY()) {
-                float c = Printer::bendingCorrectionAt(com->X,com->Y);
-                Com::printF(PSTR("Bending at ("),com->X);
-                Com::printF(PSTR(","),com->Y);
-                Com::printFLN(PSTR(") = "),c);
-            }
-        }
-        break;
-    case 891:
-        if(com->hasS())
-            EEPROM::setVersion(com->S);
-        break;
-#endif
     case 887: // M887 echo received message
         if(com->hasString())
         {
@@ -3366,7 +3196,6 @@ void Commands::emergencyStop()
 #if HAVE_HEATED_BED && HEATED_BED_HEATER_PIN > -1
     WRITE(HEATED_BED_HEATER_PIN, HEATER_PINS_INVERTED);
 #endif
-    UI_STATUS_UPD_F(Com::translatedF(UI_TEXT_KILLED_ID));
     HAL::delayMilliseconds(200);
     InterruptProtectedBlock noInts;
     while(1) {}

@@ -1330,8 +1330,6 @@ WARNING: Servos can draw a considerable amount of current. Make sure your system
 #define SERVO1_NEUTRAL_POS  -1
 #define SERVO2_NEUTRAL_POS  -1
 #define SERVO3_NEUTRAL_POS  -1
-/** Set to servo number +1 to control that servo in ui menu. 0 disables ui control. */
-#define UI_SERVO_CONTROL 0
 /** Some fans won't start for low values, but would run if started with higher power at the beginning.
 This defines the full power duration before returning to set value. Time is in milliseconds */
 #define FAN_KICKSTART_TIME  200
@@ -1522,22 +1520,6 @@ Always hard to say since the other angle is 89° in this case!
 /* Define a pin to tuen light on/off */
 #define CASE_LIGHTS_PIN -1
 #define CASE_LIGHT_DEFAULT_ON 1
-
-/** Set to false to disable SD support: */
-#ifndef SDSUPPORT  // Some boards have sd support on board. These define the values already in pins.h
-#define SDSUPPORT true
-// Uncomment to enable or change card detection pin. With card detection the card is mounted on insertion.
-#define SDCARDDETECT -1
-// Change to true if you get a inserted message on removal.
-#define SDCARDDETECTINVERTED false
-#endif
-/** Show extended directory including file length. Don't use this with Pronterface! */
-#define SD_EXTENDED_DIR 1
-/** The gcodes in this line get executed, when you stop a sd print befor it was ended.
-Separate commands by \n */
-#define SD_RUN_ON_STOP ""
-/** Disable motors and heaters when print was stopped. */
-#define SD_STOP_HEATER_AND_MOTORS_ON_STOP 0
 /** Valid file extensions with which files are displayed on the LCD */
 #define VALID_EXT1 "gcode"
 #define VALID_EXT2 "gco"
@@ -1623,22 +1605,6 @@ The following settings override uiconfig.h!
 #define FEATURE_CONTROLLER CONTROLLER_LCD_MP_PHARAOH_DUE
 
 
-/**
-Select the languages to use. On first startup user can select
-the language from a menu with activated languages. In Configuration->Language
-the language can be switched any time. */
-#define LANGUAGE_EN_ACTIVE 1 // English
-#define LANGUAGE_DE_ACTIVE 0 // German
-#define LANGUAGE_NL_ACTIVE 0 // Dutch
-#define LANGUAGE_PT_ACTIVE 0 // Brazilian portuguese
-#define LANGUAGE_IT_ACTIVE 0 // Italian
-#define LANGUAGE_ES_ACTIVE 0 // Spanish
-#define LANGUAGE_SE_ACTIVE 0 // Swedish
-#define LANGUAGE_FR_ACTIVE 0 // French
-#define LANGUAGE_CZ_ACTIVE 0 // Czech
-#define LANGUAGE_PL_ACTIVE 0 // Polish
-#define LANGUAGE_TR_ACTIVE 0 // Turkish
-
 /* Some displays loose their settings from time to time. Try uncommenting the 
 autorepair function if this is the case. It is not supported for all display
 types. It creates a minimal flicker from time to time and also slows down
@@ -1684,56 +1650,6 @@ computations, so do not enable it if your display works stable!
 #define LED_MAX_RELATIVE_BRIGHTNESS 0.25
 #endif
 
-//Pause button LED
-//#define PAUSE_LED 1
-/** Animate switches between menus etc. */
-#define UI_ANIMATION 0
-
-/** How many ms should a single page be shown, until it is switched to the next one.*/
-#define UI_PAGES_DURATION 4000
-
-/** Delay of start screen in milliseconds */
-#define UI_START_SCREEN_DELAY 1000
-/** Uncomment if you don't want automatic page switching. You can still switch the
-info pages with next/previous button/click-encoder */
-#define UI_DISABLE_AUTO_PAGESWITCH 1
-
-/** Time to return to info menu if x millisconds no key was pressed. Set to 0 to disable it. */
-#define UI_AUTORETURN_TO_MENU_AFTER 0
-
-#define FEATURE_UI_KEYS 1
-
-/* Normally cou want a next/previous actions with every click of your encoder.
-Unfotunately, the encoder have a different count of phase changes between clicks.
-Select an encoder speed from 0 = fastest to 2 = slowest that results in one menu move per click.
-*/
-#define UI_ENCODER_SPEED 2
-
-// Set to 1 to reverse encoder direction
-#define UI_REVERSE_ENCODER 0
-
-/* There are 2 ways to change positions. You can move by increments of 1/0.1 mm resulting in more menu entries
-and requiring many turns on your encode. The alternative is to enable speed dependent positioning. It will change
-the move distance depending on the speed you turn the encoder. That way you can move very fast and very slow in the
-same setting.
-
-*/
-#define UI_SPEEDDEPENDENT_POSITIONING 1
-
-/** If set to 1 faster turning the wheel makes larger jumps. Helps for faster navgation. */
-#define UI_DYNAMIC_ENCODER_SPEED 1          // enable dynamic rotary encoder speed
-
-/** \brief bounce time of keys in milliseconds */
-#define UI_KEY_BOUNCETIME 10
-
-/** \brief First time in ms until repeat of action. */
-#define UI_KEY_FIRST_REPEAT 250
-/** \brief Reduction of repeat time until next execution. */
-#define UI_KEY_REDUCE_REPEAT 50
-/** \brief Lowest repeat time. */
-#define UI_KEY_MIN_REPEAT 50
-
-#define FEATURE_BEEPER 0
 /**
 Beeper sound definitions for short beeps during key actions
 and longer beeps for important actions.
@@ -1742,41 +1658,6 @@ Values must be in range 1..255
 */
 #define BEEPER_SHORT_SEQUENCE 2,2
 #define BEEPER_LONG_SEQUENCE 8,8
-
-// ###############################################################################
-// ##                         Values for menu settings                          ##
-// ###############################################################################
-
-/*
-If you have leveling with bed coating or fixed z min you can use this menu to adjust 
-0 height with a simple bed coating menu which adds coating thickness.
-*/
-#define UI_BED_COATING 1
-// Values used for preheat
-#define UI_SET_PRESET_HEATED_BED_TEMP_PLA 60
-#define UI_SET_PRESET_EXTRUDER_TEMP_PLA   210
-#define UI_SET_PRESET_HEATED_BED_TEMP_ABS 110
-#define UI_SET_PRESET_EXTRUDER_TEMP_ABS   240
-#define UI_SET_PRESET_HEATED_BED_TEMP_PET 80
-#define UI_SET_PRESET_EXTRUDER_TEMP_PET   255
-// Extreme values
-#define UI_SET_MIN_HEATED_BED_TEMP  45
-#define UI_SET_MAX_HEATED_BED_TEMP 120
-#define UI_SET_MIN_EXTRUDER_TEMP   160
-#define UI_SET_MAX_EXTRUDER_TEMP   300
-#define UI_SET_EXTRUDER_FEEDRATE 10 // mm/sec
-#define UI_SET_EXTRUDER_RETRACT_DISTANCE 10 // mm
-
-/*
-#define USER_KEY1_PIN     UI_DISPLAY_D5_PIN      // D5 to display (not used for graphics controller), change to other pin if you use character LCD !
-#define USER_KEY1_ACTION  UI_ACTION_FAN_SUSPEND
-#define USER_KEY2_PIN     UI_DISPLAY_D6_PIN      // D6 to display (not used for graphics controller)...
-#define USER_KEY2_ACTION  UI_ACTION_SD_PRI_PAU_CONT
-#define USER_KEY3_PIN     UI_DISPLAY_D7_PIN      // D7 to display (not used for graphics controller)...
-#define USER_KEY3_ACTION  UI_ACTION_LIGHTS_ONOFF
-#define USER_KEY4_PIN     -1
-#define USER_KEY4_ACTION  UI_ACTION_DUMMY
-*/
 
 // ####### Advanced stuff for very special function #########
 

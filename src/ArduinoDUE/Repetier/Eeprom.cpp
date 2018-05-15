@@ -387,9 +387,6 @@ void EEPROM::storeDataIntoEEPROM(uint8_t corrupted)
     for(uint8_t i = 0; i < 9; i++)
         HAL::eprSetFloat(EPR_AUTOLEVEL_MATRIX + (((int)i) << 2),Printer::autolevelTransformation[i]);
 #endif
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-    HAL::eprSetByte(EPR_SELECTED_LANGUAGE,Com::selectedLanguage);
-#endif
     // now the extruder
     for(uint8_t i = 0; i < NUM_EXTRUDER; i++)
     {
@@ -774,9 +771,6 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
         }
         if(version < 15) {
             HAL::eprSetByte(EPR_SELECTED_LANGUAGE, 254); // activate selector on startup
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-            Com::selectedLanguage = 254;
-#endif
         }
         if(version < 16) {
             HAL::eprSetFloat(EPR_BENDING_CORRECTION_A,BENDING_CORRECTION_A);
@@ -830,9 +824,6 @@ void EEPROM::readDataFromEEPROM(bool includeExtruder)
         storeDataIntoEEPROM(false); // Store new fields for changed version
     }
     Printer::zBedOffset = HAL::eprGetFloat(EPR_Z_PROBE_Z_OFFSET);
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-    Com::selectLanguage(HAL::eprGetByte(EPR_SELECTED_LANGUAGE));
-#endif
     Printer::updateDerivedParameter();
     Extruder::initHeatedBed();
 #endif

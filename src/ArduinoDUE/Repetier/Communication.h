@@ -370,28 +370,6 @@ FSTRINGVAR(tEPRExtruderCoolerSpeed)
 FSTRINGVAR(tEPRAdvanceK)
 FSTRINGVAR(tEPRAdvanceL)
 #endif
-#if SDSUPPORT
-//FSTRINGVAR(tSDRemoved)
-//FSTRINGVAR(tSDInserted)
-FSTRINGVAR(tSDInitFail)
-FSTRINGVAR(tErrorWritingToFile)
-FSTRINGVAR(tBeginFileList)
-FSTRINGVAR(tEndFileList)
-FSTRINGVAR(tFileOpened)
-FSTRINGVAR(tSpaceSizeColon)
-FSTRINGVAR(tFileSelected)
-FSTRINGVAR(tFileOpenFailed)
-FSTRINGVAR(tSDPrintingByte)
-FSTRINGVAR(tNotSDPrinting)
-FSTRINGVAR(tOpenFailedFile)
-FSTRINGVAR(tWritingToFile)
-FSTRINGVAR(tDoneSavingFile)
-FSTRINGVAR(tFileDeleted)
-FSTRINGVAR(tDeletionFailed)
-FSTRINGVAR(tDirectoryCreated)
-FSTRINGVAR(tCreationFailed)
-FSTRINGVAR(tSDErrorCode)
-#endif // SDSUPPORT
 FSTRINGVAR(tHeaterDecoupled)
 FSTRINGVAR(tHeaterDecoupledWarning)
 #if DISTORTION_CORRECTION
@@ -483,11 +461,6 @@ static inline void print(char c) {HAL::serialWriteByte(c);}
 static void printFloat(float number, uint8_t digits);
 static inline void print(float number) {printFloat(number, 6);}
 static inline void println() {HAL::serialWriteByte('\r');HAL::serialWriteByte('\n');}
-#if UI_DISPLAY_TYPE != NO_DISPLAY
-static const char* translatedF(int textId);
-static void selectLanguage(fast8_t lang);
-static uint8_t selectedLanguage;
-#endif
 static inline void println(const char *text) { print(text); println(); }
     protected:
     private:
