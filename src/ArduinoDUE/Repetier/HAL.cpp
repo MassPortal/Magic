@@ -1206,6 +1206,62 @@ if (fan3Kickstart) fan3Kickstart--;
 #endif
 }
 
+#if USE_ADVANCE
+#error You just broke the code :(
+#endif /* USE_ADVANCE */
+
+void beginAsync(uint8_t id, int32_t steps, bool (*fun)(void), bool forever, uint32_t freq)
+{
+    static bool first = true;
+    if (true) {
+        /* Give timer some clock */
+        pmc_enable_periph_clk(EXTRUDER_TIMER_IRQ);
+        /* Not too important */
+        NVIC_SetPriority((IRQn_Type)EXTRUDER_TIMER_IRQ, 6);
+        /* Set frequency etc */
+        TC_Configure(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL, TC_CMR_WAVSEL_UP_RC|TC_CMR_WAVE|TC_CMR_TCCLKS_TIMER_CLOCK3);
+        if (freq) TC_SetRC(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL, (F_CPU_TRUE / 32) / freq);
+        /* Enable interrupt */
+        EXTRUDER_TIMER->TC_CHANNEL[EXTRUDER_TIMER_CHANNEL].TC_IER = TC_IER_CPCS;
+        /* Clear disable interrupt */
+        EXTRUDER_TIMER->TC_CHANNEL[EXTRUDER_TIMER_CHANNEL].TC_IDR = ~TC_IER_CPCS;
+        /* Allow interrupts on timer */
+        NVIC_EnableIRQ((IRQn_Type)EXTRUDER_TIMER_IRQ);
+        first = false;
+    }
+    if (id<NUM_EXTRUDER) {
+        extruder[id].asyncBreak = fun;
+        Extruder::dirId(id, steps>0 ? true : false);
+        digitalWrite(extruder[id].enablePin,extruder[id].enableOn);
+        extruder[id].asyncSteps = forever ? -1 : abs(steps);
+        TC_Start(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL);
+    }
+}
+
+void EXTRUDER_TIMER_VECTOR(void)
+{
+    bool moving = false;
+    const TcChannel *chan = (EXTRUDER_TIMER->TC_CHANNEL + EXTRUDER_TIMER_CHANNEL);
+    TC_GetStatus(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL);
+
+    for (uint_fast8_t i=0; i<NUM_EXTRUDER; i++) {
+        /* Do not touch active extruder */
+        /* There are steps to be made (can be used as timeout)*/
+        if (extruder[i].asyncSteps && (i != Extruder::current->id)) {
+            /* If there is a break condition - check it */
+            if (extruder[i].asyncBreak && extruder[i].asyncBreak()) {
+                extruder[i].asyncSteps = 0;
+            } else {
+                if (extruder[i].asyncSteps > 0) extruder[i].asyncSteps--;
+                Extruder::fstepId(i);
+                moving = true;
+            }
+        }
+    }
+    /* Call fast if something to do, call slow if nothing to do */
+    if (!moving) TC_Stop(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL);
+}
+
 /** \brief Timer routine for extruder stepper.
 
 Several methods need to move the extruder. To get a optimal

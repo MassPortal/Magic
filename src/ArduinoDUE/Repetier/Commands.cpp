@@ -83,6 +83,11 @@ void Commands::commandLoop()
 
 void Commands::checkForPeriodicalActions(bool allowNewMoves)
 {
+    static millis_t lastExtRefresh;
+    if (millis() - lastExtRefresh > 10000) {
+        Extruder::refreshServo();
+        lastExtRefresh = millis();
+    }
     Printer::handleInterruptEvent();
     EVENT_PERIODICAL;
     if(!executePeriodical) return;
@@ -358,6 +363,7 @@ void Commands::setBedLed(int light)
 
 void Commands::setFan2Speed(int speed)
 {
+    return; // PIN taken by solenoids
 	#if FAN2_PIN >- 1 && FEATURE_FAN2_CONTROL
 	speed = constrain(speed,0,255);
 	Printer::setFan2SpeedDirectly(speed);
@@ -3167,6 +3173,14 @@ void Commands::processMCode(GCode *com)
         uid.executeAction(UI_ACTION_WIZARD_FILAMENTCHANGE, true);
         break;
 #endif
+    case 700: //M700
+        if (com->hasX()) Serial.println(Printer::runZProbe(false,false));
+        //Printer::moveToReal(com->hasX() ? 50 : 0, com->hasY() ? 50 : 0, com->hasZ() ? 50 : 0, com->hasE() ? 50 : 0, Printer::feedrate);
+        break;
+    case 701: // M701
+        if (com->hasS()) Extruder::startAsync(com->S);
+        else Extruder::endAsync();
+        break;
 	case 880: //M880 print all settings for auto-updater
 		Com::print("UI_PRINTER_COMPANY: ");	Com::println(UI_PRINTER_COMPANY);
 		Com::print("UI_PRINTER_NAME: ");	Com::println(UI_PRINTER_NAME);

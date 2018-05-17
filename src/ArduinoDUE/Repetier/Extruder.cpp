@@ -577,6 +577,50 @@ void TemperatureController::updateTempControlVars()
 #endif
 }
 
+static bool asyncActive = false;
+static bool asyncPaused = false;
+
+bool isAsyncInactive(void)
+{
+    return !asyncActive;
+}
+
+void pauseAsyc(void)
+{
+    if (asyncActive) {
+        asyncPaused = true;
+        asyncActive = false;
+    }
+}
+
+void unpauseAsyc(void)
+{
+    if (asyncPaused) {
+        Extruder::startAsync(0);
+    }
+
+}
+
+void Extruder::startAsync(uint32_t freq)
+{
+    asyncActive = true;
+    for (uint8_t i=0; i<NUM_EXTRUDER; i++) beginAsync(i, 1, isAsyncInactive, true, freq);
+}
+
+void Extruder::endAsync(void)
+{
+    asyncActive = false;
+}
+
+static bool blockRefresh = false;
+
+void Extruder::refreshServo(void)
+{
+    if (!blockRefresh) {
+         HAL::servoMicroseconds(0, Extruder::current->id ? EXT1_SERVO_POS : EXT0_SERVO_POS, SERVO_TIME);
+    }
+}
+
 /** \brief Select extruder ext_num.
 
 This function changes and initializes a new extruder. This is also called, after the eeprom values are changed.
@@ -609,8 +653,13 @@ void Extruder::selectExtruderById(uint8_t extruderId)
     Commands::waitUntilEndOfAllMoves();
     if (extruderId != Extruder::current->id) {
         HAL::servoMicroseconds(0, extruderId ? EXT1_SERVO_POS : EXT0_SERVO_POS, SERVO_TIME);
+        Printer::setFan2SpeedDirectly(extruderId == 1 ? 0xff : 0);
         startSwap = millis();
+        pauseAsyc();
+        blockRefresh = true;
         while (startSwap + SERVO_TIME > millis()) Commands::checkForPeriodicalActions(false);
+        blockRefresh = false;
+        unpauseAsyc();
     }
 #endif
     Extruder::current->extrudePosition = Printer::currentPositionSteps[E_AXIS];
@@ -1122,6 +1171,27 @@ void Extruder::enable()
 /** \brief Sends the high-signal to the stepper for next extruder step.
 Call this function only, if interrupts are disabled.
 */
+
+void Extruder::fstepId(uint8_t id)
+{
+    switch(id) {
+    case 0:
+        WRITE(EXT0_STEP_PIN,START_STEP_WITH_HIGH);
+        WRITE(EXT0_STEP_PIN,!START_STEP_WITH_HIGH);
+        break;
+    case 1:
+        WRITE(EXT1_STEP_PIN,START_STEP_WITH_HIGH);
+        WRITE(EXT1_STEP_PIN,!START_STEP_WITH_HIGH);
+        break;
+    case 2:
+        WRITE(EXT2_STEP_PIN,START_STEP_WITH_HIGH);
+        WRITE(EXT2_STEP_PIN,!START_STEP_WITH_HIGH);
+        break;
+    default:
+        break;
+    }
+}
+
 void Extruder::step()
 {
 #if NUM_EXTRUDER == 1
@@ -1273,6 +1343,27 @@ void Extruder::unstep()
 #endif
     }
 #endif
+}
+
+void Extruder::dirId(uint8_t id, uint8_t dir)
+{
+    switch (id)
+    {
+    case 0:
+        if (dir) WRITE(EXT0_DIR_PIN,!EXT0_INVERSE);
+        else WRITE(EXT0_DIR_PIN,EXT0_INVERSE);
+        break;
+    case 1:
+        if (dir) WRITE(EXT1_DIR_PIN,!EXT1_INVERSE);
+        else WRITE(EXT1_DIR_PIN,EXT1_INVERSE);
+        break;
+    case 2:
+        if (dir) WRITE(EXT2_DIR_PIN,!EXT2_INVERSE);
+        else WRITE(EXT2_DIR_PIN,EXT2_INVERSE);
+        break;
+    default:
+        break;
+    }
 }
 /** \brief Activates the extruder stepper and sets the direction. */
 void Extruder::setDirection(uint8_t dir)
@@ -2254,7 +2345,7 @@ Extruder extruder[NUM_EXTRUDER] =
 {
 #if NUM_EXTRUDER > 0
     {
-        0,EXT0_X_OFFSET,EXT0_Y_OFFSET,EXT0_Z_OFFSET,EXT0_STEPS_PER_MM,EXT0_ENABLE_PIN,EXT0_ENABLE_ON,
+        NULL,0,0,EXT0_X_OFFSET,EXT0_Y_OFFSET,EXT0_Z_OFFSET,EXT0_STEPS_PER_MM,EXT0_ENABLE_PIN,EXT0_ENABLE_ON,
         EXT0_MAX_FEEDRATE,EXT0_MAX_ACCELERATION,EXT0_MAX_START_FEEDRATE,0,EXT0_WATCHPERIOD
         ,EXT0_WAIT_RETRACT_TEMP,EXT0_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2281,7 +2372,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 1
     ,{
-        1,EXT1_X_OFFSET,EXT1_Y_OFFSET,EXT1_Z_OFFSET,EXT1_STEPS_PER_MM,EXT1_ENABLE_PIN,EXT1_ENABLE_ON,
+        NULL,0,1,EXT1_X_OFFSET,EXT1_Y_OFFSET,EXT1_Z_OFFSET,EXT1_STEPS_PER_MM,EXT1_ENABLE_PIN,EXT1_ENABLE_ON,
         EXT1_MAX_FEEDRATE,EXT1_MAX_ACCELERATION,EXT1_MAX_START_FEEDRATE,0,EXT1_WATCHPERIOD
         ,EXT1_WAIT_RETRACT_TEMP,EXT1_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2308,7 +2399,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 2
     ,{
-        2,EXT2_X_OFFSET,EXT2_Y_OFFSET,EXT2_Z_OFFSET,EXT2_STEPS_PER_MM,EXT2_ENABLE_PIN,EXT2_ENABLE_ON,
+        NULL,0,2,EXT2_X_OFFSET,EXT2_Y_OFFSET,EXT2_Z_OFFSET,EXT2_STEPS_PER_MM,EXT2_ENABLE_PIN,EXT2_ENABLE_ON,
         EXT2_MAX_FEEDRATE,EXT2_MAX_ACCELERATION,EXT2_MAX_START_FEEDRATE,0,EXT2_WATCHPERIOD
         ,EXT2_WAIT_RETRACT_TEMP,EXT2_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2335,7 +2426,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 3
     ,{
-        3,EXT3_X_OFFSET,EXT3_Y_OFFSET,EXT3_Z_OFFSET,EXT3_STEPS_PER_MM,EXT3_ENABLE_PIN,EXT3_ENABLE_ON,
+        NULL,0,3,EXT3_X_OFFSET,EXT3_Y_OFFSET,EXT3_Z_OFFSET,EXT3_STEPS_PER_MM,EXT3_ENABLE_PIN,EXT3_ENABLE_ON,
         EXT3_MAX_FEEDRATE,EXT3_MAX_ACCELERATION,EXT3_MAX_START_FEEDRATE,0,EXT3_WATCHPERIOD
         ,EXT3_WAIT_RETRACT_TEMP,EXT3_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2362,7 +2453,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 4
     ,{
-        4,EXT4_X_OFFSET,EXT4_Y_OFFSET,EXT4_Z_OFFSET,EXT4_STEPS_PER_MM,EXT4_ENABLE_PIN,EXT4_ENABLE_ON,
+        NULL,0,4,EXT4_X_OFFSET,EXT4_Y_OFFSET,EXT4_Z_OFFSET,EXT4_STEPS_PER_MM,EXT4_ENABLE_PIN,EXT4_ENABLE_ON,
         EXT4_MAX_FEEDRATE,EXT4_MAX_ACCELERATION,EXT4_MAX_START_FEEDRATE,0,EXT4_WATCHPERIOD
         ,EXT4_WAIT_RETRACT_TEMP,EXT4_WAIT_RETRACT_UNITS
 #if USE_ADVANCE
@@ -2389,7 +2480,7 @@ Extruder extruder[NUM_EXTRUDER] =
 #endif
 #if NUM_EXTRUDER > 5
     ,{
-        5,EXT5_X_OFFSET,EXT5_Y_OFFSET,EXT5_Z_OFFSET,EXT5_STEPS_PER_MM,EXT5_ENABLE_PIN,EXT5_ENABLE_ON,
+        NULL,0,5,EXT5_X_OFFSET,EXT5_Y_OFFSET,EXT5_Z_OFFSET,EXT5_STEPS_PER_MM,EXT5_ENABLE_PIN,EXT5_ENABLE_ON,
         EXT5_MAX_FEEDRATE,EXT5_MAX_ACCELERATION,EXT5_MAX_START_FEEDRATE,0,EXT5_WATCHPERIOD
         ,EXT5_WAIT_RETRACT_TEMP,EXT5_WAIT_RETRACT_UNITS
 #if USE_ADVANCE

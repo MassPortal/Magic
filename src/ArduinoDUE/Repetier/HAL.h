@@ -125,7 +125,7 @@ typedef char prog_char;
 #define TWI_ID  				ID_TWI1
 
 
-#define EXTRUDER_CLOCK_FREQ     60000 // extruder stepper interrupt frequency
+#define EXTRUDER_CLOCK_FREQ     20000 // extruder stepper interrupt frequency
 #define PWM_CLOCK_FREQ          3906
 #define TIMER1_CLOCK_FREQ       244
 #define TIMER1_PRESCALE         2
@@ -869,5 +869,7 @@ class HAL
 #endif
     static volatile uint8_t insideTimer1;
 };
+
+void beginAsync(uint8_t id, int32_t steps, bool(*fun)(void), bool forever, uint32_t freq);
 
 #endif // HAL_H
