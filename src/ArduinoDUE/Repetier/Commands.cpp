@@ -2470,6 +2470,9 @@ void Commands::processMCode(GCode *com)
         Endstops::update(); // double test to get right signal. Needed for crosstalk protection.
         Endstops::report();
         break;
+    case 137: // M137
+        Printer::setMoveFeedrate(com->hasF() ? com->F : 0);
+        break;
 #if BEEPER_TYPE>0
     case 120: // M120 Test beeper function
         if(com->hasS() && com->hasP())

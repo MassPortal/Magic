@@ -277,6 +277,7 @@ public:
 class Printer
 {
     static uint8_t debugLevel;
+    static float moveFeedrate;
 public:
 	static long PrinterId;
 	static uint8_t probeType; //1-inductive, 2-toggle switch
@@ -1088,6 +1089,7 @@ public:
     static void updateAdvanceFlags();
     static void setup();
     static void defaultLoopActions();
+    static void setMoveFeedrate(float feedrate);
     static uint8_t setDestinationStepsFromGCode(GCode *com);
     static uint8_t moveTo(float x,float y,float z,float e,float f);
     static uint8_t moveToReal(float x,float y,float z,float e,float f,bool pathOptimize = true);

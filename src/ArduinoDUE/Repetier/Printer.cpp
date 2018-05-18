@@ -68,6 +68,7 @@ uint8_t Printer::flag1 = 0;
 uint8_t Printer::flag2 = 0;
 uint8_t Printer::flag3 = 0;
 uint8_t Printer::debugLevel = 6; ///< Bitfield defining debug output. 1 = echo, 2 = info, 4 = error, 8 = dry run., 16 = Only communication, 32 = No moves
+float Printer::moveFeedrate;
 bool Printer::axisEnInverted = false;
 bool Printer::extEnInverted = false;
 fast8_t Printer::stepsPerTimerCall = 1;
@@ -718,8 +719,14 @@ void Printer::updateCurrentPosition(bool copyLastCmd)
   - Offset in x and y direction for multiple extruder support.
 */
 
+void Printer::setMoveFeedrate(float feedrate)
+{
+    moveFeedrate = feedrate;
+}
+
 uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 {
+    static float printFeederate; // Feedrate when extrudeing
     register int32_t p;
     float x, y, z;
 #if FEATURE_RETRACTION
@@ -797,10 +804,11 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     if(com->hasF())
     {
         if(unitIsInches)
-            feedrate = com->F * 0.0042333f * (float)feedrateMultiply;  // Factor is 25.5/60/100
+            printFeederate = com->F * 0.0042333f * (float)feedrateMultiply;  // Factor is 25.5/60/100
         else
-            feedrate = com->F * (float)feedrateMultiply * 0.00016666666f;
+            printFeederate = com->F * (float)feedrateMultiply * 0.00016666666f;
     }
+    feedrate = (!com->hasE() && moveFeedrate) ? moveFeedrate : printFeederate;
     if(!Printer::isPositionAllowed(lastCmdPos[X_AXIS], lastCmdPos[Y_AXIS], lastCmdPos[Z_AXIS]))
     {
         currentPositionSteps[E_AXIS] = destinationSteps[E_AXIS];
