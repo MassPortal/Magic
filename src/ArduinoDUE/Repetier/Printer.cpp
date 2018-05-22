@@ -730,6 +730,8 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     static float printFeederate; // Feedrate when extrudeing
     register int32_t p;
     float x, y, z;
+    bool sillyMove;
+    float moveLen[Z_AXIS_ARRAY];
 #if FEATURE_RETRACTION
     if(com->hasNoXYZ() && com->hasE() && isAutoretract()) { // convert into autoretract
         if(relativeCoordinateMode || relativeExtruderCoordinateMode) {
@@ -743,12 +745,36 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 #endif
     if(!relativeCoordinateMode)
     {
+        if (EEPROM::getAxisDrv > 0) {
+            /* Only for TMC type drivers*/
+            sillyMove = true;
+            moveLen[X_AXIS] = abs(currentPosition[X_AXIS] - convertToMM(com->X));
+            moveLen[Y_AXIS] = abs(currentPosition[Y_AXIS] - convertToMM(com->Y));
+            moveLen[Z_AXIS] = abs(currentPosition[Z_AXIS] - convertToMM(com->Z));
+
+            if (com->hasX() && moveLen[X_AXIS] > 0.003) sillyMove = false;
+            else if (com->hasY() && moveLen[Y_AXIS] > 0.003) sillyMove = false;
+            else if (com->hasZ() && moveLen[Z_AXIS] > 0.003) sillyMove = false;
+            else if (com->hasE() && com->hasNoXYZ()) sillyMove = false;
+            else if (com->hasF()) sillyMove = false;
+            if (sillyMove) return 0;
+        }
         if(com->hasX()) lastCmdPos[X_AXIS] = currentPosition[X_AXIS] = convertToMM(com->X) - coordinateOffset[X_AXIS];
         if(com->hasY()) lastCmdPos[Y_AXIS] = currentPosition[Y_AXIS] = convertToMM(com->Y) - coordinateOffset[Y_AXIS];
         if(com->hasZ()) lastCmdPos[Z_AXIS] = currentPosition[Z_AXIS] = convertToMM(com->Z) - coordinateOffset[Z_AXIS];
     }
     else
     {
+        if (EEPROM::getAxisDrv > 0) {
+            /* Only for TMC type drivers*/
+            sillyMove = true;
+            if (com->hasX() && abs(convertToMM(com->X)) > 0.003) sillyMove = false;
+            else if (com->hasY() && abs(convertToMM(com->Y)) > 0.003) sillyMove = false;
+            else if (com->hasZ() && abs(convertToMM(com->Z)) > 0.003) sillyMove = false;
+            else if (com->hasE() && com->hasNoXYZ()) sillyMove = false;
+            else if (com->hasF()) sillyMove = false;
+            if (sillyMove) return 0;
+        }
         if(com->hasX()) currentPosition[X_AXIS] = (lastCmdPos[X_AXIS] += convertToMM(com->X));
         if(com->hasY()) currentPosition[Y_AXIS] = (lastCmdPos[Y_AXIS] += convertToMM(com->Y));
         if(com->hasZ()) currentPosition[Z_AXIS] = (lastCmdPos[Z_AXIS] += convertToMM(com->Z));
