@@ -20,6 +20,7 @@
 #if BED_LEDS
 #include "Lighting.h"
 #endif
+#include "motor.h"
 
 long Printer::PrinterId = 0;
 uint8_t Printer::probeType;
@@ -826,6 +827,9 @@ void Printer::setup()
     HAL::delayMilliseconds(100);
 #endif // FEATURE_CONTROLLER
     HAL::hwSetup();
+    /* Must be loaded before stepper enable */
+    EEPROM::initBaudrate();
+    EEPROM::init(); // Read settings from eeprom if wanted
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
 #endif
@@ -1166,13 +1170,10 @@ void Printer::setup()
 #if USE_ADVANCE
     extruderStepsNeeded = 0;
 #endif
-    EEPROM::initBaudrate();
     HAL::serialSetBaudrate(baudrate);
     Com::printFLN(Com::tStart);
     HAL::showStartReason();
     Extruder::initExtruder();
-    // sets autoleveling in eeprom init
-    EEPROM::init(); // Read settings from eeprom if wanted
 
 	//Load axis direction from EEPROM and set flags
 	Commands::fillDefAxisDir();
@@ -1234,6 +1235,7 @@ if (EEPROM::getBedLED()>1)
 	Light.init();
 #endif
     Endstops::inverting = (EEPROM::getEstopVer() == 17231) ? false : true;
+    if (EEPROM::getAxisDrv() == 2) motorInit();
 }
 
 void Printer::defaultLoopActions()
