@@ -745,7 +745,7 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
 #endif
     if(!relativeCoordinateMode)
     {
-        if (EEPROM::getAxisDrv > 0) {
+        if (EEPROM::getAxisDrv() > 0) {
             /* Only for TMC type drivers*/
             sillyMove = true;
             moveLen[X_AXIS] = abs(currentPosition[X_AXIS] - convertToMM(com->X));
@@ -765,7 +765,7 @@ uint8_t Printer::setDestinationStepsFromGCode(GCode *com)
     }
     else
     {
-        if (EEPROM::getAxisDrv > 0) {
+        if (EEPROM::getAxisDrv() > 0) {
             /* Only for TMC type drivers*/
             sillyMove = true;
             if (com->hasX() && abs(convertToMM(com->X)) > 0.003) sillyMove = false;
@@ -853,9 +853,7 @@ void Printer::setup()
     HAL::delayMilliseconds(100);
 #endif // FEATURE_CONTROLLER
     HAL::hwSetup();
-    /* Must be loaded before stepper enable */
-    EEPROM::initBaudrate();
-    EEPROM::init(); // Read settings from eeprom if wanted
+
 #if defined(EEPROM_AVAILABLE) && defined(EEPROM_SPI_ALLIGATOR) && EEPROM_AVAILABLE == EEPROM_SPI_ALLIGATOR
     HAL::spiBegin();
 #endif
@@ -1196,10 +1194,12 @@ void Printer::setup()
 #if USE_ADVANCE
     extruderStepsNeeded = 0;
 #endif
+    EEPROM::initBaudrate();
     HAL::serialSetBaudrate(baudrate);
     Com::printFLN(Com::tStart);
     HAL::showStartReason();
     Extruder::initExtruder();
+    EEPROM::init(); // Read settings from eeprom if wanted
 
 	//Load axis direction from EEPROM and set flags
 	Commands::fillDefAxisDir();
