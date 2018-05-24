@@ -1258,7 +1258,7 @@ void Commands::processGCode(GCode *com)
 		// it often and wonder why the coordinate system is then wrong.
 		// For that reason we ensure a correct behavior by code.
 		Printer::homeAxis(true, true, true);
-		Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
+		if (Printer::probeType != 3) Printer::moveTo(0, 0, EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, Printer::homingFeedrate[Z_AXIS]);
 #endif
 		GCode::executeFString(Com::tZProbeStartScript);
 #if Z_PROBE_LATCHING_SWITCH
@@ -1268,22 +1268,25 @@ void Commands::processGCode(GCode *com)
 		//bool iterate = com->hasP() && com->P>0;
 		Printer::coordinateOffset[X_AXIS] = Printer::coordinateOffset[Y_AXIS] = Printer::coordinateOffset[Z_AXIS] = 0;
 		float h1, h2, h3, hc, oldFeedrate = Printer::feedrate;
-		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), Printer::probeType != 3 ? IGNORE_COORDINATE : EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		h1 = Printer::runZProbe(true, false, Z_PROBE_REPETITIONS, false);
-		if (h1 < 0) {
+        if (Printer::probeType == 3) Printer::homeAxis(true, true, true);
+        if (h1 < 0) {
 			Printer::resetTransformationMatrix(false);
 			Printer::homeAxis(true, true, true);
 			break;
 		}
-		Printer::moveTo(EEPROM::zProbeX2(), EEPROM::zProbeY2(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+		Printer::moveTo(EEPROM::zProbeX2(), EEPROM::zProbeY2(),  Printer::probeType != 3 ? IGNORE_COORDINATE : EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		h2 = Printer::runZProbe(false, false);
+        if (Printer::probeType == 3) Printer::homeAxis(true, true, true);
 		if (h2 < 0) {
 			Printer::resetTransformationMatrix(false);
 			Printer::homeAxis(true, true, true);
 			break;
 		}
-		Printer::moveTo(EEPROM::zProbeX3(), EEPROM::zProbeY3(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
+		Printer::moveTo(EEPROM::zProbeX3(), EEPROM::zProbeY3(),  Printer::probeType != 3 ? IGNORE_COORDINATE : EEPROM::zProbeBedDistance() + EEPROM::zProbeHeight(), IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		h3 = Printer::runZProbe(false, true);
+        if (Printer::probeType == 3) Printer::homeAxis(true, true, true);
 		if (h3 < 0) {
 			Printer::resetTransformationMatrix(false);
 			Printer::homeAxis(true, true, true);

@@ -93,6 +93,7 @@ the bed it self. For deltas you can enable distortion correction to follow the b
 */
 
 #include "Repetier.h"
+#include "motor.h"
 
 #ifndef BED_LEVELING_METHOD
 #define BED_LEVELING_METHOD 0
@@ -469,6 +470,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 		//int32_t offy = axisStepsPerMM[Y_AXIS] * EEPROM::zProbeYOffset();
 		//PrintLine::moveRelativeDistanceInSteps(-offx,-offy,0,0,EEPROM::zProbeXYSpeed(),true,true);
 		setZProbingActive(true);
+        if (Printer::probeType == 3) motorStartProbing();
 		PrintLine::moveRelativeDistanceInSteps(0, 0, -probeDepth, 0, EEPROM::zProbeSpeed(), true, true);
 		if(stepsRemainingAtZHit < 0 && Printer::allowBelow)
 		{
@@ -476,6 +478,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 			setZProbingActive(false);
 			return -1;
 		}
+        if (Printer::probeType == 3) motorClearProbing();
 		setZProbingActive(false);
 		#if NONLINEAR_SYSTEM
 		stepsRemainingAtZHit = realDeltaPositionSteps[C_TOWER] - currentDeltaPositionSteps[C_TOWER]; // nonlinear moves may split z so stepsRemainingAtZHit is only what is left from last segment not total move. This corrects the problem.

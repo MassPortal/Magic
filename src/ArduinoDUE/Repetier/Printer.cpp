@@ -237,8 +237,9 @@ void Endstops::update() {
             newRead |= ENDSTOP_Z2_MINMAX_ID;
 #endif
 #if FEATURE_Z_PROBE
-		if((Printer::probeType == 2) ? READ(Z_PROBE_PIN) : !READ(Z_PROBE_PIN))
-       newRead |= ENDSTOP_Z_PROBE_ID;
+        if (Printer::probeType == 1 && !READ(Z_PROBE_PIN)) newRead |= ENDSTOP_Z_PROBE_ID;
+        else if (Printer::probeType == 2 && READ(Z_PROBE_PIN)) newRead |= ENDSTOP_Z_PROBE_ID;
+        else if (Printer::probeType == 3 && motorCheckProbing()) newRead |= ENDSTOP_Z_PROBE_ID;
 #endif
     lastRead &= newRead;
 #ifdef EXTENDED_ENDSTOPS

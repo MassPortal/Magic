@@ -49,7 +49,7 @@ typedef enum {
     USTEPS_1
 } __attribute__((packed)) usteps_e;
 
-static volatile millis_t probeingTime = 0;
+static volatile millis_t probingTime = 0;
 
 static const int8_t TMC_cs[M_GUARD] = {25, 27, 29};
 static const int8_t TMC_int[M_GUARD] = {ORIG_Z_MIN_PIN, ORIG_Y_MIN_PIN, ORIG_X_MIN_PIN};
@@ -210,17 +210,17 @@ void motorInit(void)
     first = false;
 }
 
-void startProbeing(void)
+void motorStartProbing(void)
 {
     for (uint8_t mot=0; mot<M_GUARD; mot++) {
         /* Enable stallGuard */
         tmcWrite(mot, REG_TCOOLTHRS, 0xfffff);
         tmcSetCurrent(mot, MOTOR_CURRENT_PROBE, MOTOR_CURRENT_HOLD, 2);
     }
-    probeingTime = millis();
+    probingTime = millis();
 }
 
-void clearProbeing(void)
+void motorClearProbing(void)
 {
     for (uint8_t mot=0; mot<M_GUARD; mot++) {
         /* Make motors silent */
@@ -228,12 +228,12 @@ void clearProbeing(void)
         /* Restore currents */
         tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
     }
-    probeingTime = 0;
+    probingTime = 0;
 }
 
-bool checkProbeing(void)
+bool motorCheckProbing(void)
 {
-    if (probeingTime && probeingTime + MOTOR_STALL_DELAY < millis()) {
+    if (probingTime && probingTime + MOTOR_STALL_DELAY < millis()) {
         return (!READ(ORIG_Z_MIN_PIN) || !READ(ORIG_Y_MIN_PIN) || !READ(ORIG_X_MIN_PIN)) ? true : false;
     } else {
         return false;
