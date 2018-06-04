@@ -596,15 +596,15 @@ void pauseAsyc(void)
 void unpauseAsyc(void)
 {
     if (asyncPaused) {
-        Extruder::startAsync(0);
+        Extruder::startAsync(0, 0);
     }
 
 }
 
-void Extruder::startAsync(uint32_t freq)
+void Extruder::startAsync(uint32_t freq, int32_t steps)
 {
     asyncActive = true;
-    for (uint8_t i=0; i<NUM_EXTRUDER; i++) beginAsync(i, 1, isAsyncInactive, true, freq);
+    for (uint8_t i=0; i<NUM_EXTRUDER; i++) beginAsync(i, steps, isAsyncInactive, true, freq);
 }
 
 void Extruder::endAsync(void)

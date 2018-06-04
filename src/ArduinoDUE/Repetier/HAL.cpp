@@ -1210,6 +1210,13 @@ if (fan3Kickstart) fan3Kickstart--;
 #error You just broke the code :(
 #endif /* USE_ADVANCE */
 
+static int32_t asyncStepsForward = 0;
+static int32_t asyncStepsBackward = 0;
+static uint32_t asyncFreqForward = 0;
+static uint32_t asyncFreqBackward = 0;
+static volatile bool asyncDir = true;
+static bool asyncForever;
+
 void beginAsync(uint8_t id, int32_t steps, bool (*fun)(void), bool forever, uint32_t freq)
 {
     static bool first = true;
@@ -1231,11 +1238,35 @@ void beginAsync(uint8_t id, int32_t steps, bool (*fun)(void), bool forever, uint
     }
     if (id<NUM_EXTRUDER) {
         extruder[id].asyncBreak = fun;
-        Extruder::dirId(id, steps>0 ? true : false);
-        digitalWrite(extruder[id].enablePin,extruder[id].enableOn);
-        extruder[id].asyncSteps = forever ? -1 : abs(steps);
-        TC_Start(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL);
+        if (steps) {
+            asyncDir = steps > 0 ? true : false;
+            steps = abs(steps);
+            extruder[id].asyncSteps = steps;
+            if (asyncDir) {
+                asyncStepsForward = steps;
+                if (freq) asyncFreqForward = freq;
+            } else {
+                asyncStepsBackward = steps;
+                if (freq) asyncFreqBackward = freq;
+            }
+            Extruder::dirId(id, asyncDir);
+            digitalWrite(extruder[id].enablePin,extruder[id].enableOn);
+        }
     }
+    asyncForever = forever;
+    TC_Start(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL);
+}
+
+static void asyncSetFreq(uint32_t freq)
+{
+    //TC_Configure(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL, TC_CMR_WAVSEL_UP_RC|TC_CMR_WAVE|TC_CMR_TCCLKS_TIMER_CLOCK3);
+    TC_SetRC(EXTRUDER_TIMER, EXTRUDER_TIMER_CHANNEL, (F_CPU_TRUE / 32) / freq);
+    /* Enable interrupt */
+    //EXTRUDER_TIMER->TC_CHANNEL[EXTRUDER_TIMER_CHANNEL].TC_IER = TC_IER_CPCS;
+    /* Clear disable interrupt */
+    //EXTRUDER_TIMER->TC_CHANNEL[EXTRUDER_TIMER_CHANNEL].TC_IDR = ~TC_IER_CPCS;
+    /* Allow interrupts on timer */
+    //NVIC_EnableIRQ((IRQn_Type)EXTRUDER_TIMER_IRQ);
 }
 
 void EXTRUDER_TIMER_VECTOR(void)
@@ -1246,13 +1277,20 @@ void EXTRUDER_TIMER_VECTOR(void)
 
     for (uint_fast8_t i=0; i<NUM_EXTRUDER; i++) {
         /* Do not touch active extruder */
-        /* There are steps to be made (can be used as timeout)*/
-        if (extruder[i].asyncSteps && (i != Extruder::current->id)) {
+        if (i != Extruder::current->id) {
             /* If there is a break condition - check it */
-            if (extruder[i].asyncBreak && extruder[i].asyncBreak()) {
+             if (!extruder[i].asyncSteps && asyncForever) {
+                //Com::print("flip\n");
+                asyncDir = !asyncDir;
+                Extruder::dirId(i, asyncDir);
+                extruder[i].asyncSteps = asyncDir ? asyncStepsForward : asyncStepsBackward;
+                asyncSetFreq(asyncDir ? asyncFreqForward : asyncFreqBackward);
+                moving = true;
+            } else if (extruder[i].asyncBreak && extruder[i].asyncBreak()) {
                 extruder[i].asyncSteps = 0;
-            } else {
-                if (extruder[i].asyncSteps > 0) extruder[i].asyncSteps--;
+            } 
+            if (extruder[i].asyncSteps > 0) {
+                 extruder[i].asyncSteps--;
                 Extruder::fstepId(i);
                 moving = true;
             }

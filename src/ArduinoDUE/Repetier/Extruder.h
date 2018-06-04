@@ -282,7 +282,7 @@ public:
     static void manageTemperatures();
     static void disableCurrentExtruderMotor();
     static void disableAllExtruderMotors();
-    static void startAsync(uint32_t speed);
+    static void startAsync(uint32_t speed, int32_t steps);
     static void endAsync(void);
     static void refreshServo(void);
     static void selectExtruderById(uint8_t extruderId);

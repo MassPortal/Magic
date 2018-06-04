@@ -3178,7 +3178,11 @@ void Commands::processMCode(GCode *com)
         //Printer::moveToReal(com->hasX() ? 50 : 0, com->hasY() ? 50 : 0, com->hasZ() ? 50 : 0, com->hasE() ? 50 : 0, Printer::feedrate);
         break;
     case 701: // M701
-        if (com->hasS()) Extruder::startAsync(com->S);
+        if (com->hasS()) Extruder::startAsync(com->S, com->hasP() ? com->P : 1000);
+        else Extruder::endAsync();
+        break;
+    case 702: //M702
+        if (com->hasS()) Extruder::startAsync(com->S, com->hasP() ? (-1*com->P) : -1000);
         else Extruder::endAsync();
         break;
 	case 880: //M880 print all settings for auto-updater
