@@ -3052,6 +3052,10 @@ void Commands::processMCode(GCode *com)
 				Com::printF("",Printer::resends);
 				Com::printFLN("#Re-sends ");
 				break;
+            case 6:
+                Com::printFloat(Extruder::getCoolBlockTemperature(), 2);
+                Com::printFLN("#CoolBlock temp");
+                break;
 			default:
 				Com::printFLN("-1#Error: Not a valid request!");
 				break;

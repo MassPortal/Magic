@@ -46,7 +46,7 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 /** Number of extruders. Maximum 6 extruders. */
-#define NUM_EXTRUDER 3
+#define NUM_EXTRUDER 2
 
 /** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. */
 #define MIXING_EXTRUDER 0
@@ -228,7 +228,7 @@ Overridden if EEPROM activated.*/
 // 100 is AD595
 // 101 is MAX6675
 // 102 is MAX31855
-#define EXT0_TEMPSENSOR_TYPE 100
+#define EXT0_TEMPSENSOR_TYPE 13
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 // Which pin enables the heater
@@ -353,8 +353,8 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // 99 Generic thermistor table 3
 // 100 is AD595
 // 101 is MAX6675
-#define EXT1_TEMPSENSOR_TYPE 100
-#define EXT2_TEMPSENSOR_TYPE 100
+#define EXT1_TEMPSENSOR_TYPE 13
+#define EXT2_TEMPSENSOR_TYPE 13
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT1_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 #define EXT2_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
@@ -453,8 +453,8 @@ cog. Direct drive extruder need 0. */
 #define EXT1_DESELECT_COMMANDS ""
 #define EXT2_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT1_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
-#define EXT2_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
+#define EXT1_EXTRUDER_COOLER_PIN HEATER_2_PIN
+#define EXT2_EXTRUDER_COOLER_PIN HEATER_2_PIN
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT1_EXTRUDER_COOLER_SPEED 255
 #define EXT2_EXTRUDER_COOLER_SPEED 255
@@ -1615,7 +1615,7 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v1U"
+#define HARDWARE_VERSION "v2U"
 #define FIRMWARE_VERSION "226-f47872b"
 
 #define PRINTER_MODEL			   0

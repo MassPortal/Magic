@@ -98,6 +98,9 @@ void Extruder::manageTemperatures()
 #if CHAMBER_SENSOR_PIN > -1
 		if (act == &chamberController) continue;
 #endif
+#if COOL_BLOCK_INPUTS
+        if (act == &coolBlockController) continue;
+#endif
 #if HAVE_HEATED_BED
 		if (act == &heatedBedController)
 			if (Printer::bedType < 2) continue; // Skip in case we don't have heated bed
@@ -829,6 +832,12 @@ float Extruder::getChamberTemperature()
 	return -1;
 #endif
 }
+
+float Extruder::getCoolBlockTemperature(void)
+{
+    return coolBlockController.currentTemperatureC;
+}
+
 #if MIXING_EXTRUDER > 0
 void Extruder::setMixingWeight(uint8_t extr,int weight)
 {
@@ -2376,6 +2385,14 @@ TemperatureController chamberController = { 0,CHAMBER_TEMPSENSOR_TYPE,CHAMBER_AN
 ,0,0,0,0 };
 #endif
 
+#if COOL_BLOCK_INPUTS
+TemperatureController coolBlockController = { 0,COOL_BLOCK_TYPE,COOL_BLOCK_INDEX,0,0,0,0,0,0
+#if TEMP_PID
+,0,255,0,10,1,1,255,0,0,0,{ 0,0,0,0 }
+#endif
+,0,0,0,0 };
+#endif
+
 #if NUM_TEMPERATURE_LOOPS > 0
 TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
 {
@@ -2419,5 +2436,6 @@ TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
 	,&chamberController
 #endif
 #endif // CHAMBER_SENSOR_PIN
+    ,&coolBlockController
 };
 #endif
