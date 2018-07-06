@@ -213,12 +213,24 @@ uint8_t fan2Kickstart;
 uint8_t fan3Kickstart;
 #endif
 
+/* Translate fan pwm to proportional solenoid flow charectaristics */
+static inline uint8_t translateToSolenoid(int val)
+{
+    val = constrain(val, 0, 0xff);
+    if ((val > 0) && (val < 0xff)) {
+        /* Some offset for any flow to happen */
+        return (uint8_t)(((float)val / 1.76) + 69);
+    } else {
+        /* Absolute min & max remain unchanged */
+        return val;
+    }
+}
+
 void Commands::setFanSpeed(int speed, bool immediately)
 {
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
-    if(Printer::fanSpeed == speed)
-        return;
-    speed = constrain(speed,0,255);
+    speed = translateToSolenoid(speed);
+    if(Printer::fanSpeed == speed) return;
     Printer::fanSpeed = speed;
     if(PrintLine::linesCount == 0 || immediately) {
         if(Printer::mode == PRINTER_MODE_FFF)

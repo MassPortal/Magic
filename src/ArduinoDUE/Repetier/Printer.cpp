@@ -374,15 +374,6 @@ bool Printer::isPositionAllowed(float x,float y,float z)
 
 void Printer::setFanSpeedDirectly(uint8_t speed) {
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
-    if(pwm_pos[PWM_FAN1] == speed)
-        return;
-#if FAN_KICKSTART_TIME
-    if(fanKickstart == 0 && speed > pwm_pos[PWM_FAN1] && speed < 85)
-    {
-         if(pwm_pos[PWM_FAN1]) fanKickstart = FAN_KICKSTART_TIME / 100;
-         else                          fanKickstart = FAN_KICKSTART_TIME / 25;
-    }
-#endif
     pwm_pos[PWM_FAN1] = speed;
 #endif
 }
