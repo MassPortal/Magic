@@ -95,7 +95,7 @@ void Extruder::manageTemperatures()
 			continue;
 		}
 #endif
-#if CHAMBER_SENSOR_PIN > -1
+#if (CHAMBER_SENSOR_PIN > -1) && !(CHAMBER_HEAT_PIN > -1)
 		if (act == &chamberController) continue;
 #endif
 #if HAVE_HEATED_BED
@@ -2390,11 +2390,11 @@ TemperatureController thermoController = {PWM_FAN_THERMO,FAN_THERMO_THERMISTOR_T
 #endif
 
 #if CHAMBER_SENSOR_PIN > -1
-TemperatureController chamberController = { 0,CHAMBER_TEMPSENSOR_TYPE,CHAMBER_ANALOG_INDEX,0,0,0,0,0,0
+TemperatureController chamberController = {PWM_CHAMB,CHAMBER_TEMPSENSOR_TYPE,CHAMBER_ANALOG_INDEX,0,0,0,0,0,3
 #if TEMP_PID
-,0,255,0,10,1,1,255,0,0,0,{ 0,0,0,0 }
+ ,0,HEATED_BED_PID_INTEGRAL_DRIVE_MAX,HEATED_BED_PID_INTEGRAL_DRIVE_MIN,HEATED_BED_PID_PGAIN_OR_DEAD_TIME,HEATED_BED_PID_IGAIN,HEATED_BED_PID_DGAIN,HEATED_BED_PID_MAX,0,0,0,{0,0,0,0}
 #endif
-,0,0,0,0 };
+ ,0,0,0,HEATED_BED_DECOUPLE_TEST_PERIOD};
 #endif
 
 #if NUM_TEMPERATURE_LOOPS > 0
