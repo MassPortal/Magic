@@ -471,6 +471,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 		//PrintLine::moveRelativeDistanceInSteps(-offx,-offy,0,0,EEPROM::zProbeXYSpeed(),true,true);
 		setZProbingActive(true);
         if (Printer::probeType == 3) motorStartProbing();
+        else if (Printer::probeType == 4) encStartProbing();
 		PrintLine::moveRelativeDistanceInSteps(0, 0, -probeDepth, 0, EEPROM::zProbeSpeed(), true, true);
 		if(stepsRemainingAtZHit < 0 && Printer::allowBelow)
 		{
@@ -479,6 +480,7 @@ float Printer::runZProbe(bool first,bool last,uint8_t repeat,bool runStartScript
 			return -1;
 		}
         if (Printer::probeType == 3) motorClearProbing();
+        else if (Printer::probeType == 4) encClearProbing();
 		setZProbingActive(false);
 		#if NONLINEAR_SYSTEM
 		stepsRemainingAtZHit = realDeltaPositionSteps[C_TOWER] - currentDeltaPositionSteps[C_TOWER]; // nonlinear moves may split z so stepsRemainingAtZHit is only what is left from last segment not total move. This corrects the problem.

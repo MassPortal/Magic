@@ -52,6 +52,7 @@ void Commands::commandLoop()
 
 void Commands::checkForPeriodicalActions(bool allowNewMoves)
 {
+    encCompensate();
     Printer::handleInterruptEvent();
     EVENT_PERIODICAL;
     if(!executePeriodical) return;
@@ -2061,6 +2062,7 @@ void Commands::processGCode(GCode *com)
         Com::printF(PSTR("CompDelta:"),Printer::currentDeltaPositionSteps[A_TOWER]);
         Com::printF(Com::tComma,Printer::currentDeltaPositionSteps[B_TOWER]);
         Com::printFLN(Com::tComma,Printer::currentDeltaPositionSteps[C_TOWER]);
+        encPrint();
 #ifdef DEBUG_REAL_POSITION
         Com::printF(PSTR("RealDelta:"),Printer::realDeltaPositionSteps[A_TOWER]);
         Com::printF(Com::tComma,Printer::realDeltaPositionSteps[B_TOWER]);

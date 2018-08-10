@@ -22,6 +22,331 @@
 */
 
 #include "Repetier.h"
+#include "motor.h"
+
+volatile int32_t encCntr[TOWER_ARRAY] = {0,0,0};
+int32_t encZeroDeltaSteps[TOWER_ARRAY] = {-1,-1,-1};
+volatile bool encFail = false;
+#define PIN_ENCX_A 42
+#define PIN_ENCX_B 43
+#define PIN_ENCY_A 44
+#define PIN_ENCY_B 45
+#define PIN_ENCZ_A 46
+#define PIN_ENCZ_B 47
+
+#define ENC_PER_ROTATION    1600                                            // How may encoder trogger events per 1 rev
+#define STEPS_PER_ENC (MICRO_STEPS*STEPS_PER_ROTATION)/ENC_PER_ROTATION     // Howm microsteps per encoder trigger event
+
+#define ENC_STALL_DELAY       80
+
+#define ENC_TIM             TC1
+#define ENC_TIM_CHANNEL     0
+#define ENC_TIM_IRQ         ID_TC3
+#define ENC_TIM_VECTOR      TC3_Handler
+
+/* 2 modes of failure: 
+    1st 2 steps in one int - impossible to verfy direction
+    2nd 0 steps in one int - broken interrupt call */
+enum {
+    ENC_CH_A,
+    ENC_CH_B,
+    ENC_CH_GUARD
+};
+
+
+void encZero(void)
+{
+    /* Assume homed or in case of probeing - start position */
+    for (uint8_t i = 0; i < TOWER_ARRAY; i++) {
+        encCntr[i] = 0;
+        encZeroDeltaSteps[i] = Printer::realDeltaPositionSteps[i];
+    }
+}
+
+static inline int32_t encToDelta(uint32_t enc)
+{
+    return (encZeroDeltaSteps[enc]+(encCntr[enc]*STEPS_PER_ENC));
+}
+
+static inline int32_t encCmp(uint32_t enc) // TODO simplify me
+{
+    int32_t tmpDiff;
+    /* All is good - unknown position*/
+    if (encZeroDeltaSteps[enc] == -1) return 0;
+    tmpDiff = encToDelta(enc) - Printer::realDeltaPositionSteps[enc];
+    if ((tmpDiff > 16) || (tmpDiff < -16)) return tmpDiff;
+    else return 0;
+}
+
+static bool encCmpOk(void) // TODO add max delta argument
+{
+    int32_t tmpDiff;
+    for (uint32_t i=0; i<TOWER_ARRAY; i++) {
+        tmpDiff = encCmp(i);
+        tmpDiff = abs(tmpDiff);
+        if (tmpDiff > MICRO_STEPS - 1 ) return false;
+    }
+    return true;
+}
+
+static uint32_t probingTime;
+
+void encStartProbing(void)
+{
+    if (EEPROM::getAxisDrv() == 2) {
+        for (uint8_t mot=0; mot<M_GUARD; mot++) {
+            /* Drop currents */
+            tmcSetCurrent(mot, MOTOR_CURRENT_PROBE, MOTOR_CURRENT_HOLD, 2);
+        }
+    }
+    probingTime = millis();
+    /* Super-mega-uber-impossible edge-case but still*/
+    if (!probingTime) probingTime = 1;
+}
+
+void encClearProbing(void)
+{
+    if (EEPROM::getAxisDrv() == 2) {
+        for (uint8_t mot=0; mot<M_GUARD; mot++) {
+            /* Restore currents */
+            tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
+        }
+    }
+    probingTime = 0;
+}
+
+bool encCheckProbing(void)
+{
+    if (probingTime && probingTime + ENC_STALL_DELAY < millis()) {
+        return !encCmpOk();
+    } else {
+        return false;
+    }
+}
+
+static volatile bool encCmpDone = false;
+
+void ENC_TIM_VECTOR(void) {
+    volatile bool done;
+    volatile int_fast8_t tmpCmp;
+    /* Clear flag */
+    TC_GetStatus(TC1, 0);
+    done = true;
+    for (uint_fast8_t i =0; i<TOWER_ARRAY; i++) {
+        tmpCmp = encCmp(i);
+        if (tmpCmp) {
+            if (tmpCmp > 0) {
+                if (i == A_TOWER) Printer::setXDirection(false);
+                else if (i == B_TOWER) Printer::setYDirection(false);
+                else if (i == C_TOWER) Printer::setZDirection(false);
+            } else {
+                if (i == A_TOWER) Printer::setXDirection(true);
+                else if (i == B_TOWER) Printer::setYDirection(true);
+                else if (i == C_TOWER) Printer::setZDirection(true);
+            }
+            if (i == A_TOWER) Printer::startXStep();
+            else if (i == B_TOWER) Printer::startYStep();
+            else if (i == C_TOWER) Printer::startZStep();
+            done = false;
+        }
+    }
+    if (Printer::areAllSteppersDisabled()) done = true;
+    /* Last one should be with no moves not to mess up accelerations even more */
+    /* Self-disable so no clearing needed */
+    if (done) {
+        encCmpDone = true;
+        TC_Stop(TC1, 0);
+    }
+    /* Hopefully large enaugh time for step to be registered */
+    Printer::endXYZSteps();
+}
+
+
+void encXInt(void)
+{
+    volatile int_fast8_t next[ENC_CH_GUARD];
+    static volatile int_fast8_t last[ENC_CH_GUARD];
+    next[ENC_CH_A] = READ(PIN_ENCX_A);
+    next[ENC_CH_B] = READ(PIN_ENCX_B);
+    if ((last[ENC_CH_A] != next[ENC_CH_A]) && (last[ENC_CH_B] != next[ENC_CH_B])) {
+        /* Double step - epic fail too slow */
+        /* Note: LED refresh WILL raise this 
+        also fine on begin */
+        encFail = true;
+    } if (last[ENC_CH_A] != next[ENC_CH_A]) {
+        if (next[ENC_CH_A]) {
+            if (!last[ENC_CH_B]) encCntr[A_TOWER]--;
+            else encCntr[A_TOWER]++;
+        } else {
+            if (last[ENC_CH_B]) encCntr[A_TOWER]--;
+            else encCntr[A_TOWER]++;
+        }
+    } else if (last[ENC_CH_B] != next[ENC_CH_B]) {
+        if (next[ENC_CH_B]) {
+            if (last[ENC_CH_A]) encCntr[A_TOWER]--;
+            else encCntr[A_TOWER]++;
+        } else {
+            if (!last[ENC_CH_A]) encCntr[A_TOWER]--;
+            else encCntr[A_TOWER]++;
+        }
+    } else {
+        /* No changes: broken interrupt - fine on begin */
+        encFail = true;
+    }
+
+    last[ENC_CH_A] = next[ENC_CH_A];
+    last[ENC_CH_B] = next[ENC_CH_B];
+}
+
+/* Y is special - flipped */
+void encYInt(void)
+{
+    volatile int_fast8_t next[ENC_CH_GUARD];
+    static volatile int_fast8_t last[ENC_CH_GUARD];
+    next[ENC_CH_A] = READ(PIN_ENCY_A);
+    next[ENC_CH_B] = READ(PIN_ENCY_B);
+    if ((last[ENC_CH_A] != next[ENC_CH_A]) && (last[ENC_CH_B] != next[ENC_CH_B])) {
+        /* Double step - epic fail too slow */
+        /* Note: LED refresh WILL raise this 
+        also fine on begin */
+        encFail = true;
+    } if (last[ENC_CH_A] != next[ENC_CH_A]) {
+        if (next[ENC_CH_A]) {
+            if (!last[ENC_CH_B]) encCntr[B_TOWER]++;
+            else encCntr[B_TOWER]--;
+        } else {
+            if (last[ENC_CH_B]) encCntr[B_TOWER]++;
+            else encCntr[B_TOWER]--;
+        }
+    } else if (last[ENC_CH_B] != next[ENC_CH_B]) {
+        if (next[ENC_CH_B]) {
+            if (last[ENC_CH_A]) encCntr[B_TOWER]++;
+            else encCntr[B_TOWER]--;
+        } else {
+            if (!last[ENC_CH_A]) encCntr[B_TOWER]++;
+            else encCntr[B_TOWER]--;
+        }
+    } else {
+        /* No changes: broken interrupt - fine on begin */
+        encFail = true;
+    }
+
+    last[ENC_CH_A] = next[ENC_CH_A];
+    last[ENC_CH_B] = next[ENC_CH_B];
+}
+
+void encZInt(void)
+{
+    volatile int_fast8_t next[ENC_CH_GUARD];
+    static volatile int_fast8_t last[ENC_CH_GUARD];
+    next[ENC_CH_A] = READ(PIN_ENCZ_A);
+    next[ENC_CH_B] = READ(PIN_ENCZ_B);
+    if ((last[ENC_CH_A] != next[ENC_CH_A]) && (last[ENC_CH_B] != next[ENC_CH_B])) {
+        /* Double step - epic fail too slow */
+        /* Note: LED refresh WILL raise this 
+        also fine on begin */
+        encFail = true;
+    } if (last[ENC_CH_A] != next[ENC_CH_A]) {
+        if (next[ENC_CH_A]) {
+            if (!last[ENC_CH_B]) encCntr[C_TOWER]--;
+            else encCntr[C_TOWER]++;
+        } else {
+            if (last[ENC_CH_B]) encCntr[C_TOWER]--;
+            else encCntr[C_TOWER]++;
+        }
+    } else if (last[ENC_CH_B] != next[ENC_CH_B]) {
+        if (next[ENC_CH_B]) {
+            if (last[ENC_CH_A]) encCntr[C_TOWER]--;
+            else encCntr[C_TOWER]++;
+        } else {
+            if (!last[ENC_CH_A]) encCntr[C_TOWER]--;
+            else encCntr[C_TOWER]++;
+        }
+    } else {
+        /* No changes: broken interrupt - fine on begin */
+        encFail = true;
+    }
+
+    last[ENC_CH_A] = next[ENC_CH_A];
+    last[ENC_CH_B] = next[ENC_CH_B];
+}
+
+void encCompensate(void)
+{
+    static bool xDir, yDir, zDir;
+    static bool correcting = false;
+    static bool first = true;
+    int_fast8_t tmpCmp;
+    
+    if (first) {
+        /* Setup encoder reading pins */
+        pinMode(PIN_ENCX_A, INPUT);
+        pinMode(PIN_ENCX_B, INPUT);
+        pinMode(PIN_ENCY_A, INPUT);
+        pinMode(PIN_ENCY_B, INPUT);
+        pinMode(PIN_ENCZ_A, INPUT);
+        pinMode(PIN_ENCZ_B, INPUT);
+        /* Load initial state */
+        encXInt();
+        encXInt();
+        encYInt();
+        encYInt();
+        encZInt();
+        encZInt();
+        encFail = false;
+        /* Setup encoder reading interrupts */
+        attachInterrupt(PIN_ENCX_A, encXInt, CHANGE);
+        attachInterrupt(PIN_ENCX_B, encXInt, CHANGE);
+        attachInterrupt(PIN_ENCY_A, encYInt, CHANGE);
+        attachInterrupt(PIN_ENCY_B, encYInt, CHANGE);
+        attachInterrupt(PIN_ENCZ_A, encZInt, CHANGE);
+        attachInterrupt(PIN_ENCZ_B, encZInt, CHANGE);
+        /* Setup compensation timer */
+        pmc_set_writeprotect(false);
+        pmc_enable_periph_clk((uint32_t)ENC_TIM_IRQ);
+        TC_Configure(ENC_TIM, ENC_TIM_CHANNEL, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK4);  // TIMER_CLOCK4 -> 128 divisor
+        uint32_t rc = (VARIANT_MCK / 128) / 25e3; // Target frequency 31kHz
+        TC_SetRC(ENC_TIM, ENC_TIM_CHANNEL, rc);
+        /* Set up interrupt */
+        ENC_TIM->TC_CHANNEL[ENC_TIM_CHANNEL].TC_IER = TC_IER_CPCS;
+        ENC_TIM->TC_CHANNEL[ENC_TIM_CHANNEL].TC_IDR = ~TC_IER_CPCS;
+        NVIC_EnableIRQ((IRQn_Type)ENC_TIM_IRQ);
+        first = false;
+    }
+
+    if (!correcting && !encCmpOk() && !probingTime && !Printer::areAllSteppersDisabled()) {
+        /* Something is off */
+        TC_Stop(TIMER1_TIMER, TIMER1_TIMER_CHANNEL);
+        /* Save current directions */
+        xDir = Printer::getXDirection();
+        yDir = Printer::getYDirection();
+        zDir = Printer::getZDirection();
+        /* Just for Direction reset */
+        correcting = true;
+        encCmpDone = false;
+        TC_Start(TC1, 0);
+    } else if (correcting && encCmpDone) {
+        /* Restore direction */
+        Printer::setXDirection(xDir);
+        Printer::setYDirection(yDir);
+        Printer::setZDirection(zDir);
+        /* Restore normal operation */
+        TC_Start(TIMER1_TIMER, TIMER1_TIMER_CHANNEL);
+        correcting = false;
+    }
+}
+
+void encPrint(void)
+{
+    if (encFail) Serial.println("Encoder failure!!" );
+    Serial.print("EncCnt:");
+    Serial.print(encToDelta(A_TOWER));
+    Serial.print(",");
+    Serial.print(encToDelta(B_TOWER));
+    Serial.print(",");
+    Serial.println(encToDelta(C_TOWER));
+    encFail = false;
+}
 
 // ================ Sanity checks ================
 #ifndef STEP_DOUBLER_FREQUENCY
@@ -1660,6 +1985,9 @@ float PrintLine::calcZOffset(int32_t factors[], int32_t pointX, int32_t pointY)
 
 inline void PrintLine::queueEMove(int32_t extrudeDiff,uint8_t check_endstops,uint8_t pathOptimize)
 {
+    Printer::enableXStepper();
+    Printer::enableYStepper();
+    Printer::enableZStepper();
     Printer::unsetAllSteppersDisabled();
     waitForXFreeLines(1);
     uint8_t newPath = insertWaitMovesIfNeeded(pathOptimize, 1);
@@ -1808,6 +2136,9 @@ uint8_t PrintLine::queueDeltaMove(uint8_t check_endstops,uint8_t pathOptimize, u
     Com::printFLN(Com::tDBGDeltaNumLines, numLines);
     Com::printFLN(Com::tDBGDeltaSegmentsPerLine, segmentsPerLine);
 #endif
+    Printer::enableXStepper();
+    Printer::enableYStepper();
+    Printer::enableZStepper();
     Printer::unsetAllSteppersDisabled(); // Motor is enabled now
     waitForXFreeLines(1);
 
@@ -2224,9 +2555,7 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
                 {
                     cur->startXStep();
                     cur->error[X_AXIS] += curd_errupd;
-#ifdef DEBUG_REAL_POSITION
                     Printer::realDeltaPositionSteps[A_TOWER] += curd->isXPositiveMove() ? 1 : -1;
-#endif
 #ifdef DEBUG_STEPCOUNT
                     cur->totalStepsRemaining--;
 #endif
@@ -2237,9 +2566,7 @@ int32_t PrintLine::bresenhamStep() // Version for delta printer
                 {
                     cur->startYStep();
                     cur->error[Y_AXIS] += curd_errupd;
-#ifdef DEBUG_REAL_POSITION
                     Printer::realDeltaPositionSteps[B_TOWER] += curd->isYPositiveMove() ? 1 : -1;
-#endif
 #ifdef DEBUG_STEPCOUNT
                     cur->totalStepsRemaining--;
 #endif

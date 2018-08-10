@@ -240,6 +240,7 @@ void Endstops::update() {
         if (Printer::probeType == 1 && !READ(Z_PROBE_PIN)) newRead |= ENDSTOP_Z_PROBE_ID;
         else if (Printer::probeType == 2 && READ(Z_PROBE_PIN)) newRead |= ENDSTOP_Z_PROBE_ID;
         else if (Printer::probeType == 3 && motorCheckProbing()) newRead |= ENDSTOP_Z_PROBE_ID;
+        else if (Printer::probeType == 4 && encCheckProbing()) newRead |= ENDSTOP_Z_PROBE_ID;
 #endif
     lastRead &= newRead;
 #ifdef EXTENDED_ENDSTOPS
@@ -1455,6 +1456,7 @@ void Printer::homeAxis(bool xaxis,bool yaxis,bool zaxis) // Delta homing code
     updateCurrentPosition(true);
     Commands::printCurrentPosition(PSTR("homeAxis "));
     setAutolevelActive(autoLevel);
+    encZero();
 #if BED_LEDS
 		if (Printer::ledVal > 1) Light.ShowTemps();
 #endif

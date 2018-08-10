@@ -706,6 +706,11 @@ public:
 #endif
 };
 
-
+void encPrint(void);
+void encZero(void);
+void encCompensate(void);
+bool encCheckProbing(void);
+void encClearProbing(void);
+void encStartProbing(void);
 
 #endif // MOTION_H_INCLUDED
