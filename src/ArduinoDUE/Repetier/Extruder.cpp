@@ -126,7 +126,7 @@ void Extruder::manageTemperatures()
             } // controller == 0
 #else
             if (millis() - coolerChangeTime > 1000) { // Change at every 1000 ms MAX not to mess up relay
-                if(act->currentTemperatureC < EXTRUDER_FAN_COOL_TEMP && act->targetTemperatureC < EXTRUDER_FAN_COOL_TEMP && !chamberController.targetTemperature)
+                if(act->currentTemperatureC < EXTRUDER_FAN_COOL_TEMP && act->targetTemperatureC < EXTRUDER_FAN_COOL_TEMP && chamberController.targetTemperatureC < 0.1)
                     extruder[controller].coolerPWM = 0;
                 else
                     extruder[controller].coolerPWM = extruder[controller].coolerSpeed;

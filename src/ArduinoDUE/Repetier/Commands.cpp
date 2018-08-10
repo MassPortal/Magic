@@ -2551,7 +2551,7 @@ void Commands::processMCode(GCode *com)
         chamberController.setTargetTemperature(com->hasS() ? com->S : 0);
         chamberController.updateTempControlVars();
         /* Disabled  */
-        if (!chamberController.targetTemperatureC) break;
+        if (chamberController.targetTemperatureC < 0.1) break;
 
 	    uint32_t lastReport;
         while(chamberController.currentTemperatureC + 0.5 < chamberController.targetTemperatureC && chamberController.targetTemperatureC > 25.0)
