@@ -62,6 +62,7 @@ static uint8_t extruderTempErrors = 0;
 
 void Extruder::manageTemperatures()
 {
+    static uint32_t coolerChangeTime;
 #if FEATURE_WATCHDOG
     HAL::pingWatchdog();
 #endif // FEATURE_WATCHDOG
@@ -124,10 +125,13 @@ void Extruder::manageTemperatures()
                 extruder[0].coolerPWM = (enable ? extruder[0].coolerSpeed : 0);
             } // controller == 0
 #else
-            if(act->currentTemperatureC < EXTRUDER_FAN_COOL_TEMP && act->targetTemperatureC < EXTRUDER_FAN_COOL_TEMP)
-                extruder[controller].coolerPWM = 0;
-            else
-                extruder[controller].coolerPWM = extruder[controller].coolerSpeed;
+            if (millis() - coolerChangeTime > 1000) { // Change at every 1000 ms MAX not to mess up relay
+                if(act->currentTemperatureC < EXTRUDER_FAN_COOL_TEMP && act->targetTemperatureC < EXTRUDER_FAN_COOL_TEMP && !chamberController.targetTemperature)
+                    extruder[controller].coolerPWM = 0;
+                else
+                    extruder[controller].coolerPWM = extruder[controller].coolerSpeed;
+                coolerChangeTime = millis();
+            }
 #endif // NUM_EXTRUDER
         } // extruder controller
         // do skip temperature control while auto tuning is in progress
