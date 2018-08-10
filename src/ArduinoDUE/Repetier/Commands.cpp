@@ -2488,12 +2488,6 @@ void Commands::processMCode(GCode *com)
     case 137: // M137
         Printer::setMoveFeedrate(com->hasF() ? com->F : 0);
         break;
-#if BEEPER_TYPE>0
-    case 120: // M120 Test beeper function
-        if(com->hasS() && com->hasP())
-            beep(com->S, com->P); // Beep test
-        break;
-#endif
 #if MIXING_EXTRUDER > 0
     case 163: // M163 S<extruderNum> P<weight>  - Set weight for this mixing extruder drive
         if(com->hasS() && com->hasP() && com->S < NUM_EXTRUDER && com->S >= 0)
@@ -2701,19 +2695,6 @@ void Commands::processMCode(GCode *com)
     Com::printInfoFLN(PSTR("Watchdog feature was not compiled into this version!"));
 #endif
     break;
-#if defined(BEEPER_PIN) && BEEPER_PIN>=0
-    case 300: // M300
-    {
-        int beepS = 1;
-        int beepP = 1000;
-        if(com->hasS()) beepS = com->S;
-        if(com->hasP()) beepP = com->P;
-        HAL::tone(BEEPER_PIN, beepS);
-        HAL::delayMilliseconds(beepP);
-        HAL::noTone(BEEPER_PIN);
-    }
-    break;
-#endif
     case 302: // M302 S<0 or 1> - allow cold extrusion. Without S parameter it will allow. S1 will disallow.
         Printer::setColdExtrusionAllowed(!com->hasS() || (com->hasS() && com->S != 0));
         break;
