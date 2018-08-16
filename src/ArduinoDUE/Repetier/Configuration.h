@@ -50,9 +50,9 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 
 /** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. */
 #define MIXING_EXTRUDER 0
-#define MIXING_SEMI 1
+#define MIXING_SEMI 0
 
-#define SHARED_EXTRUDER_HEATER true
+#define SHARED_EXTRUDER_HEATER false
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // Arduino Due with RADDS     = 402
@@ -313,7 +313,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT0_SELECT_COMMANDS "M117 Extruder 1"
 #define EXT0_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT0_EXTRUDER_COOLER_PIN HEATER_2_PIN
+#define EXT0_EXTRUDER_COOLER_PIN -1
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT0_EXTRUDER_COOLER_SPEED 255
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
@@ -356,10 +356,10 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT1_TEMPSENSOR_TYPE 13
 #define EXT2_TEMPSENSOR_TYPE 13
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT1_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
-#define EXT2_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
+#define EXT1_TEMPSENSOR_PIN TEMP_2_PIN
+#define EXT2_TEMPSENSOR_PIN -1
 // Which pin enables the heater
-#define EXT1_HEATER_PIN -1
+#define EXT1_HEATER_PIN HEATER_2_PIN
 #define EXT2_HEATER_PIN -1
 #define EXT1_STEP_PIN E1_STEP_PIN
 #define EXT2_STEP_PIN E2_STEP_PIN
@@ -453,8 +453,8 @@ cog. Direct drive extruder need 0. */
 #define EXT1_DESELECT_COMMANDS ""
 #define EXT2_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
-#define EXT1_EXTRUDER_COOLER_PIN HEATER_2_PIN
-#define EXT2_EXTRUDER_COOLER_PIN HEATER_2_PIN
+#define EXT1_EXTRUDER_COOLER_PIN -1
+#define EXT2_EXTRUDER_COOLER_PIN -1
 /** PWM speed for the cooler fan. 0=off 255=full speed */
 #define EXT1_EXTRUDER_COOLER_SPEED 255
 #define EXT2_EXTRUDER_COOLER_SPEED 255
@@ -1615,7 +1615,7 @@ computations, so do not enable it if your display works stable!
 // This is line 2 of the status display at startup. Change to your like.
 #define UI_PRINTER_NAME "Pharaoh"
 #define UI_PRINTER_COMPANY "MASS PORTAL"
-#define HARDWARE_VERSION "v2U"
+#define HARDWARE_VERSION "v2U-SPEC"
 #define FIRMWARE_VERSION "226-f47872b"
 
 #define PRINTER_MODEL			   0
