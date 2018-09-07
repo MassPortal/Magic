@@ -310,7 +310,9 @@ extern TemperatureController chamberController;
 #define CHAMBER_CONTROLLER_INDEX THERMO_CONTROLLER_INDEX
 #endif
 
-#define NUM_TEMPERATURE_LOOPS CHAMBER_CONTROLLER_INDEX+1
+#define COOL_BLOCK_CONTROLLER_INDEX CHAMBER_CONTROLLER_INDEX+1
+extern TemperatureController coolBlockController;
+#define NUM_TEMPERATURE_LOOPS COOL_BLOCK_CONTROLLER_INDEX
 
 #define TEMP_INT_TO_FLOAT(temp) ((float)(temp)/(float)(1<<CELSIUS_EXTRA_BITS))
 #define TEMP_FLOAT_TO_INT(temp) ((int)((temp)*(1<<CELSIUS_EXTRA_BITS)))
