@@ -2434,6 +2434,6 @@ TemperatureController *tempController[NUM_TEMPERATURE_LOOPS] =
 	,&chamberController
 #endif
 #endif // CHAMBER_SENSOR_PIN
-    ,&coolBlockController
+    //,&coolBlockController
 };
 #endif

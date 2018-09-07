@@ -2450,6 +2450,27 @@ void Commands::processMCode(GCode *com)
         else if (com->P == 2) setFan3Speed(0);
         
         break;
+    case 141: // M141
+        /* Set chamber terget temperature */
+        chamberController.setTargetTemperature(com->hasS() ? com->S : 0);
+        chamberController.updateTempControlVars();
+        break;
+    case 191:
+        /* Set chamber target temperature */
+        chamberController.setTargetTemperature(com->hasS() ? com->S : 0);
+        chamberController.updateTempControlVars();
+        /* Disabled  */
+        if (!chamberController.targetTemperatureC) break;
+	    uint32_t lastReport;
+        while(chamberController.currentTemperatureC + 0.5 < chamberController.targetTemperatureC && chamberController.targetTemperatureC > 25.0) {
+            if( (HAL::timeInMilliseconds()- lastReport) > 1000 ) {
+                printTemperatures();
+                lastReport = previousMillisCmd = HAL::timeInMilliseconds();
+            }
+            Commands::checkForPeriodicalActions(true);
+        }
+        previousMillisCmd = HAL::timeInMilliseconds();
+        break;
 #endif
     case 111: // M111 enable/disable run time debug flags
         if(com->hasS()) Printer::setDebugLevel(static_cast<uint8_t>(com->S));
