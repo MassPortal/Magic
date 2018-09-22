@@ -46,7 +46,7 @@ To override EEPROM settings with config settings, set EEPROM_MODE 0
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 /** Number of extruders. Maximum 6 extruders. */
-#define NUM_EXTRUDER 2
+#define NUM_EXTRUDER 3
 
 /** Set to 1 if all extruder motors go to 1 nozzle that mixes your colors. */
 #define MIXING_EXTRUDER 0
@@ -233,7 +233,7 @@ Overridden if EEPROM activated.*/
 // 100 is AD595
 // 101 is MAX6675
 // 102 is MAX31855
-#define EXT0_TEMPSENSOR_TYPE 13
+#define EXT0_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 // Which pin enables the heater
@@ -322,7 +322,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
 #define EXT0_EXTRUDER_COOLER_PIN -1
 /** PWM speed for the cooler fan. 0=off 255=full speed */
-#define EXT0_EXTRUDER_COOLER_SPEED 255
+#define EXT0_EXTRUDER_COOLER_SPEED 0
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
 #define EXT0_DECOUPLE_TEST_PERIOD 18000
 /** Pin which toggles regualrly during extrusion allowing jam control. -1 = disabled */
@@ -363,7 +363,7 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT1_TEMPSENSOR_TYPE 100
 #define EXT2_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT1_TEMPSENSOR_PIN TEMP_2_PIN
+#define EXT1_TEMPSENSOR_PIN TEMP_0_PIN
 #define EXT2_TEMPSENSOR_PIN -1
 // Which pin enables the heater
 #define EXT1_HEATER_PIN HEATER_2_PIN
@@ -464,10 +464,10 @@ cog. Direct drive extruder need 0. */
 #define EXT2_DESELECT_COMMANDS ""
 /** The extruder cooler is a fan to cool the extruder when it is heating. If you turn the etxruder on, the fan goes on. */
 #define EXT1_EXTRUDER_COOLER_PIN -1
-#define EXT2_EXTRUDER_COOLER_PIN ORIG_FAN2_PIN
+#define EXT2_EXTRUDER_COOLER_PIN -1
 /** PWM speed for the cooler fan. 0=off 255=full speed */
-#define EXT1_EXTRUDER_COOLER_SPEED 255
-#define EXT2_EXTRUDER_COOLER_SPEED 255
+#define EXT1_EXTRUDER_COOLER_SPEED 0
+#define EXT2_EXTRUDER_COOLER_SPEED 0
 /** Time in ms between a heater action and test of success. Must be more then time between turning heater on and first temp. rise! */
 #define EXT1_DECOUPLE_TEST_PERIOD 18000
 #define EXT2_DECOUPLE_TEST_PERIOD 18000
@@ -734,11 +734,11 @@ A good start is 30 lower then the optimal value. You need to leave room for cool
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
-#define MAXTEMP 300
+#define MAXTEMP 500
 
 /** Extreme values to detect defect thermistors. */
 #define MIN_DEFECT_TEMPERATURE -10
-#define MAX_DEFECT_TEMPERATURE 310
+#define MAX_DEFECT_TEMPERATURE 510
 
 #define CHAMBER_TEMPSENSOR_TYPE 97
 /** Analog pin of analog sensor to read temperature of the chamber.  */
@@ -1342,9 +1342,9 @@ WARNING: Servos can draw a considerable amount of current. Make sure your system
 #define FEATURE_SERVO 1
 // Servo pins on a RAMPS board are 11,6,5,4
 #define SERVO0_PIN 6
-#define SERVO1_PIN 11
-#define SERVO2_PIN 5
-#define SERVO3_PIN 4
+#define SERVO1_PIN -1
+#define SERVO2_PIN -1
+#define SERVO3_PIN -1
 /* for set servo(s) at designed neutral position at power-up. Values < 500 mean no start position */
 #define SERVO0_NEUTRAL_POS  EXT0_SERVO_POS
 #define SERVO1_NEUTRAL_POS  -1

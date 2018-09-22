@@ -140,7 +140,7 @@ typedef char prog_char;
 #define AD_TRANSFER_CYCLES      1   // 0 - 3      * 2 + 3 adc clock cycles
 
 #define ADC_ISR_EOC(channel)    (0x1u << channel)
-#define ENABLED_ADC_CHANNELS    {THERMOCOUPLE_0_PIN, TEMP_1_PIN, TEMP_2_PIN}
+#define ENABLED_ADC_CHANNELS    {THERMOCOUPLE_0_PIN, TEMP_1_PIN, TEMP_0_PIN}
 
 #define PULLUP(IO,v)            {pinMode(IO, (v!=LOW ? INPUT_PULLUP : INPUT)); }
 

@@ -258,9 +258,17 @@ uint8_t fan3Kickstart;
 void Commands::setFanSpeed(int speed, bool immediately)
 {
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
+    int report = speed;
+    speed = constrain(speed,0,255);
+    /* Zero is still just zero */
+    if (speed) {
+        /* Max variation = 51 */
+        speed /= 5;
+        /* Offset */
+        speed += 0xff - 51;
+    }
     if(Printer::fanSpeed == speed)
         return;
-    speed = constrain(speed,0,255);
     Printer::setMenuMode(MENU_MODE_FAN_RUNNING,speed != 0);
     Printer::fanSpeed = speed;
     if(PrintLine::linesCount == 0 || immediately) {
@@ -271,7 +279,7 @@ void Commands::setFanSpeed(int speed, bool immediately)
         }
         Printer::setFanSpeedDirectly(speed);
 	}
-        Com::printFLN(Com::tFanspeed,speed); // send only new values to break update loops!
+        Com::printFLN(Com::tFanspeed,report); // send only new values to break update loops!
 #endif
 }
 #if BED_LEDS
@@ -2532,23 +2540,11 @@ void Commands::processMCode(GCode *com)
     case 106: // M106 Fan On
         if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND))
         {
-            if(com->hasP())
-				if(com->P == 1)
-	            setFan2Speed(com->hasS() ? com->S : 255);
-			else
-					setFan3Speed(com->hasS() ? com->S : 255);				
-			else
             setFanSpeed(com->hasS() ? com->S : 255);
         }
         break;
     case 107: // M107 Fan Off
-        if(com->hasP())
-			if(com->P == 1)
-	        setFan2Speed(0);
-		else
-				setFan3Speed(0);
-		else
-            setFanSpeed(0);
+        setFanSpeed(0);
         break;
 #endif
     case 111: // M111 enable/disable run time debug flags
