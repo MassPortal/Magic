@@ -2538,13 +2538,18 @@ void Commands::processMCode(GCode *com)
 #endif
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
     case 106: // M106 Fan On
-        if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND))
-        {
+        if (com->hasP() && com->P == 1) {
+            setFan3Speed(com->hasS() && com->S > 0 ? 0xff : 0);
+        } else if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND)) {
             setFanSpeed(com->hasS() ? com->S : 255);
         }
         break;
     case 107: // M107 Fan Off
-        setFanSpeed(0);
+        if (com->hasP() && com->P == 1) {
+            setFan3Speed(0);
+        } else {
+            setFanSpeed(0);
+        }
         break;
     case 141: // M141
         /* Set chamber terget temperature */
