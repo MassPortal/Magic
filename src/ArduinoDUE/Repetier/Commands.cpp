@@ -2539,26 +2539,48 @@ void Commands::processMCode(GCode *com)
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
     case 106: // M106 Fan On
         if (com->hasP() && com->P == 1) {
-            setFan3Speed(com->hasS() && com->S > 0 ? 0xff : 0);
+            if (com->hasS() && com->S > 0) {
+                setFan3Speed(0xff);
+            } else if (!chamberController.targetTemperatureC) {
+                setFan3Speed(0);
+            } else {
+                Com::printErrorFLN(" Can't shut down ventilation while heated chamber is on");
+            }
         } else if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND)) {
             setFanSpeed(com->hasS() ? com->S : 255);
         }
         break;
     case 107: // M107 Fan Off
         if (com->hasP() && com->P == 1) {
-            setFan3Speed(0);
+            if (chamberController.targetTemperatureC) {
+                Com::printErrorFLN(" Can't shut down ventilation while heated chamber is on");
+            } else {
+                setFan3Speed(0);
+            }
         } else {
             setFanSpeed(0);
         }
         break;
     case 141: // M141
+        /* Limit to 80 degC */
+        if (com->hasS()) {
+            if (com->S > 80) com->S = 80;
+            else if (com->S < 0) com->S = 0;
+        }
         /* Set chamber terget temperature */
         chamberController.setTargetTemperature(com->hasS() ? com->S : 0);
+        if (com->hasS() && com->S) setFan3Speed(0xff);
         chamberController.updateTempControlVars();
         break;
     case 191:
+        /* Limit to 80 degC */
+        if (com->hasS()) {
+            if (com->S > 80) com->S = 80;
+            else if (com->S < 0) com->S = 0;
+        }
         /* Set chamber target temperature */
         chamberController.setTargetTemperature(com->hasS() ? com->S : 0);
+        if (com->hasS() && com->S) setFan3Speed(0xff);
         chamberController.updateTempControlVars();
         /* Disabled  */
         if (!chamberController.targetTemperatureC) break;
