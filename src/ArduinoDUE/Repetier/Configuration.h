@@ -640,7 +640,7 @@ Honeywell 100K Thermistor (135-104LAG-J01)  : R0 = 100000  T0 = 25  Beta = 3974
 You can use the beta from the datasheet or compute it yourself.
 See http://reprap.org/wiki/MeasuringThermistorBeta for more details.
 */
-#define GENERIC_THERM1_BETA 3590
+#define GENERIC_THERM1_BETA 4190
 /** Start temperature for generated thermistor table */
 #define GENERIC_THERM1_MIN_TEMP -20
 /** End Temperature for generated thermistor table */
