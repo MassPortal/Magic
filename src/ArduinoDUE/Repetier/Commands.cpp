@@ -85,6 +85,9 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
 #endif
     if(--counter250ms == 0)
     {
+		if (EEPROM::getDoorSwVer() == 3) {
+			Printer::fDoorOpen = READ(X_MIN_PIN);
+		}
 		if (chamberController.currentTemperatureC > 51 && !pwm_pos[PWM_FAN3]) {
 			/* Hot chamber no PWM set - supposed to be off*/
 			Printer::setFan3SpeedDirectly(0xff);

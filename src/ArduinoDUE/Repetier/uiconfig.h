@@ -380,7 +380,7 @@ void uiInitKeys() {
 #endif
 
   //PAUSE BUTTON, digital pin 47, on AUX3, NO button, connects to GND
-  UI_KEYS_INIT_BUTTON_LOW(X_MIN_PIN);
+  //UI_KEYS_INIT_BUTTON_LOW(X_MIN_PIN);
   UI_KEYS_INIT_BUTTON_LOW(Y_MIN_PIN);  
 
   //Illumination LED for pause button, connected to E2 screw terminals
@@ -462,14 +462,6 @@ void uiCheckSlowKeys(uint16_t &action) {
   // ----- End RGB shield ----------
   */
 #endif
-	if (READ(X_MIN_PIN) != Printer::fDoorOpen) {
-		Printer::fDoorOpen = READ(X_MIN_PIN);
-		uid.executeAction(UI_ACTION_DOOR_FRONT, true);
-	}
-	if (READ(Y_MIN_PIN) != Printer::sDoorOpen) {
-		Printer::sDoorOpen = READ(Y_MIN_PIN);
-		uid.executeAction(UI_ACTION_DOOR_SIDE, true);
-	}
 }
 
 #endif
