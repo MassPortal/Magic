@@ -24,6 +24,7 @@
 const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS; // Sensitive pin list for M42
 int Commands::lowestRAMValue = MAX_RAM;
 int Commands::lowestRAMValueSend = MAX_RAM;
+bool fan3OffPending = false;
 
 void Commands::commandLoop()
 {
@@ -84,6 +85,14 @@ void Commands::checkForPeriodicalActions(bool allowNewMoves)
 #endif
     if(--counter250ms == 0)
     {
+		if (chamberController.currentTemperatureC > 51 && !pwm_pos[PWM_FAN3]) {
+			/* Hot chamber no PWM set - supposed to be off*/
+			Printer::setFan3SpeedDirectly(0xff);
+			fan3OffPending = true; // Will turn off whan temperature drops
+		} else if (fan3OffPending && chamberController.currentTemperatureC < 49 && !chamberController.targetTemperatureC) {
+			Printer::setFan3SpeedDirectly(0); // Turn off when safe
+			fan3OffPending = false;
+		}
         if(manageMonitor)
             writeMonitor();
         counter250ms = 5;
@@ -301,9 +310,17 @@ void Commands::setFan2Speed(int speed)
 void Commands::setFan3Speed(int speed)
 {
 	#if FAN3_PIN >- 1 && FEATURE_VENTILATION
-	speed = constrain(speed,0,255);
-	Printer::setFan3SpeedDirectly(speed);
-	Com::printFLN(Com::tFan3speed,speed); // send only new values to break update loops!
+	int report = speed;
+	speed = speed ? 0xff : 0; // Just on or off SSR!
+	if ((!speed && chamberController.currentTemperatureC > 50) || (!speed && chamberController.targetTemperatureC)) {
+		/* Do nothing */
+		fan3OffPending = true;
+	} else {
+		fan3OffPending = false;
+		Printer::setFan3SpeedDirectly(speed);
+	}
+	/* This IS a lie lol */
+	Com::printFLN(Com::tFan3speed, report);
 	#endif
 }
 void Commands::reportPrinterUsage()
@@ -2538,25 +2555,19 @@ void Commands::processMCode(GCode *com)
 #endif
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
     case 106: // M106 Fan On
-        if (com->hasP() && com->P == 1) {
-            if (com->hasS() && com->S > 0) {
-                setFan3Speed(0xff);
-            } else if (!chamberController.targetTemperatureC) {
-                setFan3Speed(0);
-            } else {
-                Com::printErrorFLN(" Can't shut down ventilation while heated chamber is on");
-            }
-        } else if(!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND)) {
+        if (com->hasP()) {
+			if (com->P == 1) {
+				setFan3Speed(com->hasS() ? com->S : 0); // 0 = safe
+			}
+		} else if (!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND)) {
             setFanSpeed(com->hasS() ? com->S : 255);
         }
         break;
     case 107: // M107 Fan Off
-        if (com->hasP() && com->P == 1) {
-            if (chamberController.targetTemperatureC) {
-                Com::printErrorFLN(" Can't shut down ventilation while heated chamber is on");
-            } else {
-                setFan3Speed(0);
-            }
+        if (com->hasP()) {
+			if (com->P == 1) {
+				setFan3Speed(0);
+			}
         } else {
             setFanSpeed(0);
         }
@@ -2566,10 +2577,12 @@ void Commands::processMCode(GCode *com)
         if (com->hasS()) {
             if (com->S > 80) com->S = 80;
             else if (com->S < 0) com->S = 0;
-        }
+		} else {
+			com->S = 0;
+		}
         /* Set chamber terget temperature */
-        chamberController.setTargetTemperature(com->hasS() ? com->S : 0);
-        if (com->hasS() && com->S) setFan3Speed(0xff);
+        chamberController.setTargetTemperature(com->S);
+        if (com->S) Printer::setFan3SpeedDirectly(0xff);
         chamberController.updateTempControlVars();
         break;
     case 191:
@@ -2577,17 +2590,20 @@ void Commands::processMCode(GCode *com)
         if (com->hasS()) {
             if (com->S > 80) com->S = 80;
             else if (com->S < 0) com->S = 0;
-        }
+		} else {
+			com->S = 0;
+		}
         /* Set chamber target temperature */
-        chamberController.setTargetTemperature(com->hasS() ? com->S : 0);
-        if (com->hasS() && com->S) setFan3Speed(0xff);
+        chamberController.setTargetTemperature(com->S);
+		if (com->hasS()) Printer::setFan3SpeedDirectly(0xff);
         chamberController.updateTempControlVars();
         /* Disabled  */
         if (!chamberController.targetTemperatureC) break;
 	    uint32_t lastReport;
         while(chamberController.currentTemperatureC + 0.5 < chamberController.targetTemperatureC && chamberController.targetTemperatureC > 25.0) {
-            if( (HAL::timeInMilliseconds()- lastReport) > 1000 ) {
+            if ((HAL::timeInMilliseconds()- lastReport) > 1e3 ) {
                 printTemperatures();
+				printTemperature();
                 lastReport = previousMillisCmd = HAL::timeInMilliseconds();
             }
             Commands::checkForPeriodicalActions(true);
@@ -2595,6 +2611,36 @@ void Commands::processMCode(GCode *com)
         previousMillisCmd = HAL::timeInMilliseconds();
         break;
 #endif
+	/* Controlled cooling command */
+	case 192: // M192
+		if (com->hasS() && com->hasP()) {
+			if (com->S < 0) com->S = 0;
+			else if (com->S > 80) com->S = 80;
+			if (com->P < 1) com->P = 1;
+			uint32_t lastReport;
+			uint32_t nextChange;
+			nextChange = HAL::timeInMilliseconds() + com->P*1e3;
+			lastReport = HAL::timeInMilliseconds();
+			while (chamberController.currentTemperatureC > com->S && chamberController.targetTemperatureC > com->S) {
+				if ((HAL::timeInMilliseconds() - lastReport) > 1e3) {
+					printTemperatures();
+					printTemperature();
+					lastReport = previousMillisCmd = HAL::timeInMilliseconds();
+				}
+				if (HAL::timeInMilliseconds() > nextChange) {
+					nextChange += com->P*1e3;
+					if (chamberController.targetTemperatureC) chamberController.setTargetTemperature(chamberController.targetTemperatureC - 1);
+					chamberController.updateTempControlVars();
+				}
+				Commands::checkForPeriodicalActions(true);
+			}
+			chamberController.targetTemperatureC = 0;
+			setFan3Speed(0);
+			previousMillisCmd = HAL::timeInMilliseconds();
+		} else {
+			Com::printErrorFLN(" Parameters missing (S/P)");
+		}
+		break;
     case 111: // M111 enable/disable run time debug flags
         if(com->hasS()) Printer::setDebugLevel(static_cast<uint8_t>(com->S));
         if(com->hasP())
