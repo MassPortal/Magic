@@ -302,15 +302,15 @@ void Commands::setBedLed(int light)
 }
 #endif
 
-void Commands::setFan2Speed(int speed)
+void Commands::setFan2Speed(int speed) // report as cooler 3
 {
 	#if FAN2_PIN >- 1 && FEATURE_FAN2_CONTROL
 	speed = constrain(speed,0,255);
 	Printer::setFan2SpeedDirectly(speed);
-	Com::printFLN(Com::tFan2speed,speed); // send only new values to break update loops!
+	Com::printFLN(Com::tFan3speed,speed); // send only new values to break update loops!
 	#endif
 }
-void Commands::setFan3Speed(int speed)
+void Commands::setFan3Speed(int speed) // report as cooler 2
 {
 	#if FAN3_PIN >- 1 && FEATURE_VENTILATION
 	int report = speed;
@@ -323,7 +323,7 @@ void Commands::setFan3Speed(int speed)
 		Printer::setFan3SpeedDirectly(speed);
 	}
 	/* This IS a lie lol */
-	Com::printFLN(Com::tFan3speed, report);
+	Com::printFLN(Com::tFan2speed, report);
 	#endif
 }
 void Commands::reportPrinterUsage()
@@ -2561,6 +2561,8 @@ void Commands::processMCode(GCode *com)
         if (com->hasP()) {
 			if (com->P == 1) {
 				setFan3Speed(com->hasS() ? com->S : 0); // 0 = safe
+			} if (com->P == 2) {
+				setFan2Speed(com->hasS() ? com->S : 0);
 			}
 		} else if (!(Printer::flag2 & PRINTER_FLAG2_IGNORE_M106_COMMAND)) {
             setFanSpeed(com->hasS() ? com->S : 255);
@@ -2570,6 +2572,8 @@ void Commands::processMCode(GCode *com)
         if (com->hasP()) {
 			if (com->P == 1) {
 				setFan3Speed(0);
+			} else if (com->P) {
+				setFan2Speed(0);
 			}
         } else {
             setFanSpeed(0);
@@ -3562,6 +3566,9 @@ float Commands::retDefHeight()
 		break;
 	case 4010:
 		return 465.0;
+		break;
+	case 6060:
+		return 650;
 		break;
 	default:
 		return 210.0;
