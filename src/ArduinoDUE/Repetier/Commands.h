@@ -49,6 +49,7 @@ public:
     static void writeLowestFreeRAM();
 	static void setBedLed(int light);
 	static float retDefHeight();
+	static void noProbeCal(GCode *com);
 	static void fillDefAxisDir();
 private:
     static int lowestRAMValue;
