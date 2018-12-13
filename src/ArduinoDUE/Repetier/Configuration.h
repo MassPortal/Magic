@@ -228,7 +228,7 @@ Overridden if EEPROM activated.*/
 // 100 is AD595
 // 101 is MAX6675
 // 102 is MAX31855
-#define EXT0_TEMPSENSOR_TYPE 13
+#define EXT0_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 // Which pin enables the heater
@@ -353,8 +353,8 @@ The codes are only executed for multiple extruder when changing the extruder. */
 // 99 Generic thermistor table 3
 // 100 is AD595
 // 101 is MAX6675
-#define EXT1_TEMPSENSOR_TYPE 13
-#define EXT2_TEMPSENSOR_TYPE 13
+#define EXT1_TEMPSENSOR_TYPE 100
+#define EXT2_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
 #define EXT1_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 #define EXT2_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
