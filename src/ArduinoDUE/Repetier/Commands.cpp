@@ -3554,17 +3554,12 @@ void Commands::noProbeCal(GCode *com)
 {
 	static float hx, hy, hz;
 	if (com->hasS()) {
-		//Com::printInfoFLN("hasS!");
 		EEPROM::readDataFromEEPROM(false);
 		Printer::setAutolevelActive(false);
 		/* Make printer taller */
-		//Com::printInfoF("Len old: ");
-		//Serial.println(Printer::zLength);
 		Printer::zLength += EEPROM::zProbeBedDistance();
 		HAL::eprSetFloat(EPR_Z_LENGTH, Printer::zLength);
 		Printer::updateDerivedParameter();
-		//Com::printInfoF("Len new: ");
-		//Serial.println(Printer::zLength);
 		Printer::homeAxis(true, true, true);
 		Printer::updateCurrentPosition(true);
 		/* Go down above bed, double zProbeBed distance*/
@@ -3573,27 +3568,21 @@ void Commands::noProbeCal(GCode *com)
 		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 	} else if (com->hasX()) {
 		/* Save Xlen*/
-		//Com::printInfoF("hasX: ");
 		hx = EEPROM::zProbeBedDistance() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
-		//Serial.println(hx);
 		/* Lift for 1st point, double zProbeBed distance */
 		Printer::moveTo(EEPROM::zProbeX1(), EEPROM::zProbeY1(), EEPROM::zProbeBedDistance()*2, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		/* Goto 2nd point */
 		Printer::moveTo(EEPROM::zProbeX2(), EEPROM::zProbeY2(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 	} else if (com->hasY()) {
 		/* Save Ylen*/
-		//Com::printInfoFLN("hasY: ");
 		hy = EEPROM::zProbeBedDistance()- (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
-		//Serial.println(hy);
 		/* Lift for 2nd point, double zProbeBed distance */
 		Printer::moveTo(EEPROM::zProbeX2(), EEPROM::zProbeY2(), EEPROM::zProbeBedDistance()*2, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		/* Goto 3rd point */
 		Printer::moveTo(EEPROM::zProbeX3(), EEPROM::zProbeY3(), IGNORE_COORDINATE, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 	} else if (com->hasZ()) {
 		/* Save Zlen*/
-		//Com::printInfoFLN("hasZ: ");
 		hz = EEPROM::zProbeBedDistance() - (Printer::currentPositionSteps[Z_AXIS] / Printer::axisStepsPerMM[Z_AXIS]);
-		//Serial.println(hz);
 		/* Lift for 3rd point , double zProbeBed distance*/
 		Printer::moveTo(EEPROM::zProbeX3(), EEPROM::zProbeY3(), EEPROM::zProbeBedDistance()*2, IGNORE_COORDINATE, EEPROM::zProbeXYSpeed());
 		Printer::buildTransformationMatrix(hx,hy,hz);
@@ -3607,9 +3596,9 @@ void Commands::noProbeCal(GCode *com)
 		Printer::zLength = Printer::zLength-EEPROM::zProbeBedDistance()+((hx+hy+hz)/3);
 		Printer::updateDerivedParameter();
 		HAL::eprSetFloat(EPR_Z_LENGTH, Printer::zLength);
+		Printer::setAutolevelActive(true);
 		EEPROM::storeDataIntoEEPROM(false);
 		Printer::homeAxis(true, true, true);
-		Printer::setAutolevelActive(true);
 		return;
 	} else {
 		Com::printErrorFLN("missing parameters (S,X,Y,Z)");
