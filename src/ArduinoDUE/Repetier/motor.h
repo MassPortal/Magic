@@ -1,23 +1,20 @@
 #pragma once
 
 enum motor_e {
-    M_Z,
-    M_Y,
-    M_X,
-    M_GUARD
+	M_Z,
+	M_Y,
+	M_X,
+	M_GUARD
 };
 
-/* Holding currents */
-#define MOTOR_CURRENT_HOLD      25
-#define MOTOR_CURRENT_STBY      0
 /* 31 is max current - heatsink could be useful */
-#define MOTOR_CURRENT_PROBE     9
-#define MOTOR_CURRENT_NORMAL    26
-/* When starting a move ignore this many ms */
-#define MOTOR_STALL_DELAY       80
+#define MOTOR_CURRENT_PROBE     2
+#define MOTOR_CURRENT_NORMAL    9
+
 
 void motorInit(void);
-void tmcSetCurrent(uint8_t mot, uint8_t run, uint8_t hold, uint8_t holdDly);
-void motorStartProbing(void);
-void motorClearProbing(void);
-bool motorCheckProbing(void);
+void amisSetCurrent(uint8_t amis, uint8_t current);
+void amisEnable(uint8_t amis);
+void amisDisable(uint8_t amis);
+
+extern bool usingAmis;

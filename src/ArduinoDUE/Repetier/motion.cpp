@@ -96,7 +96,7 @@ void encStartProbing(void)
     if (EEPROM::getAxisDrv() == 2) {
         for (uint8_t mot=0; mot<M_GUARD; mot++) {
             /* Drop currents */
-            tmcSetCurrent(mot, MOTOR_CURRENT_PROBE, MOTOR_CURRENT_HOLD, 2);
+            amisSetCurrent(mot, MOTOR_CURRENT_PROBE);
         }
     }
     probingTime = millis();
@@ -109,7 +109,7 @@ void encClearProbing(void)
     if (EEPROM::getAxisDrv() == 2) {
         for (uint8_t mot=0; mot<M_GUARD; mot++) {
             /* Restore currents */
-            tmcSetCurrent(mot, MOTOR_CURRENT_NORMAL, MOTOR_CURRENT_HOLD, 2);
+            amisSetCurrent(mot, MOTOR_CURRENT_NORMAL);
         }
     }
     probingTime = 0;

@@ -42,6 +42,8 @@ Level 5: Nonlinear motor step position, only for nonlinear drive systems
 #ifndef PRINTER_H_INCLUDED
 #define PRINTER_H_INCLUDED
 
+#include "motor.h"
+
 union floatLong
 {
     float f;
@@ -526,7 +528,11 @@ public:
     static INLINE void disableXStepper()
     {
 #if (X_ENABLE_PIN > -1)
-        WRITE(X_ENABLE_PIN, axisEnInverted);
+		if (usingAmis) {
+			amisDisable(M_X);
+		} else {
+			WRITE(X_ENABLE_PIN, axisEnInverted);
+		}
 #endif
 #if FEATURE_TWO_XSTEPPER && (X2_ENABLE_PIN > -1)
         WRITE(X2_ENABLE_PIN, axisEnInverted);
@@ -537,7 +543,11 @@ public:
     static INLINE void disableYStepper()
     {
 #if (Y_ENABLE_PIN > -1)
-        WRITE(Y_ENABLE_PIN, axisEnInverted);
+		if (usingAmis) {
+			amisDisable(M_Y);
+		} else {
+			WRITE(Y_ENABLE_PIN, axisEnInverted);
+		}
 #endif
 #if FEATURE_TWO_YSTEPPER && (Y2_ENABLE_PIN > -1)
         WRITE(Y2_ENABLE_PIN, axisEnInverted);
@@ -547,7 +557,11 @@ public:
     static INLINE void disableZStepper()
     {
 #if (Z_ENABLE_PIN > -1)
-        WRITE(Z_ENABLE_PIN, axisEnInverted);
+		if (usingAmis) {
+			amisDisable(M_Z);
+		} else {
+			WRITE(Z_ENABLE_PIN, axisEnInverted);
+		}
 #endif
 #if FEATURE_TWO_ZSTEPPER && (Z2_ENABLE_PIN > -1)
         WRITE(Z2_ENABLE_PIN, axisEnInverted);
@@ -561,7 +575,11 @@ public:
     static INLINE void  enableXStepper()
     {
 #if (X_ENABLE_PIN > -1)
-        WRITE(X_ENABLE_PIN, !axisEnInverted);
+		if (usingAmis) {
+			amisEnable(M_X);
+		} else {
+			WRITE(X_ENABLE_PIN, !axisEnInverted);
+		}
 #endif
 #if FEATURE_TWO_XSTEPPER && (X2_ENABLE_PIN > -1)
         WRITE(X2_ENABLE_PIN,!axisEnInverted);
@@ -572,7 +590,11 @@ public:
     static INLINE void  enableYStepper()
     {
 #if (Y_ENABLE_PIN > -1)
-        WRITE(Y_ENABLE_PIN, !axisEnInverted);
+		if (usingAmis) {
+			amisEnable(M_Y);
+		} else {
+			WRITE(Y_ENABLE_PIN, !axisEnInverted);
+		}
 #endif
 #if FEATURE_TWO_YSTEPPER && (Y2_ENABLE_PIN > -1)
         WRITE(Y2_ENABLE_PIN, !axisEnInverted);
@@ -582,7 +604,11 @@ public:
     static INLINE void  enableZStepper()
     {
 #if (Z_ENABLE_PIN > -1)
-        WRITE(Z_ENABLE_PIN, !axisEnInverted);
+		if (usingAmis) {
+			amisEnable(M_Z);
+		} else {
+			WRITE(Z_ENABLE_PIN, !axisEnInverted);
+		}
 #endif
 #if FEATURE_TWO_ZSTEPPER && (Z2_ENABLE_PIN > -1)
         WRITE(Z2_ENABLE_PIN, !axisEnInverted);

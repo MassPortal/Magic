@@ -239,7 +239,6 @@ void Endstops::update() {
 #if FEATURE_Z_PROBE
         if (Printer::probeType == 1 && !READ(Z_PROBE_PIN)) newRead |= ENDSTOP_Z_PROBE_ID;
         else if (Printer::probeType == 2 && READ(Z_PROBE_PIN)) newRead |= ENDSTOP_Z_PROBE_ID;
-        else if (Printer::probeType == 3 && motorCheckProbing()) newRead |= ENDSTOP_Z_PROBE_ID;
         else if (Printer::probeType == 4 && encCheckProbing()) newRead |= ENDSTOP_Z_PROBE_ID;
 #endif
     lastRead &= newRead;
@@ -1254,7 +1253,8 @@ if (EEPROM::getBedLED()>1)
 	Light.init();
 #endif
     Endstops::inverting = (EEPROM::getEstopVer() == 17231) ? false : true;
-    if (EEPROM::getAxisDrv() == 2) motorInit();
+	if (EEPROM::getAxisDrv() == 2) usingAmis = true;
+    if (usingAmis) motorInit();
 }
 
 void Printer::defaultLoopActions()
