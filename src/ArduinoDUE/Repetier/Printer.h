@@ -1149,7 +1149,7 @@ public:
 #if FEATURE_Z_PROBE
 	static void startProbing(bool runScript);
 	static void finishProbing();
-    static float runZProbe(bool first,bool last,uint8_t repeat = Z_PROBE_REPETITIONS,bool runStartScript = true, bool doNotLift = false);
+    static float runZProbe(bool first,bool last,uint8_t repeat = Z_PROBE_REPETITIONS,bool runStartScript = true, bool doNotLift = false, uint8_t current = MOTOR_CURRENT_PROBE);
     static void waitForZProbeStart();
     static float bendingCorrectionAt(float x,float y);
 #endif

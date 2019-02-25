@@ -91,12 +91,12 @@ static bool encCmpOk(void) // TODO add max delta argument
 
 static uint32_t probingTime;
 
-void encStartProbing(void)
+void encStartProbing(uint8_t current)
 {
     if (EEPROM::getAxisDrv() == 2) {
         for (uint8_t mot=0; mot<M_GUARD; mot++) {
             /* Drop currents */
-            amisSetCurrent(mot, MOTOR_CURRENT_PROBE);
+            amisSetCurrent(mot, current);
         }
     }
     probingTime = millis();

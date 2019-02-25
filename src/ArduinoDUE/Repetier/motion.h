@@ -711,6 +711,6 @@ void encZero(void);
 void encCompensate(void);
 bool encCheckProbing(void);
 void encClearProbing(void);
-void encStartProbing(void);
+void encStartProbing(uint8_t current);
 
 #endif // MOTION_H_INCLUDED
