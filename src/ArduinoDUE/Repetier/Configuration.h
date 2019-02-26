@@ -200,8 +200,8 @@ Overridden if EEPROM activated.*/
 // These commands get executed before we go to stored position.
 #define PAUSE_END_COMMANDS ""
 
-#define EXT0_SERVO_POS  550u
-#define EXT1_SERVO_POS  2500u
+#define EXT0_SERVO_POS  2500u
+#define EXT1_SERVO_POS  550u
 #define SERVO_TIME 800u // ms
 
 #define EXT0_X_OFFSET 0
@@ -235,14 +235,14 @@ Overridden if EEPROM activated.*/
 // 102 is MAX31855
 #define EXT0_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT0_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
+#define EXT0_TEMPSENSOR_PIN TEMP_0_PIN
 // Which pin enables the heater
-#define EXT0_HEATER_PIN HEATER_0_PIN
-#define EXT0_STEP_PIN E0_STEP_PIN
-#define EXT0_DIR_PIN E0_DIR_PIN
+#define EXT0_HEATER_PIN HEATER_2_PIN
+#define EXT0_STEP_PIN E1_STEP_PIN
+#define EXT0_DIR_PIN E1_DIR_PIN
 // set to false/true for normal / inverse direction
 #define EXT0_INVERSE true
-#define EXT0_ENABLE_PIN E0_ENABLE_PIN
+#define EXT0_ENABLE_PIN E1_ENABLE_PIN
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define EXT0_ENABLE_ON 1
 // The following speed settings are for skeinforge 40+ where e is the
@@ -363,19 +363,19 @@ The codes are only executed for multiple extruder when changing the extruder. */
 #define EXT1_TEMPSENSOR_TYPE 100
 #define EXT2_TEMPSENSOR_TYPE 100
 // Analog input pin for reading temperatures or pin enabling SS for MAX6675
-#define EXT1_TEMPSENSOR_PIN TEMP_0_PIN
+#define EXT1_TEMPSENSOR_PIN THERMOCOUPLE_0_PIN
 #define EXT2_TEMPSENSOR_PIN -1
 // Which pin enables the heater
-#define EXT1_HEATER_PIN HEATER_2_PIN
+#define EXT1_HEATER_PIN HEATER_0_PIN
 #define EXT2_HEATER_PIN -1
-#define EXT1_STEP_PIN E1_STEP_PIN
+#define EXT1_STEP_PIN E0_STEP_PIN
 #define EXT2_STEP_PIN E2_STEP_PIN
-#define EXT1_DIR_PIN E1_DIR_PIN
+#define EXT1_DIR_PIN E0_DIR_PIN
 #define EXT2_DIR_PIN E2_DIR_PIN
 // set to 0/1 for normal / inverse direction
 #define EXT1_INVERSE true
 #define EXT2_INVERSE true
-#define EXT1_ENABLE_PIN E1_ENABLE_PIN
+#define EXT1_ENABLE_PIN E0_ENABLE_PIN
 #define EXT2_ENABLE_PIN E2_ENABLE_PIN
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define EXT1_ENABLE_ON 1
