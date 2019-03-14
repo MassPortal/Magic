@@ -272,26 +272,18 @@ void Commands::setFanSpeed(int speed, bool immediately)
 #if FAN_PIN>-1 && FEATURE_FAN_CONTROL
     int report = speed;
     speed = constrain(speed,0,255);
-    /* Zero is still just zero */
-    if (speed) {
-        /* Max variation = 51 */
-        speed /= 5;
-        /* Offset */
-        speed += 0xff - 51;
-    }
-    if(Printer::fanSpeed == speed)
-        return;
+    /* Zero is still just zero, anything else if just on */
+	if (speed) speed = 0xff;
     Printer::setMenuMode(MENU_MODE_FAN_RUNNING,speed != 0);
     Printer::fanSpeed = speed;
     if(PrintLine::linesCount == 0 || immediately) {
-        if(Printer::mode == PRINTER_MODE_FFF)
-    {
+        if(Printer::mode == PRINTER_MODE_FFF) {
 	        for(fast8_t i = 0; i < PRINTLINE_CACHE_SIZE; i++)
 			    PrintLine::lines[i].secondSpeed = speed;         // fill all printline buffers with new fan speed value
         }
         Printer::setFanSpeedDirectly(speed);
 	}
-        Com::printFLN(Com::tFanspeed,report); // send only new values to break update loops!
+    Com::printFLN(Com::tFanspeed,report); // send only new values to break update loops!
 #endif
 }
 #if BED_LEDS
